@@ -1,4 +1,4 @@
-update=Thu 03 Jan 2013 17:25:19 GMT
+update=Wed 09 Jan 2013 20:15:53 GMT
 version=1
 last_client=eeschema
 [cvpcb]
@@ -141,8 +141,10 @@ LibName23=philips
 LibName24=display
 LibName25=cypress
 LibName26=siliconi
-LibName27=opto
-LibName28=atmel
-LibName29=contrib
-LibName30=valves
-LibName31=stm32
+LibName27=atmel
+LibName28=contrib
+LibName29=valves
+LibName30=stm32
+LibName31=/root/xxxxx_2/xxxxx/trunk/scrying_hardware/lib/SparkFunEagle-6-6-07
+LibName32=/root/collect2012/dark-interpreter/hardware/library/codecshield_-cache
+LibName33=/root/kicad_libs/converted/maxim-filter

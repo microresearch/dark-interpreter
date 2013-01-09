@@ -128,19 +128,25 @@ uint16_t EVAL_AUDIO_GetSampleCallBack(void)
   return 0;
 }
 
+#define HTONS(A)  ((((u16)(A) & 0xff00) >> 8) | \
+                   (((u16)(A) & 0x00ff) << 8))
+
+
 void randfill(uint16_t offset, uint16_t len){
 
   uint16_t  *outp;
-  float  a, p, t, w, dw, z, y, dy, freq;
   uint16_t value;
 
   outp    = audiobuff + offset;
 
   do {
-    y=randomNum();
-    value = (uint16_t)((int16_t)((32767.0f) * y ));
+    //    value=randomNum();
+    //    value = (uint16_t)((int16_t)((32767.0f) * y ));
+
+    //    value = (uint16_t)((int16_t)((ADC3ConvertedValue<<4)-32768));
+    value = ADC3ConvertedValue<<4;
     *outp++ = value; // left channel sample
-    *outp++ = value; // right channel sample
+    *outp++ = 0; // right channel sample
     len-=2;
   }
     while (len);
@@ -151,14 +157,16 @@ void randfill(uint16_t offset, uint16_t len){
 /**************
 * returns a random float between 0 and 1
 *****************/
-float randomNum(void)
+uint16_t randomNum(void)
   {
     //    static float x;
     //    x+=0.001f;
         float random = 1.0f;
     if (RNG_GetFlagStatus(RNG_FLAG_DRDY) == SET)
     {
-      random = (float)(RNG_GetRandomNumber()/4294967294.0f)-1.0f;
+      //      random = (float)(RNG_GetRandomNumber()/4294967294.0f)-1.0f;
+
+      random = RNG_GetRandomNumber()/131072;
     }
     return random;
     //    if (x>1) x=-1.0f;
@@ -192,7 +200,7 @@ void ADC3_CH12_DMA_Config(void)
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
   DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
   DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
   DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
   DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
   DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
@@ -208,13 +216,13 @@ void ADC3_CH12_DMA_Config(void)
 
   /* ADC Common Init **********************************************************/
   ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
+  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div8;
   ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
   ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
   ADC_CommonInit(&ADC_CommonInitStructure);
 
   /* ADC3 Init ****************************************************************/
-  ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
   ADC_InitStructure.ADC_ScanConvMode = DISABLE;
   ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
   ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
@@ -223,7 +231,7 @@ void ADC3_CH12_DMA_Config(void)
   ADC_Init(ADC3, &ADC_InitStructure);
 
   /* ADC3 regular channel12 configuration *************************************/
-  ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_3Cycles);
+  ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_480Cycles);
 
  /* Enable DMA request after last transfer (Single-ADC mode) */
   ADC_DMARequestAfterLastTransferCmd(ADC3, ENABLE);
