@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu 17 Jan 2013 13:15:40 GMT
+EESchema Schematic File Version 2  date Thu 17 Jan 2013 17:37:37 GMT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -47,6 +47,14 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 9750 4500 0    60   ~ 0
+AVDD
+Text Label 9300 4500 0    60   ~ 0
+AVDD
+Text Label 8850 4500 0    60   ~ 0
+AVDD
+Text Label 8400 4500 0    60   ~ 0
+AVDD
 Text Label 1900 2400 0    60   ~ 0
 NRST
 Connection ~ 2000 2800
@@ -490,15 +498,6 @@ $EndComp
 Text Label 8050 2400 0    60   ~ 0
 AVDD
 $Comp
-L +3.3V #PWR01
-U 1 1 50F59F6F
-P 9300 4500
-F 0 "#PWR01" H 9300 4460 30  0001 C CNN
-F 1 "+3.3V" H 9300 4610 30  0000 C CNN
-	1    9300 4500
-	1    0    0    -1  
-$EndComp
-$Comp
 L CONN_1 P5
 U 1 1 50F59F6E
 P 9300 4700
@@ -575,24 +574,6 @@ F 1 "CONN_1" H 9750 4755 30  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L +3.3V #PWR04
-U 1 1 50F59F66
-P 9750 4500
-F 0 "#PWR04" H 9750 4460 30  0001 C CNN
-F 1 "+3.3V" H 9750 4610 30  0000 C CNN
-	1    9750 4500
-	1    0    0    -1  
-$EndComp
-$Comp
-L +3.3V #PWR05
-U 1 1 50F59F63
-P 8850 4500
-F 0 "#PWR05" H 8850 4460 30  0001 C CNN
-F 1 "+3.3V" H 8850 4610 30  0000 C CNN
-	1    8850 4500
-	1    0    0    -1  
-$EndComp
-$Comp
 L CONN_1 P3
 U 1 1 50F59F62
 P 8850 4700
@@ -667,15 +648,6 @@ F 0 "P1" H 8480 4700 40  0000 L CNN
 F 1 "CONN_1" H 8400 4755 30  0001 C CNN
 	1    8400 4700
 	0    1    1    0   
-$EndComp
-$Comp
-L +3.3V #PWR08
-U 1 1 50F59ECD
-P 8400 4500
-F 0 "#PWR08" H 8400 4460 30  0001 C CNN
-F 1 "+3.3V" H 8400 4610 30  0000 C CNN
-	1    8400 4500
-	1    0    0    -1  
 $EndComp
 Text Label 6800 3100 0    60   ~ 0
 ADC7
