@@ -1,4 +1,4 @@
-# EESchema Netlist Version 1.1 created  Thu 17 Jan 2013 15:39:11 GMT
+# EESchema Netlist Version 1.1 created  Thu 17 Jan 2013 15:55:53 GMT
 (
  ( /50EDCD45 SSOP28 audioint1 AUDIOINT_WM8731
   ( 1 +3.3V )
@@ -239,7 +239,7 @@
   ( VI N-000066 )
   ( VO +3.3V )
  )
- ( /50E5C33D LQFP64 U2 STM32F405RGT6
+ ( /50E5C33D U1 U2 STM32F405RGT6
   ( 1 +3.3V )
   ( 2 ? )
   ( 3 ? )
