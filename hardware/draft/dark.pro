@@ -1,6 +1,6 @@
-update=Thu 17 Jan 2013 17:08:19 GMT
+update=Thu 24 Jan 2013 11:01:47 GMT
 version=1
-last_client=pcbnew
+last_client=cvpcb
 [general]
 version=1
 [eeschema]
@@ -73,11 +73,6 @@ LibName31=/root/xxxxx_2/xxxxx/trunk/scrying_hardware/lib/SparkFunEagle-6-6-07
 LibName32=/root/kicad_libs/converted/maxim-filter
 LibName33=/root/kicad_libs/converted/ad620
 LibName34=/root/collect2012-3/dark-interpreter/hardware/library/codecshield_-cache
-[cvpcb]
-version=1
-NetIExt=net
-[cvpcb/libraries]
-EquName1=devcms
 [pcbnew]
 version=1
 PadDrlX=0
@@ -101,7 +96,6 @@ TxtLar=120
 MSegLar=150
 WpenSer=10
 [pcbnew/libraries]
-LibDir=
 LibName1=sockets
 LibName2=connect
 LibName3=discret
@@ -117,3 +111,11 @@ LibName12=alps
 LibName13=/root/newbuff/sparkfun-SparkFun-Eagle-Library-158ce6f/SparkFun
 LibName14=lqfp64
 LibName15=pad
+LibName16=/root/xxxxx_svn/scrying_hardware/lib/SparkFunEagle-6-6-07
+LibName17=/root/collect2012-3/dark-interpreter/hardware/iheart-kicad-lib/IHE
+LibDir=
+[cvpcb]
+version=1
+NetIExt=net
+[cvpcb/libraries]
+EquName1=devcms
