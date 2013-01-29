@@ -1,6 +1,6 @@
 /*
 
-- collection of threads. do they share memory space/overlap?
+- collection of threads. do they share memory space/overlap? all in same space
 
 - each has IP, start and end memory address, stack allowance, stack pointer
 - stack which can leak
@@ -18,8 +18,8 @@
 #include <sys/time.h>
 
 #define STACK_SIZE 20
-#define BLOCK_SIZE 16384 // 128*128
-#define MAX_THREADS 24
+#define BLOCK_SIZE 16384 // was 16384 // 128*128
+#define MAX_THREADS 20
 
 typedef struct {
   int IP;
@@ -54,6 +54,9 @@ void thread_create(thread *this, int nextone) {
       }
 }
 
+unsigned char tnop(thread* this, machine *m){
+}
+
 unsigned char tout(thread* this, machine *m){
   unsigned char c=machine_peek(m,this->IP);
     printf("%c",c);
@@ -80,41 +83,83 @@ unsigned char tin(thread* this, machine *m){
   machine_poke(m,this->IP,c);
 }
 
-// additionals->plus,minuc,bitshift,branch?,infect,store,skip,die
+// additionals->plus,minus,shiftl,shiftr,branch,infect,store,die
+
+unsigned char tplus(thread* this, machine *m){
+  unsigned int x=(this->IP+1)%BLOCK_SIZE;
+  unsigned int c=(this->IP+2)%BLOCK_SIZE;
+  machine_poke(m,this->IP,x+c);
+}
+
+unsigned char tminus(thread* this, machine *m){
+  unsigned int x=(this->IP+1)%BLOCK_SIZE;
+  unsigned int c=(this->IP+2)%BLOCK_SIZE;
+  machine_poke(m,this->IP,x-c);
+}
+
+unsigned char tshiftr(thread* this, machine *m){
+  unsigned int c=(this->IP+1)%BLOCK_SIZE;
+  machine_poke(m,this->IP,c>>1);
+}
+
+unsigned char tshiftl(thread* this, machine *m){
+  unsigned int c=(this->IP+1)%BLOCK_SIZE;
+  machine_poke(m,this->IP,c<<1);
+}
+
+unsigned char tbranch(thread* this, machine *m){
+  unsigned int x=(this->IP+1)%BLOCK_SIZE;
+  unsigned int c=(this->IP+2)%BLOCK_SIZE;
+  if (c==0) this->IP+=c;
+}
+
+unsigned char tinfect(thread* this, machine *m){
+  unsigned char c=machine_peek(m,this->IP);
+  machine_poke(m,(this->IP+1)%BLOCK_SIZE,c);
+  machine_poke(m,(this->IP-1)%BLOCK_SIZE,c);
+}
 
 void thread_run(thread* this, machine *m) {
   static int x=0;
-  unsigned char (*instructionsettry[])(thread * this, machine *m) = {tout, tinc, tdec, tjump, tin};
+
+// additionals->plus,minus,shiftl,shiftr,branch,infect,store,die
+
+  unsigned char (*instructionsettry[])(thread * this, machine *m) = {tnop, tout, tinc, tdec, tjump, tin, tplus,tminus,tshiftl,tshiftr, tbranch}; // 10  
   //    unsigned char c;
   // read stdin for direction
     unsigned char c=getchar();
 
+    if (c>196) this->dir=1;
+    else if (c>128) this->dir=-1;
+    else if (c>64) this->dir=128;
+    else this->dir=-128;
+
     //if (x==1024){
-  switch(c%4){
-  case 0:
-    this->dir=1;
-    break;
-  case 1:
-    this->dir=-1;
-    break;
-  case 2:
-    this->dir=128;
-    break;
-  case 3:
-    this->dir=-128;
-    //  }
-    //  x=0;
-      }
+    /*     switch(c%4){ // do more on larger changes in c */
+  /* case 0: */
+  /*   this->dir=1; */
+  /*   break; */
+  /* case 1: */
+  /*   this->dir=-1; */
+  /*   break; */
+  /* case 2: */
+  /*   this->dir=128; */
+  /*   break; */
+  /* case 3: */
+  /*   this->dir=-128; */
+  /*   //  } */
+  /*   //  x=0; */
+  /*     } */
     //  x++;
   this->IP+=this->dir;
   if (this->IP<0) this->IP=BLOCK_SIZE-this->IP;
   this->IP%=BLOCK_SIZE;
   unsigned char instr=machine_peek(m,this->IP);
-  //  printf("%c",instr);
+  printf("%c",instr);
 
   // process instructions according to instruction set
 
-  (*instructionsettry[instr%5]) (this, m); 
+  (*instructionsettry[instr%10]) (this, m); 
 
 }
 
@@ -194,7 +239,6 @@ void write_mem(machine *m, int *a, unsigned int len) {
 int main(void)
 {
   int x;
-  int program[BLOCK_SIZE];
 
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m);
@@ -206,8 +250,8 @@ int main(void)
   x=0;
   while(1) { 
     machine_run(m);
-    x++;
+    //    x++;
     //    printf("%c",machine_peek(m,x));
-    if (x>BLOCK_SIZE) x=0;
+    //    if (x>BLOCK_SIZE) x=0;
  }
 }
