@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu 07 Feb 2013 17:54:54 GMT
+EESchema Schematic File Version 2  date Fri 08 Feb 2013 18:54:33 GMT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -39,7 +39,7 @@ EELAYER END
 $Descr A4 11700 8267
 Sheet 2 2
 Title ""
-Date "7 feb 2013"
+Date "8 feb 2013"
 Rev ""
 Comp ""
 Comment1 ""
@@ -47,136 +47,1103 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-$Comp
-L LM358 U?
-U 1 1 5113EA67
-P 1700 5500
-F 0 "U?" H 1650 5700 60  0000 L CNN
-F 1 "LM358" H 1650 5250 60  0000 L CNN
-	1    1700 5500
-	1    0    0    -1  
-$EndComp
-Text Notes 9000 5600 0    118  ~ 0
-pads: \n\n- ad620 3x\n- signal in/out\n- amp pads\n- clock pad\n- 40106 pads\n- pwm out pad\n- 40106 distort pads\n
-Text Notes 700  6750 0    118  ~ 0
-- headphone or line out from codec\n- multiple 40106 configs\n- test filter/mixer\n- switchable amps on input\n- switch on/off clock for maxim
-$Comp
-L MAX7409CPA U?
-U 1 1 5113E94F
-P 2100 1650
-F 0 "U?" H 1700 2300 50  0000 L BNN
-F 1 "MAX7400" H 1700 950 50  0000 L BNN
-F 2 "maxim-filter-DIL08" H 2100 1800 50  0001 C CNN
-	1    2100 1650
-	1    0    0    -1  
-$EndComp
+Text Label 6250 6200 0    60   ~ 0
+swfinal1
+Wire Wire Line
+	6450 6200 6250 6200
+Wire Wire Line
+	7750 4800 7500 4800
+Wire Wire Line
+	7750 3550 7550 3550
+Wire Wire Line
+	7750 2350 7550 2350
+Wire Wire Line
+	5150 1300 5150 1150
+Connection ~ 3400 6700
+Wire Wire Line
+	3600 6700 3400 6700
+Wire Wire Line
+	3400 6600 3400 6850
+Wire Wire Line
+	7050 5350 7250 5350
+Wire Wire Line
+	6250 5300 6250 5350
+Wire Wire Line
+	6250 5350 6450 5350
+Connection ~ 9600 3650
+Wire Wire Line
+	9900 4000 9600 4000
+Wire Wire Line
+	9600 4000 9600 3650
+Connection ~ 9500 3650
+Wire Wire Line
+	9500 3650 9500 3800
+Wire Wire Line
+	9700 3650 9300 3650
+Wire Wire Line
+	3250 5750 3250 5950
+Wire Wire Line
+	3250 5550 3250 5500
+Wire Wire Line
+	3250 5500 3450 5500
+Wire Wire Line
+	7750 2800 7500 2800
+Wire Wire Line
+	8350 2800 8650 2800
+Wire Wire Line
+	8350 2200 8650 2200
+Wire Wire Line
+	7750 2200 7500 2200
+Wire Wire Line
+	7750 3400 7500 3400
+Wire Wire Line
+	8350 3400 8650 3400
+Wire Wire Line
+	8350 4000 8650 4000
+Connection ~ 9050 950 
+Wire Wire Line
+	9050 950  9050 1050
+Connection ~ 9250 1400
+Wire Wire Line
+	9250 950  9250 1550
+Wire Wire Line
+	9250 950  8950 950 
+Wire Wire Line
+	9250 1550 9600 1550
+Connection ~ 10400 1400
+Wire Wire Line
+	10400 1400 10400 1500
+Wire Wire Line
+	10550 1400 10550 2300
+Wire Wire Line
+	10550 1400 10200 1400
+Wire Wire Line
+	9600 1400 9450 1400
+Wire Wire Line
+	7550 6950 7550 6800
+Wire Wire Line
+	7550 6800 7800 6800
+Wire Wire Line
+	7800 6650 7650 6650
+Wire Wire Line
+	4850 4300 4700 4300
+Connection ~ 9050 6300
+Wire Wire Line
+	9050 6300 9050 6400
+Connection ~ 5500 4150
+Wire Wire Line
+	5500 4150 5500 4250
+Wire Wire Line
+	5600 4850 5450 4850
+Wire Wire Line
+	5600 4150 5450 4150
+Wire Wire Line
+	4850 3100 4700 3100
+Wire Wire Line
+	4850 1700 4750 1700
+Wire Wire Line
+	5450 1550 5650 1550
+Wire Wire Line
+	1750 5450 1950 5450
+Wire Wire Line
+	1750 5200 1950 5200
+Wire Wire Line
+	1950 5200 1950 5250
+Connection ~ 2450 3650
+Wire Wire Line
+	2450 3650 2450 4450
+Wire Wire Line
+	2450 4450 2100 4450
+Wire Wire Line
+	600  3550 600  3800
+Wire Wire Line
+	1100 3550 1400 3550
+Wire Wire Line
+	2900 3650 3250 3650
+Wire Wire Line
+	3000 2250 3300 2250
+Wire Wire Line
+	1800 4050 1800 4250
+Wire Wire Line
+	1100 2350 950  2350
+Wire Wire Line
+	1600 1650 1600 1100
+Wire Wire Line
+	1600 1100 1800 1100
+Wire Wire Line
+	1800 1600 1800 1650
+Wire Wire Line
+	2200 1500 2200 1600
+Wire Wire Line
+	2000 1650 2000 1500
+Wire Wire Line
+	9250 6300 8900 6300
+Connection ~ 9850 5050
+Wire Wire Line
+	9250 5050 9850 5050
+Wire Wire Line
+	10450 5200 9850 5200
+Wire Wire Line
+	10450 5200 10450 5600
+Wire Wire Line
+	9850 6900 10450 6900
+Wire Wire Line
+	9850 6900 9850 6800
+Connection ~ 10450 6400
+Wire Wire Line
+	10450 6200 10450 6500
+Wire Wire Line
+	10450 6900 10450 6950
+Wire Wire Line
+	10450 5800 11050 5800
+Wire Wire Line
+	9850 5200 9850 4950
+Wire Wire Line
+	9250 5450 9250 5550
+Wire Wire Line
+	8750 5700 9250 5700
+Wire Wire Line
+	2500 1350 2500 1500
+Wire Wire Line
+	2500 1500 2000 1500
+Connection ~ 2200 1500
+Wire Wire Line
+	1800 1650 1950 1650
+Wire Wire Line
+	1950 1650 1950 1350
+Wire Wire Line
+	1950 1350 2000 1350
+Wire Wire Line
+	950  2150 1100 2150
+Wire Wire Line
+	2000 1350 2000 800 
+Wire Wire Line
+	2000 800  1900 800 
+Wire Wire Line
+	2500 2250 2600 2250
+Wire Wire Line
+	2500 3650 2400 3650
+Wire Wire Line
+	1400 3750 1150 3750
+Wire Wire Line
+	1250 3050 1800 3050
+Wire Wire Line
+	1800 3050 1800 3250
+Wire Wire Line
+	1250 3750 1250 4450
+Wire Wire Line
+	1250 4450 1600 4450
+Connection ~ 1250 3750
+Wire Wire Line
+	1950 5450 1950 5650
+Wire Wire Line
+	4850 1550 4600 1550
+Wire Wire Line
+	4850 2250 4600 2250
+Wire Wire Line
+	5450 2250 5650 2250
+Wire Wire Line
+	5450 2950 5650 2950
+Wire Wire Line
+	4850 2950 4600 2950
+Wire Wire Line
+	4850 2400 4700 2400
+Wire Wire Line
+	4850 4150 4500 4150
+Wire Wire Line
+	4550 4250 4550 4150
+Connection ~ 4550 4150
+Wire Wire Line
+	4850 4850 4550 4850
+Wire Wire Line
+	5500 4950 5500 4850
+Connection ~ 5500 4850
+Wire Wire Line
+	9050 6950 9050 7100
+Wire Wire Line
+	4850 5000 4700 5000
+Wire Wire Line
+	8400 6650 8900 6650
+Wire Wire Line
+	8900 6650 8900 6300
+Wire Wire Line
+	8250 1400 7900 1400
+Wire Wire Line
+	9450 1400 9450 2300
+Wire Wire Line
+	9450 2300 9550 2300
+Wire Wire Line
+	10550 2300 10850 2300
+Wire Wire Line
+	9300 1750 9450 1750
+Connection ~ 9450 1750
+Connection ~ 8050 1400
+Wire Wire Line
+	8450 950  8050 950 
+Wire Wire Line
+	8050 950  8050 1450
+Wire Wire Line
+	7750 4000 7500 4000
+Wire Wire Line
+	2700 5750 3450 5750
+Connection ~ 3250 5750
+Wire Wire Line
+	7750 4650 7500 4650
+Wire Wire Line
+	8350 4650 8650 4650
+Wire Wire Line
+	10700 3650 11000 3650
+Connection ~ 10850 3650
+Wire Wire Line
+	10850 3800 10850 3650
+Wire Wire Line
+	10800 3650 10800 4000
+Wire Wire Line
+	10800 4000 10400 4000
+Connection ~ 10800 3650
+Wire Wire Line
+	6450 6050 6250 6050
+Wire Wire Line
+	7050 6050 7250 6050
+Connection ~ 1200 6600
+Wire Wire Line
+	1500 6950 1200 6950
+Wire Wire Line
+	1200 6950 1200 6600
+Connection ~ 1100 6600
+Wire Wire Line
+	1100 6600 1100 6750
+Wire Wire Line
+	1300 6600 900  6600
+Wire Wire Line
+	2300 6600 2600 6600
+Connection ~ 2450 6600
+Wire Wire Line
+	2450 6750 2450 6600
+Wire Wire Line
+	2400 6600 2400 6950
+Wire Wire Line
+	2400 6950 2000 6950
+Connection ~ 2400 6600
+Wire Wire Line
+	3400 7250 3400 7550
+Wire Wire Line
+	4400 6750 4400 6600
+Wire Wire Line
+	5600 6750 5600 6600
+Wire Wire Line
+	4600 7250 4600 7550
+Wire Wire Line
+	4600 6600 4600 6850
+Wire Wire Line
+	4800 6700 4600 6700
+Connection ~ 4600 6700
+Wire Wire Line
+	5150 1800 5150 1850
+Wire Wire Line
+	7750 2950 7550 2950
+Wire Wire Line
+	7750 4150 7500 4150
+Wire Wire Line
+	6450 5500 6250 5500
+Text Label 6250 5500 0    60   ~ 0
+swfinal0
+Text Label 7500 4800 0    60   ~ 0
+swsub4
+Text Label 7500 4150 0    60   ~ 0
+swsub3
+Text Label 7550 3550 0    60   ~ 0
+swsub2
+Text Label 7550 2950 0    60   ~ 0
+swsub1
+Text Label 7550 2350 0    60   ~ 0
+swsub0
+Text Notes 5150 1100 0    60   ~ 0
+digital vdd?
 $Comp
 L GND #PWR?
-U 1 1 5113E94E
-P 2700 2600
-F 0 "#PWR?" H 2700 2600 30  0001 C CNN
-F 1 "GND" H 2700 2530 30  0001 C CNN
-	1    2700 2600
+U 1 1 51154916
+P 5150 1850
+F 0 "#PWR?" H 5150 1850 30  0001 C CNN
+F 1 "GND" H 5150 1780 30  0001 C CNN
+	1    5150 1850
+	1    0    0    -1  
+$EndComp
+Text Notes 550  7750 0    157  ~ 0
+no globals - just header and treat as extension brd
+$Comp
+L 40106 U3
+U 6 1 51154807
+P 5100 6600
+F 0 "U3" H 5200 6750 50  0000 L CNN
+F 1 "40106" H 5150 6450 50  0000 L CNN
+	6    5100 6600
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C?
-U 1 1 5113E94D
-P 2700 2350
-F 0 "C?" H 2750 2450 50  0000 L CNN
-F 1 "100N" H 2750 2250 50  0000 L CNN
-	1    2700 2350
+L C C24
+U 1 1 51154806
+P 4600 7050
+F 0 "C24" H 4650 7150 50  0000 L CNN
+F 1 "1uF" H 4650 6950 50  0000 L CNN
+	1    4600 7050
 	1    0    0    -1  
 $EndComp
-Text Label 1150 1950 0    60   ~ 0
-CLOCK
-Text Label 1000 1350 0    60   ~ 0
+$Comp
+L GND #PWR033
+U 1 1 51154805
+P 4600 7550
+F 0 "#PWR033" H 4600 7550 30  0001 C CNN
+F 1 "GND" H 4600 7480 30  0001 C CNN
+	1    4600 7550
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_1 P36
+U 1 1 51154804
+P 4800 6850
+F 0 "P36" H 4880 6850 40  0000 L CNN
+F 1 "CONN_1" H 4800 6905 30  0001 C CNN
+	1    4800 6850
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P37
+U 1 1 51154803
+P 5600 6900
+F 0 "P37" H 5680 6900 40  0000 L CNN
+F 1 "CONN_1" H 5600 6955 30  0001 C CNN
+	1    5600 6900
+	0    1    1    0   
+$EndComp
+Text Notes 4950 7150 0    63   ~ 0
+parallel resistance?
+Text Notes 950  5750 0    63   ~ 0
+filter/snub here?
+Text Notes 3750 7150 0    63   ~ 0
+parallel resistance?
+$Comp
+L CONN_1 P35
+U 1 1 5115477A
+P 4400 6900
+F 0 "P35" H 4480 6900 40  0000 L CNN
+F 1 "CONN_1" H 4400 6955 30  0001 C CNN
+	1    4400 6900
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P34
+U 1 1 51154775
+P 3600 6850
+F 0 "P34" H 3680 6850 40  0000 L CNN
+F 1 "CONN_1" H 3600 6905 30  0001 C CNN
+	1    3600 6850
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR034
+U 1 1 5115476B
+P 3400 7550
+F 0 "#PWR034" H 3400 7550 30  0001 C CNN
+F 1 "GND" H 3400 7480 30  0001 C CNN
+	1    3400 7550
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C23
+U 1 1 5115475D
+P 3400 7050
+F 0 "C23" H 3450 7150 50  0000 L CNN
+F 1 "100N" H 3450 6950 50  0000 L CNN
+	1    3400 7050
+	1    0    0    -1  
+$EndComp
+$Comp
+L 40106 U3
+U 5 1 51154751
+P 3900 6600
+F 0 "U3" H 4000 6750 50  0000 L CNN
+F 1 "40106" H 3950 6450 50  0000 L CNN
+	5    3900 6600
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R17
+U 1 1 51154741
+P 1750 6950
+F 0 "R17" V 1830 6950 50  0000 C CNN
+F 1 "20K" V 1750 6950 50  0000 C CNN
+	1    1750 6950
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P33
+U 1 1 51154740
+P 2450 6900
+F 0 "P33" H 2530 6900 40  0000 L CNN
+F 1 "CONN_1" H 2450 6955 30  0001 C CNN
+	1    2450 6900
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P32
+U 1 1 5115473F
+P 1100 6900
+F 0 "P32" H 1180 6900 40  0000 L CNN
+F 1 "CONN_1" H 1100 6955 30  0001 C CNN
+	1    1100 6900
+	0    1    1    0   
+$EndComp
+$Comp
+L 40106 U3
+U 4 1 5115473E
+P 1800 6600
+F 0 "U3" H 1900 6750 50  0000 L CNN
+F 1 "40106" H 1850 6450 50  0000 L CNN
+	4    1800 6600
+	1    0    0    -1  
+$EndComp
+Text Label 6250 6050 0    63   ~ 0
+submain
+Text Label 7250 6050 0    63   ~ 0
+endjack
+Text Label 7250 5350 0    63   ~ 0
+endjack
+Text Label 6250 5300 0    63   ~ 0
+SUBOUT
+$Comp
+L 4066 U7
+U 3 1 511546A1
+P 6750 6050
+F 0 "U7" H 6950 5901 40  0000 C CNN
+F 1 "4066" H 6950 6200 40  0000 C CNN
+	3    6750 6050
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4066 U7
+U 2 1 5115469D
+P 6750 5350
+F 0 "U7" H 6950 5201 40  0000 C CNN
+F 1 "4066" H 6950 5500 40  0000 C CNN
+	2    6750 5350
+	1    0    0    -1  
+$EndComp
+Text Notes 3550 6050 0    63   ~ 0
+filter/snub here?
+Text Label 11000 3650 0    63   ~ 0
+submain
+$Comp
+L R R16
+U 1 1 5115463E
+P 10150 4000
+F 0 "R16" V 10230 4000 50  0000 C CNN
+F 1 "20K" V 10150 4000 50  0000 C CNN
+	1    10150 4000
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P31
+U 1 1 5115461C
+P 10850 3950
+F 0 "P31" H 10930 3950 40  0000 L CNN
+F 1 "CONN_1" H 10850 4005 30  0001 C CNN
+	1    10850 3950
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P29
+U 1 1 51154619
+P 9500 3950
+F 0 "P29" H 9580 3950 40  0000 L CNN
+F 1 "CONN_1" H 9500 4005 30  0001 C CNN
+	1    9500 3950
+	0    1    1    0   
+$EndComp
+Text Label 9300 3650 0    63   ~ 0
+SUBOUT
+$Comp
+L 40106 U3
+U 3 1 511545FC
+P 10200 3650
+F 0 "U3" H 10300 3800 50  0000 L CNN
+F 1 "40106" H 10250 3500 50  0000 L CNN
+	3    10200 3650
+	1    0    0    -1  
+$EndComp
+Text Notes 9100 3100 0    63   ~ 0
+mixer for subout?
+Text GLabel 7500 4650 0    63   Input ~ 0
+LINEOUT
+$Comp
+L 4066 U8
+U 4 1 511545AE
+P 8050 4650
+F 0 "U8" H 8250 4501 40  0000 C CNN
+F 1 "4066" H 8250 4800 40  0000 C CNN
+	4    8050 4650
+	1    0    0    -1  
+$EndComp
+Text Label 8650 4650 0    63   ~ 0
+SUBOUT
+Text Label 2710 5750 0    118  ~ 0
+endjack
+$Comp
+L GND #PWR035
+U 1 1 51154552
+P 3250 5550
+F 0 "#PWR035" H 3250 5550 30  0001 C CNN
+F 1 "GND" H 3250 5480 30  0001 C CNN
+	1    3250 5550
+	-1   0    0    -1  
+$EndComp
+$Comp
+L JACK_2P J2
+U 1 1 51154551
+P 3900 5650
+F 0 "J2" H 3550 5450 60  0000 C CNN
+F 1 "JACK_2P" H 3750 5900 60  0000 C CNN
+	1    3900 5650
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CONN_1 P20
+U 1 1 51154550
+P 3250 6100
+F 0 "P20" H 3330 6100 40  0000 L CNN
+F 1 "CONN_1" H 3250 6155 30  0001 C CNN
+	1    3250 6100
+	0    -1   1    0   
+$EndComp
+$Comp
+L 4066 U8
+U 1 1 511544FC
+P 8050 2800
+F 0 "U8" H 8250 2651 40  0000 C CNN
+F 1 "4066" H 8250 2950 40  0000 C CNN
+	1    8050 2800
+	1    0    0    -1  
+$EndComp
+Text Label 7500 2800 0    63   ~ 0
+40106_1OUT
+Text Label 8650 2800 0    63   ~ 0
+SUBOUT
+Text Label 8650 2200 0    63   ~ 0
+SUBOUT
+Text Label 7500 2200 0    63   ~ 0
+FILTEROUT
+$Comp
+L 4066 U7
+U 4 1 511544FB
+P 8050 2200
+F 0 "U7" H 8250 2051 40  0000 C CNN
+F 1 "4066" H 8250 2350 40  0000 C CNN
+	4    8050 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4066 U8
+U 2 1 5115449E
+P 8050 3400
+F 0 "U8" H 8250 3251 40  0000 C CNN
+F 1 "4066" H 8250 3550 40  0000 C CNN
+	2    8050 3400
+	1    0    0    -1  
+$EndComp
+Text Label 7500 3400 0    63   ~ 0
+40106_1OUT
+Text Label 8650 3400 0    63   ~ 0
 FILTERIN
-Text Label 3050 1450 0    60   ~ 0
-OUT
+Text Label 8650 4000 0    63   ~ 0
+40106_1IN
+Text Label 7500 4000 0    63   ~ 0
+FILTEROUT
 $Comp
-L +5V #PWR?
-U 1 1 5113E94C
-P 2100 600
-F 0 "#PWR?" H 2100 690 20  0001 C CNN
-F 1 "+5V" H 2100 690 30  0000 C CNN
-	1    2100 600 
+L 4066 U8
+U 3 1 51154449
+P 8050 4000
+F 0 "U8" H 8250 3851 40  0000 C CNN
+F 1 "4066" H 8250 4150 40  0000 C CNN
+	3    8050 4000
+	1    0    0    -1  
+$EndComp
+Text Notes 7500 1850 0    63   ~ 0
+or also have switched clock in
+$Comp
+L CONN_1 P25
+U 1 1 511543BD
+P 9050 1200
+F 0 "P25" H 9130 1200 40  0000 L CNN
+F 1 "CONN_1" H 9050 1255 30  0001 C CNN
+	1    9050 1200
+	0    1    1    0   
+$EndComp
+$Comp
+L R R15
+U 1 1 511543B0
+P 8700 950
+F 0 "R15" V 8780 950 50  0000 C CNN
+F 1 "20K" V 8700 950 50  0000 C CNN
+	1    8700 950 
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P24
+U 1 1 5115439B
+P 8050 1600
+F 0 "P24" H 8130 1600 40  0000 L CNN
+F 1 "CONN_1" H 8050 1655 30  0001 C CNN
+	1    8050 1600
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P30
+U 1 1 5115436F
+P 10400 1650
+F 0 "P30" H 10480 1650 40  0000 L CNN
+F 1 "CONN_1" H 10400 1705 30  0001 C CNN
+	1    10400 1650
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P28
+U 1 1 5115435F
+P 9300 1900
+F 0 "P28" H 9380 1900 40  0000 L CNN
+F 1 "CONN_1" H 9300 1955 30  0001 C CNN
+	1    9300 1900
+	0    1    1    0   
+$EndComp
+Text Label 10850 2300 0    118  ~ 0
+40106_1OUT
+Text Label 7950 1400 0    118  ~ 0
+40106_1IN
+$Comp
+L 40106 U3
+U 2 1 511542FB
+P 8750 1400
+F 0 "U3" H 8850 1550 50  0000 L CNN
+F 1 "40106" H 8800 1250 50  0000 L CNN
+	2    8750 1400
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C?
-U 1 1 5113E94B
-P 1500 900
-F 0 "C?" H 1550 1000 50  0000 L CNN
-F 1 "100N" H 1550 800 50  0000 L CNN
-	1    1500 900 
+L 4066 U9
+U 2 1 511542DF
+P 9900 1400
+F 0 "U9" H 10100 1251 40  0000 C CNN
+F 1 "4066" H 10100 1550 40  0000 C CNN
+	2    9900 1400
+	1    0    0    -1  
+$EndComp
+Text Notes 8700 800  0    118  ~ 0
+signal out\n
+Text Notes 1850 -600 0    118  ~ 0
+test switched cap filter diy and filter feedback loop
+Text Label 7550 6950 0    118  ~ 0
+sclock
+Text GLabel 7650 6650 0    118  Input ~ 0
+MAINFILTERCLOCK
+Text Label 4700 5000 0    118  ~ 0
+si1
+Text Label 4700 4300 0    118  ~ 0
+si0
+$Comp
+L 4066 U9
+U 1 1 511541ED
+P 8100 6650
+F 0 "U9" H 8300 6501 40  0000 C CNN
+F 1 "4066" H 8300 6800 40  0000 C CNN
+	1    8100 6650
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR?
-U 1 1 5113E94A
-P 1500 1200
-F 0 "#PWR?" H 1500 1200 30  0001 C CNN
-F 1 "GND" H 1500 1130 30  0001 C CNN
-	1    1500 1200
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1150 1950 1500 1950
-Connection ~ 2100 700 
-Wire Wire Line
-	1500 700  2100 700 
-Wire Wire Line
-	2700 850  2100 850 
-Wire Wire Line
-	2700 1250 2700 850 
-Wire Wire Line
-	2100 2550 2700 2550
-Wire Wire Line
-	2100 2450 2100 2550
-Connection ~ 2700 2050
-Wire Wire Line
-	2700 2150 2700 1850
-Wire Wire Line
-	2700 2600 2700 2550
-Wire Wire Line
-	2700 1450 3300 1450
-Wire Wire Line
-	2100 600  2100 850 
-Wire Wire Line
-	1500 1100 1500 1200
-Wire Wire Line
-	1000 1350 1500 1350
-$Comp
-L 40106 U?
-U 1 1 5113E8E2
-P 8350 1100
-F 0 "U?" H 8450 1250 50  0000 L CNN
-F 1 "40106" H 8400 950 50  0000 L CNN
-	1    8350 1100
+L GND #PWR036
+U 1 1 511541D5
+P 9050 7100
+F 0 "#PWR036" H 9050 7100 30  0001 C CNN
+F 1 "GND" H 9050 7030 30  0001 C CNN
+	1    9050 7100
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4066 U?
-U 1 1 5113E8DC
-P 10400 1000
-F 0 "U?" H 10600 851 40  0000 C CNN
-F 1 "4066" H 10600 1150 40  0000 C CNN
-	1    10400 1000
+L CONN_1 P27
+U 1 1 511541B9
+P 9050 6800
+F 0 "P27" H 9130 6800 40  0000 L CNN
+F 1 "CONN_1" H 9050 6855 30  0001 C CNN
+	1    9050 6800
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P26
+U 1 1 5115417C
+P 9050 6550
+F 0 "P26" H 9130 6550 40  0000 L CNN
+F 1 "CONN_1" H 9050 6605 30  0001 C CNN
+	1    9050 6550
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P23
+U 1 1 51154133
+P 5500 5100
+F 0 "P23" H 5580 5100 40  0000 L CNN
+F 1 "CONN_1" H 5500 5155 30  0001 C CNN
+	1    5500 5100
+	0    1    1    0   
+$EndComp
+$Comp
+L CONN_1 P22
+U 1 1 5115411B
+P 5500 4400
+F 0 "P22" H 5580 4400 40  0000 L CNN
+F 1 "CONN_1" H 5500 4455 30  0001 C CNN
+	1    5500 4400
+	0    1    1    0   
+$EndComp
+Text Label 5600 4850 0    118  ~ 0
+40106_1IN
+Text GLabel 4550 4850 0    118  Input ~ 0
+LINEOUT
+$Comp
+L 4066 U7
+U 1 1 511540BD
+P 5150 4850
+F 0 "U7" H 5350 4701 40  0000 C CNN
+F 1 "4066" H 5350 5000 40  0000 C CNN
+	1    5150 4850
 	1    0    0    -1  
 $EndComp
-Text GLabel 1500 3100 0    60   Input ~ 0
+Text Label 5600 4150 0    118  ~ 0
+FILTERIN
+$Comp
+L CONN_1 P21
+U 1 1 51154063
+P 4550 4400
+F 0 "P21" H 4630 4400 40  0000 L CNN
+F 1 "CONN_1" H 4550 4455 30  0001 C CNN
+	1    4550 4400
+	0    1    1    0   
+$EndComp
+Text GLabel 4500 4150 0    118  Input ~ 0
+LINEOUT
+$Comp
+L 4066 U4
+U 4 1 51154012
+P 5150 4150
+F 0 "U4" H 5350 4001 40  0000 C CNN
+F 1 "4066" H 5350 4300 40  0000 C CNN
+	4    5150 4150
+	1    0    0    -1  
+$EndComp
+Text Notes 4500 3800 0    118  ~ 0
+signal switch from CODEC
+Text Notes 1900 -950 0    118  ~ 0
+poss 40106 amps for pads to switches
+Text Label 4700 3100 0    118  ~ 0
+so2
+Text Label 4700 2400 0    118  ~ 0
+so1
+Text Label 4750 1700 0    118  ~ 0
+so0
+Text Label 4600 2950 1    118  ~ 0
+jackout
+Text GLabel 5650 2950 2    118  Input ~ 0
+mainadc
+$Comp
+L 4066 U4
+U 3 1 51153F31
+P 5150 2950
+F 0 "U4" H 5350 2801 40  0000 C CNN
+F 1 "4066" H 5350 3100 40  0000 C CNN
+	3    5150 2950
+	1    0    0    -1  
+$EndComp
+Text Label 4600 2250 1    118  ~ 0
+opout
+$Comp
+L 4066 U4
+U 2 1 51153F19
+P 5150 2250
+F 0 "U4" H 5350 2101 40  0000 C CNN
+F 1 "4066" H 5350 2400 40  0000 C CNN
+	2    5150 2250
+	1    0    0    -1  
+$EndComp
+Text GLabel 5650 2250 2    118  Input ~ 0
+mainadc
+Text Label 4600 1550 1    118  ~ 0
+ad620out
+Text GLabel 5650 1550 2    118  Input ~ 0
+mainadc
+Text Notes 4750 800  0    118  ~ 0
+signal switch TO ADC
+$Comp
+L CONN_1 P19
+U 1 1 51153E4B
+P 1950 5800
+F 0 "P19" H 2030 5800 40  0000 L CNN
+F 1 "CONN_1" H 1950 5855 30  0001 C CNN
+	1    1950 5800
+	0    1    1    0   
+$EndComp
+$Comp
+L JACK_2P J1
+U 1 1 51153E34
+P 1300 5350
+F 0 "J1" H 950 5150 60  0000 C CNN
+F 1 "JACK_2P" H 1150 5600 60  0000 C CNN
+	1    1300 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR037
+U 1 1 51153E33
+P 1950 5250
+F 0 "#PWR037" H 1950 5250 30  0001 C CNN
+F 1 "GND" H 1950 5180 30  0001 C CNN
+	1    1950 5250
+	1    0    0    -1  
+$EndComp
+Text Label 1850 5450 0    118  ~ 0
+jackout
+$Comp
+L R R13
+U 1 1 51153DE9
+P 1850 4450
+F 0 "R13" V 1930 4450 50  0000 C CNN
+F 1 "1M" V 1850 4450 50  0000 C CNN
+	1    1850 4450
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR038
+U 1 1 51153D80
+P 600 3800
+F 0 "#PWR038" H 600 3800 30  0001 C CNN
+F 1 "GND" H 600 3730 30  0001 C CNN
+	1    600  3800
+	1    0    0    -1  
+$EndComp
+Text GLabel 1800 3050 2    118  Input ~ 0
 AVDD
-Wire Wire Line
-	1500 3250 1500 3100
+$Comp
+L R R10
+U 1 1 51153D5A
+P 850 3550
+F 0 "R10" V 930 3550 50  0000 C CNN
+F 1 "10K" V 850 3550 50  0000 C CNN
+	1    850  3550
+	0    1    1    0   
+$EndComp
+$Comp
+L R R11
+U 1 1 51153D55
+P 1250 3300
+F 0 "R11" V 1330 3300 50  0000 C CNN
+F 1 "10K" V 1250 3300 50  0000 C CNN
+	1    1250 3300
+	1    0    0    -1  
+$EndComp
+Text Label 3250 3650 0    118  ~ 0
+opout
+$Comp
+L C C21
+U 1 1 51153D36
+P 2700 3650
+F 0 "C21" H 2750 3750 50  0000 L CNN
+F 1 "C" H 2750 3550 50  0000 L CNN
+	1    2700 3650
+	0    1    1    0   
+$EndComp
+$Comp
+L C C22
+U 1 1 51153D1F
+P 2800 2250
+F 0 "C22" H 2850 2350 50  0000 L CNN
+F 1 "C" H 2850 2150 50  0000 L CNN
+	1    2800 2250
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR039
+U 1 1 51153D0A
+P 1800 4250
+F 0 "#PWR039" H 1800 4250 30  0001 C CNN
+F 1 "GND" H 1800 4180 30  0001 C CNN
+	1    1800 4250
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_1 P17
+U 1 1 51153CFB
+P 1000 3750
+F 0 "P17" H 1080 3750 40  0000 L CNN
+F 1 "CONN_1" H 1000 3805 30  0001 C CNN
+	1    1000 3750
+	-1   0    0    1   
+$EndComp
+$Comp
+L CONN_1 P18
+U 1 1 51153CD3
+P 1750 800
+F 0 "P18" H 1830 800 40  0000 L CNN
+F 1 "CONN_1" H 1750 855 30  0001 C CNN
+	1    1750 800 
+	-1   0    0    1   
+$EndComp
+$Comp
+L CONN_1 P16
+U 1 1 51153CBC
+P 800 2350
+F 0 "P16" H 880 2350 40  0000 L CNN
+F 1 "CONN_1" H 800 2405 30  0001 C CNN
+	1    800  2350
+	-1   0    0    1   
+$EndComp
+$Comp
+L CONN_1 P15
+U 1 1 51153CB7
+P 800 2150
+F 0 "P15" H 880 2150 40  0000 L CNN
+F 1 "CONN_1" H 800 2205 30  0001 C CNN
+	1    800  2150
+	-1   0    0    1   
+$EndComp
+$Comp
+L R R14
+U 1 1 51153C63
+P 2250 1350
+F 0 "R14" V 2330 1350 50  0000 C CNN
+F 1 "R" V 2250 1350 50  0000 C CNN
+	1    2250 1350
+	0    1    1    0   
+$EndComp
+$Comp
+L R R12
+U 1 1 51153C53
+P 1800 1350
+F 0 "R12" V 1880 1350 50  0000 C CNN
+F 1 "R" V 1800 1350 50  0000 C CNN
+	1    1800 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR040
+U 1 1 51153C2F
+P 2200 1600
+F 0 "#PWR040" H 2200 1600 30  0001 C CNN
+F 1 "GND" H 2200 1530 30  0001 C CNN
+	1    2200 1600
+	1    0    0    -1  
+$EndComp
+Text Label 3300 2250 0    118  ~ 0
+ad620out
+Text Notes 950  650  0    118  ~ 0
+signal input
+$Comp
+L MAX7409CPA U6
+U 1 1 5113E94F
+P 9850 6000
+F 0 "U6" H 9450 6650 50  0000 L BNN
+F 1 "MAX7400" H 9450 5300 50  0000 L BNN
+F 2 "maxim-filter-DIL08" H 9850 6150 50  0001 C CNN
+	1    9850 6000
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR041
+U 1 1 5113E94E
+P 10450 6950
+F 0 "#PWR041" H 10450 6950 30  0001 C CNN
+F 1 "GND" H 10450 6880 30  0001 C CNN
+	1    10450 6950
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C20
+U 1 1 5113E94D
+P 10450 6700
+F 0 "C20" H 10500 6800 50  0000 L CNN
+F 1 "100N" H 10500 6600 50  0000 L CNN
+	1    10450 6700
+	1    0    0    -1  
+$EndComp
+Text Label 8900 6300 0    60   ~ 0
+CLOCK
+Text Label 8750 5700 0    60   ~ 0
+FILTERIN
+$Comp
+L +5V #PWR042
+U 1 1 5113E94C
+P 9850 4950
+F 0 "#PWR042" H 9850 5040 20  0001 C CNN
+F 1 "+5V" H 9850 5040 30  0000 C CNN
+	1    9850 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L C C19
+U 1 1 5113E94B
+P 9250 5250
+F 0 "C19" H 9300 5350 50  0000 L CNN
+F 1 "100N" H 9300 5150 50  0000 L CNN
+	1    9250 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR043
+U 1 1 5113E94A
+P 9250 5550
+F 0 "#PWR043" H 9250 5550 30  0001 C CNN
+F 1 "GND" H 9250 5480 30  0001 C CNN
+	1    9250 5550
+	1    0    0    -1  
+$EndComp
+Text Label 10800 5800 0    60   ~ 0
+FILTEROUT
+$Comp
+L LM358 U5
+U 1 1 5113EA67
+P 1900 3650
+F 0 "U5" H 1850 3850 60  0000 L CNN
+F 1 "LM358" H 1850 3400 60  0000 L CNN
+	1    1900 3650
+	1    0    0    -1  
+$EndComp
+Text Notes -2300 300  0    118  ~ 0
+pads: \n\n- ad620 3x\n- signal in/out\n- amp pads\n- clock pad\n- 40106 pads\n- pwm out pad\n- 40106 distort pads\n
+Text Notes -2450 -1400 0    118  ~ 0
+- headphone or line out from codec\n- multiple 40106 configs\n- test filter/mixer\n- switchable amps on input\n- switch on/off clock for maxim\n- free 40106 amps in path and config\n- switching caps to gnd on 40106
+$Comp
+L 40106 U3
+U 1 1 5113E8E2
+P 10050 2300
+F 0 "U3" H 10150 2450 50  0000 L CNN
+F 1 "40106" H 10100 2150 50  0000 L CNN
+	1    10050 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4066 U4
+U 1 1 5113E8DC
+P 5150 1550
+F 0 "U4" H 5350 1401 40  0000 C CNN
+F 1 "4066" H 5350 1700 40  0000 C CNN
+	1    5150 1550
+	1    0    0    -1  
+$EndComp
+Text GLabel 1600 1500 0    60   Input ~ 0
+AVDD
 $Comp
 L AD620 IC1
 U 1 1 51138567
-P 1800 4050
-F 0 "IC1" H 1500 4250 50  0000 L BNN
-F 1 "AD620" H 1500 4150 50  0000 L BNN
-F 2 "ad620-DIL8" H 1800 4200 50  0001 C CNN
-	1    1800 4050
+P 1900 2450
+F 0 "IC1" H 1600 2650 50  0000 L BNN
+F 1 "AD620" H 1600 2550 50  0000 L BNN
+F 2 "ad620-DIL8" H 1900 2600 50  0001 C CNN
+	1    1900 2450
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
