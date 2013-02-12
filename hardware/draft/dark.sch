@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Tue 12 Feb 2013 14:24:27 GMT
+EESchema Schematic File Version 2  date Tue 12 Feb 2013 22:54:31 GMT
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -47,6 +47,62 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
+Text Label 7750 800  0    60   ~ 0
+ADC4
+$Comp
+L GND #PWR?
+U 1 1 511AC750
+P 7500 1250
+F 0 "#PWR?" H 7500 1250 30  0001 C CNN
+F 1 "GND" H 7500 1180 30  0001 C CNN
+	1    7500 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L POT RV?
+U 1 1 511AC74F
+P 7750 1050
+F 0 "RV?" H 7750 950 50  0000 C CNN
+F 1 "POT" H 7750 1050 50  0000 C CNN
+	1    7750 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L POT RV?
+U 1 1 511AC74E
+P 8350 1050
+F 0 "RV?" H 8350 950 50  0000 C CNN
+F 1 "POT" H 8350 1050 50  0000 C CNN
+	1    8350 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 511AC74D
+P 8100 1250
+F 0 "#PWR?" H 8100 1250 30  0001 C CNN
+F 1 "GND" H 8100 1180 30  0001 C CNN
+	1    8100 1250
+	1    0    0    -1  
+$EndComp
+Text Label 8350 800  0    60   ~ 0
+ADC5
+Text Label 8000 850  0    60   ~ 0
+AVDD
+Text Label 8600 800  0    60   ~ 0
+AVDD
+Wire Wire Line
+	8350 750  8350 900 
+Wire Wire Line
+	8600 800  8600 1050
+Wire Wire Line
+	8100 1050 8100 1250
+Wire Wire Line
+	7500 1050 7500 1250
+Wire Wire Line
+	8000 800  8000 1050
+Wire Wire Line
+	7750 750  7750 900 
 Wire Wire Line
 	1750 2600 1750 2800
 Wire Wire Line
