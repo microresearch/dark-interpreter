@@ -1,10 +1,10 @@
-update=Mon 08 Apr 2013 19:03:06 BST
+update=Tue 09 Apr 2013 10:46:53 BST
 last_client=pcbnew
 [pcbnew]
 version=1
 PadDrlX=0
-PadDimH=1575
-PadDimV=3543
+PadDimH=1181
+PadDimV=1181
 BoardThickness=630
 RouteTo=15
 RouteBo=0
@@ -36,3 +36,5 @@ LibName9=led
 LibName10=dip_sockets
 LibName11=P2
 LibName12=P22
+LibName13=jack
+LibName14=/root/kicad_libs/converted/con-jack

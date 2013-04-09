@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Mon 08 Apr 2013 22:09:49 BST
+PCBNEW-BOARD Version 1 date Tue 09 Apr 2013 12:47:02 BST
 
 # Created by Pcbnew(2010-03-14)-final
 
@@ -20,7 +20,7 @@ $EndGENERAL
 $SHEETDESCR
 Sheet A4 11700 8267
 Title ""
-Date "8 apr 2013"
+Date "9 apr 2013"
 Rev ""
 Comp ""
 Comment1 ""
@@ -59,8 +59,8 @@ TextPcbSize 600 800
 EdgeModWidth 150
 TextModSize 600 600
 TextModWidth 120
-PadSize 3150 3150
-PadDrill 0
+PadSize 600 600
+PadDrill 400
 Pad2MaskClearance 100
 AuxiliaryAxisOrg 0 0
 $EndSETUP
@@ -6280,7 +6280,7 @@ Po 0 0
 $EndPAD
 $EndMODULE  1pin
 $MODULE PIN_ARRAY_30X2
-Po 46604 21201 0 15 5162C123 5162B640 F~
+Po 46604 21201 0 15 5163FFB3 5162B640 F~
 Li PIN_ARRAY_30X2
 Cd Double rangee de contacts 2 x 12 pins
 Kw CONN
@@ -6488,7 +6488,7 @@ $PAD
 Sh "32" C 600 600 0 0 0
 Dr 400 0 0
 At STD N 00E0FFFF
-Ne 68 "N-000076"
+Ne 0 ""
 Po 500 -500
 $EndPAD
 $PAD
@@ -6565,7 +6565,7 @@ $PAD
 Sh "40" C 600 600 0 0 0
 Dr 400 0 0
 At STD N 00E0FFFF
-Ne 98 "N-000160"
+Ne 40 "N-000011"
 Po 4500 -500
 $EndPAD
 $PAD
