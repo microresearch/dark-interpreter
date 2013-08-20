@@ -6,7 +6,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			adc.o \
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
-			audio_delay.o
+			audio.o hardware.o mainbuffer.o datagen.o
 
 # Linker script
 #LDSCRIPT = stm32f407.ld
