@@ -1,43 +1,19 @@
-/* Bare-bones blink for stm32f405_codec board                     */
-/* copied from stlink project of texane & updated for STM32F4 lib */
+/* first steps for the dark interpreter based on work by: */
 /* E. Brombaugh 07-31-2012                                        */
+/* M. Howse 08.2013 */
 
 #include "stm32f4xx.h"
 #include "codec.h"
 #include "i2s.h"
 #include "adc.h"
 #include "audio.h"
+#include "hardware.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[8];
-
-#define LED_GREEN (1 << 9) /* port B, pin 9 */
-#define LED_BLUE (1 << 8) /* port B, pin 8 */
-
-static inline void setup_leds(void)
-{
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-
-	GPIOB->MODER |= (1 << (9 * 2)) | (1 << (8 * 2)) |	// LEDs
-					(1 << (7 * 2)) | (1 << (6 * 2));	// Flags
-	GPIOB->OSPEEDR |= (3 << (7 * 2)) | (3 << (6 * 2));	// Flags are fast
-}
-
-static inline void switch_leds(uint32_t leds)
-{
-	uint32_t temp = GPIOB->ODR;
-	temp &= ~(LED_GREEN | LED_BLUE);
-	temp |= (LED_GREEN | LED_BLUE) & (leds << 8);
-	GPIOB->ODR = temp;
-}
-
-static inline void switch_leds_off(void)
-{
-	GPIOB->ODR = 0;
-}
 
 #define delay()						\
 do {							\
@@ -46,21 +22,16 @@ do {							\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
-uint8_t led_lut[] = 
-{
-	0x0,
-	0x1,
-	0x3,
-	0x2,
-};
 
 void main(void)
 {
 	uint32_t state;
 	int32_t idx;
 	int16_t data;
-	
-	setup_leds();
+
+	setup_switches();
+	switch_jack();
+
 	
 #if 1
 	/* Normal path - setup audio I/O */
@@ -92,9 +63,9 @@ void main(void)
 	
 	while(1)
 	{
-		switch_leds(led_lut[state]);
+	  //		switch_leds(led_lut[state]);
 
-		state = (state + 1) & 3;
+	  //	state = (state + 1) & 3;
 		
 		delay();
 		
@@ -105,13 +76,6 @@ void main(void)
 
 #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
 
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *   where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
 void assert_failed(uint8_t* file, uint32_t line)
 { 
   /* User can add his own implementation to report the file name and line number,

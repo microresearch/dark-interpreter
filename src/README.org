@@ -1,0 +1,38 @@
+* working notes
+
+audio.c hardware.c mainbuffer.c datagen.c
+
+with headers...
+
+* programming
+
+: PATH=~/sat/bin:$PATH
+: PATH=~/stm32f4/stlink/flash:$PATH
+
+: make stlink_flash
+
+connection on own board is VDD, SCLCK, SWDIO, GND (so last 2 are
+swapped from STLINK board)
+
+* TODO:
+
+0- all code structure with headers
+
+1-audio codec/left and right
+
+2-hardware switches
+
+2.5-test audio in/out straight
+
+3-/buffer treatment
+
+(read from lists of grain size and position, what to do if fill buffer
+part way through grain?)
+
+4-PWM
+
+5-filter and hardware
+
+6-datagens - backwards, code chunks, symmetry, code direction and recoding
+
+7-stack/frame
