@@ -32,29 +32,13 @@ A-PB7=switchesX
 B-PB8=Y
 C-PB9=Z
 
-PWM:
+PWM: so 3 channels...
 
-filterpwm-PB1
-filterclock-PC9
+filterpwm-PB1 (is for lm13700)
+filterclock-PC9 (is for maxim)
 40106powerpwm-PC14
 
 are any of these swapped???
-
-*/
-
-/* what are ADC pins
-
-ADC0,1,2,3,4=potis /// on ADC1
-5,6,7,8=touch /// 8 is on ADC1_IN10
-
-AD620 is on ADC1_IN11
-
-*/
-
-/* audio hardware
-
-LINEIN/OUTR-main IO
-LINEIN/OUTL-filter
 
 */
 
@@ -72,9 +56,14 @@ void setup_switches(void)
 
 void switch_jack(void)
 {
-  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+  // clear first 3 and JACKOUT is on
+  GPIOB->ODR &= ~(5);
+  GPIOB->ODR |= JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
 }
 
 
+/* fill in rest of switch functions*/
+
+/* 3 timers/pwm */
 

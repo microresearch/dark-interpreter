@@ -1,3 +1,14 @@
+/*
+
+Oh, eternity with outstretched wings, that broodest over the secret
+truths in whose roots lie the mysteries of man—his whence, his
+whither—have I searched thee, and struck a right key on thy dreadful
+organ!
+
+[Thomas de Quincey. The Dark Interpreter] 
+
+*/
+
 /* first steps for the dark interpreter based on work by: */
 /* E. Brombaugh 07-31-2012                                        */
 /* M. Howse 08.2013 */
@@ -13,7 +24,7 @@
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
 /* DMA buffer for ADC  & copy */
-__IO uint16_t adc_buffer[8];
+__IO uint16_t adc_buffer[10];
 
 #define delay()						\
 do {							\
@@ -26,8 +37,8 @@ do {							\
 void main(void)
 {
 	uint32_t state;
-	int32_t idx;
-	int16_t data;
+	int32_t idx, count;
+	int16_t data,x;
 
 	setup_switches();
 	switch_jack();
@@ -59,16 +70,17 @@ void main(void)
 	}
 #endif
 
-	state = 0;
-	
+	x=count=0;
 	while(1)
 	{
-	  //		switch_leds(led_lut[state]);
-
-	  //	state = (state + 1) & 3;
 		
-		delay();
-		
+	  //		delay();
+	  readloc[x]=count;
+	  writeloc[x]=count;
+	  x++;count++;
+	  if (x>BUFF_LEN/2) x=0;
+	  if (count>96000) count=0;
+	
 	}
 }
 

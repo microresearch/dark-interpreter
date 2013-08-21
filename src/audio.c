@@ -3,11 +3,12 @@
 
 #define BUFF_LEN 128 - but is 64 for each left/right
 
-right is main
+- audio hardware
 
-left is filter
+LINEIN/OUTR-main IO
+LINEIN/OUTL-filter
 
- */
+*/
 
 #include "audio.h"
 
@@ -17,9 +18,10 @@ left is filter
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 		mono_buffer[MONO_BUFSZ];
 
-/* Audio Delay buffer */
-#define AUDIO_BUFSZ 32768
-int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".ccmdata")));;
+//int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".ccmdata")));;
+int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+int16_t writeloc[BUFF_LEN/2];
+int16_t readloc[BUFF_LEN/2];
 int16_t *audio_ptr;
 
 void Audio_Init(void)
@@ -54,7 +56,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 	{
 		*dst++ = *lsrc++;
 		sz--;
-		*dst++ = (*rsrc++)*32;
+		*dst++ = (*rsrc++);
 		sz--;
 	}
 }
@@ -73,11 +75,22 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	int32_t i;
+	int32_t i; int16_t x;
 	
-	/* Split Stereo */
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 
-	/* Combine stereo */
+	// load right buffer into mainbuffer using writegrainlist
+	// or is just list of sz positions
+	for (x=0;x++;x<sz){
+	  audio_buffer[writeloc[x]]=right_buffer[x];
+	}
+
+	// load mainbuffer into right buffer using readgrainlist
+	// or is just list of sz positions
+	for (x=0;x++;x<sz){
+	 right_buffer[x]= audio_buffer[readloc[x]];
+	}
+
+
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 }

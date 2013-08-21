@@ -1,6 +1,16 @@
 /*
  * adc.c - adc setup
- */
+
+- what are ADC pins
+
+ADC0,1,2,3,4=potis /// on ADC1
+5,6,7,8=touch /// 8 is on ADC1_IN10
+
+AD620 is on ADC1_IN11
+
+total 10 adc - see adc.h/adc.c
+
+*/
  
 #include "adc.h"
 
@@ -48,18 +58,28 @@ void ADC1_Init(uint16_t *ADC_Buffer)
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfConversion = 2;
+	ADC_InitStructure.ADC_NbrOfConversion = 10;
+	//	ADC_InitStructure.ADC_NbrOfChannel = 11; not existing
 	ADC_Init(ADC1, &ADC_InitStructure);
 	
 	/* Configure analog input pins ------------------------------------------*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 |GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_10 | GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
 	/* ADC1 regular channel configuration -----------------------------------*/ 
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_480Cycles);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 2, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 3, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 4, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 5, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 6, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 7, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 8, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 9, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 10, ADC_SampleTime_480Cycles);
+
 
 	/* Enable Complete DMA interrupt  */
 	DMA_ITConfig(DMA2_Stream0, DMA_IT_TC, ENABLE);
@@ -94,7 +114,7 @@ void DMA2_Stream0_IRQHandler(void)
 		DMA_ClearFlag(DMA2_Stream0, DMA_FLAG_TCIF0);
 		
 		/* Start ADC1 Software Conversion */ 
-		//ADC_SoftwareStartConv(ADC1);
+		ADC_SoftwareStartConv(ADC1);
 	}
 	
 	/* Lower activity flag */
