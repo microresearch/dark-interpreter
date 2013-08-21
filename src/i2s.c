@@ -119,8 +119,8 @@ void I2S_Block_PlayRec(uint32_t txAddr, uint32_t rxAddr, uint32_t Size)
 	}
 }
 
-#define FLAG_RX (1 << 7) /* port B, pin 7 */
-#define FLAG_TX (1 << 6) /* port B, pin 6 */
+//#define FLAG_RX (1 << 7) /* port B, pin 7 */
+//#define FLAG_TX (1 << 6) /* port B, pin 6 */
 
 /**
   * @brief  This function handles I2S RX DMA block interrupt. 
@@ -132,7 +132,7 @@ void DMA1_Stream3_IRQHandler(void)
 	int16_t *src, *dst, sz;
 	
 	/* Raise activity flag */
-	GPIOB->BSRRL = FLAG_RX;
+	//	GPIOB->BSRRL = FLAG_RX;
 
 	/* Transfer complete interrupt */
 	if (DMA_GetFlagStatus(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_TC) != RESET)
@@ -165,5 +165,5 @@ void DMA1_Stream3_IRQHandler(void)
 	}
 	
 	/* Lower activity flag */
-	GPIOB->BSRRH = FLAG_RX;
+	//	GPIOB->BSRRH = FLAG_RX;
 }

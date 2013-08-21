@@ -80,12 +80,12 @@ void ADC1_Init(uint16_t *ADC_Buffer)
 	ADC_SoftwareStartConv(ADC1);
 }
 
-#define FLAG_TX (1 << 6) /* port B, pin 6 */
+//#define FLAG_TX (1 << 6) /* port B, pin 6 */
 
 void DMA2_Stream0_IRQHandler(void)
 { 
 	/* Raise activity flag */
-	GPIOB->BSRRL = FLAG_TX;
+  //	GPIOB->BSRRL = FLAG_TX;
 
 	/* Transfer complete interrupt */
 	if (DMA_GetFlagStatus(DMA2_Stream0, DMA_FLAG_TCIF0) != RESET)
@@ -98,5 +98,5 @@ void DMA2_Stream0_IRQHandler(void)
 	}
 	
 	/* Lower activity flag */
-	GPIOB->BSRRH = FLAG_TX;
+	//	GPIOB->BSRRH = FLAG_TX;
 }

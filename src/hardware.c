@@ -67,12 +67,13 @@ LINEIN/OUTL-filter
 void setup_switches(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (7 * 2)) ;	// JACK
+	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) ;	// JACK
 }
 
 void switch_jack(void)
 {
-  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero
+  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+
 }
 
 
