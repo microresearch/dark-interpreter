@@ -81,16 +81,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// load right buffer into mainbuffer using writegrainlist
 	// or is just list of sz positions
-	for (x=0;x++;x<sz){
+	for (x=0;x<sz/2;x++){
 	  audio_buffer[writeloc[x]]=right_buffer[x];
 	}
 
 	// load mainbuffer into right buffer using readgrainlist
 	// or is just list of sz positions
-	for (x=0;x++;x<sz){
-	 right_buffer[x]= audio_buffer[readloc[x]];
+	for (x=0;x<sz/2;x++){
+	  right_buffer[x]= audio_buffer[readloc[x]];
 	}
 
+	audio_comb_stereo(sz, dst, right_buffer, right_buffer);
+	// but what we hear is left_buffer from this one
 
-	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 }

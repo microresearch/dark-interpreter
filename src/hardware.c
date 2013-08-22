@@ -52,18 +52,28 @@ void setup_switches(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) ;	// JACK
+
+	// switch off PC8/feedback???
+
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+	GPIOC->MODER |= (GPIO_MODER_MODER8_0); // another way
+	GPIOC->ODR = 0;
 }
 
 void switch_jack(void)
 {
   // clear first 3 and JACKOUT is on
-  GPIOB->ODR &= ~(5);
+
+  // try also with BSRR
+
+  GPIOB->ODR &= ~(7);
   GPIOB->ODR |= JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
 }
 
 
-/* fill in rest of switch functions*/
+/* fill in rest of switch functions - also to leave all floating for
+   pads as HW option FLOATIT */
 
 /* 3 timers/pwm */
 

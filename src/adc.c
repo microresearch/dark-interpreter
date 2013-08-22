@@ -30,7 +30,7 @@ void ADC1_Init(uint16_t *ADC_Buffer)
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&ADC1->DR;
 	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)ADC_Buffer;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-	DMA_InitStructure.DMA_BufferSize = 2;
+	DMA_InitStructure.DMA_BufferSize = 10;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
@@ -59,7 +59,7 @@ void ADC1_Init(uint16_t *ADC_Buffer)
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T1_CC1;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfConversion = 10;
-	//	ADC_InitStructure.ADC_NbrOfChannel = 11; not existing
+	//	ADC_InitStructure.ADC_NbrOfChannel = 10; not existing
 	ADC_Init(ADC1, &ADC_InitStructure);
 	
 	/* Configure analog input pins ------------------------------------------*/

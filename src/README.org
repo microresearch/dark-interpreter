@@ -24,20 +24,21 @@ swapped from STLINK board)
 
 2.5-test audio in/out straight DONE but 4053 seems not quite right RETEST. FIXED
 
-2.6 get knobs and touch sensors in TO TEST (how to test this?)
+2.6 get knobs and touch sensors in TO TEST. TESTED ADC0 (2nd knob down)
 
 4-PWM
 
 5-filter and hardware
 
-6-datagens - backwards, code chunks, symmetry, code direction and recoding/rechunking
+6-datagens - backwards, code chunks, symmetry, code direction and
+recoding/rechunking
 
 3-buffer treatment tests/ideas.
 
 (read from lists of grain size and position, what to do if fill buffer
 part way through grain?)
 
-7-stack/frame
+7-stack/frame -> stack machine in buffer
 
 8-fingers//EEG//LM358IN
 
@@ -98,7 +99,14 @@ code movement on pads
 
 ** questions
 
+- how many bits is audio codec set to?
+
+16 bits so at 48k we have 96k samples per second = around 1 sec
+
+at 8k we have 6 sec... TO DECIDE (can also cut down bits)
+
 - how to work on micro-macro levels for code and grains/villagers
+
 - how and where barriers are installed...
 
 - do we work with 64 as lowest chunk size (or lower in
@@ -108,8 +116,26 @@ this should be set as BUFF_LEN in:
 
 I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
+** buffer question
 
-** further
+1-
+
+macro as list of grains/villagers which can be moved (by hand) read/write
+
+(but how many, general size?)
+
+micro as manipulation of buffer itself/churn (how?)
+
+and how this translates into chunk for callback
+
+2- what is worm/BD model???
+
+- interrupt at samplerate reads/writes sample at read/write points
+  determined async by algorithms and outputs sample/mix (of read/write
+  pointer)
+
+
+** further/code gens
 
 [[file:latestresearch/sc3-plugins-src-2012-05-26/source/SLUGens/SLUGens.cpp::void%20FitzHughNagumo_next_k%20FitzHughNagumo%20unit%20int%20inNumSamples]]
 

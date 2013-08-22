@@ -37,7 +37,7 @@ do {							\
 void main(void)
 {
 	uint32_t state;
-	int32_t idx, count;
+	int32_t idx, rcount,wcount;
 	int16_t data,x;
 
 	setup_switches();
@@ -70,16 +70,20 @@ void main(void)
 	}
 #endif
 
-	x=count=0;
+	x=rcount=wcount=0;
 	while(1)
 	{
 		
 	  //		delay();
-	  readloc[x]=count;
-	  writeloc[x]=count;
-	  x++;count++;
+	  readloc[x]=rcount;
+	  writeloc[x]=wcount;
+	  x++;
+	  rcount+=(adc_buffer[0]/128); // now works for each knob/adc - TODO-test all
+	  wcount++;
+	  //	  rcount+=2;
 	  if (x>BUFF_LEN/2) x=0;
-	  if (count>96000) count=0;
+	  if (wcount>48000) wcount=0;
+	  if (rcount>48000) rcount=0;
 	
 	}
 }
