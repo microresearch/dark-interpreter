@@ -74,16 +74,7 @@ void main(void)
 	while(1)
 	{
 		
-	  //		delay();
-	  readloc[x]=rcount;
-	  writeloc[x]=wcount;
-	  x++;
-	  rcount+=(adc_buffer[0]/128); // now works for each knob/adc - TODO-test all
-	  wcount++;
-	  //	  rcount+=2;
-	  if (x>BUFF_LEN/2) x=0;
-	  if (wcount>48000) wcount=0;
-	  if (rcount>48000) rcount=0;
+	  delay();
 	
 	}
 }

@@ -75,7 +75,7 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	int32_t i; int16_t x;
+	int32_t i,wcount,rcount; int16_t x;
 	
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 
@@ -90,6 +90,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	for (x=0;x<sz/2;x++){
 	  right_buffer[x]= audio_buffer[readloc[x]];
 	}
+	
+	  rcount++; // now works for each knob/adc - TODO-test all
+	  wcount++;
+	  if (wcount>48000) wcount=0;
+	  if (rcount>48000) rcount=0;
+
 
 	audio_comb_stereo(sz, dst, right_buffer, right_buffer);
 	// but what we hear is left_buffer from this one

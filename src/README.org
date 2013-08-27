@@ -24,11 +24,12 @@ swapped from STLINK board)
 
 2.5-test audio in/out straight DONE but 4053 seems not quite right RETEST. FIXED
 
-2.6 get knobs and touch sensors in TO TEST. TESTED ADC0 (2nd knob down)
+2.6 get knobs and touch sensors in TO TEST. TESTED ADC0 (2nd knob
+down) TEST TOUCH (lower and top)
 
-4-PWM
+4-PWM TO TEST
 
-5-filter and hardware
+5-filter and all hardware switches
 
 6-datagens - backwards, code chunks, symmetry, code direction and
 recoding/rechunking
@@ -44,14 +45,44 @@ part way through grain?)
 
 * older code notes
 
-** TODO 20.8.2013+
+- micro-macro slider/control for all ops.
 
-- [top board hardware assembled (missing 470nF????)]
+grains as villagers/following instructions +read/write head
 
-- test straight audio out/read potis/switch all signal paths
-- tests for finger incoming/EEG signals
-- port all code/new code
-- finishing touches
+-plague village/turing tape combination.  -random walk through
+code/sample space. swapping those 2 buffers(past/future)... fingers
+select code movements
+
+perhaps some kind of succession of read/write/code buffers with
+grainsize as process...
+
+various mapped movements through these buffers
+
+and also finger as code movement - let's say 4 directions, a kind of
+cross controller., but also fingers or some way of activating a matrix
+signal path (through buffers, through distortion and feedback)
+
+also control speed/playback
+
+-an architecture/x buffers are switchable
+
+-some way of using fft//grains as villagers
+
+-grains as multiple executable threads
+
+- xread/write/instruction pointer
+
+- revisit promiscuous
+
+- multiple threads which share stack/registers/memory space but which
+  have seperate code/cpu identity and/or have leaky stacks
+
+** software filters
+
+moog voltage controlled lowpass filter of 4th order from http://www.musicdsp.org 
+
+see also: http://www.kvraudio.com/forum/viewtopic.php?p=5184160
+
 
 ** code
 
