@@ -40,17 +40,21 @@ void main(void)
 	int32_t idx, rcount,wcount;
 	int16_t data,x;
 
-	setup_switches();
-	switch_jack();
-
-	
+       
 #if 1
 	/* Normal path - setup audio I/O */
 	Audio_Init();
-	
 	ADC1_Init((uint16_t *)adc_buffer);
-	
+
+	setup_switches();
+	//	switch_jack();
+	test_filter();
+	//test_40106(); //that's working!
+
 	Codec_Init(48000);
+
+	retry_pwm();
+
 	
 	delay();	// needed to allow codec to settle?
 	
@@ -73,7 +77,7 @@ void main(void)
 	x=rcount=wcount=0;
 	while(1)
 	{
-		
+	  TIM3->CCR1 = adc_buffer[0];		
 	  delay();
 	
 	}

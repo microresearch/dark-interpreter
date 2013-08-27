@@ -3,7 +3,6 @@
 /* TODO:
 
 - try also with BSRR
-
 - testing filter switches and PWM
 - test all hardware switches
 - test leave all hanging
@@ -21,7 +20,7 @@ int duty_cycle;
 
 - SW0 PB0 - out to 40106
 - SW1 PC11 - out to filter
-- SW2 PB2 - out to jack ***
+- SW2 PB2 - straightout to jack ***
 - SW3 PB3 - filter to 40106
 - SW4 PB4 - filter to jack
 - SW5 PB5 - 40106 to filter
@@ -30,7 +29,7 @@ int duty_cycle;
 - SW8 PB8 - filterin
 - SW9 PB9 - filterout
 - feedbacksw-PC8
-- filterdistort-PC10
+- filterdistort-PC10 1 to stop distortion
 
 4053:
 
@@ -61,13 +60,36 @@ are any of these swapped???
 
 void setup_switches(void)
 {
+
+  //  GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);    
+  //  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);   
+
+
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (4 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) ;	// JACK
+	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (4 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) | (1 << (6 * 2)) | (1 << (0 * 2)) ;	// JACK
+
+	// try this way as PB4 has problem with JTRST
+
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4; // this works for pin 4 9should use for all pins?)
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_SetBits(GPIOB, GPIO_Pin_4);
+
 
 	// switch off PC8/feedback???
 
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-	GPIOC->MODER |= (GPIO_MODER_MODER8_0) | (GPIO_MODER_MODER11_0); // another way to do it
+	//	GPIOC->MODER |= (GPIO_MODER_MODER8_0) | (GPIO_MODER_MODER11_0) | (GPIO_MODER_MODER10_0) ; // another way to do it
+
+	GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
+
 	GPIOC->ODR = 0;
 }
 
@@ -170,8 +192,8 @@ void PWM_OC(uint32_t Pulse, TIM_TypeDef* TIMx, uint32_t channel)
   TIM_OC2PreloadConfig(TIMx, TIM_OCPreload_Enable); //mandatory for PWM mode;
   break;
  case 3:
-   //  TIM_OC3Init(TIMx, TIM_OCInitStructure);
-   //  TIM_OC3PreloadConfig(TIMx, TIM_OCPreload_Enable); //mandatory for PWM mode
+   //   TIM_OC3Init(TIMx, TIM_OCInitStructure);
+   //   TIM_OC3PreloadConfig(TIMx, TIM_OCPreload_Enable); //mandatory for PWM mode
   break;
  case 4:
   TIM_OC4Init(TIMx, &TIM_OCInitStructure);
@@ -226,42 +248,97 @@ filterclock-PC9 (is for maxim)
   InitGPIO(GPIOC, GPIO_Pin_9, GPIO_Mode_AF); //configure GPIO in alternate function mode
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM3); //connect pin to TIM3 for channel 1
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //enable clock for timer3
-  uint16_t Prescaler = Calc_Prescaler(3, 3000000); //calculate prescaler
-  Init_TimeBase(TIM3, Prescaler, 60000);
+  uint16_t Prescaler = Calc_Prescaler(3, 3000000); //calculate prescaler was 3000000
+  Init_TimeBase(TIM3, Prescaler, 60000); // was 60000
   PWM_OC(duty_cycle, TIM3, 1);
   //  Attach_Tim_Interrupt(TIM3_IRQn, 0); //Attach an interrupt to TIM3 - can't find this anywhere
 
   TIM_Cmd(TIM3, ENABLE); //enable timer 3
-  TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE); //enable generation of interrupts on timer 3
 
+  //  TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE); //enable generation of interrupts on timer 3
 }
 
-void TIM3_IRQHandler(void) //Tim3 ISR
+/*void TIM3_IRQHandler(void) //Tim3 ISR
 {
   if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) //check if timer counter matches the timer compare value
   {
     TIM_ClearITPendingBit(TIM3, TIM_IT_CC1); //clear the interrupt
+    duty_cycle=adc_buffer[0];
     TIM3->CCR1 = duty_cycle; //update the duty cycle
   }
+  }*/
+
+void retry_pwm(void)
+{
+  int period=3000;
+  //  GPIO_InitTypeDef GPIO_InitStructure;
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  TIM_OCInitTypeDef  TIM_OCInitStructure;
+  /* TIM3 clock enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+ 
+  /* GPIOC and GPIOB clock enable */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+   
+  /* GPIOC Configuration: TIM3 CH1 (PC6) and TIM3 CH2 (PC7) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM3);
+
+  uint16_t PrescalerValue = 0;
+  /* Compute the prescaler value */
+  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 21000000) - 1; //was 28000000
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = period;
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+  /* PWM1 Mode configuration: Channel1 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 0;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
+  TIM_ARRPreloadConfig(TIM3, ENABLE);
+
+  /* TIM3 enable counter */
+  TIM_Cmd(TIM3, ENABLE);
 }
 
 void test_filter(void)
 {
 
+
   // connect the filter in signal path:
 
-  //- SW1 PC11 - out to filter
+  //- SW1 PC11 - out to filter PC10 also 1
 
-  GPIOC->ODR |= (1<<11);
+  GPIOC->ODR |= (1<<11) | (1<<10);
 
   //- SW4 PB4 - filter to jack
 
   GPIOB->ODR &= ~(7);
+  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
+
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
+}
 
-  // poti controls duty cycle - test also for fingers
+void test_40106(void)
+{
 
-  duty_cycle=adc_buffer[0];
+  //- SW0 PB0 - out to 40106
+  //- SW6 PB6 - 40106 to jack
+
+  GPIOB->ODR &= ~(7);
+  GPIOB->ODR |= 1 | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+
 
 }
