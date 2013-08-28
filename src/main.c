@@ -40,20 +40,26 @@ void main(void)
 	int32_t idx, rcount,wcount;
 	int16_t data,x;
 
-       
+	//retryagainpwm();
+
+
+	//	setup_switches();
+	//	switchalloff();
+	//	switch_jack();
+
+		
 #if 1
-	/* Normal path - setup audio I/O */
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
-
 	setup_switches();
 	//	switch_jack();
 	test_filter();
+	//switchalloff();
 	//test_40106(); //that's working!
 
 	Codec_Init(48000);
 
-	retry_pwm();
+	retryagainpwm();
 
 	
 	delay();	// needed to allow codec to settle?
@@ -62,7 +68,6 @@ void main(void)
 	
 	I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 #else
-	/* send some fake data into the I2S callback */
 	for(state=0;state<8;state++)
 	{
 		for(idx=0;idx<BUFF_LEN/2;idx++)
@@ -75,9 +80,12 @@ void main(void)
 #endif
 
 	x=rcount=wcount=0;
+	
 	while(1)
 	{
-	  TIM3->CCR1 = adc_buffer[0];		
+	  changepwm(x);
+	  x++;
+	  if (x>1000) x=0;
 	  delay();
 	
 	}

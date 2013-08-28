@@ -4,6 +4,15 @@ audio.c hardware.c mainbuffer.c datagen.c
 
 with headers...
 
+
+* issues
+
+- audio bleed is through 4066 feedback switch (even when off - perhaps
+  add resistor to signal path - TEST!
+
+- power consumption seems high?
+
+
 * programming
 
 : PATH=~/sat/bin:$PATH

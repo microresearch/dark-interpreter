@@ -2,6 +2,7 @@
 
 /* TODO:
 
+- do all hardware init/setup in one go - as maybe problem with so many structures
 - try also with BSRR
 - testing filter switches and PWM
 - test all hardware switches
@@ -15,6 +16,16 @@
 extern __IO uint16_t adc_buffer[10];
 
 int duty_cycle;
+
+TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+TIM_OCInitTypeDef  TIM_OCInitStructure;
+uint16_t CCR1_Val = 333; // was 333
+uint16_t CCR2_Val = 249;
+uint16_t CCR3_Val = 166;
+uint16_t CCR4_Val = 83;
+uint16_t PrescalerValue = 0;
+
+void TIM_Config(void);
 
 /* what are pins we need to be switching?
 
@@ -65,23 +76,24 @@ void setup_switches(void)
   //  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);   
 
 
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (4 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) | (1 << (6 * 2)) | (1 << (0 * 2)) ;	// JACK
+  //	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+  //	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (4 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) | (1 << (6 * 2)) | (1 << (0 * 2)) ;	// JACK
 
-	// try this way as PB4 has problem with JTRST
+	// try this way as PB4 has problem with JTRST - but somehow
+	// this screws up rest settings sometimes
 
-	GPIO_InitTypeDef  GPIO_InitStructure;
+		GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4; // this works for pin 4 9should use for all pins?)
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_2 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_6 | GPIO_Pin_0 ; // this works for pin 4 9should use for all pins?)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_SetBits(GPIOB, GPIO_Pin_4);
-
+	
 
 	// switch off PC8/feedback???
 
@@ -91,6 +103,12 @@ void setup_switches(void)
 	GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
 
 	GPIOC->ODR = 0;
+}
+
+void switchalloff(void)
+{
+  GPIOC->ODR = 0;
+  GPIOB->ODR = 0;
 }
 
 void switch_jack(void)
@@ -268,10 +286,13 @@ filterclock-PC9 (is for maxim)
   }
   }*/
 
-void retry_pwm(void)
+void retry_pwm(void) //NOT WORKING ANYWAYS
 {
-  int period=3000;
-  //  GPIO_InitTypeDef GPIO_InitStructure;
+
+  // try PB1
+
+  int period=300;
+  GPIO_InitTypeDef GPIO_InitStructure;
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
   TIM_OCInitTypeDef  TIM_OCInitStructure;
   /* TIM3 clock enable */
@@ -292,9 +313,9 @@ void retry_pwm(void)
 
   uint16_t PrescalerValue = 0;
   /* Compute the prescaler value */
-  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 21000000) - 1; //was 28000000
+  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; //was 28000000
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = period;
+  TIM_TimeBaseStructure.TIM_Period = 665;
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -302,7 +323,7 @@ void retry_pwm(void)
   /* PWM1 Mode configuration: Channel1 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = 0;
+  TIM_OCInitStructure.TIM_Pulse = 333;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
   TIM_OC1Init(TIM3, &TIM_OCInitStructure);
   TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
@@ -311,6 +332,111 @@ void retry_pwm(void)
   /* TIM3 enable counter */
   TIM_Cmd(TIM3, ENABLE);
 }
+
+
+void retryagainpwm(void){ // THIS ONE WORKS! 
+
+  /*
+
+    - re-try with MAXIM - now it works but how to change it?
+    - if period is higher then we go lower in frequency
+    - but can't seem to change duty cycle
+
+  */
+
+  TIM_Config();
+
+  /* Compute the prescaler value */
+  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1;
+
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = 2200; // was 665
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+  /* PWM1 Mode configuration: Channel1 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+
+  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel2 */
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = CCR2_Val;
+
+  TIM_OC2Init(TIM3, &TIM_OCInitStructure);
+
+  TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel3 */
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = CCR3_Val;
+
+  TIM_OC3Init(TIM3, &TIM_OCInitStructure);
+
+  TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel4 */
+  //  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  //  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  TIM_ARRPreloadConfig(TIM3, ENABLE);
+
+  /* TIM3 enable counter */
+  TIM_Cmd(TIM3, ENABLE);
+}
+
+void changepwm(uint16_t value){
+}
+
+/**
+  * @brief  Configure the TIM3 Ouput Channels.
+  * @param  None
+  * @retval None
+  */
+void TIM_Config(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* TIM3 clock enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+  /* GPIOC and GPIOB clock enable */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOB, ENABLE);
+  
+  /* GPIOC Configuration: TIM3 pc9 we also want pc14 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_14 ;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOC, &GPIO_InitStructure); 
+  
+  /* GPIOB Configuration:  TIM3 CH3 (PB0) and TIM3 CH4 (PB1) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOB, &GPIO_InitStructure); 
+
+  /* Connect TIM3 pins to AF2 */  
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM3);
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource14, GPIO_AF_TIM3); 
+  GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_TIM3);
+}
+
 
 void test_filter(void)
 {
@@ -339,6 +465,4 @@ void test_40106(void)
 
   GPIOB->ODR &= ~(7);
   GPIOB->ODR |= 1 | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-
-
 }

@@ -10,6 +10,7 @@
 
 void setup_switches(void);
 void switch_jack(void);
+void changepwm(uint16_t value);
 
 #endif
 
