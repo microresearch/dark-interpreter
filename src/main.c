@@ -39,30 +39,24 @@ void main(void)
 	uint32_t state;
 	int32_t idx, rcount,wcount;
 	int16_t data,x;
-
-	//retryagainpwm();
-
-
-	//	setup_switches();
-	//	switchalloff();
-	//	switch_jack();
-
 		
 #if 1
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
-	setup_switches();
-	//	switch_jack();
-	test_filter();
+	//	setup_switches();
+	//switch_jack();
+	//	test_filter();
+	//test_40106andfilt(); 
+	//test_filtand40106();
 	//switchalloff();
-	//test_40106(); //that's working!
+	//	test_40106(); //that's working! is it???
 
 	Codec_Init(48000);
-
-	retryagainpwm();
-
-	
 	delay();	// needed to allow codec to settle?
+
+	retryagainpwm();	
+	//	test_40106(); //that's working! is it???
+
 	
 	I2S_Block_Init();
 	
@@ -78,16 +72,15 @@ void main(void)
 		I2S_RX_CallBack(tx_buffer, rx_buffer, BUFF_LEN);
 	}
 #endif
-
 	x=rcount=wcount=0;
 	
 	while(1)
 	{
+	  //  x=adc_buffer[0];
 	  changepwm(x);
 	  x++;
-	  if (x>1000) x=0;
-	  delay();
-	
+	  //	  delay();
+	  if (x>1024) x=0;
 	}
 }
 

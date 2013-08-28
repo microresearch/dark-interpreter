@@ -8,10 +8,14 @@ with headers...
 * issues
 
 - audio bleed is through 4066 feedback switch (even when off - perhaps
-  add resistor to signal path - TEST!
+  add resistor to signal path (pin 2) - TEST! - with 10k is very
+  minimal bleed
 
 - power consumption seems high?
 
+- problem getting pinc14 PWM working
+
+- also some mech/loose conn as sound changes when slightly flex brd
 
 * programming
 
@@ -52,7 +56,7 @@ part way through grain?)
 
 8-fingers//EEG//LM358IN
 
-* older code notes
+* code notes
 
 - micro-macro slider/control for all ops.
 
@@ -173,7 +177,6 @@ and how this translates into chunk for callback
 - interrupt at samplerate reads/writes sample at read/write points
   determined async by algorithms and outputs sample/mix (of read/write
   pointer)
-
 
 ** further/code gens
 
