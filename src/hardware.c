@@ -8,7 +8,7 @@
 
 - testing filter switches and PWM - TEST!
 
-- testing 40106 powerPWM =????
+- testing 40106 power interrut
 
 filterpwm-PB1 (is for lm13700)
 filterclock-PC9 (is for maxim)
@@ -22,11 +22,30 @@ could be with interrupt and hard toggle???)
 - test all hardware switches: filt+distort on, feedback, distortion in
   filter, filter feedback variations
 
+  functions:
+
+- justfilter
+- justdistortion
+- filterthendistortion
+- distortionthenfilter
+- distortioninfilter on/off (could be done fast also)
+- setfiltfeedbackpath - digital/lm13700
+- feedback (leave for now)
+- setfloating (enum list)
+- setallfloating (or how to set diff ones but not just one)
+
+- setlmpwm
+- setmaximpwm
+- set40106power
+
+////
+
 - test leave all hanging= GPIO_Mode_IN_FLOATING
 
 */
 
 #include "hardware.h"
+#include "misc.h"
 #include "stm32f4xx_tim.h"
 #include "stm32f4xx_pwr.h"
 
@@ -43,6 +62,16 @@ uint16_t CCR4_Val = 333;
 uint16_t PrescalerValue = 0;
 
 void TIM_Config(void);
+
+
+void TIM2_IRQHandler(void)
+{
+if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+{
+TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
+}
+}
 
 /* what are pins we need to be switching?
 
@@ -276,12 +305,12 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
 }
 
-void changelmpwm(uint16_t value){
+void setlmpwm(uint16_t value){
 
   TIM3->CCR4 = value;
 }
 
-void changemaximpwm(uint16_t value){
+void setmaximpwm(uint16_t value){
 
   TIM8->CCR4 = value;
 }
@@ -337,4 +366,44 @@ filterclock-PC9 (is for maxim)
   /* Connect TIM8 pins to PC9 */  
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
 
+}
+
+void setup40106power(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+
+NVIC_InitTypeDef NVIC_InitStructure;
+/* Enable the TIM2 gloabal Interrupt */
+NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+NVIC_Init(&NVIC_InitStructure);
+ 
+/* TIM2 clock enable */
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+/* Time base configuration */
+TIM_TimeBaseStructure.TIM_Period = 1000 - 1; // 1 MHz down to 1 KHz (1 ms)
+TIM_TimeBaseStructure.TIM_Prescaler = 84 - 1; // 24 MHz Clock down to 1 MHz (adjust per your clock)
+TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+/* TIM IT enable */
+TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+/* TIM2 enable counter */
+TIM_Cmd(TIM2, ENABLE);
+}
+
+void set40106power(uint16_t value){
+
+  TIM_SetAutoreload(TIM2, value); // same value as period above?
 }

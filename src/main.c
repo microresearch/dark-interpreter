@@ -13,6 +13,13 @@ organ!
 /* E. Brombaugh 07-31-2012                                        */
 /* M. Howse 08.2013 */
 
+ /*
+PATH=~/sat/bin:$PATH
+PATH=~/stm32f4/stlink/flash:$PATH
+
+make stlink_flash
+ */
+
 #include "stm32f4xx.h"
 #include "codec.h"
 #include "i2s.h"
@@ -55,6 +62,8 @@ void main(void)
 	delay();	// needed to allow codec to settle?
 
 	retryagainpwm();	
+	setup40106power();
+
 	//	test_40106(); //that's working! is it???
 
 	
@@ -77,7 +86,7 @@ void main(void)
 	while(1)
 	{
 	  //  x=adc_buffer[0];
-	  changemaximpwm(x);
+	  setmaximpwm(x);
 	  x++;
 	  //	  delay();
 	  if (x>1024) x=0;
