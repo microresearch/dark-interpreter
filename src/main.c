@@ -77,7 +77,7 @@ void main(void)
 	while(1)
 	{
 	  //  x=adc_buffer[0];
-	  changepwm(x);
+	  changemaximpwm(x);
 	  x++;
 	  //	  delay();
 	  if (x>1024) x=0;

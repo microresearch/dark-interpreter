@@ -6,7 +6,7 @@
 - structures try also with BSRR or with GPIO_WriteBit(GPIO_TypeDef*
 - GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
 
-- testing filter switches and PWM - NEARLY but we need 3 different PWMs?
+- testing filter switches and PWM - TEST!
 
 - testing 40106 powerPWM =????
 
@@ -14,7 +14,7 @@ filterpwm-PB1 (is for lm13700)
 filterclock-PC9 (is for maxim)
 40106powerpwm-PC14
 
-PC14 - not part of PWM
+PC14 - not part of PWM!!!
 
 (PB1 can be TIM3_CH4, PC9 as TIM8_CH4, but PC14 has no TIM assoc. but
 could be with interrupt and hard toggle???)
@@ -226,9 +226,7 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
   /*
 
-    - re-try with MAXIM - now it works but how to change it?
-    - if period is higher then we go lower in frequency
-    - but can't seem to change duty cycle
+- re-test first lm filter, then maxim (TIM8)
 
   */
 
@@ -245,93 +243,98 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
-  /* PWM1 Mode configuration: Channel1 */
+  /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
+  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC1Init(TIM3, &TIM_OCInitStructure);
 
   TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: Channel2 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR2_Val;
-
-  TIM_OC2Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  /* PWM1 Mode configuration: Channel3 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR3_Val;
-
-  TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-
-  TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  /* PWM1 Mode configuration: Channel4 */
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
-
-    TIM_OC4Init(TIM3, &TIM_OCInitStructure);
-
-    TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
-
-  TIM_ARRPreloadConfig(TIM3, ENABLE);
-
   /* TIM3 enable counter */
   TIM_Cmd(TIM3, ENABLE);
+
+  /* do TIM8 channel and enables */
+
+  TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+
+  /* PWM1 Mode configuration: Channel4 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC1Init(TIM8, &TIM_OCInitStructure);
+
+  TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+
+  /* TIM8 enable counter */
+  TIM_Cmd(TIM8, ENABLE);
+
+
 }
 
-void changepwm(uint16_t value){
+void changelmpwm(uint16_t value){
 
-  TIM3->CCR1 = value;
-  TIM3->CCR2 = value;
-  TIM3->CCR3 = value;
-  TIM3->CCR4 = value; // somehow need set all 4????
+  TIM3->CCR4 = value;
 }
 
-/**
-  * @brief  Configure the TIM3 Ouput Channels.
-  * @param  None
-  * @retval None
-  */
-void TIM_Config(void) // can't seem to map to pc14 or pc11 or pc10 but pc8 and 9 work!
+void changemaximpwm(uint16_t value){
+
+  TIM8->CCR4 = value;
+}
+
+void TIM_Config(void) 
 {
+
+  /*
+filterpwm-PB1 (is for lm13700)
+filterclock-PC9 (is for maxim)
+
+-PB1 can be TIM3_CH4, PC9 as TIM8_CH4, 
+
+  */
+
   GPIO_InitTypeDef GPIO_InitStructure;
 
   /* TIM3 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
+  /* TIM8 clock enable */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE); // APB2?
+
   /* GPIOC and GPIOB clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOB, ENABLE);
-  
-  /* GPIOC Configuration: TIM3 pc9 we also want pc14 */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ; //was UP
-  GPIO_Init(GPIOC, &GPIO_InitStructure); 
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // AHB1???
 
 
   //  PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
   //  RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
-
   
-  /* GPIOB Configuration:  TIM3 CH3 (PB0) and TIM3 CH4 (PB1) */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 |GPIO_Pin_0;
+  /* GPIOB Configuration:  TIM3 CH4 (PB1) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
   GPIO_Init(GPIOB, &GPIO_InitStructure); 
 
-  /* Connect TIM3 pins to AF2 */  
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM3);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_TIM3);
-  GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_TIM3); 
+  /* Connect TIM3 pins to PB1 */  
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);
+
+  /* TIM8 pins to PC9 */  
+
+  /* GPIOC Configuration: TIM8_CH4 (PC9) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ; //was UP
+  GPIO_Init(GPIOC, &GPIO_InitStructure); 
+
+  /* Connect TIM8 pins to PC9 */  
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
+
 }
