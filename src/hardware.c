@@ -8,16 +8,15 @@
 
 - testing filter switches and PWM - TEST!
 
-- testing 40106 power interrut
+- maximpwm is working now (0-4800 say as values) - can also be cleaned up a bit
 
-filterpwm-PB1 (is for lm13700)
-filterclock-PC9 (is for maxim)
-40106powerpwm-PC14
+**but problems with lm13700??? - seems to self-oscillate... circuit, hardware fault, timing?
 
-PC14 - not part of PWM!!!
+- TO TEST: 40106 power interrupt: noisy and maybe needs more filtering
+  for power supply. also seems stop interrupt after a while (3 or more
+  loops when we vary period with shorter code)
 
-(PB1 can be TIM3_CH4, PC9 as TIM8_CH4, but PC14 has no TIM assoc. but
-could be with interrupt and hard toggle???)
+seems to be some problem with lm358 design/or interaction with 40106???
 
 - test all hardware switches: filt+distort on, feedback, distortion in
   filter, filter feedback variations
@@ -66,12 +65,21 @@ void TIM_Config(void);
 
 void TIM2_IRQHandler(void)
 {
+  static int flag=0;
 if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
 {
 TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
+//GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
+ if (flag>10){
+   GPIO_ResetBits(GPIOC, GPIO_Pin_14);
+   if (flag>100) flag=0;
+ }
+ else GPIO_SetBits(GPIOC, GPIO_Pin_14);
+ flag++;
+
 }
 }
+
 
 /* what are pins we need to be switching?
 
@@ -82,7 +90,10 @@ GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
 - SW4 PB4 - filter to jack
 - SW5 PB5 - 40106 to filter
 - SW6 PB6 - 40106 to jack
-- SW7 PB7 - last 3 for 4053-input
+
+// 4053:
+
+- SW7 PB7 - input
 - SW8 PB8 - filterin
 - SW9 PB9 - filterout
 - feedbacksw-PC8
@@ -118,8 +129,8 @@ are any of these swapped???
 void setup_switches(void)
 {
 
-  //  GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);    
-  //  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);   
+  //    GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);    
+  //    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);   
 
 
     	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
@@ -179,13 +190,13 @@ void test_filter(void)
 
   GPIOC->ODR |= (1<<11) | (1<<10); //test distortion in filter = remove 1<<10
 
-  //- SW4 PB4 - filter to jack
-
-  GPIOB->ODR &= ~(7);
+  GPIOB->ODR &= ~(7); ///???
   GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
 
+  //- SW4 PB4 - filter to jack
+
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
+  //  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
 
 
 }
@@ -193,10 +204,16 @@ void test_filter(void)
 void test_40106(void)
 {
 
+
+
   GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
 
   //- SW0 PB0 - out to 40106
   //- SW6 PB6 - 40106 to jack
+
+  GPIOB->ODR &= ~(7); ///???
+  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
+
 
   GPIOB->ODR = 1 | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
@@ -272,15 +289,18 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
+
   /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
   TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
 
-  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
   /* TIM3 enable counter */
   TIM_Cmd(TIM3, ENABLE);
@@ -289,15 +309,20 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
   TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
 
+  // new structure???
+
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
   /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
   TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-  TIM_OC1Init(TIM8, &TIM_OCInitStructure);
+  TIM_OC4Init(TIM8, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
 
-  TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);
+  TIM_CtrlPWMOutputs(TIM8, ENABLE);
 
   /* TIM8 enable counter */
   TIM_Cmd(TIM8, ENABLE);
@@ -308,11 +333,43 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 void setlmpwm(uint16_t value){
 
   TIM3->CCR4 = value;
+
 }
 
 void setmaximpwm(uint16_t value){
+  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
 
-  TIM8->CCR4 = value;
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = value; // was 665
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  /* do TIM8 channel and enables */
+
+  TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+
+  // new structure???
+
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
+  /* PWM1 Mode configuration: Channel4 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 100;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC4Init(TIM8, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+
+  TIM_CtrlPWMOutputs(TIM8, ENABLE);
+
+  /* TIM8 enable counter */
+  TIM_Cmd(TIM8, ENABLE);
+
+  //  TIM8->CCR4 = value;
+
+
 }
 
 void TIM_Config(void) 
@@ -335,12 +392,9 @@ filterclock-PC9 (is for maxim)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE); // APB2?
 
   /* GPIOC and GPIOB clock enable */
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // AHB1???
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // AHB1???
 
-
-  //  PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
-  //  RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
   
   /* GPIOB Configuration:  TIM3 CH4 (PB1) */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
@@ -372,6 +426,9 @@ void setup40106power(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
 
+
+  PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
+  RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -388,12 +445,15 @@ NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 NVIC_Init(&NVIC_InitStructure);
+
+ TIM_OCStructInit(&TIM_OCInitStructure);
+
  
 /* TIM2 clock enable */
 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 /* Time base configuration */
-TIM_TimeBaseStructure.TIM_Period = 1000 - 1; // 1 MHz down to 1 KHz (1 ms)
-TIM_TimeBaseStructure.TIM_Prescaler = 84 - 1; // 24 MHz Clock down to 1 MHz (adjust per your clock)
+ TIM_TimeBaseStructure.TIM_Period = 1; // 1000 - 1 // 1 MHz down to 1 KHz (1 ms)
+ TIM_TimeBaseStructure.TIM_Prescaler =10-1;// 84 - 1; // was 84 - 1// 24 MHz Clock down to 1 MHz (adjust per your clock)
 TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);

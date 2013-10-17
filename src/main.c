@@ -40,29 +40,36 @@ do {							\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
+#define delay2()						\
+do {							\
+  register unsigned int i;				\
+  for (i = 0; i < 100000; ++i)				\
+    __asm__ __volatile__ ("nop\n\t":::"memory");	\
+} while (0)
+
 
 void main(void)
 {
 	uint32_t state;
 	int32_t idx, rcount,wcount;
-	int16_t data,x;
+	uint16_t data,x;
 		
 #if 1
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
-	//	setup_switches();
+	setup_switches();
 	//switch_jack();
 	//	test_filter();
 	//test_40106andfilt(); 
 	//test_filtand40106();
 	//switchalloff();
-	//	test_40106(); //that's working! is it???
+	test_40106(); 
 
 	Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
 
-	retryagainpwm();	
-	setup40106power();
+		retryagainpwm();	
+		setup40106power();
 
 	//	test_40106(); //that's working! is it???
 
@@ -81,15 +88,17 @@ void main(void)
 		I2S_RX_CallBack(tx_buffer, rx_buffer, BUFF_LEN);
 	}
 #endif
-	x=rcount=wcount=0;
+	x=rcount=wcount=500;
 	
 	while(1)
 	{
 	  //  x=adc_buffer[0];
-	  setmaximpwm(x);
+	  //	  	  setmaximpwm(200);
+		  //  setlmpwm(x);
+	  //	  	  set40106power(x); // somehow crashy
 	  x++;
-	  //	  delay();
-	  if (x>1024) x=0;
+	  //	  	  delay2();
+	  if (x>1000) x=500;
 	}
 }
 
