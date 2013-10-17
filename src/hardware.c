@@ -10,16 +10,11 @@
 
 - maximpwm is working now (0-4800 say as values) - can also be cleaned up a bit
 
-**but problems with lm13700??? - seems to self-oscillate... circuit, hardware fault, timing?
+- lmpwm is ringing (1-1000)
 
-- TO TEST: 40106 power interrupt: noisy and maybe needs more filtering
-  for power supply. also seems stop interrupt after a while (3 or more
-  loops when we vary period with shorter code)
+- 40106 power interrupt working but some CLASH between this setup and filter pwm ? seems OK now
 
-seems to be some problem with lm358 design/or interaction with 40106???
-
-- test all hardware switches: filt+distort on, feedback, distortion in
-  filter, filter feedback variations
+- clean up for functions below and test all combinations:
 
   functions:
 
@@ -54,11 +49,10 @@ int duty_cycle;
 
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure;
-uint16_t CCR1_Val = 333; // was 333
-uint16_t CCR2_Val = 333;
-uint16_t CCR3_Val = 333;
 uint16_t CCR4_Val = 333;
 uint16_t PrescalerValue = 0;
+
+uint16_t fakep;
 
 void TIM_Config(void);
 
@@ -72,7 +66,7 @@ TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 //GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
  if (flag>10){
    GPIO_ResetBits(GPIOC, GPIO_Pin_14);
-   if (flag>100) flag=0;
+   if (flag>(10+fakep)) flag=0;
  }
  else GPIO_SetBits(GPIOC, GPIO_Pin_14);
  flag++;
@@ -196,7 +190,7 @@ void test_filter(void)
   //- SW4 PB4 - filter to jack
 
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  //  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
+    GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
 
 
 }
@@ -206,7 +200,7 @@ void test_40106(void)
 
 
 
-  GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
+  //  GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
 
   //- SW0 PB0 - out to 40106
   //- SW6 PB6 - 40106 to jack
@@ -266,15 +260,7 @@ void test_40106andfilt(void)
 }
 
 
-/* 3 timers/pwm */
-
 void retryagainpwm(void){ // THIS ONE WORKS! 
-
-  /*
-
-- re-test first lm filter, then maxim (TIM8)
-
-  */
 
   TIM_Config();
 
@@ -282,7 +268,7 @@ void retryagainpwm(void){ // THIS ONE WORKS!
   PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
 
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 665; // was 665
+  TIM_TimeBaseStructure.TIM_Period = 2400; // was 665 - this can change
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -429,7 +415,7 @@ void setup40106power(void)
 
   PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
   RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  //  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -450,7 +436,7 @@ NVIC_Init(&NVIC_InitStructure);
 
  
 /* TIM2 clock enable */
-RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 /* Time base configuration */
  TIM_TimeBaseStructure.TIM_Period = 1; // 1000 - 1 // 1 MHz down to 1 KHz (1 ms)
  TIM_TimeBaseStructure.TIM_Prescaler =10-1;// 84 - 1; // was 84 - 1// 24 MHz Clock down to 1 MHz (adjust per your clock)
@@ -465,5 +451,6 @@ TIM_Cmd(TIM2, ENABLE);
 
 void set40106power(uint16_t value){
 
-  TIM_SetAutoreload(TIM2, value); // same value as period above?
+  fakep=value;
+
 }

@@ -58,19 +58,19 @@ void main(void)
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
 	setup_switches();
-	//switch_jack();
-	//	test_filter();
-	//test_40106andfilt(); 
-	//test_filtand40106();
+	//	switch_jack();
+		test_filter();
+	//	test_40106andfilt(); //???
+	//	test_filtand40106(); 
 	//switchalloff();
-	test_40106(); 
+	//		test_40106(); 
 
 	Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
 
-		retryagainpwm();	
-		setup40106power();
-
+	setup40106power();
+	retryagainpwm(); 	
+	
 	//	test_40106(); //that's working! is it???
 
 	
@@ -88,17 +88,17 @@ void main(void)
 		I2S_RX_CallBack(tx_buffer, rx_buffer, BUFF_LEN);
 	}
 #endif
-	x=rcount=wcount=500;
+	x=rcount=wcount=1;
 	
 	while(1)
 	{
 	  //  x=adc_buffer[0];
-	  //	  	  setmaximpwm(200);
-		  //  setlmpwm(x);
-	  //	  	  set40106power(x); // somehow crashy
+	  setmaximpwm(6*x); // from 200 to 4800
+	  setlmpwm(x); // from 1 to 1000
+	  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
 	  x++;
-	  //	  	  delay2();
-	  if (x>1000) x=500;
+	  delay2();
+	  if (x>1000) x=1;
 	}
 }
 

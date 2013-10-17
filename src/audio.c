@@ -97,11 +97,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (wcount>48000) wcount=0;
 	  if (rcount>48000) rcount=0;
 	*/
-	for (x=0;x<sz/2;x++){
-	  left_buffer[(sz/2)-x]=right_buffer[x];
-	}
+		for (x=0;x<sz/2;x++){
+		  //	  left_buffer[(sz/2)-x]=right_buffer[x];
+	  left_buffer[x]=0;
+	  }
 
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 	// but what we hear is right_buffer here, left is for filter feedback
+	// figure this out - 
+	//	audio_comb_stereo(sz, dst, right_buffer=filter, right_buffer=audio);
+
 
 }
