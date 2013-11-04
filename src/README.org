@@ -1,12 +1,36 @@
+* TUE 5 NOV TODO
+
 * MON 4 NOV TODO:
 
-where is map?
+where is map of pads? ON WALL!
 
-how many bits is ADC?
+how many bits is ADC? 12 bits = 0->4096
 
-what should LM13700 PWM be like?
+what should LM13700 PWM be like? 39KHz? check! - replaced routine with
+same as maxim - to be cleaned up!
+
+to test fingers/potis - fingers done...TESTED WORKING
+
+poti fingers - some effects on top board but not on bottom as no
+generators
 
 ///
+
+*problems are:*
+
+- bleedthrough 4053, 4066 (what if was replaced with non HCT - check
+  resistance - will it switch?)
+
+- we can't cut input signal out of loop // re-test if feedback somehow
+  does this? NO - but can still keep as option
+
+- ringing in the filter - maybe change PWM timing? TEST
+
+*otherwise*
+
+1-all hardware switches working
+
+////
 
 hardware:
 
@@ -24,22 +48,9 @@ no results: bad solder (redone), bad design (recheck - checked),
 
 remade all and now works??? is in adc_buffer[9[]
 
-- how avoid filter ringing? look at filter signal path (re-solder all also)
-
-also look at 13700 pwm settings online
+- how avoid filter ringing? look at filter signal path (re-solder all also) DONE
 
 coding:
-
-LATER- Patterson's worm code (also so worm movements bump in audio - so we
-  can keep record of paths but also use audio buffer as this record)
-
-- run through as binary 101000 whatever all hardware options (off, untied,
-  tied to datagen1, etc.)
-
-- finish all hardware switches and apply to knob
-
-- memory management/areas refresh
-
 
 * working notes
 
@@ -91,7 +102,9 @@ down) TEST TOUCH (lower and top)
 
 5-filter and all hardware switches nearly DONE
 
-5.5-fingers//EEG//LM358IN
+5.5-fingers//EEG//LM358IN 
+
+///
 
 5.6-buffer treatment tests/ideas.
 

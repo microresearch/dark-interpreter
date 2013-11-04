@@ -58,20 +58,18 @@ void main(void)
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
 	setup_switches();
-	//		switch_jack();
-	//	test_filter();
-	//		test_40106andfilt(); //???
-	//	test_filtand40106(); 
+	switch_jack();
+	test_filter();
+	//			test_40106andfilt(); //???
+	//test_filtand40106(); // works nicely
 	//switchalloff();
 	//	test_40106(); 
 
 	Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
-
-	
-	retryagainpwm(); 	
-	setup40106power();
-	test_40106(); //that's working! is it???
+		retryagainpwm(); 	
+		setup40106power();
+	//	test_40106(); //that's working! is it???
 
 	
 	I2S_Block_Init();
@@ -94,15 +92,15 @@ void main(void)
 	{
 	  // top down knobs: 2,0,3,4,1 
 	  	  	  y=adc_buffer[1]; 
-		  //x=adc_buffer[9]; // is EEG!
-			  //  	  setmaximpwm(200);
-	  //	  setmaximpwm(200+(x*2)); // from 200 to 4800 (lowest)
-		  //	  setlmpwm(x); // from 1 to 1000
-			  	  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
-				  // set40106power(x);
+			  x=adc_buffer[0]; 
+			  setmaximpwm(200+x);
+			  //setmaximpwm(200+y); // from 200 to 4800 (lowest)
+			  setlmpwm(200+y); // from 1 to 1000
+			  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
+			  // set40106power(x);
 	  x++;
 	  delay2();
-	  if (x>2000) x=1;
+	  if (x>1000) x=1;
 	}
 }
 

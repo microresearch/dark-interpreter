@@ -169,14 +169,12 @@ void switch_jack(void)
 
   // try also with BSRR
 
-  //  GPIO_SetBits(GPIOB, GPIO_Pin_2);
+  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); // feedback
 
-  //test feedback with resistor ABANDONED (works if have 10k input res?)
-
-  //  GPIO_SetBits(GPIOC, GPIO_Pin_8);
+  //GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
 
   GPIOB->ODR &= ~(7); // should clear more than this?
-  GPIOB->ODR |= JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+  GPIOB->ODR = JACKOUT | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
 }
 
@@ -187,7 +185,7 @@ void test_filter(void)
 
   //- SW1 PC11 - out to filter PC10 also 1
 
-  GPIOC->ODR |= (1<<11);// | (1<<10); //test distortion in filter = remove 1<<10
+  GPIOC->ODR |= (1<<11) | (1<<10); //test distortion in filter = remove 1<<10
 
   GPIOB->ODR &= ~(7); ///???
   GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
@@ -195,7 +193,7 @@ void test_filter(void)
   //- SW4 PB4 - filter to jack
 
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
+  //  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
   // without left in/out across we have ringing on LM!
 
 }
@@ -236,12 +234,14 @@ void test_filtand40106(void)
 
   //- SW1 PC11 - out to filter PC10 also 1
 
-  GPIOC->ODR |= (1<<11) | (1<<10);
+  GPIOC->ODR |= (1<<11) | (1<<10);   //test distortion in filter = remove 1<<10
+
 
   //- SW4 PB3 and PB6
 
   GPIOB->ODR &= ~(7);
   GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
+  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
 
   GPIOB->ODR |= (1<<3) | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 }
@@ -254,7 +254,7 @@ void test_40106andfilt(void)
 - SW5 PB5 - 40106 to filter
   */
 
-  GPIOC->ODR |= (1<<10);
+  GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
 
 
   GPIOB->ODR &= ~(7);
@@ -275,6 +275,9 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
   /* Time base configuration */
   TIM_TimeBaseStructure.TIM_Period = 2000; // was 665 was 2400 - this can change
+
+  // 717 should give us 39 KHz if we start from 28 MHz
+
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -324,7 +327,38 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
 void setlmpwm(uint16_t value){
 
-  TIM3->CCR4 = value;
+  //  TIM3->CCR4 = value;
+  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // was by 28 MHz
+
+  /* Time base configuration */
+  TIM_TimeBaseStructure.TIM_Period = value; // was 665
+  TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  /* do TIM8 channel and enables */
+
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+  // new structure???
+
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
+  /* PWM1 Mode configuration: Channel4 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 100;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+
+  TIM_CtrlPWMOutputs(TIM3, ENABLE);
+
+  /* TIM8 enable counter */
+  TIM_Cmd(TIM3, ENABLE);
+
+
 
 }
 
