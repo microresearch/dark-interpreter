@@ -1,3 +1,46 @@
+* MON 4 NOV TODO:
+
+where is map?
+
+how many bits is ADC?
+
+what should LM13700 PWM be like?
+
+///
+
+hardware:
+
+- is feedback bleed so bad when we have signal? YES!
+
+also problem is how to cut feedback from justin (as we have this on 4053)
+
+so leave feedback for now and do some of this in software...
+
+- testing feedbackX, LM358 - main signal bleeds also through 
+
+- test EEG signals:
+
+no results: bad solder (redone), bad design (recheck - checked),
+
+remade all and now works??? is in adc_buffer[9[]
+
+- how avoid filter ringing? look at filter signal path (re-solder all also)
+
+also look at 13700 pwm settings online
+
+coding:
+
+LATER- Patterson's worm code (also so worm movements bump in audio - so we
+  can keep record of paths but also use audio buffer as this record)
+
+- run through as binary 101000 whatever all hardware options (off, untied,
+  tied to datagen1, etc.)
+
+- finish all hardware switches and apply to knob
+
+- memory management/areas refresh
+
+
 * working notes
 
 audio.c hardware.c mainbuffer.c datagen.c
@@ -11,11 +54,15 @@ with headers...
   add resistor to signal path (pin 2) - TEST! - with 10k is very
   minimal bleed
 
-- power consumption seems high?
+what we've done is added 20k from pin 12 of 4053 to pin 2 of 4066
+(detached from pcb) to insert 20k in path from JACK in (but would need
+to change design so for first 10 leave without feedback path!)
 
-- problem getting pinc14 PWM working
+- power consumption seems high? TEST THIS
 
-- also some mech/loose conn as sound changes when slightly flex brd
+- some issues with ringing of lm13700 in filter feedback path
+
+- also 
 
 * programming
 
@@ -40,21 +87,23 @@ swapped from STLINK board)
 2.6 get knobs and touch sensors in TO TEST. TESTED ADC0 (2nd knob
 down) TEST TOUCH (lower and top)
 
-4-PWM TO TEST
+4-PWM/interrupts TO TEST nearly DONE
 
-5-filter and all hardware switches
+5-filter and all hardware switches nearly DONE
+
+5.5-fingers//EEG//LM358IN
+
+5.6-buffer treatment tests/ideas.
 
 6-datagens - backwards, code chunks, symmetry, code direction and
 recoding/rechunking
-
-3-buffer treatment tests/ideas.
 
 (read from lists of grain size and position, what to do if fill buffer
 part way through grain?)
 
 7-stack/frame -> stack machine in buffer
 
-8-fingers//EEG//LM358IN
+8-final tests and release
 
 * code notes
 
@@ -185,3 +234,5 @@ and how this translates into chunk for callback
 http://doc.sccode.org/Classes/FitzHughNagumo.html
 
 also Oregonator (reaction.diff), brusselator...
+
+Patterson's worms...

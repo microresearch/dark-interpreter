@@ -43,7 +43,7 @@ do {							\
 #define delay2()						\
 do {							\
   register unsigned int i;				\
-  for (i = 0; i < 100000; ++i)				\
+  for (i = 0; i < 10000; ++i)				\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
@@ -52,26 +52,26 @@ void main(void)
 {
 	uint32_t state;
 	int32_t idx, rcount,wcount;
-	uint16_t data,x;
+	uint16_t data,x,y;
 		
 #if 1
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
 	setup_switches();
-	//	switch_jack();
-		test_filter();
-	//	test_40106andfilt(); //???
+	//		switch_jack();
+	//	test_filter();
+	//		test_40106andfilt(); //???
 	//	test_filtand40106(); 
 	//switchalloff();
-	//		test_40106(); 
+	//	test_40106(); 
 
 	Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
 
-	setup40106power();
-	retryagainpwm(); 	
 	
-	//	test_40106(); //that's working! is it???
+	retryagainpwm(); 	
+	setup40106power();
+	test_40106(); //that's working! is it???
 
 	
 	I2S_Block_Init();
@@ -92,13 +92,17 @@ void main(void)
 	
 	while(1)
 	{
-	  //  x=adc_buffer[0];
-	  setmaximpwm(6*x); // from 200 to 4800
-	  setlmpwm(x); // from 1 to 1000
-	  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
+	  // top down knobs: 2,0,3,4,1 
+	  	  	  y=adc_buffer[1]; 
+		  //x=adc_buffer[9]; // is EEG!
+			  //  	  setmaximpwm(200);
+	  //	  setmaximpwm(200+(x*2)); // from 200 to 4800 (lowest)
+		  //	  setlmpwm(x); // from 1 to 1000
+			  	  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
+				  // set40106power(x);
 	  x++;
 	  delay2();
-	  if (x>1000) x=1;
+	  if (x>2000) x=1;
 	}
 }
 

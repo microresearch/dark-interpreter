@@ -12,7 +12,10 @@
 
 - lmpwm is ringing (1-1000)
 
-- 40106 power interrupt working but some CLASH between this setup and filter pwm ? seems OK now
+- 40106 power interrupt working but some CLASH between this setup and
+  filter pwm ? seems OK now // but now doesn't work at all AS:
+
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); was commented out
 
 - clean up for functions below and test all combinations:
 
@@ -151,7 +154,6 @@ void setup_switches(void)
 	//	GPIOC->MODER |= (GPIO_MODER_MODER8_0) | (GPIO_MODER_MODER11_0) | (GPIO_MODER_MODER10_0) ; // another way to do it
 
 	GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
-
 	GPIOC->ODR = 0;
 }
 
@@ -167,11 +169,14 @@ void switch_jack(void)
 
   // try also with BSRR
 
-  GPIO_SetBits(GPIOB, GPIO_Pin_2);
+  //  GPIO_SetBits(GPIOB, GPIO_Pin_2);
 
+  //test feedback with resistor ABANDONED (works if have 10k input res?)
 
-  //  GPIOB->ODR &= ~(7);
-  //  GPIOB->ODR |= JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+  //  GPIO_SetBits(GPIOC, GPIO_Pin_8);
+
+  GPIOB->ODR &= ~(7); // should clear more than this?
+  GPIOB->ODR |= JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
 }
 
@@ -182,7 +187,7 @@ void test_filter(void)
 
   //- SW1 PC11 - out to filter PC10 also 1
 
-  GPIOC->ODR |= (1<<11) | (1<<10); //test distortion in filter = remove 1<<10
+  GPIOC->ODR |= (1<<11);// | (1<<10); //test distortion in filter = remove 1<<10
 
   GPIOB->ODR &= ~(7); ///???
   GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
@@ -190,8 +195,8 @@ void test_filter(void)
   //- SW4 PB4 - filter to jack
 
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-    GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
-
+  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
+  // without left in/out across we have ringing on LM!
 
 }
 
@@ -254,6 +259,7 @@ void test_40106andfilt(void)
 
   GPIOB->ODR &= ~(7);
   GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
+  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
 
   GPIOB->ODR |= (1<<0 | (1<<4)) | (1<<5);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
@@ -268,7 +274,7 @@ void retryagainpwm(void){ // THIS ONE WORKS!
   PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
 
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 2400; // was 665 - this can change
+  TIM_TimeBaseStructure.TIM_Period = 2000; // was 665 was 2400 - this can change
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -423,7 +429,6 @@ void setup40106power(void)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-
 NVIC_InitTypeDef NVIC_InitStructure;
 /* Enable the TIM2 gloabal Interrupt */
 NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
@@ -432,14 +437,14 @@ NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 NVIC_Init(&NVIC_InitStructure);
 
- TIM_OCStructInit(&TIM_OCInitStructure);
-
+TIM_OCStructInit(&TIM_OCInitStructure);
  
 /* TIM2 clock enable */
-//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 /* Time base configuration */
  TIM_TimeBaseStructure.TIM_Period = 1; // 1000 - 1 // 1 MHz down to 1 KHz (1 ms)
  TIM_TimeBaseStructure.TIM_Prescaler =10-1;// 84 - 1; // was 84 - 1// 24 MHz Clock down to 1 MHz (adjust per your clock)
+
 TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
