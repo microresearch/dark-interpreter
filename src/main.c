@@ -58,8 +58,8 @@ void main(void)
 	Audio_Init();
 	ADC1_Init((uint16_t *)adc_buffer);
 	setup_switches();
-	switch_jack();
-	test_filter();
+	//	switch_jack();
+		test_filter();
 	//			test_40106andfilt(); //???
 	//test_filtand40106(); // works nicely
 	//switchalloff();
@@ -68,7 +68,7 @@ void main(void)
 	Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
 		retryagainpwm(); 	
-		setup40106power();
+		//		setup40106power();
 	//	test_40106(); //that's working! is it???
 
 	
@@ -91,12 +91,12 @@ void main(void)
 	while(1)
 	{
 	  // top down knobs: 2,0,3,4,1 
-	  	  	  y=adc_buffer[1]; 
+	  	  	  y=adc_buffer[2]; 
 			  x=adc_buffer[0]; 
-			  setmaximpwm(200+x);
-			  //setmaximpwm(200+y); // from 200 to 4800 (lowest)
-			  setlmpwm(200+y); // from 1 to 1000
-			  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
+			  // setmaximpwm(200);
+			  setmaximpwm(200+y); // from 200 to 4800 (lowest)
+			  //setlmpwm(200+y, x); // from 1 to 1000
+			  //			  set40106power(10-(x/100)); // should be from 0-20 say or 0-10
 			  // set40106power(x);
 	  x++;
 	  delay2();

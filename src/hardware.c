@@ -2,20 +2,11 @@
 
 /* TODO:
 
-- do all hardware init/setup in one go - as maybe problem with so many
+- maybe do all hardware init/setup in one go - as maybe problem with so many
 - structures try also with BSRR or with GPIO_WriteBit(GPIO_TypeDef*
 - GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
 
-- testing filter switches and PWM - TEST!
-
-- maximpwm is working now (0-4800 say as values) - can also be cleaned up a bit
-
 - lmpwm is ringing (1-1000)
-
-- 40106 power interrupt working but some CLASH between this setup and
-  filter pwm ? seems OK now // but now doesn't work at all AS:
-
-RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); was commented out
 
 - clean up for functions below and test all combinations:
 
@@ -38,6 +29,62 @@ RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE); was commented out
 ////
 
 - test leave all hanging= GPIO_Mode_IN_FLOATING
+
+///
+
+so we have switchwise:
+
+1on/2off/ ????of make sense-> /4/5/6which datagen?
+
+INPUT/parallel/always: 
+
+feedback on/off - jackin-> - lm358in->
+
+1-feedon jackin xx
+2-feedon xx     lmin
+3-feedoff jackin xx
+4-feedoff xx     lmin
+
+// or do in all hanging?
+
+5-hangfeed jackin xx
+6-hangfeed xx     lmin
+7-feedon hangin
+8-feedoff hangin
+
+421=8 options
+
+first 3 bits (of 12)
+
+supplemented by rest:
+
+otherwise:
+
+1-straightout
+2-unhang all [where to re-hang?]+clocks question?
+
+hang all, 
+
+3-just40106 -> 40106 clock options=1hang,2-dg1,3-dg2,4-dg3
+
+40106thenfilter-->|filterpath=1lm/2lmoneside/3digital-flagup!---distortioninfilter
+
+lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+dig - nodist - 40106clock=1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+
+filterthen40106-->|- all clocks 
+
+lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+dig - nodist - 40106clock=1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+
+-justfilter------->|
+
+lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+dig - nodist - distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
+
 
 */
 
@@ -169,12 +216,12 @@ void switch_jack(void)
 
   // try also with BSRR
 
-  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); // feedback
+  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); 
 
-  //GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
+  //  GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
 
   GPIOB->ODR &= ~(7); // should clear more than this?
-  GPIOB->ODR = JACKOUT | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
 
 }
 
@@ -193,7 +240,7 @@ void test_filter(void)
   //- SW4 PB4 - filter to jack
 
   GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  //  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
+  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
   // without left in/out across we have ringing on LM!
 
 }
@@ -325,11 +372,11 @@ void retryagainpwm(void){ // THIS ONE WORKS!
 
 }
 
-void setlmpwm(uint16_t value){
+void setlmpwm(uint16_t value, uint16_t value2){
 
-  //  TIM3->CCR4 = value;
-  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // was by 28 MHz
-
+  TIM3->CCR4 = value2;
+  //  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // was by 28 MHz
+  PrescalerValue = 2;
   /* Time base configuration */
   TIM_TimeBaseStructure.TIM_Period = value; // was 665
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
@@ -363,8 +410,11 @@ void setlmpwm(uint16_t value){
 }
 
 void setmaximpwm(uint16_t value){
-  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
 
+  // uint32_t SystemCoreClock = 168000000;
+
+  //  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
+  PrescalerValue = 2;
   /* Time base configuration */
   TIM_TimeBaseStructure.TIM_Period = value; // was 665
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
@@ -372,29 +422,23 @@ void setmaximpwm(uint16_t value){
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   /* do TIM8 channel and enables */
-
   TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
-
-  // new structure???
-
+    
   TIM_OCStructInit(&TIM_OCInitStructure);
 
-  /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
   TIM_OCInitStructure.TIM_Pulse = 100;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM8, &TIM_OCInitStructure);
+      
   TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
-
+  
   TIM_CtrlPWMOutputs(TIM8, ENABLE);
-
-  /* TIM8 enable counter */
   TIM_Cmd(TIM8, ENABLE);
-
   //  TIM8->CCR4 = value;
-
+  
 
 }
 

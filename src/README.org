@@ -1,4 +1,55 @@
+* plan
+
+1 phase: hardware switchings + architecture outline 
+2 phase: datagens
+3 phase: audio buffers and processing (any mix?)
+
+
+NOTE- memory management/areas refresh==
+
+3 blocks SRAM : 112KB + 16KB + 64KB (64 is ccmdata see delay code)
+
+use 112KB+16 for general/96K sample buffer (1 second)
+
+ccmdata for datagens/backwards/forwards
+
 * TUE 5 NOV TODO
+
+- to easily try with other 4066? or do we need to bias incoming and if
+  so where?
+
+other hc4066 works but only biasing audio->cap->resistor divider works
+
+could also use U6 extra pins...
+
+bias where we have feedback label straight on jack
+
+gets rid of all bleed on input!! (in 4053 and other)
+
+- test pulse _and_ width for LM13700
+
+- clean up hardware switches drastically
+
+- if we just have hardware switches to poti as all switch binary options
+  very simply mapped to pins (what if all on say? or rather reduce options)
+
+but then also option to untie all clocks and to untie switches themselves
+
+-untie each/all switches (total 10 bits)
+-untie each/all clocks // in parallel to untie all switches _and_ all switch options (3 bits)
+-tie each datagen to each clock (3 x 3 =4 bits???)
+-bitwise for switches (10 bits) - somehow with untied
+-which datagen determines whole set of bits for above (ie. all switches)
+
+a switch can be on/off/untied/datagen tied(and which of say 3)? = 6 states = 3 bits
+
+so 30 bits switches+4clocks=34! so needs be simplified by re-mapping
+
+eg. some bits only if filter is on make sense
+
+//note also filter can be detached on one side so leftaudio goes ONLY to filterin
+
+///
 
 * MON 4 NOV TODO:
 

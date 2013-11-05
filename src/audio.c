@@ -99,7 +99,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	*/
 		for (x=0;x<sz/2;x++){
 		  //   right_buffer[(sz/2)-x]=right_buffer[x];
-		  		  		  	  left_buffer[x]=0;
+		  left_buffer[x]=0;
 		  //		  right_buffer[x]=0;
 	  }
 
