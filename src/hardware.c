@@ -30,62 +30,6 @@
 
 - test leave all hanging= GPIO_Mode_IN_FLOATING
 
-///
-
-so we have switchwise:
-
-1on/2off/ ????of make sense-> /4/5/6which datagen?
-
-INPUT/parallel/always: 
-
-feedback on/off - jackin-> - lm358in->
-
-1-feedon jackin xx
-2-feedon xx     lmin
-3-feedoff jackin xx
-4-feedoff xx     lmin
-
-// or do in all hanging?
-
-5-hangfeed jackin xx
-6-hangfeed xx     lmin
-7-feedon hangin
-8-feedoff hangin
-
-421=8 options
-
-first 3 bits (of 12)
-
-supplemented by rest:
-
-otherwise:
-
-1-straightout
-2-unhang all [where to re-hang?]+clocks question?
-
-hang all, 
-
-3-just40106 -> 40106 clock options=1hang,2-dg1,3-dg2,4-dg3
-
-40106thenfilter-->|filterpath=1lm/2lmoneside/3digital-flagup!---distortioninfilter
-
-lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-dig - nodist - 40106clock=1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-
-filterthen40106-->|- all clocks 
-
-lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-dig - nodist - 40106clock=1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-
--justfilter------->|
-
-lm - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-lmone - 1hang,2-dg1,3-dg2,4-dg3 * distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-dig - nodist - distortion - 40106clock=1hang,2-dg1,3-dg2,4-dg3
-
-
 */
 
 #include "hardware.h"
@@ -163,27 +107,174 @@ are any of these swapped???
 
 */
 
-/* first step switch - SW2 PB2 - out to jack ***/
-
-
 #define JACKOUT (1 << 2) /* port B, pin 2 */
 #define FILTIN (1 << 4) /* port B, pin 4 */
 #define LINEINN (1 << 7) /* port B, pin 7 */
 
+/*
+
+all clocks set in datagens/elsewhere
+
+*/
+
+void dohardwareswitch(uint16_t modder){
+  uint16_t res;
+  // mod is 12 bits 0-4096
+
+  // last 2 bits toggle input
+
+  /*
+feedback on/off - jackin-> - lm358in->
+
+1-feedon jackin xx
+2-feedon xx     lmin
+3-feedoff jackin xx
+4-feedoff xx     lmin
+  */
+
+  //#define JACKOUT (1 << 2) /* port B, pin 2 */
+  //#define FILTIN (1 << 4) /* port B, pin 4 */
+  //#define LINEINN (1 << 7) /* port B, pin 7 */
+
+  //PORTB - PB0-9 is all switches except PB1(filterpwm)
+  //PC8 is feedback switch
+  //jitter???
+  //    res=(modder>>4)&3;
+  //  res=modder/1024;
+
+  //    res = (uint16_t)(((float)modder) / 512.f)%4;
+
+  res= (modder>>4)&3; // 12 bits now lose 4 = 8 bits = 0->255
+  switch(res){
+ case 0:
+   GPIOB->BSRRH = (1<<7);
+   GPIOC->BSRRL = (1<<8);
+   break;
+ case 1:
+   GPIOB->BSRRL = (1<<7);
+   GPIOC->BSRRL = (1<<8);
+   break;
+ case 2:
+   GPIOB->BSRRH = (1<<7);
+   GPIOC->BSRRH = (1<<8);
+   break;
+ case 3:
+   GPIOB->BSRRL = (1<<7);
+   GPIOC->BSRRH = (1<<8);
+ }
+
+
+  // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
+
+  res=(modder>>8); // so now we have 4 bits left = 0->4 options
+
+  switch(res){
+  case 0:
+   //1-straightout
+    // clear other options up here:
+    GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL = (1<<2);
+   break;
+  case 1:
+    //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    break;
+  case 2:
+    //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    break;
+  case 3:
+    //3-just40106
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL=(1<<0) | (1<<6);
+    break;
+  case 4:
+    //4-filterthen40106-->|filterpath=1lm/2digital-distort on/off in each case
+    //filterpath->lm no distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOB->BSRRL=(1<<3) | (1<<6);
+    GPIOC->BSRRL=(1<<11) | (1<<10);
+    break;
+  case 5:
+    //filterpath->lm distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<10);
+    GPIOB->BSRRL=(1<<3) | (1<<6);
+    GPIOC->BSRRL=(1<<11);
+    break;
+  case 6:
+    //filterpath->digital no distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
+    GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
+    GPIOC->BSRRL=(1<<11) | (1<<10);
+    break;
+  case 7:    
+    //filterpath->digital distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
+    GPIOC->BSRRH= (1<<10);
+    GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
+    GPIOC->BSRRL=(1<<11);
+    break;
+  case 8:
+    //5-40106thenfilter-->|
+    //filterpath->lm no distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
+    GPIOC->BSRRL= (1<<10);
+    break;
+  case 9:
+    //filterpath->lm distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11) | (1<<10);
+    GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
+    break;
+  case 10:
+    //filter->digital no distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRL= (1<<10);
+    break;
+  case 11:
+    //filter->digital distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
+    GPIOC->BSRRH= (1<<11) | (1<<10);
+    GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    break;
+  case 12:
+    //6-justfilter------->|
+    //filterpath->lm no distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
+    GPIOB->BSRRL= (1<<4);
+    GPIOC->BSRRL= (1<<10) | (1<<11);
+    break;
+  case 13:
+    //filterpath->lm distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<10);
+    GPIOB->BSRRL= (1<<4);
+    GPIOC->BSRRL= (1<<11);
+    break;
+  case 14:
+    //filterpath->digital no distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
+    GPIOB->BSRRL= (1<<4) | (1<<8) | (1<<9);
+    GPIOC->BSRRL= (1<<10) | (1<<11);
+    break;
+  case 15:
+    //filterpath->digital distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
+    GPIOC->BSRRH= (1<<10) | (1<<8) | (1<<9);
+    GPIOB->BSRRL= (1<<4);
+    GPIOC->BSRRL= (1<<11);
+    break;
+  }
+}
+
 void setup_switches(void)
 {
-
-  //    GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);    
-  //    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);   
-
-
-    	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-  //	GPIOB->MODER |= (1 << (2 * 2)) | (1 << (4 * 2)) | (1 << (7 * 2)) | (1 << (8 * 2)) | (1 << (9 * 2)) | (1 << (6 * 2)) | (1 << (0 * 2)) ;	// JACK
-
-	// try this way as PB4 has problem with JTRST - but somehow
-	// this screws up rest settings sometimes
-	// somehow funny one either/or works???
-
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
   GPIO_InitTypeDef  GPIO_InitStructure;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ; // this works for pin 4 (should use for all pins?)
@@ -192,16 +283,12 @@ void setup_switches(void)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  //GPIO_SetBits(GPIOB, GPIO_Pin_4);
-  	
 
-	// switch off PC8/feedback???
-  
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-	//	GPIOC->MODER |= (GPIO_MODER_MODER8_0) | (GPIO_MODER_MODER11_0) | (GPIO_MODER_MODER10_0) ; // another way to do it
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 
-	GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
-	GPIOC->ODR = 0;
+  // different method to above???
+
+  GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
 }
 
 void switchalloff(void)
@@ -209,109 +296,6 @@ void switchalloff(void)
   GPIOC->ODR = 0;
   GPIOB->ODR = 0;
 }
-
-void switch_jack(void)
-{
-  // clear first 3 and JACKOUT is on
-
-  // try also with BSRR
-
-  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); 
-
-  //  GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
-
-  GPIOB->ODR &= ~(7); // should clear more than this?
-  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-
-}
-
-
-void test_filter(void)
-{
-  // connect the filter in signal path:
-
-  //- SW1 PC11 - out to filter PC10 also 1
-
-  GPIOC->ODR |= (1<<11) | (1<<10); //test distortion in filter = remove 1<<10
-
-  GPIOB->ODR &= ~(7); ///???
-  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
-
-  //- SW4 PB4 - filter to jack
-
-  GPIOB->ODR |= FILTIN;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
-  // without left in/out across we have ringing on LM!
-
-}
-
-void test_40106(void)
-{
-
-
-
-  //  GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
-
-  //- SW0 PB0 - out to 40106
-  //- SW6 PB6 - 40106 to jack
-
-  GPIOB->ODR &= ~(7); ///???
-  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
-
-
-  GPIOB->ODR = 1 | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-
-  // was |=
-
-}
-
-/* fill in rest of switch functions - also to leave all floating for
-   pads as HW option FLOATIT */
-
-void test_filtand40106(void)
-{
-
-  /*
-- SW3 PB3 - filter to 40106
-- SW6 PB6 - 40106 to jack
-- SW1 PC11 - out to filter
-  */
-
-  // connect the filter in signal path:
-
-  //- SW1 PC11 - out to filter PC10 also 1
-
-  GPIOC->ODR |= (1<<11) | (1<<10);   //test distortion in filter = remove 1<<10
-
-
-  //- SW4 PB3 and PB6
-
-  GPIOB->ODR &= ~(7);
-  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
-  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
-
-  GPIOB->ODR |= (1<<3) | (1<<6);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-}
-
-void test_40106andfilt(void)
-{
-  /*
-- SW0 PB0 - out to 40106
-- SW4 PB4 - filter to jack
-- SW5 PB5 - 40106 to filter
-  */
-
-  GPIOC->ODR |= (1<<10); //test distortion in filter = remove 1<<10
-
-
-  GPIOB->ODR &= ~(7);
-  GPIOB->ODR &= ~((1<<7) | (1<<8) | (1<<9));
-  GPIOB->ODR |= (1<<8) | (1<<9);// test switch - puts left in/out across
-
-  GPIOB->ODR |= (1<<0 | (1<<4)) | (1<<5);// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-
-}
-
 
 void retryagainpwm(void){ // THIS ONE WORKS! 
 

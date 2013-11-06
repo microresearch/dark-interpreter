@@ -2,16 +2,61 @@
 
 1 phase: hardware switchings + architecture outline 
 2 phase: datagens
-3 phase: audio buffers and processing (any mix?)
+3 phase: audio buffers and processing (any mixing of signals?)
 
 
-NOTE- memory management/areas refresh==
+NOTE-==memory management/areas refresh==
 
 3 blocks SRAM : 112KB + 16KB + 64KB (64 is ccmdata see delay code)
 
 use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
+
+* WED 6 NOV TODO
+
+- re-test with ADC DMA and test all hardware options
+- test unhanging (and how works with top board) and re-hang
+- revising bottom design (see below)
+
+*- datagen should also be tied to full hardware switch*
+
+///
+
+*STARTED with hardware switches but ADC jitter makes impossible or is
+some other problem!*
+
+Most noise is on AVDD:
+
+Suggestions for re-design: 
+
+- AVDD line thicker and clearer tracked
+- moving AVDD filter closer to potis and AVDD chip
+
+- AVDD cap/s(1Uf and 10nF) close to chip (between 12 and 13- VDDA and VSSA) 
+
+(c21 and c13 should be closer to chip)
+
+- AVDD caps close to potis or at least around and about
+
++ see other design notes(fix pwm, fix input bias), lose poti strips,
+  make bottom less symmetrical...
+
+///TODO:
+
+see if can insert 100n close to AVDD for testing?DONE and works better
+
+test chip caps (soldering), 40106?(remove/check) NOT DONE!
+
+how much in software can be done - slow down, averaging? RECHECK
+
+//THOUGHTS->
+
+- how we can simplify, less touch points and reduce to one board??? OR NOT???
+
+PROs: reduce filter crap and parts count (not so much-could lose
+4053), lose top connector, not so much hanging
+
 
 * TUE 5 NOV TODO
 
@@ -26,9 +71,14 @@ bias where we have feedback label straight on jack
 
 gets rid of all bleed on input!! (in 4053 and other)
 
-- test pulse _and_ width for LM13700
+- test pulse _and_ width for LM13700 DONE
 
-- clean up hardware switches drastically
+///
+
+- clean up hardware switches drastically TODO - but it works
+
+*STARTED with hardware switches but ADC jitter makes impossible or is
+some other problem!*
 
 - if we just have hardware switches to poti as all switch binary options
   very simply mapped to pins (what if all on say? or rather reduce options)
@@ -147,15 +197,16 @@ swapped from STLINK board)
 2.5-test audio in/out straight DONE but 4053 seems not quite right RETEST. FIXED
 
 2.6 get knobs and touch sensors in TO TEST. TESTED ADC0 (2nd knob
-down) TEST TOUCH (lower and top)
+down) TEST TOUCH (lower and top)DONE
 
 4-PWM/interrupts TO TEST nearly DONE
 
-5-filter and all hardware switches nearly DONE
-
-5.5-fingers//EEG//LM358IN 
+4.5-fingers//EEG//LM358IN DONE
 
 ///
+
+
+5-filter and all hardware switches nearly DONE
 
 5.6-buffer treatment tests/ideas.
 
