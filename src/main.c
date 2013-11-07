@@ -33,9 +33,6 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
 
-__IO uint16_t ADC3ConvertedValue = 0;
-
-
 #define delay()						\
 do {							\
   register unsigned int i;				\
@@ -46,7 +43,7 @@ do {							\
 #define delay2()						\
 do {							\
   register unsigned int i;				\
-  for (i = 0; i < 100000; ++i)				\
+  for (i = 0; i < 10000; ++i)				\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
@@ -56,21 +53,22 @@ void main(void)
 {
 	uint32_t state;
 	int32_t idx, rcount,wcount;
-	uint16_t data,x,y;
+	uint16_t data,x,y,i,highest,lowest;
 		
 #if 1
-	Audio_Init();
-	Codec_Init(48000);
+	
+		Audio_Init();
+				Codec_Init(48000);
 	delay();	// needed to allow codec to settle?
 	
-	//	ADC1_Init((uint16_t *)adc_buffer);
+	//ADC1_Init((uint16_t *)adc_buffer);
 	//	ADC1_Initonce();
-	setup_switches();
+		setup_switches();
 
 	//	retryagainpwm(); 	
 		//		test_filter();
-		setup40106power();
-	
+		//	setup40106power();
+		
 
 	I2S_Block_Init();
 	
@@ -86,29 +84,25 @@ void main(void)
 		I2S_RX_CallBack(tx_buffer, rx_buffer, BUFF_LEN);
 	}
 #endif
-	x=rcount=wcount=1;
+	x=rcount=i=wcount=highest=lowest=0;
 	//  switch_jack();	
-	switchalloff();
-	switch_jack();	
+	//	switchalloff();
+		switch_jack();	
 	while(1)
 	{
+	  i++;
+	  if (i>10) i=0;
 	  // top down knobs: 2,0,3,4,1 
-	  //	  y=adc_buffer[2]; 
-	  	  y++;
-	  	  if (y>10) y=0;
-	  
-	  /*	  	  for (x=0; x<32; x++) {
-		    	    y += ADC1_Measure();
-		    //	    y+=adc_buffer[0];
-		    }*/
-	  //	  y = y/32;
-	  //  y=ADC1_Measure();
-	    //	  dohardwareswitch(y);
-	  //  switch_jack();
-		  		  	  set40106power(y);
-	  //	  setmaximpwm(x); // from 200 to 4800 (lowest frequency)
-	  //      setlmpwm(x,y);
-	  //		  y=0;
+
+	  //	  for (x=0;x<32;x++){
+	    //  y+= ADC1_Measure();
+	  //	  }	  
+	  //	  y=y/32;
+	  //	  dohardwareswitch(y);
+	  //	  y=0;
+	  	  set40106power(i);
+	  //	  setmaximpwm(i); // from 200 to 4800 (lowest frequency)
+	  //	  setlmpwm(i,i);
 	  delay2();
 	}
 }

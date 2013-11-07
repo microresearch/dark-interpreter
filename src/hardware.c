@@ -155,8 +155,8 @@ feedback on/off - jackin-> - lm358in->
 
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
-  res= (modder>>4)&3; // 12 bits now lose 4 = 8 bits = 0->255
-  //  res=2;
+  res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->255
+  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -179,7 +179,7 @@ feedback on/off - jackin-> - lm358in->
   // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
 
   res=(modder>>8); // so now we have 4 bits left = 0->4 options
-  //  res=0;
+  res=0;
   switch(res){
   case 0:
    //1-straightout
@@ -296,7 +296,7 @@ void switch_jack(void)
 
   //  GPIOC->ODR = 0; // should clear more than this?
   GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  GPIOC->ODR |= (1<<10);
+  //  GPIOC->ODR |= (1<<10);
 
 
 }
@@ -516,7 +516,7 @@ void setup40106power(void)
   PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
   RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
   //  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_12;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;

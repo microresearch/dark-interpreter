@@ -13,11 +13,50 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* FRI 8 NOV TODO
+
+*-- can only attempt to use new pin 42 and thin wire for new PWM tests!*
+
+//
+
+- test unhanging (and how works with top board) and re-hang
+
+- revising bottom design (see all notes below) + finish and send
+
+[think on adding signal-> 40106 into filter clock?]
+
+- brainstorm re-design//programming
+
+
 * THU 7 NOV TODO
 
 - suddenly huge amp noise when we use 40106power... into LINEINR -
   fixed when shift TIM2 to TIM4 but shouldn't be issue for new 40106
-  routing
+  routing DONE (still some issues here...) UNSOLVED
+
+- re-test with ADC DMA - no good/can use multiple in one go sans
+  DMA? - have to set channel each timeDONE
+
+- test all hardware options // one by one OKAY - though didn't test
+  40106!
+
+*1uF for incoming divider is better (CHANGE size on plans)* DONE
+
+TODO: *larger caps on 40106 power* if that helps
+
+Is PWM _or_ 40106 the problem as now no audio _with_ 40106 PWM (TIM4)?
+
+- detached power from 40106 and R5 connection to lm358 and still have
+(worse) nois problems
+
+*-- can only attempt to use new pin 42 and thin wire for new PWM tests!*
+
+//
+
+- test unhanging (and how works with top board) and re-hang
+
+- revising bottom design (see below) + finish and send
+
 
 *knob notes:*
 
@@ -25,7 +64,9 @@ ccmdata for datagens/backwards/forwards
 2-macro/attachment for
 3-datagen select
 4-parameters for above datagen
-5-application of datagen...
+5-application of datagen...???? grainsize somehow on micro/macro
+
++ 4 arrows ----> left/right code movement/speed... up/down as length sample????
 
 * WED 6 NOV TODO
 
