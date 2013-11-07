@@ -13,11 +13,48 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* THU 7 NOV TODO
+
+- suddenly huge amp noise when we use 40106power... into LINEINR -
+  fixed when shift TIM2 to TIM4 but shouldn't be issue for new 40106
+  routing
+
+*knob notes:*
+
+1-HW
+2-macro/attachment for
+3-datagen select
+4-parameters for above datagen
+5-application of datagen...
+
 * WED 6 NOV TODO
 
-- re-test with ADC DMA and test all hardware options
+*new design notes:*
+
+PC13 (pin 2) switches audio in!
+
+TIM1 CH2 is for now 40106 PWM
+
+//add caps/extra pads?/check&tidy/anydesignQ?/zonesandvias/re-checkall/SEND!
+
+ground plane AGND/DGND????look where we have xtal,pwm and I2S signals crossing
+
+TODO:
+
+- test with ADC cap///single ADC
+
+- re-test with ADC DMA 
+
+- test new averaging scheme
+
+- test all hardware options
+
 - test unhanging (and how works with top board) and re-hang
-- revising bottom design (see below)
+
+My solution for STM ADC is: take 8 samples, get rid of the 2 highest
+values and the 2 lowest values and average the 4 remaining
+
+//- revising bottom design (see below)
 
 *- datagen should also be tied to full hardware switch*
 

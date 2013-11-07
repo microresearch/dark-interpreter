@@ -2,6 +2,17 @@
 
 /* TODO:
 
+- for whatever reason now when we use 40106power we get huge noise
+  from power supply/usb suddenly (also with battery)
+
+something coming into lineINR (as when 0 this in audio.c then no noise)
+
+seems to overamplify input
+
+///
+
+test leave all hanging= GPIO_Mode_IN_FLOATING
+
 - maybe do all hardware init/setup in one go - as maybe problem with so many
 - structures try also with BSRR or with GPIO_WriteBit(GPIO_TypeDef*
 - GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
@@ -51,12 +62,12 @@ uint16_t fakep;
 void TIM_Config(void);
 
 
-void TIM2_IRQHandler(void)
+void TIM4_IRQHandler(void)
 {
   static int flag=0;
-if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
 {
-TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
 //GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
  if (flag>10){
    GPIO_ResetBits(GPIOC, GPIO_Pin_14);
@@ -145,6 +156,7 @@ feedback on/off - jackin-> - lm358in->
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
   res= (modder>>4)&3; // 12 bits now lose 4 = 8 bits = 0->255
+  //  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -167,7 +179,7 @@ feedback on/off - jackin-> - lm358in->
   // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
 
   res=(modder>>8); // so now we have 4 bits left = 0->4 options
-
+  //  res=0;
   switch(res){
   case 0:
    //1-straightout
@@ -175,6 +187,8 @@ feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL = (1<<2);
+    GPIOC->BSRRL= (1<<10);
+
    break;
   case 1:
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
@@ -272,6 +286,21 @@ feedback on/off - jackin-> - lm358in->
   }
 }
 
+void switch_jack(void)
+{
+  // clear first 3 and JACKOUT is on
+
+  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); 
+
+  //  GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
+
+  //  GPIOC->ODR = 0; // should clear more than this?
+  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
+  GPIOC->ODR |= (1<<10);
+
+
+}
+
 void setup_switches(void)
 {
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
@@ -289,6 +318,9 @@ void setup_switches(void)
   // different method to above???
 
   GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
+  GPIOC->ODR = 0;
+  GPIOB->ODR = 0;
+
 }
 
 void switchalloff(void)
@@ -493,7 +525,7 @@ void setup40106power(void)
 
 NVIC_InitTypeDef NVIC_InitStructure;
 /* Enable the TIM2 gloabal Interrupt */
-NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -502,18 +534,18 @@ NVIC_Init(&NVIC_InitStructure);
 TIM_OCStructInit(&TIM_OCInitStructure);
  
 /* TIM2 clock enable */
-RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 /* Time base configuration */
  TIM_TimeBaseStructure.TIM_Period = 1; // 1000 - 1 // 1 MHz down to 1 KHz (1 ms)
  TIM_TimeBaseStructure.TIM_Prescaler =10-1;// 84 - 1; // was 84 - 1// 24 MHz Clock down to 1 MHz (adjust per your clock)
 
 TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 /* TIM IT enable */
-TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 /* TIM2 enable counter */
-TIM_Cmd(TIM2, ENABLE);
+TIM_Cmd(TIM4, ENABLE);
 }
 
 void set40106power(uint16_t value){
