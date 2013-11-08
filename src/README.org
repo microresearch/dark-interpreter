@@ -24,10 +24,13 @@ TIM1 CH2 - ?? *WORKING*
 
 //
 
-- test unhanging (and how works with top board) and re-hang
+- test unhanging (and how works with top board)DONE and works well
+  though could be more options of what to hang?
+
+-  and re-hang
 
 - revising bottom design (see all notes below) + [bridge for optional
-  3.3v powers 40106]
+  3.3v powers 40106???]
 
 ///
 

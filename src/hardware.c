@@ -130,6 +130,8 @@ all clocks set in datagens/elsewhere
 
 void dohardwareswitch(uint16_t modder){
   uint16_t res;
+  GPIO_InitTypeDef  GPIO_InitStructure;
+
   // mod is 12 bits 0-4096
 
   // last 2 bits toggle input
@@ -156,7 +158,7 @@ feedback on/off - jackin-> - lm358in->
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
   res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->255
-  //  res=2;
+  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -179,7 +181,7 @@ feedback on/off - jackin-> - lm358in->
   // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
 
   res=(modder>>8); // so now we have 4 bits left = 0->4 options
-  //  res=15;
+  res=2;
   switch(res){
   case 0:
    //1-straightout
@@ -192,9 +194,35 @@ feedback on/off - jackin-> - lm358in->
    break;
   case 1:
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    //question is if really makes sense to unhang _all_
+
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ;
+  GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  // and what to hang on c=8,10,11
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
     break;
   case 2:
-    //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    //2-unhang all except input [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    // input is pb7
+
+    //  GPIO_Init(GPIOB, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 ;
+  GPIO_InitStructure.GPIO_Mode = 0x04;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+
+
     break;
   case 3:
     //3-just40106

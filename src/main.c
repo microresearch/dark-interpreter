@@ -94,10 +94,10 @@ void main(void)
 	  if (i>4096) i=0;
 	  // top down knobs: 2,0,3,4,1 
 
-	  //	  for (x=0;x<32;x++){
-	    //  y+= ADC1_Measure();
-	  //	  }	  
-	  //	  y=y/32;
+	  	  for (x=0;x<32;x++){
+	      y+= ADC1_Measure();
+	  	  }	  
+	  	  y=y/32;
 	  	  dohardwareswitch(y);
 	  //	  y=0;
 	  	  set40106pwm(i);
