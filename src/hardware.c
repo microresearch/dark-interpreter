@@ -156,7 +156,7 @@ feedback on/off - jackin-> - lm358in->
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
   res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->255
-  res=2;
+  //  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -179,7 +179,7 @@ feedback on/off - jackin-> - lm358in->
   // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
 
   res=(modder>>8); // so now we have 4 bits left = 0->4 options
-  res=0;
+  //  res=15;
   switch(res){
   case 0:
    //1-straightout
@@ -209,7 +209,7 @@ feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL=(1<<3) | (1<<6);
     GPIOC->BSRRL=(1<<11) | (1<<10);
     break;
-  case 5:
+  case 5: // 
     //filterpath->lm distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<10);
@@ -222,7 +222,7 @@ feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
     GPIOC->BSRRL=(1<<11) | (1<<10);
     break;
-  case 7:    
+  case 7: //
     //filterpath->digital distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
     GPIOC->BSRRH= (1<<10);
@@ -329,7 +329,7 @@ void switchalloff(void)
   GPIOB->ODR = 0;
 }
 
-void retryagainpwm(void){ // THIS ONE WORKS! 
+void initpwm(void){ // THIS ONE WORKS! 
 
   TIM_Config();
 
@@ -385,7 +385,27 @@ void retryagainpwm(void){ // THIS ONE WORKS!
   /* TIM8 enable counter */
   TIM_Cmd(TIM8, ENABLE);
 
+  /* do TIM1 channel and enables */
 
+  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+
+  // new structure???
+
+  TIM_OCStructInit(&TIM_OCInitStructure);
+
+  /* PWM1 Mode configuration: Channel2 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC2Init(TIM1, &TIM_OCInitStructure);
+  TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+
+  TIM_CtrlPWMOutputs(TIM1, ENABLE);
+
+  /* TIM1 enable counter */
+  TIM_Cmd(TIM1, ENABLE);
 }
 
 void setlmpwm(uint16_t value, uint16_t value2){
@@ -420,8 +440,6 @@ void setlmpwm(uint16_t value, uint16_t value2){
 
   /* TIM8 enable counter */
   TIM_Cmd(TIM3, ENABLE);
-
-
 
 }
 
@@ -471,6 +489,9 @@ filterclock-PC9 (is for maxim)
 
   GPIO_InitTypeDef GPIO_InitStructure;
 
+  /* TIM1 clock enable */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE); // APB2?
+
   /* TIM3 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
@@ -478,10 +499,21 @@ filterclock-PC9 (is for maxim)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE); // APB2?
 
   /* GPIOC and GPIOB clock enable */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // AHB1???
 
-  
+  /* GPIOB Configuration:  TIM1 CH2 (PA9) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOA, &GPIO_InitStructure); 
+
+  /* Connect TIM1 pins to PA9 */  
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_TIM1);
+
   /* GPIOB Configuration:  TIM3 CH4 (PB1) */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
@@ -546,6 +578,12 @@ TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 /* TIM2 enable counter */
 TIM_Cmd(TIM4, ENABLE);
+}
+
+void set40106pwm(uint16_t value){
+
+  TIM1->CCR2 = value;
+
 }
 
 void set40106power(uint16_t value){

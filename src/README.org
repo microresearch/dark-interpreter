@@ -15,18 +15,31 @@ ccmdata for datagens/backwards/forwards
 
 * FRI 8 NOV TODO
 
-*-- can only attempt to use new pin 42 and thin wire for new PWM tests!*
+TEST:-- attempt to use new pin 42 and thin wire for new PWM tests (and
+reconnect 40106) *WIRED
+
+TIM1 CH2 - ?? *WORKING*
+
+- now test all hardware options DONE
 
 //
 
 - test unhanging (and how works with top board) and re-hang
 
-- revising bottom design (see all notes below) + finish and send
+- revising bottom design (see all notes below) + [bridge for optional
+  3.3v powers 40106]
+
+///
 
 [think on adding signal-> 40106 into filter clock?]
 
 - brainstorm re-design//programming
 
+// 
+
+test audio->40106->clock of MAXIM filter
+
+// slowly revise hardware as we test it!
 
 * THU 7 NOV TODO
 
@@ -47,7 +60,7 @@ TODO: *larger caps on 40106 power* if that helps
 Is PWM _or_ 40106 the problem as now no audio _with_ 40106 PWM (TIM4)?
 
 - detached power from 40106 and R5 connection to lm358 and still have
-(worse) nois problems
+(worse) noise problems
 
 *-- can only attempt to use new pin 42 and thin wire for new PWM tests!*
 

@@ -43,7 +43,7 @@ do {							\
 #define delay2()						\
 do {							\
   register unsigned int i;				\
-  for (i = 0; i < 10000; ++i)				\
+  for (i = 0; i < 100000; ++i)				\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
@@ -62,10 +62,10 @@ void main(void)
 	delay();	// needed to allow codec to settle?
 	
 	//ADC1_Init((uint16_t *)adc_buffer);
-	//	ADC1_Initonce();
-		setup_switches();
+	ADC1_Initonce();
+	setup_switches();
 
-	//	retryagainpwm(); 	
+		initpwm(); 	
 		//		test_filter();
 		//	setup40106power();
 		
@@ -91,18 +91,18 @@ void main(void)
 	while(1)
 	{
 	  i++;
-	  if (i>10) i=0;
+	  if (i>4096) i=0;
 	  // top down knobs: 2,0,3,4,1 
 
 	  //	  for (x=0;x<32;x++){
 	    //  y+= ADC1_Measure();
 	  //	  }	  
 	  //	  y=y/32;
-	  //	  dohardwareswitch(y);
+	  	  dohardwareswitch(y);
 	  //	  y=0;
-	  	  set40106power(i);
-	  //	  setmaximpwm(i); // from 200 to 4800 (lowest frequency)
-	  //	  setlmpwm(i,i);
+	  	  set40106pwm(i);
+	  	  setmaximpwm(i); // from 200 to 4800 (lowest frequency)
+	  	  setlmpwm(i,i);
 	  delay2();
 	}
 }
