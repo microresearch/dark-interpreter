@@ -129,7 +129,8 @@ all clocks set in datagens/elsewhere
 */
 
 void dohardwareswitch(uint16_t modder){
-  uint16_t res;
+  uint16_t res,res2;
+  static uint8_t hangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
   // mod is 12 bits 0-4096
@@ -157,8 +158,17 @@ feedback on/off - jackin-> - lm358in->
 
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
-  res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->255
-  res=2;
+  res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->25
+  res2=(modder>>8); // so now we have 4 bits left = 0->4 options
+  //  res=2;
+
+  //unhang
+  if (res2!=1 && res2!=2 && hangflag==1){
+    hangflag=0;
+    setup_switches();
+  }
+
+  //  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -178,11 +188,10 @@ feedback on/off - jackin-> - lm358in->
  }
 
 
-  // leave hang and datagen for now as extra bit HERE 16 options + 1 bit
+  // leave clocks with hang and datagen for now as extra bit HERE 16 options + 1 bit
 
-  res=(modder>>8); // so now we have 4 bits left = 0->4 options
-  res=2;
-  switch(res){
+
+  switch(res2){
   case 0:
    //1-straightout
     // clear other options up here:
@@ -195,8 +204,8 @@ feedback on/off - jackin-> - lm358in->
   case 1:
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     //question is if really makes sense to unhang _all_
-
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+    hangflag=1;
+    //  GPIO_Init(GPIOB, &GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ;
   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
   GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -206,12 +215,11 @@ feedback on/off - jackin-> - lm358in->
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
     break;
   case 2:
     //2-unhang all except input [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     // input is pb7
-
+    hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 ;
   GPIO_InitStructure.GPIO_Mode = 0x04;
@@ -220,9 +228,6 @@ feedback on/off - jackin-> - lm358in->
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-
-
     break;
   case 3:
     //3-just40106
@@ -343,9 +348,16 @@ void setup_switches(void)
 
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 
-  // different method to above???
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-  GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
+
+  //  GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
   GPIOC->ODR = 0;
   GPIOB->ODR = 0;
 
