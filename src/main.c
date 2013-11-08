@@ -51,23 +51,23 @@ void dohardwareswitch(uint16_t modder);
 
 void main(void)
 {
+
+  // order that all inits and audio_init called seems to be important
+
 	uint32_t state;
 	int32_t idx, rcount,wcount;
 	uint16_t data,x,y,i,highest,lowest;
 		
 #if 1
-	
-		Audio_Init();
-				Codec_Init(48000);
-	delay();	// needed to allow codec to settle?
-	
-	//ADC1_Init((uint16_t *)adc_buffer);
 	ADC1_Initonce();
 	setup_switches();
 
-		initpwm(); 	
-		//		test_filter();
-		//	setup40106power();
+	// maintain order
+
+	Audio_Init();
+	Codec_Init(48000);
+	delay();
+	initpwm(); 	
 		
 
 	I2S_Block_Init();
@@ -85,9 +85,7 @@ void main(void)
 	}
 #endif
 	x=rcount=i=wcount=highest=lowest=0;
-	//  switch_jack();	
-	//	switchalloff();
-		switch_jack();	
+	//	switch_jack();	
 	while(1)
 	{
 	  i++;
@@ -98,11 +96,11 @@ void main(void)
 	      y+= ADC1_Measure();
 	  	  }	  
 	  	  y=y/32;
-	  	  dohardwareswitch(y);
+		    	  dohardwareswitch(y);
 	  //	  y=0;
-	  	  set40106pwm(i);
+	  //	  set40106pwm(i);
 	  	  setmaximpwm(i); // from 200 to 4800 (lowest frequency)
-	  	  setlmpwm(i,i);
+	  //	  setlmpwm(i,i);
 	  delay2();
 	}
 }

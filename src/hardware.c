@@ -160,7 +160,8 @@ feedback on/off - jackin-> - lm358in->
 
   res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->25
   res2=(modder>>8); // so now we have 4 bits left = 0->4 options
-  //  res=2;
+  res2=14;
+  res=2;
 
   //unhang
   if (res2!=1 && res2!=2 && hangflag==1){
@@ -168,7 +169,6 @@ feedback on/off - jackin-> - lm358in->
     setup_switches();
   }
 
-  //  res=2;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -190,16 +190,14 @@ feedback on/off - jackin-> - lm358in->
 
   // leave clocks with hang and datagen for now as extra bit HERE 16 options + 1 bit
 
-
   switch(res2){
   case 0:
    //1-straightout
     // clear other options up here:
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
-    GPIOB->BSRRL = (1<<2);
+    GPIOB->BSRRL = (1<<2);//
     GPIOC->BSRRL= (1<<10);
-
    break;
   case 1:
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
