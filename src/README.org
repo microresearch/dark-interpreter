@@ -13,6 +13,43 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* MON 11 NOV TODO
+
+- re-test hardware knob and audio out FIXED so does not re-init
+
+- add power socketDONE and check if can do simplified audio route for v
+  basic D.I (can be done with additional jumpers) DONE
+
+CHECKLIST:
+//add caps/extra pads?/check&tidy/anydesignQ?/zonesandvias/re-checkall/SEND!
+
+ground plane AGND/DGND????look where we have xtal,pwm and I2S signals crossing
+
+- any refinements to filter?-tests
+
+- assign parameters/knobs - mode knob, no. of grains and other macro settings
+
+one knob selects setting, other assigns setting (or 2 settings knob)
+
+1-hardware assigned
+2-param
+3-assigned to setting
+4-???
+5-mode: how we distribute grains, what else?
+
+forwards/backwards/grid for datagen->filter/pwm
+
+datagen->hardware
+
+1,1,1
+2,2,2
+3,3,3
+1,2,3
+3,2,1
+usw... how many=27 (cut down?)
+
+- start on datagens/port from wormcode/new datagens/clean up
+
 * FRI 8 NOV TODO
 
 TEST:-- attempt to use new pin 42 and thin wire for new PWM tests (and
@@ -41,8 +78,6 @@ TIM1 CH2 - ?? *WORKING*
 // 
 
 test audio->40106->clock of MAXIM filter
-
-// slowly revise hardware as we test it!
 
 * THU 7 NOV TODO
 
