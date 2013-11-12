@@ -1,9 +1,9 @@
 * plan
 
-1 phase: hardware switchings + architecture outline 
+1 phase: hardware switchingsDONE + architecture outline 
 2 phase: datagens
 3 phase: audio buffers and processing (any mixing of signals?)
-
+4 phase: knobs assigned and all tests/RELEASE
 
 NOTE-==memory management/areas refresh==
 
@@ -13,6 +13,29 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* TUE 12 NOV TODO
+
+- start datagens
+- PCB as below
+
+backwards/forwards through stored datagen space as general feature
+(not of datagens)
+
+say we have datagens 1,1,1 then we store just 1 ...
+
+generic datagen 1,2,3 as three levels (also with different timing and
+macro levels) and we assign real datagens to these 
+
+then we have hardware matrix
+
+- confusion as there are potentially 3 buffers: 1-audio,
+  2-operating(though this can be also 1- or 3-), 3-back/forward
+  datagen storage
+
+- mirroring and doubling between these and datagens...
+
+datagens remain as they are
+
 * MON 11 NOV TODO
 
 - re-test hardware knob and audio out FIXED so does not re-init
@@ -20,14 +43,20 @@ ccmdata for datagens/backwards/forwards
 - add power socketDONE and check if can do simplified audio route for v
   basic D.I (can be done with additional jumpers) DONE
 
-CHECKLIST:
-//add caps/extra pads?/check&tidy/anydesignQ?/zonesandvias/re-checkall/SEND!
+PCB CHECKLIST:
 
-ground plane AGND/DGND????look where we have xtal,pwm and I2S signals crossing
-
+- new track widths for all audio/adc 0.5mm
+- look where we have xtal,pwm and I2S signals crossing audio/adc
+- ground plane AGND/DGND????
 - any refinements to filter?-tests
 
+- check&tidy/zonesandvias/re-checkall/SEND!
+
+///
+
 - assign parameters/knobs - mode knob, no. of grains and other macro settings
+
+in length/cycle... out length?
 
 one knob selects setting, other assigns setting (or 2 settings knob)
 
@@ -35,7 +64,7 @@ one knob selects setting, other assigns setting (or 2 settings knob)
 2-param
 3-assigned to setting
 4-???
-5-mode: how we distribute grains, what else?
+5-mode: how we distribute grains/overlap, micro/macro crossover
 
 forwards/backwards/grid for datagen->filter/pwm
 
