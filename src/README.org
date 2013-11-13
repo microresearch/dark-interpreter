@@ -1,5 +1,7 @@
 * plan
 
+send by 15th->pcbcart
+
 1 phase: hardware switchingsDONE + architecture outline 
 2 phase: datagens
 3 phase: audio buffers and processing (any mixing of signals?)
@@ -12,6 +14,31 @@ NOTE-==memory management/areas refresh==
 use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
+
+* WED 13 NOV TODO
+
+- question of 8/16 bit translation for datagens
+
+- start to port supercollider datagens
+
+- also how to use datagens eg.worms to steer grains or are these seperate?
+all should be in workingbuffer so can be used...
+
+- ringing filter mods 13700=r27 try as 100k
+
+** notes on modes/movement
+
+key as being mirror and freezing!
+
+ x
+x x finger direction grid depending on mode:
+ x
+
+1- code movement (how? does this work only for instruction sets?)
+2- grain movement
+3- movement through stored datagen/parameters
+4- micro-macro levels
+5- read/write buffer, storage buffer, flip-flop
 
 * TUE 12 NOV TODO
 
@@ -41,15 +68,21 @@ datagens remain as they are
 - re-test hardware knob and audio out FIXED so does not re-init
 
 - add power socketDONE and check if can do simplified audio route for v
-  basic D.I (can be done with additional jumpers) DONE
+  basic D.I: DONE
+
+these can be done with additional jumpers: on U2 4053:pins 12-14, on
+10,11 on U3, next to incoming audio CHECK ALL
+
+*working on REVISING2*
 
 PCB CHECKLIST:
 
-- new track widths for all audio/adc 0.5mm
-- look where we have xtal,pwm and I2S signals crossing audio/adc
+- new track widths for all audio/adc 0.5mmDONE
+- look where we have xtal,pwm and I2S signals crossing audio/adcDONE
+
+TODO- check new additions/changes
 - ground plane AGND/DGND????
 - any refinements to filter?-tests
-
 - check&tidy/zonesandvias/re-checkall/SEND!
 
 ///

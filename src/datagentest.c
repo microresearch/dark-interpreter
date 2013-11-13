@@ -8,53 +8,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <malloc.h>
 
 #define true 1
 #define false 0
-
-
-/* TODO:
-
-- question -> should also be how much data to return in call?
-
-proto: uint16_t SIR(uint16_t delay, uint16_t speed, uint16_t *workingbuffer)
-
-any settings are taken from first bytesof buffer
-
-- test again as all borrowed from microstripped.c - REDO... starting most from scratch
-
-- each datagen should return a value
-- add new datagens and change also for uint16_t
-- add stepsizing and how is organised for buffers etc.
-
-older: void (*plag[])(unsigned char* cells) = {mutate,SIR,hodge,cel,hodge,SIR,life,mutate};
-
-divide into:
-
-1- CPU/instruction sets from microbd (inc. corewars?) RETEST
-
-2- cellular automata: 1d,2d, classic, flexible - test all
-
-3- worms, langton's ants,turmites
-
-4- esoteric:brainfuck
-
-5- simulations: hodge - hodge.c, rossler, orbital, ifs, fitzhughnagumo - see
-fitz.c, oreganotor, brusselator 
-
-6- SIR simple, SIR using equations,
-more ambitious models...
-
-see:
-
-latestresearch/sc3-plugins-src-2012-05-26/source/SLUGens/SLUGens.cpp
-
-http://doc.sccode.org/Classes/FitzHughNagumo.html
-
-*/
-
-
-
 #define MAX_SAM 1024
 #define MAXDIV2 512
 #define CELLLEN 128
@@ -63,18 +20,284 @@ http://doc.sccode.org/Classes/FitzHughNagumo.html
 #define recovered 255
 #define susceptible 0
 
-uint8_t k,p;
+
+/* TODO:
+
+- test again as all borrowed from microstripped.c - REDO... starting most from scratch
+
+- each datagen should return a value/values multiple values in
+  workingbuffer
+
+- add new datagens and change also for uint16_t (problem with all 8 bits for instructions)
+
+- add stepsizing/speed and how is organised for buffers etc.
+
+- how to re-init//trigger bit - also how to organize x bytes of
+  workingbuffer reserved or...
+
+divide into:
+
+1- CPU/instruction sets from microbd (inc. corewars?) RETEST
+
+2- cellular automata: 1d,2d, classic, flexible - re-do all
+
+3- worms, langton's ants,turmites - NEW
+
+4- esoteric:brainfuck - RETEST
+
+5- simulations: hodge - hodge.c, rossler, orbital, ifs, fitzhughnagumo
+- see fitz.c, oreganotor, brusselator - NEW
+
+6- SIR simple, SIR using equations, more ambitious models...
+
+see also:
+
+latestresearch/sc3-plugins-src-2012-05-26/source/SLUGens/SLUGens.cpp
+
+http://doc.sccode.org/Classes/FitzHughNagumo.html
+
+*/
+
+//5-SIMULATIONS - start to port from supercollider.. 
+
+//what do we do with NaN, what numbers should be fed in as inits from workingbuffer
+
+//what happens if workingbuffer is 0? copying across of workingbuffer/buffers...
+
+// BRUSSELATOR
+
+struct Brussel{
+    float x,y; 
+};
+
+void brusselinit(struct Brussel* unit) {
+  unit->x = 0.5f; 
+  unit->y = 0.5f; 
+}
+
+void runbrussel(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Brussel* unit){
+    
+  float delta = (float)workingbuffer[0]/65536.0;
+  float mu = (float)workingbuffer[1]/65536.0;
+  float gamma = (float)workingbuffer[2]/65536.0;
+  float x= unit->x; 
+  float y= unit->y;  
+    
+    float dx, dy; 
+    
+    float muplusone = 1.0f+mu; 
+    int i;
+
+    for (i=0; i<howmuch; ++i) {
+		
+        float temp = x*x*y; 
+        
+        dx = temp - (muplusone*x) + gamma;
+        dy =  (mu*x)  - temp; 
+        
+        x += delta*dx; 
+        y += delta*dy; 
+        
+	//	output1[i]= x; 
+	//        output2[i]= y; 
+		
+	}
+	
+    printf("brussels: x %f y %f\n",x,y); 
+	
+	unit->x = x; 
+	unit->y = y;
+}
+
+// spruceworm
+
+struct Spruce{
+    float x, y; 
+};
+
+void spruceinit(struct Spruce* unit ) {
+	
+  unit->x = 0.9f; 
+  unit->y = 0.1f; 
+}
+
+void runspruce(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Spruce* unit){
+
+  float k1 = (float)workingbuffer[0]/65536.0;
+  float k2 = (float)workingbuffer[1]/65536.0;
+  float alpha = (float)workingbuffer[2]/65536.0;
+  float beta = (float)workingbuffer[3]/65536.0;
+  float mu = (float)workingbuffer[4]/65536.0;
+  float rho = (float)workingbuffer[5]/65536.0;
+  float delta = (float)workingbuffer[6]/65536.0;
+
+    
+    float x= unit->x; 
+    float y= unit->y;  
+    
+    float dx, dy; 
+    int i;
+
+	for (i=0; i<howmuch; ++i) {
+		
+        float temp = y*y; 
+        float temp2 = beta*x;
+        
+        dx = (k1* x* (1.0-x)) - (mu*y);
+        dy = (k2*y*(1.0- (y/(alpha*x))))  - (rho*(temp/(temp2*temp2 +  temp))); 
+        
+        
+        x += delta*dx; 
+        y += delta*dy; 
+        
+	//	output1[i]= x; 
+	//        output2[i]= y; 
+		
+	}
+	
+	printf("spruce: x %f y %f z %f\n",x,y); 
+	
+	unit->x = x; 
+	unit->y = y;
+}
+
+
+// OREGONATOR
+
+struct Oregon
+{
+  float x, y, z; 
+};
+
+void oregoninit(struct Oregon* unit) {
+    unit->x = 0.5f; 
+    unit->y = 0.5f; 
+    unit->z = 0.5f; 
+}
+
+void runoregon(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Oregon* unit){
+    
+  float delta = (float)workingbuffer[0]/65536.0;
+  float epsilon = (float)workingbuffer[1]/65536.0;
+  float mu = (float)workingbuffer[2]/65536.0;
+  float q = (float)workingbuffer[3]/65536.0;
+    
+  float x= unit->x; 
+  float y= unit->y; 
+  float z= unit->z; 
+    
+  float dx, dy, dz; 
+        
+  int i;
+	for (i=0; i<howmuch; ++i) {
+		
+        dx = epsilon*((q*y) -(x*y) + (x*(1-x))); 
+	dy = mu* (-(q*y) -(x*y) + z); 
+        dz = x-y; 
+        
+        x += delta*dx; 
+        y += delta*dy; 
+        z += delta*dz; 
+        
+	//	output1[i]= x; 
+	//        output2[i]= y; 
+	//        output3[i]= z; 
+		
+	}
+	
+	printf("Oregonator: x %f y %f z %f\n",x,y,z); 
+	
+	unit->x = x; 
+	unit->y = y;
+	unit->z = z;
+}
+
+// FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
+
+struct Fitz
+{
+	float u,w;
+};
+
+void fitzinit(struct Fitz* unit) {
+	unit->u=0.0;
+	unit->w=0.0;
+}
+
+void runfitz(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit){
+
+  /* SETTINGS */
+
+  float urate= 0.7;
+  float wrate= 1.7;
+  float b0= 1.4;
+  float b1= 1.1;
+  float u,w;
+
+  u=unit->u;
+  w=unit->w;
+
+  int x;
+
+  for (x=0;x<howmuch;x++){
+
+    float dudt= urate*(u-(0.33333*u*u*u)-w);
+    float dwdt= wrate*(b0+b1*u-w);
+	  
+    u+=dudt;
+    w+=dwdt;
+    //assumes fmod works correctly for negative values
+    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+
+    int z=((float)(u)*1500);
+    //    int zz=((float)(w)*1500);
+    workingbuffer[x]=z;//workingbuffer[x+2]=zz;
+  }
+
+  for (x=0;x<howmuch;x++){
+
+    float dudt= urate*(u-(0.33333*u*u*u)-w);
+    float dwdt= wrate*(b0+b1*u-w);
+
+    u+=dudt;
+    w+=dwdt;
+    //assumes fmod works correctly for negative values
+    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+
+    int z=((float)(u)*700);
+    int zz=((float)(w)*700);
+    //		workingbuffer[x+howmuch]=z;//deltay[x]=zz;
+  }
+
+  for (x=0;x<howmuch;x++){
+
+    float dudt= urate*(u-(0.33333*u*u*u)-w);
+    float dwdt= wrate*(b0+b1*u-w);
+
+    u+=dudt;
+    w+=dwdt;
+    //assumes fmod works correctly for negative values
+    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+
+    int z=((float)(u)*3600);
+    //		workingbuffer[x+(howmuch*2)]=z;
+    workingbuffer[x]=z;
+  }
+  unit->u=u;
+  unit->w=w;
+}
 
 
 //6-SIR section
 
-// SIR: we we could resolve edges?
+// SIR: we we could resolve edges? redo completely for speed, also all
+// inits from workingbuffer
 
 uint16_t SIR(uint16_t delay, uint16_t speed, uint16_t *workingbuffer){ // sudden death!
   static uint8_t flag=0;
   uint16_t cell,cell1,cell2,cell3,sum=0;
   uint16_t *newcells, *cells;
-  int16_t x,y;
+  int16_t x,y,k,p;
 
   if (flag==0) {
     cells=workingbuffer; newcells=&workingbuffer[MAXDIV2];
@@ -134,23 +357,41 @@ uint16_t SIR(uint16_t delay, uint16_t speed, uint16_t *workingbuffer){ // sudden
   return sum;
 }
 
-void main(int argc, char **argv)
+//void main(int argc, char **argv)
+void main(void)
 {
-  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
+  //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x;
   uint16_t xxx[MAX_SAM+12],result;
 
   srand(time(NULL));
-  k=(rand()%240)+8; p=(rand()%10);
 
   for (x=0;x<MAX_SAM;x++){
-    xxx[x]=rand()%65535;
+    xxx[x]=rand()%65536;
   }
 
-  //  x=1<<8;
-  //  printf("%d",x);
+  // for Fitz? de-alloc?
+  //  struct Fitz *unit=malloc(sizeof(struct Fitz));
+  //  struct Oregon *unit=malloc(sizeof(struct Oregon));
+  //  struct Spruce *unit=malloc(sizeof(struct Spruce));
+  struct Brussel *unit=malloc(sizeof(struct Brussel));
+
+  //  fitzinit(unit);
+  //  oregoninit(unit);
+  //  spruceinit(unit); 
+  brusselinit(unit); 
+
+  //  printf("%f",(float)xxx[0]/65536.0);
         while(1){ 
-    result=SIR(10,10,xxx);
-    printf("%d\n",result); 
+	  //  runfitz(10,10,xxx,40,unit);
+	  // runoregon(10,10,xxx,10,unit);
+	  // runspruce(10,10,xxx,10,unit);
+	  runbrussel(10,10,xxx,10,unit);
+
+
+	  //	  for (x=0;x<40;x++){
+//	    printf("%c",xxx[x]>>8);
+//	    }
+	    
     }
 }
