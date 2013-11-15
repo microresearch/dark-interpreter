@@ -1,5 +1,5 @@
-//  gcc datagentest.c -odatagen -lm
-// ./datagen CPU PLAGUE
+// gcc datagentest.c -odatagen -lm
+// was... ./datagen CPU PLAGUE
 
 /* testing of all datagens */
 
@@ -26,29 +26,46 @@
 - test again as all borrowed from microstripped.c - REDO... starting most from scratch
 
 - each datagen should return a value/values multiple values in
-  workingbuffer
+  workingbuffer with first terms as settings
 
-- add new datagens and change also for uint16_t (problem with all 8 bits for instructions)
+- add new datagens and change also for uint16_t 
 
-- add stepsizing/speed and how is organised for buffers etc.
+- problem with all 8 bits for instructions: to convert (functions to
+  convert back and forth - could be for x elements of buffer)
+
+- add stepsizing/speed for each
 
 - how to re-init//trigger bit - also how to organize x bytes of
   workingbuffer reserved or...
+
+///-->
 
 divide into:
 
 1- CPU/instruction sets from microbd (inc. corewars?) RETEST
 
-2- cellular automata: 1d,2d, classic, flexible - re-do all
++leaky stack machines and wormcode: see simulation dir
+
+2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
+
+see also: /root/collect2011/blackdeath/code/simulations
 
 3- worms, langton's ants,turmites - NEW
 
+langton.c
+
 4- esoteric:brainfuck - RETEST
 
-5- simulations: hodge - hodge.c, rossler, orbital, ifs, fitzhughnagumo
-- see fitz.c, oreganotor, brusselator - NEW
+5- simulations: 
+
+rossler, orbital(bit fullon), ifs,
+
+fitzhughnagumo - see fitz.c, oreganotor, brusselator - NEW DONE(to
+test/tweak)
 
 6- SIR simple, SIR using equations, more ambitious models...
+
++ hodge - hodge.c - how we map the 3 states (rewrite hodge.c)
 
 see also:
 
@@ -60,9 +77,47 @@ http://doc.sccode.org/Classes/FitzHughNagumo.html
 
 //5-SIMULATIONS - start to port from supercollider.. 
 
+// rossler also in: /MCLDUGens/MCLDChaosUGens.cpp
+
 //what do we do with NaN, what numbers should be fed in as inits from workingbuffer
 
 //what happens if workingbuffer is 0? copying across of workingbuffer/buffers...
+
+// ROSSLER
+
+struct Rossler{
+  double h,a,b,c,lx0,ly0,lz0;
+};
+
+void rosslerinit(struct Rossler* unit) {
+  unit->h = 0.01;
+  unit->a = 0.2;
+  unit->b = 0.2;
+  unit->c = 5.7;
+  unit->lx0 = 0.1;
+  unit->ly0 = 0;
+  unit->lz0 = 0;
+}
+
+void runrossler(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Rossler* unit){
+  double lx0,ly0,lz0,lx1,ly1,lz1;
+  double h,a,b,c;
+  int x;
+
+  h = unit->h;
+  a = unit->a;
+  b = unit->b;
+  c = unit->c;
+  lx0 = unit->lx0;
+  ly0 = unit->ly0;
+  lz0 = unit->lz0;
+  lx1 = lx0 + h * (-ly0 - lz0);
+  ly1 = ly0 + h * (lx0 + (a * ly0));
+  lz1 = lz0 + h * (b + (lx0*lz0) - (c * lz0));;
+  unit->lx0 = lx1;
+  unit->ly0 = ly1;
+  unit->lz0 = lz1;
+}
 
 // BRUSSELATOR
 

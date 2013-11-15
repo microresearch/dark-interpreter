@@ -33,8 +33,7 @@ test leave all hanging= GPIO_Mode_IN_FLOATING
 - setfloating (enum list)
 - setallfloating (or how to set diff ones but not just one)
 
-- setlmpwm
-- setmaximpwm
+- setlmpwm- setmaximpwm
 - set40106power
 
 ////
@@ -60,25 +59,6 @@ uint16_t PrescalerValue = 0;
 uint16_t fakep;
 
 void TIM_Config(void);
-
-
-void TIM4_IRQHandler(void)
-{
-  static int flag=0;
-if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
-{
-TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-//GPIO_ToggleBits(GPIOC, GPIO_Pin_14);
- if (flag>10){
-   GPIO_ResetBits(GPIOC, GPIO_Pin_14);
-   if (flag>(10+fakep)) flag=0;
- }
- else GPIO_SetBits(GPIOC, GPIO_Pin_14);
- flag++;
-
-}
-}
-
 
 /* what are pins we need to be switching?
 
@@ -160,9 +140,8 @@ feedback on/off - jackin-> - lm358in->
 
   res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->25
   res2=(modder>>8); // so now we have 4 bits left = 0->4 options
-  //  res2=14;
+  res2=3;
   res=2;
-
   //unhang
   if (res2!=1 && res2!=2 && hangflag==1){
     hangflag=0;
@@ -597,54 +576,8 @@ filterclock-PC9 (is for maxim)
 
 }
 
-void setup40106power(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-
-  PWR_BackupAccessCmd(ENABLE); // Enable access to LSE
-  RCC_LSEConfig(RCC_LSE_OFF); // PC14 PC15 as GPIO
-  //  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14 | GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-NVIC_InitTypeDef NVIC_InitStructure;
-/* Enable the TIM2 gloabal Interrupt */
-NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
-NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-NVIC_Init(&NVIC_InitStructure);
-
-TIM_OCStructInit(&TIM_OCInitStructure);
- 
-/* TIM2 clock enable */
-RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-/* Time base configuration */
- TIM_TimeBaseStructure.TIM_Period = 1; // 1000 - 1 // 1 MHz down to 1 KHz (1 ms)
- TIM_TimeBaseStructure.TIM_Prescaler =10-1;// 84 - 1; // was 84 - 1// 24 MHz Clock down to 1 MHz (adjust per your clock)
-
-TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
-/* TIM IT enable */
-TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-/* TIM2 enable counter */
-TIM_Cmd(TIM4, ENABLE);
-}
-
 void set40106pwm(uint16_t value){
 
   TIM1->CCR2 = value;
-
-}
-
-void set40106power(uint16_t value){
-
-  fakep=value;
 
 }

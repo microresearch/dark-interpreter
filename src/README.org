@@ -15,11 +15,33 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+
+* FRI 15 NOV TODO
+
+-as below - trying filter resistor (was 33k replacing now with 100k)-
+no great change -as below - 16bit->8bit when port instruction sets
+
+try r11 as 100k seems improve somewhat
+
+-finish/overview of PCB:
+
+losing reset cap as was just debounce?
+
+
+
 * WED 13 NOV TODO
 
 - question of 8/16 bit translation for datagens
 
-- start to port supercollider datagens
+do we use a function to convert x buffer back and forth (not possible
+for any size of buffer!)
+
+- also if we have 3x datagens writing to same buffer - either do
+  matrix with offsets into buffer or ....
+
+- start to port supercollider datagensDONE-to test and tweak as
+  questions are acceptable inputs and also how to reset _and_ some
+  protection of locals in workingbuffer
 
 - also how to use datagens eg.worms to steer grains or are these seperate?
 all should be in workingbuffer so can be used...

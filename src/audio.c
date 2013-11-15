@@ -98,8 +98,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (rcount>48000) rcount=0;
 	*/
 		for (x=0;x<sz/2;x++){
-		  //   right_buffer[(sz/2)-x]=right_buffer[x];
-		  left_buffer[x]=0;
+		  //		  left_buffer[(sz/2)-x]=right_buffer[x];
+		  left_buffer[x]=left_buffer[x]/16;
 		  //		  right_buffer[x]=0;
 	  }
 
