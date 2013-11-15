@@ -1,4 +1,4 @@
-PCBNEW-BOARD Version 1 date Fri 15 Nov 2013 18:11:50 GMT
+PCBNEW-BOARD Version 1 date Fri 15 Nov 2013 19:18:56 GMT
 
 # Created by Pcbnew(2010-03-14)-final
 
@@ -9,11 +9,11 @@ EnabledLayers 13EA8001
 Links 324
 NoConn 9
 Di 16469 12678 72507 60873
-Ndraw 12
+Ndraw 13
 Ntrack 2794
 Nzone 0
 BoardThickness 630
-Nmodule 120
+Nmodule 121
 Nnets 93
 $EndGENERAL
 
@@ -35,7 +35,7 @@ ZoneGridSize 250
 Layers 2
 Layer[0] Back signal
 Layer[15] Front signal
-TrackWidth 157
+TrackWidth 98
 TrackWidthList 110
 TrackWidthList 118
 TrackWidthList 130
@@ -6389,6 +6389,48 @@ Of 0.000000 0.000000 0.000000
 Ro 0.000000 0.000000 0.000000
 $EndSHAPE3D
 $EndMODULE  SM0805
+$MODULE SM0805
+Po 45067 41115 900 15 42806E04 528672C4 ~~
+Li SM0805
+Sc 528672C4
+AR 
+Op 0 0 0
+At SMD 
+T0 0 0 250 250 900 50 N V 21 N"SM0805"
+T1 0 0 250 250 900 50 N I 21 N"Val*"
+DC -650 300 -650 250 50 21
+DS -200 300 -600 300 50 21
+DS -600 300 -600 -300 50 21
+DS -600 -300 -200 -300 50 21
+DS 200 -300 600 -300 50 21
+DS 600 -300 600 300 50 21
+DS 600 300 200 300 50 21
+$PAD
+Sh "1" R 350 550 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po -375 0
+$EndPAD
+$PAD
+Sh "2" R 350 550 0 0 900
+Dr 0 0 0
+At SMD N 00888000
+Ne 0 ""
+Po 375 0
+$EndPAD
+$SHAPE3D
+Na "smd/chip_cms.wrl"
+Sc 0.100000 0.100000 0.100000
+Of 0.000000 0.000000 0.000000
+Ro 0.000000 0.000000 0.000000
+$EndSHAPE3D
+$EndMODULE  SM0805
+$TEXTPCB
+Te "filter cap"
+Po 44777 40515 600 800 120 0
+De 25 1 0 Normal
+$EndTEXTPCB
 $TEXTPCB
 Te "jumper"
 Po 49900 28750 600 800 120 0
@@ -12057,7 +12099,7 @@ ZLayer 0
 ZAux 6 N
 ZClearance 200 T
 ZMinThickness 100
-ZOptions 0 16 F 200 200
+ZOptions 0 16 S 200 200
 ZCorner 55148 60403 0
 ZCorner 71752 34153 0
 ZCorner 63396 14252 0
@@ -14745,7 +14787,7 @@ ZLayer 15
 ZAux 7 N
 ZClearance 200 T
 ZMinThickness 100
-ZOptions 0 16 F 200 200
+ZOptions 0 16 S 200 200
 ZCorner 55167 60354 0
 ZCorner 71722 34173 0
 ZCorner 63671 15000 0

@@ -23,10 +23,24 @@ no great change -as below - 16bit->8bit when port instruction sets
 
 try r11 as 100k seems improve somewhat
 
+added optional cap next to r11 for filter (100n with 100k and 100k pwm for filter)
+
 -finish/overview of PCB:
 
-losing reset cap as was just debounce?
+losing Nreset cap as was just debounce?
 
+*PCB checklist:*
+
+- still filter question! kind of resolved with extra cap!
+- drcX
+- non-connsX 
+- eye checkX
+- gnd and power/all analogue lines
+- zones
+- punch vias
+- redo-eye-check
+- gerbers and check
+- submit
 
 
 * WED 13 NOV TODO
