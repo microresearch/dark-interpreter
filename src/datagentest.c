@@ -3,6 +3,8 @@
 
 /* testing of all datagens */
 
+
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -12,7 +14,7 @@
 
 #define true 1
 #define false 0
-#define MAX_SAM 1024
+#define MAX_SAM 65536
 #define MAXDIV2 512
 #define CELLLEN 128
 #define floor(x) ((int)(x))
@@ -23,20 +25,22 @@
 
 /* TODO:
 
-- test again as all borrowed from microstripped.c - REDO... starting most from scratch
+- redo and test here _all_datagens
 
 - each datagen should return a value/values multiple values in
   workingbuffer with first terms as settings
 
-- add new datagens and change also for uint16_t 
+- add new datagens and change also for uint16_t
 
-- problem with all 8 bits for instructions: to convert (functions to
-  convert back and forth - could be for x elements of buffer)
+- problem with 8 bits for instructions and cellular automata/etc -
+  chosen to leave as 8 bits and wrap on 16 bit int
 
 - add stepsizing/speed for each
 
 - how to re-init//trigger bit - also how to organize x bytes of
-  workingbuffer reserved or...
+  workingbuffer reserved or... (offset question)
+
+- does NaN cause problems or not?
 
 ///-->
 
@@ -74,6 +78,146 @@ latestresearch/sc3-plugins-src-2012-05-26/source/SLUGens/SLUGens.cpp
 http://doc.sccode.org/Classes/FitzHughNagumo.html
 
 */
+
+//1-INSTRUCTION SETS: 8 bit question (also as they wrap on 8 bits - where do we wrap here)...
+
+//do one CPU as test - say BIOTA:
+
+unsigned char btdir,dcdir;
+uint16_t omem;
+
+/* BIOTA: two dimensional memory map */
+
+// to be fixed: dcdir does nothing, also gets stuck on btdir 0,1 back/forth
+// also instruction sets should work on fragments rather than whole buffer
+// so we need to have multiple instances (can also share and leak data)
+
+struct Biota
+{
+  uint16_t instructionp;
+};
+
+void biotainit(struct Biota* unit) {
+    unit->instructionp = 0; 
+}
+
+
+uint16_t btempty(unsigned char* cells, uint16_t IP){
+  // turn around
+  if (btdir==0) btdir=1;
+  else if (btdir==1) btdir=0;
+  else if (btdir==2) btdir=3;
+  else if (btdir==3) btdir=2;
+  return IP;
+}
+
+uint16_t btoutf(unsigned char* cells, uint16_t IP){
+  //TODO: (*filtermod[qqq]) ((int)cells[omem]);
+  return IP;
+}
+
+uint16_t btoutp(unsigned char* cells, uint16_t IP){
+  //  OCR0A=cells[omem];
+  //  printf("%c",cells[omem]);
+  return IP;
+}
+
+uint16_t btstraight(unsigned char* cells, uint16_t IP){
+  if (dcdir==0) omem+=1;
+  else if (dcdir==1) omem-=1;
+  else if (dcdir==2) omem+=16;
+  else if (dcdir==3) omem-=16;
+
+  if (cells[omem]==0) 
+    { // change dir
+  if (btdir==0) btdir=1;
+  else if (btdir==1) btdir=0;
+  else if (btdir==2) btdir=3;
+  else if (btdir==3) btdir=2;
+    }
+  return IP;
+}
+
+uint16_t btbackup(unsigned char* cells, uint16_t IP){
+  if (dcdir==0) omem-=1;
+  else if (dcdir==1) omem+=1;
+  else if (dcdir==2) omem-=16;
+  else if (dcdir==3) omem+=16;
+  if (cells[omem]==0) 
+    {
+  if (btdir==0) btdir=1;
+  else if (btdir==1) btdir=0;
+  else if (btdir==2) btdir=3;
+  else if (btdir==3) btdir=2;
+    }
+  return IP;
+}
+
+uint16_t btturn(unsigned char* cells, uint16_t IP){
+  if (dcdir==0) omem+=16;
+  else if (dcdir==1) omem-=16;
+  else if (dcdir==2) omem+=1;
+  else if (dcdir==3) omem-=1;
+  return IP;
+}
+
+uint16_t btunturn(unsigned char* cells, uint16_t IP){
+  if (dcdir==0) omem-=16;
+  else if (dcdir==1) omem+=16;
+  else if (dcdir==2) omem-=1;
+  else if (dcdir==3) omem+=1;
+  return IP;
+}
+
+uint16_t btg(unsigned char* cells, uint16_t IP){
+  unsigned char x=0;
+  while (x<20 && cells[omem]!=0){
+    if (dcdir==0) omem+=1;
+    else if (dcdir==1) omem-=1;
+    else if (dcdir==2) omem+=16;
+    else if (dcdir==3) omem-=16;
+    x++;
+  }
+  return IP;
+}
+
+uint16_t btclear(unsigned char* cells, uint16_t IP){
+  if (cells[omem]==0){
+  if (btdir==0) btdir=1;
+  else if (btdir==1) btdir=0;
+  else if (btdir==2) btdir=3;
+  else if (btdir==3) btdir=2;
+  }
+  else cells[omem]=0;
+  return IP;
+}
+
+uint16_t btdup(unsigned char* cells, uint16_t IP){
+  if (cells[omem]==0 || cells[omem-1]!=0){
+  if (btdir==0) btdir=1;
+  else if (btdir==1) btdir=0;
+  else if (btdir==2) btdir=3;
+  else if (btdir==3) btdir=2;
+  }
+  else cells[omem-1]=cells[omem];
+  return IP;
+}
+
+uint16_t (*instructionsetbiota[])(unsigned char* cells, uint16_t IP) = {btempty,btoutf,btoutp,btstraight,btbackup,btturn,btunturn,btg,btclear,btdup}; // 10
+
+// what extra params/struct for instruction sets?
+
+void runbiota(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Biota *unit){
+  unsigned char instruction;
+  instruction=*(unsigned char *)(workingbuffer+(unit->instructionp));
+  unit->instructionp=(*instructionsetbiota[instruction%10]) ((unsigned char *)workingbuffer, unit->instructionp); 
+	    if (btdir==0) unit->instructionp+=1;
+	    else if (btdir==1) unit->instructionp-=1;
+	    else if (btdir==2) unit->instructionp+=16;
+	    else if (btdir==3) unit->instructionp-=16;
+	    printf("%d\n",btdir);
+}
+
 
 //5-SIMULATIONS - start to port from supercollider.. 
 
@@ -429,24 +573,27 @@ void main(void)
   //  struct Fitz *unit=malloc(sizeof(struct Fitz));
   //  struct Oregon *unit=malloc(sizeof(struct Oregon));
   //  struct Spruce *unit=malloc(sizeof(struct Spruce));
-  struct Brussel *unit=malloc(sizeof(struct Brussel));
+  //  struct Brussel *unit=malloc(sizeof(struct Brussel));
+  struct Biota *unit=malloc(sizeof(struct Biota));
 
   //  fitzinit(unit);
   //  oregoninit(unit);
   //  spruceinit(unit); 
-  brusselinit(unit); 
+  //  brusselinit(unit); 
+  biotainit(unit);
 
   //  printf("%f",(float)xxx[0]/65536.0);
         while(1){ 
 	  //  runfitz(10,10,xxx,40,unit);
 	  // runoregon(10,10,xxx,10,unit);
 	  // runspruce(10,10,xxx,10,unit);
-	  runbrussel(10,10,xxx,10,unit);
+	  //	  runbrussel(10,10,xxx,10,unit);
+	  runbiota(10,10,xxx,10,unit);
 
 
-	  //	  for (x=0;x<40;x++){
-//	    printf("%c",xxx[x]>>8);
-//	    }
+	  /*	  	  for (x=0;x<8000;x++){
+	    printf("%c",xxx[x]>>8);
+	    }*/
 	    
     }
 }

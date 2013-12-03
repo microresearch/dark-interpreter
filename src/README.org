@@ -1,6 +1,6 @@
 * plan
 
-send by 15th->pcbcart
+send by 15th->pcbcartDONEawait PCBs
 
 1 phase: hardware switchingsDONE + architecture outline 
 2 phase: datagens
@@ -15,6 +15,63 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* TUE 3 DEC
+
+- decided just read buffer as 8 bit so no conversion and have uint_16t
+  as limit of 655536 for working buffer which can also point into
+  audio buffer
+
+- how we deal with offset into working buffer for datagen settings
+
+- have just audio and datagen/working buffer or 1,2,3 buffers
+  audio,datagen results, working
+
+- TODO: test NaN, fix biota and after that port all micro/BD code
+  (make each microcoded/cpu as time-switched)
+
+* MON 2 DEC
+
+datagen work:
+
+questions/TODO:
+
+- will NaN from supercollider code crash ARM?
+- 8/16bit (inline?) conversion code - buffer at end of codebuffer but if overlaps? 
+- are datagens flexible enough in terms of use?
+
+* notes in meantime
+
+- list of chunks also as a stack which can be pushed and popped
+
+- D.I text - projection/de quincey. site of execution is the
+  skin. worm code and plague code becomes contagious on the skin...
+
+see last old notebook notes
+
+* MON 18 NOV notes
+
+
+*PCB checklist:*
+
+- still filter question! kind of resolved with extra cap!
+- drcX
+- non-connsX 
+- eye checkX
+- gnd and power/all analogue linesX
+- sanity check of new changes+once over eyes/components/viasX
+- check all layersX
+- DRCX
+- check size for dc socket/printX
+- zonesX
+
+- redo-eye-checkX
+- punch viasX
+- gerbers and check ORDERED
+
+new PCB summarised for coding:
+
+- switch audio input on/off via PC13 (pin 2)
+- 40106 on TIM1_CH2 (pin 42)
 
 * FRI 15 NOV TODO
 
@@ -28,20 +85,6 @@ added optional cap next to r11 for filter (100n with 100k and 100k pwm for filte
 -finish/overview of PCB:
 
 losing Nreset cap as was just debounce?
-
-*PCB checklist:*
-
-- still filter question! kind of resolved with extra cap!
-- drcX
-- non-connsX 
-- eye checkX
-- gnd and power/all analogue lines
-- zones
-- punch vias
-- redo-eye-check
-- gerbers and check
-- submit
-
 
 * WED 13 NOV TODO
 
