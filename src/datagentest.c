@@ -28,12 +28,19 @@
 - redo and test here _all_datagens
 
 - each datagen should return a value/values multiple values in
-  workingbuffer with first terms as settings
+  workingbuffer with first terms as settings (keep first n values
+  clear unless we flag otherwise)
 
 - add new datagens and change also for uint16_t
 
 - problem with 8 bits for instructions and cellular automata/etc -
   chosen to leave as 8 bits and wrap on 16 bit int
+
+- now all CPUs/buffer ops as threads (how we deal with difference
+  between these and regular generators)
+
+push and pop CPUs onto the thread stack. also some variable/array for
+exchange of grains/cpu start-end positions
 
 - add stepsizing/speed for each
 

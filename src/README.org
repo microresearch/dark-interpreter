@@ -15,6 +15,14 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* WED 4 DEC
+
+for stack machine/forth see:
+
+http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
+
+http://www.holmea.demon.co.uk/Mk1/Architecture.htm
+
 * TUE 3 DEC
 
 - decided just read buffer as 8 bit so no conversion and have uint_16t
@@ -27,7 +35,7 @@ ccmdata for datagens/backwards/forwards
   audio,datagen results, working
 
 - TODO: test NaN, fix biota and after that port all micro/BD code
-  (make each microcoded/cpu as time-switched)
+  (make each microcoded/cpu as threaded (as is sample leaky stack code)
 
 * MON 2 DEC
 
