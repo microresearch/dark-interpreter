@@ -3,8 +3,6 @@
 
 /* testing of all datagens */
 
-
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -25,22 +23,17 @@
 
 /* TODO:
 
-- redo and test here _all_datagens
+- cpu/instruction sets should be threaded and some link to
+  grains... so some kind of list of threads... port from leaky.c
+
+push and pop CPUs onto the thread stack. also some variable/array for
+exchange of grains/cpu start-end positions
+
+also any changes for diff cpu/other datagens
 
 - each datagen should return a value/values multiple values in
   workingbuffer with first terms as settings (keep first n values
   clear unless we flag otherwise)
-
-- add new datagens and change also for uint16_t
-
-- problem with 8 bits for instructions and cellular automata/etc -
-  chosen to leave as 8 bits and wrap on 16 bit int
-
-- now all CPUs/buffer ops as threads (how we deal with difference
-  between these and regular generators)
-
-push and pop CPUs onto the thread stack. also some variable/array for
-exchange of grains/cpu start-end positions
 
 - add stepsizing/speed for each
 
@@ -53,7 +46,7 @@ exchange of grains/cpu start-end positions
 
 divide into:
 
-1- CPU/instruction sets from microbd (inc. corewars?) RETEST
+1- CPU/instruction sets from microbd (inc. corewars?) REDO AS THREADED/stacks
 
 +leaky stack machines and wormcode: see simulation dir
 
@@ -86,147 +79,11 @@ http://doc.sccode.org/Classes/FitzHughNagumo.html
 
 */
 
-//1-INSTRUCTION SETS: 8 bit question (also as they wrap on 8 bits - where do we wrap here)...
+//1-INSTRUCTION SETS/threaded/leaks
 
-//do one CPU as test - say BIOTA:
+// *AS seperate file - leaky.c
 
-unsigned char btdir,dcdir;
-uint16_t omem;
-
-/* BIOTA: two dimensional memory map */
-
-// to be fixed: dcdir does nothing, also gets stuck on btdir 0,1 back/forth
-// also instruction sets should work on fragments rather than whole buffer
-// so we need to have multiple instances (can also share and leak data)
-
-struct Biota
-{
-  uint16_t instructionp;
-};
-
-void biotainit(struct Biota* unit) {
-    unit->instructionp = 0; 
-}
-
-
-uint16_t btempty(unsigned char* cells, uint16_t IP){
-  // turn around
-  if (btdir==0) btdir=1;
-  else if (btdir==1) btdir=0;
-  else if (btdir==2) btdir=3;
-  else if (btdir==3) btdir=2;
-  return IP;
-}
-
-uint16_t btoutf(unsigned char* cells, uint16_t IP){
-  //TODO: (*filtermod[qqq]) ((int)cells[omem]);
-  return IP;
-}
-
-uint16_t btoutp(unsigned char* cells, uint16_t IP){
-  //  OCR0A=cells[omem];
-  //  printf("%c",cells[omem]);
-  return IP;
-}
-
-uint16_t btstraight(unsigned char* cells, uint16_t IP){
-  if (dcdir==0) omem+=1;
-  else if (dcdir==1) omem-=1;
-  else if (dcdir==2) omem+=16;
-  else if (dcdir==3) omem-=16;
-
-  if (cells[omem]==0) 
-    { // change dir
-  if (btdir==0) btdir=1;
-  else if (btdir==1) btdir=0;
-  else if (btdir==2) btdir=3;
-  else if (btdir==3) btdir=2;
-    }
-  return IP;
-}
-
-uint16_t btbackup(unsigned char* cells, uint16_t IP){
-  if (dcdir==0) omem-=1;
-  else if (dcdir==1) omem+=1;
-  else if (dcdir==2) omem-=16;
-  else if (dcdir==3) omem+=16;
-  if (cells[omem]==0) 
-    {
-  if (btdir==0) btdir=1;
-  else if (btdir==1) btdir=0;
-  else if (btdir==2) btdir=3;
-  else if (btdir==3) btdir=2;
-    }
-  return IP;
-}
-
-uint16_t btturn(unsigned char* cells, uint16_t IP){
-  if (dcdir==0) omem+=16;
-  else if (dcdir==1) omem-=16;
-  else if (dcdir==2) omem+=1;
-  else if (dcdir==3) omem-=1;
-  return IP;
-}
-
-uint16_t btunturn(unsigned char* cells, uint16_t IP){
-  if (dcdir==0) omem-=16;
-  else if (dcdir==1) omem+=16;
-  else if (dcdir==2) omem-=1;
-  else if (dcdir==3) omem+=1;
-  return IP;
-}
-
-uint16_t btg(unsigned char* cells, uint16_t IP){
-  unsigned char x=0;
-  while (x<20 && cells[omem]!=0){
-    if (dcdir==0) omem+=1;
-    else if (dcdir==1) omem-=1;
-    else if (dcdir==2) omem+=16;
-    else if (dcdir==3) omem-=16;
-    x++;
-  }
-  return IP;
-}
-
-uint16_t btclear(unsigned char* cells, uint16_t IP){
-  if (cells[omem]==0){
-  if (btdir==0) btdir=1;
-  else if (btdir==1) btdir=0;
-  else if (btdir==2) btdir=3;
-  else if (btdir==3) btdir=2;
-  }
-  else cells[omem]=0;
-  return IP;
-}
-
-uint16_t btdup(unsigned char* cells, uint16_t IP){
-  if (cells[omem]==0 || cells[omem-1]!=0){
-  if (btdir==0) btdir=1;
-  else if (btdir==1) btdir=0;
-  else if (btdir==2) btdir=3;
-  else if (btdir==3) btdir=2;
-  }
-  else cells[omem-1]=cells[omem];
-  return IP;
-}
-
-uint16_t (*instructionsetbiota[])(unsigned char* cells, uint16_t IP) = {btempty,btoutf,btoutp,btstraight,btbackup,btturn,btunturn,btg,btclear,btdup}; // 10
-
-// what extra params/struct for instruction sets?
-
-void runbiota(uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Biota *unit){
-  unsigned char instruction;
-  instruction=*(unsigned char *)(workingbuffer+(unit->instructionp));
-  unit->instructionp=(*instructionsetbiota[instruction%10]) ((unsigned char *)workingbuffer, unit->instructionp); 
-	    if (btdir==0) unit->instructionp+=1;
-	    else if (btdir==1) unit->instructionp-=1;
-	    else if (btdir==2) unit->instructionp+=16;
-	    else if (btdir==3) unit->instructionp-=16;
-	    printf("%d\n",btdir);
-}
-
-
-//5-SIMULATIONS - start to port from supercollider.. 
+//5-SIMULATIONS - started to port from supercollider.. 
 
 // rossler also in: /MCLDUGens/MCLDChaosUGens.cpp
 

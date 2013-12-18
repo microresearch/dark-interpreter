@@ -15,6 +15,19 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards
 
+* TODO
+
+- re-test new hardware/pcb
+
+- new hardware switches: 
+
+switch audio input on/off via PC13 (pin 2) TODO
+40106 on TIM1_CH2 (pin 42) DONE/coded
+
+- datagens: threading for instructions
+
+- work schedule/plan for end January release
+
 * WED 4 DEC
 
 for stack machine/forth see:
@@ -22,6 +35,10 @@ for stack machine/forth see:
 http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
 
 http://www.holmea.demon.co.uk/Mk1/Architecture.htm
+
+BIOTA=befunge: http://en.wikipedia.org/wiki/Befunge
+
+malbolge
 
 * TUE 3 DEC
 

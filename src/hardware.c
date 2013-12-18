@@ -9,6 +9,8 @@ something coming into lineINR (as when 0 this in audio.c then no noise)
 
 seems to overamplify input
 
+FIXEDwith new PWM?
+
 ///
 
 test leave all hanging= GPIO_Mode_IN_FLOATING
