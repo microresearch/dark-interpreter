@@ -22,9 +22,9 @@ ccmdata for datagens/backwards/forwards
 - new hardware switches: 
 
 switch audio input on/off via PC13 (pin 2) TODO
-40106 on TIM1_CH2 (pin 42) DONE/coded
+40106 on TIM1_CH2 (pin 42) DONE/coded I think TEST
 
-- datagens: threading for instructions
+- datagens: threading for instructions - see leaky.c
 
 - work schedule/plan for end January release
 

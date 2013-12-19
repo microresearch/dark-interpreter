@@ -438,13 +438,11 @@ void main(void)
   //  struct Oregon *unit=malloc(sizeof(struct Oregon));
   //  struct Spruce *unit=malloc(sizeof(struct Spruce));
   //  struct Brussel *unit=malloc(sizeof(struct Brussel));
-  struct Biota *unit=malloc(sizeof(struct Biota));
 
   //  fitzinit(unit);
   //  oregoninit(unit);
   //  spruceinit(unit); 
   //  brusselinit(unit); 
-  biotainit(unit);
 
   //  printf("%f",(float)xxx[0]/65536.0);
         while(1){ 
@@ -452,7 +450,6 @@ void main(void)
 	  // runoregon(10,10,xxx,10,unit);
 	  // runspruce(10,10,xxx,10,unit);
 	  //	  runbrussel(10,10,xxx,10,unit);
-	  runbiota(10,10,xxx,10,unit);
 
 
 	  /*	  	  for (x=0;x<8000;x++){

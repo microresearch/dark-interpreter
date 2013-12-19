@@ -1,11 +1,9 @@
 typedef unsigned char u8;
-typedef char s8;
 
 typedef uint16_t u16;
 typedef uint16_t s16;
     
-static const u8 STACK_SIZE=8;
-//static const u32 HEAP_SIZE=2560;
+static const u8 STACK_SIZE=16;
 static const u8 MAX_THREADS=80;
 
 #define NOP 0
@@ -36,7 +34,8 @@ static const u8 MAX_THREADS=80;
 
     typedef struct {
       u8 m_CPU;
-      u8 m_active;
+      u16 m_reg16bit1; u16 m_reg16bit2;
+      u8 m_reg8bit1; u8 m_reg8bit2;
       uint16_t m_start;
       u8 m_pc;
       u8 m_stack_pos;
@@ -44,8 +43,8 @@ static const u8 MAX_THREADS=80;
     } thread;
     
     typedef struct {
-        thread *m_threads;
-      uint8_t *m_memory; 
+      thread *m_threads;
+      u8 *m_memory; 
     } machine;
     
     u8 thread_peek(thread *t, machine *m, u8 addr);
@@ -67,15 +66,10 @@ static const u8 MAX_THREADS=80;
 /////////////////////////////////////////////////////////
     
 void machine_create(machine *t, u8 *buffer);
-    u8 machine_peek(const machine *t, u16 addr);
-    void machine_poke(machine *t, u16 addr, u8 data);	
-    void machine_run(machine *t);
+u8 machine_peek(const machine *t, u16 addr);
+void machine_poke(machine *t, u16 addr, u8 data);	
+void machine_run(machine *t);
     
-    void set_portb(thread* t, u8 s);
-    u8 get_portb(thread* t);
-    u8 get_portb_bit(thread *t, u8 mask);
-    void set_portb_bit(thread *t, u8 mask, u8 v);
-    
-    void write_mem(machine *m, int *a, u16 len);
+void write_mem(machine *m, int *a, u16 len);
 
-    const char *byte_to_binary(int x);
+const char *byte_to_binary(int x);

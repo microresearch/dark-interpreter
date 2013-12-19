@@ -7,10 +7,6 @@
 #include <sys/time.h>
 #include "leaky.h"
 
-//static const u8 STACK_SIZE=8;
-static const uint16_t HEAP_SIZE=2560; // this will be uint16_t wrap 65550
-//static const u8 MAX_THREADS=80;
-
 /* to port for D.I:
 
 - for each thread heap points into buffer - DONE
@@ -18,12 +14,9 @@ static const uint16_t HEAP_SIZE=2560; // this will be uint16_t wrap 65550
 - re-init (per thread?)
 */
 
-#define MMM (MAX_THREADS*255) //as above
-
 //int HEAP_SIZE=20400; // see above (80*255)
 
 void thread_create(thread *this, int start, uint8_t which) {
-    this->m_active=1;
     this->m_CPU=which;
     this->m_start=start;
     this->m_pc=0;
@@ -61,13 +54,17 @@ u8 thread_get_start(thread* this) {
 }
 
 void thread_run(thread* this, machine *m) {
-	if (!this->m_active) return;
-	u8 instr=thread_peek(this,m,this->m_pc);
+  u8 instr;	
+  u8 flag=0;
 	//			printf("%c",instr);
-
-			this->m_pc++;
-			//			printf("%d", instr);
- 	switch(instr%25)
+	// SWITCH for m_CPU!
+  switch(this->m_CPU)
+    {
+    case 0: // :LEAKY STACK! - working!
+      instr=thread_peek(this,m,this->m_pc);
+      this->m_pc++;
+      //			printf("%d", instr);
+      switch(instr%25)
 	{
 	  
     case NOP: break;
@@ -110,7 +107,93 @@ void thread_run(thread* this, machine *m) {
 	  break;
 
     default : break;
-	};   
+	}
+      break;
+    case 1:// BIOTA see: http://c2.com/cgi/wiki?BiotaLanguage
+      /* biota:
+	 - needs PC and DC, and each has direction/45 degrees
+	 - program counter turns when it finds an empty location or a failing instruction
+
+	 inst:
+
+Other instructons write to the memory at or near the data counter
+
+    * c -- clear character at DC. Fails if already empty.
+    * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
+
+One instruction exists only to connect instructions into loops that the program counter follows
+
+    * . -- no-op, a non-empty do nothing. 
+       */
+      instr=thread_peek(this,m,this->m_pc);
+      switch(instr%25)
+	{
+	case 0:
+	  //s -- straight: move DC in the current direction. Fail if that cell is empty.
+	  if (this->m_reg8bit1==0) this->m_reg8bit2+=1;
+	  else if (this->m_reg8bit1==1) this->m_reg8bit2-=1;
+	  else if (this->m_reg8bit1==2) this->m_reg8bit2+=16;
+	  else if (this->m_reg8bit1==3) this->m_reg8bit2-=16;
+	  else if (this->m_reg8bit1==4) this->m_reg8bit2-=15;
+	  else if (this->m_reg8bit1==5) this->m_reg8bit2+=17;
+	  else if (this->m_reg8bit1==6) this->m_reg8bit2+=15;
+	  else if (this->m_reg8bit1==7) this->m_reg8bit2-=17;
+	  if (thread_peek(this,m,this->m_reg8bit2)==0) flag=1;
+	  break;
+	case 1:
+	  //* b -- backup: move DC opposite the current direction. Fail if that cell is empty.
+	  if (this->m_reg8bit1==0) this->m_reg8bit1-=1;
+	  else if (this->m_reg8bit1==1) this->m_reg8bit2+=1;
+	  else if (this->m_reg8bit1==2) this->m_reg8bit2-=16;
+	  else if (this->m_reg8bit1==3) this->m_reg8bit2+=16;
+	  else if (this->m_reg8bit1==4) this->m_reg8bit2+=15;
+	  else if (this->m_reg8bit1==5) this->m_reg8bit2-=17;
+	  else if (this->m_reg8bit1==6) this->m_reg8bit2-=15;
+	  else if (this->m_reg8bit1==7) this->m_reg8bit2+=17;
+	  if (thread_peek(this,m,this->m_reg8bit2)==0) flag=1;
+	  break;
+	case 2:
+	  //* t -- turn DC right 45 degrees
+	  this->m_reg8bit1+=1;
+	  this->m_reg8bit1=this->m_reg8bit1%8;
+	  break;
+	case 3:
+	  //* u -- unturn: turn DC left 45 degrees
+	  this->m_reg8bit1-=1;
+	  this->m_reg8bit1=this->m_reg8bit1%8;
+	  break;
+	case 4:
+	  //    * g -- go to a non-empty character ahead (tries to move DC straight ahead, then right and left 45 degrees, then 90, then 135, then back).
+	  /*QUESTIONMARK:	  if (this->m_reg8bit1==0) {
+	    this->m_reg8bit2+=1;
+	    if (thread_peek(this,m,this->m_reg8bit2)==0) {
+	      // try right 45 deg
+	      this->m_reg8bit2+=16;
+	      if (thread_peek(this,m,this->m_reg8bit2)==0) {
+		// left 45
+		this->m_reg8bit2-=31;
+		if (thread_peek(this,m,this->m_reg8bit2)==0) {
+		  // 90
+		  this->m_reg8bit2+=47;
+		  if (thread_peek(this,m,this->m_reg8bit2)==0) {
+		    this->m_reg8bit2+=47;
+		    
+		    if (thread_peek(this,m,this->m_reg8bit2)==0) {
+				  
+	  
+
+	  else if (this->m_reg8bit1==1) this->m_reg8bit2-=1;
+	  else if (this->m_reg8bit1==2) this->m_reg8bit2+=16;
+	  else if (this->m_reg8bit1==3) this->m_reg8bit2-=16;
+	  else if (this->m_reg8bit1==4) this->m_reg8bit2-=15;
+	  else if (this->m_reg8bit1==5) this->m_reg8bit2+=17;
+	  else if (this->m_reg8bit1==6) this->m_reg8bit2+=15;
+	  else if (this->m_reg8bit1==7) this->m_reg8bit2-=17;
+	  if (thread_peek(this,m,this->m_reg8bit2)==0) flag=1;*/
+	  break;
+
+	}
+    }
 }
 
 const u8* thread_get_stack(thread* this) { 
@@ -123,14 +206,6 @@ const u8 thread_stack_count(thread* this, u8 c) {
 
 const int thread_get_stack_pos(thread* this) { 
     return this->m_stack_pos; 
-}
-
-u8 thread_is_active(thread* this) { 
-    return this->m_active; 
-}
-
-void thread_set_active(thread* this, u8 s) { 
-    this->m_active=s; 
 }
 
 void thread_push(thread* this, u8 data) {
@@ -172,25 +247,17 @@ void machine_create(machine *this, uint8_t *buffer) {
 	  thread_create(&this->m_threads[n], count, 0);// last is CPU
 	  count+=255;
     }
-
-	/*	for (uint16_t n=0; n<HEAP_SIZE; n++)
-	{
-		this->m_heap[n]=0;
-		}*/
-
-    // start 1 thread by default
-    thread_set_active(&this->m_threads[0],1);
 }
 
 u8 machine_peek(const machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
   
-  return this->m_memory[addr%HEAP_SIZE];
+  return this->m_memory[addr];
 }
 
 void machine_poke(machine* this, uint16_t addr, u8 data) {
   //	this->m_heap[addr%HEAP_SIZE]=data;
-  this->m_memory[addr%HEAP_SIZE]=data;
+  this->m_memory[addr]=data;
 }
 
 void machine_run(machine* this) {
@@ -241,9 +308,9 @@ void leak(machine *m){
 int main(void)
 {
   int x;
-  u8 buffer[MMM];
+  u8 buffer[65536];
   srandom(time(0));
-  for (x=0;x<MMM;x++){
+  for (x=0;x<65536;x++){
     buffer[x]=rand()%255;
   }
 
