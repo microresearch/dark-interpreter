@@ -4,7 +4,7 @@ typedef uint16_t u16;
 typedef uint16_t s16;
     
 static const u8 STACK_SIZE=16;
-static const u8 MAX_THREADS=80;
+static const u8 MAX_THREADS=120;
 
 #define NOP 0
 #define ORG 1
@@ -35,7 +35,7 @@ static const u8 MAX_THREADS=80;
     typedef struct {
       u8 m_CPU;
       u16 m_reg16bit1; u16 m_reg16bit2;
-      u8 m_reg8bit1; u8 m_reg8bit2;
+      u8 m_reg8bit1; u8 m_reg8bit2; u8 m_reg8bit3; u8 m_reg8bit4;
       uint16_t m_start;
       u8 m_pc;
       u8 m_stack_pos;

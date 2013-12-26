@@ -17,16 +17,23 @@ ccmdata for datagens/backwards/forwards
 
 * TODO
 
-- re-test new hardware/pcb
+- re-test new hardware/pcb/constructed TO TEST
 
 - new hardware switches: 
 
-switch audio input on/off via PC13 (pin 2) TODO
+switch audio input on/off via PC13 (pin 2) DONE TEST
+
 40106 on TIM1_CH2 (pin 42) DONE/coded I think TEST
 
 - datagens: threading for instructions - see leaky.c
 
 - work schedule/plan for end January release
+
+* MON 23 DEC
+
+- stacks for grains/villagers and for CPUS, mix, merge, leak each other
+- do we need 65,535/whatever wrap in cpus - machine peek and poke?
+- cpu stacks in ccmdata
 
 * WED 4 DEC
 

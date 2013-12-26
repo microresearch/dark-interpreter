@@ -72,6 +72,8 @@ void TIM_Config(void);
 - SW5 PB5 - 40106 to filter
 - SW6 PB6 - 40106 to jack
 
+- PC13 - in latest design/on/off audio in - use with PC8
+
 // 4053:
 
 - SW7 PB7 - input
@@ -153,19 +155,24 @@ feedback on/off - jackin-> - lm358in->
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRL = (1<<8);
+   GPIOC->BSRRL = (1<<8); // L sets add in clear PC13DONE
+   GPIOC->BSSRH = (1<<13);
    break;
  case 1:
    GPIOB->BSRRL = (1<<7);
-   GPIOC->BSRRL = (1<<8);
+   GPIOC->BSRRL = (1<<8); 
+   GPIOC->BSSRH = (1<<13);
    break;
  case 2:
    GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRH = (1<<8);
+   GPIOC->BSRRH = (1<<8);// add in do PC13DONE
+   GPIOC->BSSRL = (1<<13);
    break;
  case 3:
    GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRH = (1<<8);
+   GPIOC->BSSRL = (1<<13);
+
  }
 
 

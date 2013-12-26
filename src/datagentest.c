@@ -48,7 +48,7 @@ divide into:
 
 1- CPU/instruction sets from microbd (inc. corewars?) REDO AS THREADED/stacks
 
-+leaky stack machines and wormcode: see simulation dir
++leaky stack machines and wormcode: see simulation dir (wormcode?)
 
 2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
 
@@ -58,7 +58,7 @@ see also: /root/collect2011/blackdeath/code/simulations
 
 langton.c
 
-4- esoteric:brainfuck - RETEST
+4- esoteric:brainfuck - RETEST (but is as CPU or?)
 
 5- simulations: 
 
