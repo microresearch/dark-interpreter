@@ -21,6 +21,10 @@
 - for wormcode steering buffer, also other cpus modded to read/write
   to that extra buffer - where to pass ref???
 
+
+TODO: redcode with SPL
+
+
 */
 
 //int HEAP_SIZE=20400; // see above (80*255)
@@ -386,50 +390,164 @@ void thread_run(thread* this, machine *m) {
 ///////////////////////////////////////////////////////////////
 
     case 6:
-      // redcode: add in input and output??? TODO: check!
+/* "real" corewars redcode SPL - TODO!
+
+/instr/2 operands each with 4 modes of addressing (say lowest 2 bits of each operand)
+
+also SPL for branchings... - add new thread at address x
+
+see: http://vyznev.net/corewar/guide.html#start_instr
+
+also mars.c in Downloads... as sep. file?
+
+// use later redcode or original (which is pretty much as above but sans addressing):?
+
+http://www.koth.org/info/akdewdney/images/Redcode.jpg
+
+addr modes (4 bits of instruction)=#immediate=integer, direct=memoryaddress, @indirect=addresss specified by contents of
+
+also negative addresses
+
+ */
       instr=thread_peek(this,m,this->m_pc);
-      //      printf("instr %d ",instr);
-      switch(instr%10){
+      switch(instr%30){
       case 0:
-	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+1));
+	// MOV # to direct.
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,this->m_pc+1));
 	this->m_pc+=3;
 	break;
       case 1:	  
-	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+2)+thread_peek(this,m,this->m_pc+1));
+	// MOV indirect to direct.
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,thread_peek(this,m,this->m_pc+1)));
 	this->m_pc+=3;
 	break;
-      case 2:	  
-	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+2)-thread_peek(this,m,this->m_pc+1));
+      case 2:
+	// MOV # to indirect.
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,this->m_pc+1));
 	this->m_pc+=3;
 	break;
-      case 3:	  
-	this->m_pc+=thread_peek(this,m,this->m_pc+1);
-	break;
-      case 4:	  
-	//   if (cells[(IP+cells[IP+2])]==0) IP=cells[IP+1];
-	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2))==0) this->m_pc=thread_peek(this,m,this->m_pc+1);
-	else this->m_pc+=3;
-	break;
-      case 6:	  
-	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2))>0) this->m_pc=thread_peek(this,m,this->m_pc+1);
-	else this->m_pc+=3;
-	break;
-      case 7:	  
-	flag=this->m_pc+thread_peek(this,m,this->m_pc+2);
-	thread_poke(this,m,flag,thread_peek(this,m,flag)-1);	
-
-	if (thread_peek(this,m,flag)==0) this->m_pc=thread_peek(this,m,this->m_pc);
-	else this->m_pc+=3;
-	break;
-      case 8:	  
+      case 3:
+	//MOV indirect to indirect
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,thread_peek(this,m,this->m_pc+1)));
 	this->m_pc+=3;
 	break;
-      case 9:	  
-	//  if (cells[(IP+cells[IP+2])]!=cells[(IP+cells[IP+1])]) IP+=6;
-	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2)) != thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+1))) this->m_pc+=6;
+      case 4:
+	//ADD # to direct
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,this->m_pc+1)+thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 5:
+	// ADD indirect to direct.
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,thread_peek(this,m,this->m_pc+1)+thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))));
+	this->m_pc+=3;
+	break;
+      case 6:
+	// ADD # to indirect.
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,this->m_pc+1)+thread_peek(this,m,thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 7:
+	//ADD indirect to indirect
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,thread_peek(this,m,this->m_pc+1))+thread_peek(this,m,thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 8:
+	//SUB # to direct
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,this->m_pc+1)-thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 9:
+	// indirect to direct.
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2),thread_peek(this,m,thread_peek(this,m,this->m_pc+1)-thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))));
+	this->m_pc+=3;
+	break;
+      case 10:
+	// # to indirect.
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,this->m_pc+1)-thread_peek(this,m,thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 11:
+	// indirect to indirect
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)),thread_peek(this,m,thread_peek(this,m,this->m_pc+1))-thread_peek(this,m,thread_peek(this,m,this->m_pc+2)));
+	this->m_pc+=3;
+	break;
+      case 12:
+	// jmp to direct
+	this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	break;
+      case 13:
+	// jmp to indirect
+	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	break;
+      case 14:
+	// JMZdirect to direct
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))==0) 	this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	else 	this->m_pc+=3;
+	break;
+      case 15:
+	// JMZdirect to indirect
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))==0) 	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else 	this->m_pc+=3;
+	break;
+      case 16:	
+	// JMZindirect to direct
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))==0) 	this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	else 	this->m_pc+=3;
+	break;
+      case 17:
+	// JMZindirect to indirect
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))==0) 	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else 	this->m_pc+=3;
+	break;
+      case 18:
+	// JMGdirect to direct
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))>0) 	this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	else 	this->m_pc+=3;
+	break;
+      case 19:
+	// JMGdirect to indirect
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))>0) 	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else 	this->m_pc+=3;
+	break;
+      case 20:	
+	// JMGindirect to direct
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))>0) 	this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	else 	this->m_pc+=3;
+	break;
+      case 21:
+	// JMGindirect to indirect
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))>0) 	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else 	this->m_pc+=3;
+	break;
+      case 22:
+	// Dec, jump if zero... sub 1 from b. jump to a if b is zero
+	// DJZ dir to dir
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2), thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))-1);
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))==0)	  this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
 	else this->m_pc+=3;
 	break;
-	}
+      case 23:
+	// DJZ dir to indir
+	thread_poke(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2), thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))-1);
+	if (thread_peek(this,m,this->m_pc+(unsigned char)thread_peek(this,m,this->m_pc+2))==0)	  this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else this->m_pc+=3;
+	break;
+      case 24:
+	// DJZ indir to dir
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)), thread_peek(this,m,thread_peek(this,m,this->m_pc+2)-1));
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))==0)this->m_pc+=(unsigned char)thread_peek(this,m,this->m_pc+1);
+	else this->m_pc+=3;
+	break;
+      case 25:
+	// DJZ indir to indir
+	thread_poke(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)), thread_peek(this,m,thread_peek(this,m,this->m_pc+2)-1));
+	if (thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+2)))==0) this->m_pc=thread_peek(this,m,thread_peek(this,m,thread_peek(this,m,this->m_pc+1)));
+	else this->m_pc+=3;
+	break;
+      case 26:
+	this->m_pc+=3;
+	break;
+      }
       printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
@@ -697,20 +815,6 @@ void thread_run(thread* this, machine *m) {
       printf("%c",this->m_pc);
 
 ///////////////////////////////////////////////////////////////
-
-/* "real" corewars redcode=
-
-/instr/2 operands each with 4 modes of addressing (say lowest 2 bits)
-
-also SPL for branchings... - add new thread
-
-see: http://vyznev.net/corewar/guide.html#start_instr
-g
-also mars.c in Downloads... as sep. file?
-
-
- */
-
     }
 
 }
@@ -764,7 +868,7 @@ void machine_create(machine *this, uint8_t *buffer) {
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{
-	  thread_create(&this->m_threads[n], count, 10);// last is CPU type!
+	  thread_create(&this->m_threads[n], count, 6);// last is CPU type!
 	  count+=255;
     }
 }
@@ -838,11 +942,12 @@ int main(void)
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,buffer);
 
+
   while(1) {
       machine_run(m);
       if (rand()%20==0) {
   	leak(m);
   	}
 
-  	}
+  }
 }

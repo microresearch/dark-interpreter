@@ -35,8 +35,10 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 3week: knobs and tweaking
 * THU 26 DEC
 
+:::leaky.c
+
 - port all microbdDONE
-- "real" redcode
+- "real" redcodeDONE - still needs SPL!
 - potential other stack based machines:
 
 malbolge: converts all of memory first for interpreter so no-go
@@ -45,7 +47,7 @@ stack1: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321 DONE
 
 - stack conversions for some of CPUs in leaky.c
 - differentiate cpus and other datagens? competing for buffers?
-- stack code to add and subtract CPUs
+- stack code to add and subtract CPUs and bring into main code for ARM
 
 * MON 23 DEC
 
