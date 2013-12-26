@@ -16,6 +16,11 @@
 - control of leakiness
 - cpus can also infect/take over each other (meta)
 
+- redo for overlap thread code or (as in grains?)
+
+- for wormcode steering buffer, also other cpus modded to read/write
+  to that extra buffer - where to pass ref???
+
 */
 
 //int HEAP_SIZE=20400; // see above (80*255)
@@ -43,22 +48,6 @@ u8 thread_peek(thread* this, machine *m, u8 addr) {
 
 void thread_poke(thread* this, machine *m, u8 addr, u8 data) {
 	machine_poke(m,this->m_start+addr,data);
-}
-
-void thread_set_start(thread* this, u8 s) { 
-    this->m_start=s; 
-}
-
-void thread_set_pc(thread* this, u8 s) { 
-    this->m_pc=s; 
-}
-
-u8 thread_get_pc(thread* this) { 
-    return this->m_pc+this->m_start; 
-}
-
-u8 thread_get_start(thread* this) { 
-    return this->m_start; 
 }
 
 void thread_run(thread* this, machine *m) {
@@ -304,7 +293,7 @@ void thread_run(thread* this, machine *m) {
       // plague: add in input and output???
       instr=thread_peek(this,m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%7){
+      switch(instr%4){
       case 0:
 	thread_poke(this,m,this->m_pc,255);
 	thread_poke(this,m,this->m_pc+1,255);
@@ -329,8 +318,223 @@ void thread_run(thread* this, machine *m) {
 	break;
       }
 	if (thread_peek(this,m,this->m_pc)==255) this->m_reg8bit3+=4;
+      printf("%c",this->m_pc);
+///////////////////////////////////////////////////////////////
+
+    case 5:
+      // first from micro: add in input and output???
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%14){
+      case 0:
+	this->m_reg8bit1++;
+	this->m_pc++;
+	break;
+      case 1:
+	this->m_reg8bit1--;
+	this->m_pc++;
+	break;
+      case 2:
+	thread_poke(this,m,this->m_reg8bit1,thread_peek(this,m,this->m_reg8bit1)+1);
+	this->m_pc++;
+	break;
+      case 3:	  
+	thread_poke(this,m,this->m_reg8bit1,thread_peek(this,m,this->m_reg8bit1)-1);
+	this->m_pc++;
+	break;
+      case 4:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)+1);
+	this->m_pc++;
+	break;
+      case 5:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)-1);
+	this->m_pc++;
+	break;
+      case 6:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)<<1);
+	this->m_pc++;
+	break;
+      case 7:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)<<2);
+	this->m_pc++;
+	break;
+      case 8:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)<<3);
+	this->m_pc++;
+	break;
+      case 9:	  
+	if (thread_peek(this,m,this->m_pc+1)==0) this->m_pc=this->m_reg8bit1;
+	//	this->m_pc++;
+	break;
+      case 10:	  
+	if (thread_peek(this,m,this->m_pc+1)<128) this->m_pc+=thread_peek(this,m,this->m_pc+1);
+	else 	this->m_pc++;
+	break;
+      case 11:	  
+	if (thread_peek(this,m,this->m_pc-1)<128) thread_poke(this,m,this->m_pc+1,thread_peek(this,m,this->m_pc));
+	this->m_pc++;
+	break;
+      case 12:	  
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc+1));
+	this->m_pc++;
+	break;
+      case 13:	  
+	this->m_pc++;
+	break;
+      }
+      printf("%c",this->m_pc);
+///////////////////////////////////////////////////////////////
+
+    case 6:
+      // redcode: add in input and output??? TODO: check!
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%10){
+      case 0:
+	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+1));
+	this->m_pc+=3;
+	break;
+      case 1:	  
+	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+2)+thread_peek(this,m,this->m_pc+1));
+	this->m_pc+=3;
+	break;
+      case 2:	  
+	thread_poke(this,m,this->m_pc+2,thread_peek(this,m,this->m_pc+2)-thread_peek(this,m,this->m_pc+1));
+	this->m_pc+=3;
+	break;
+      case 3:	  
+	this->m_pc+=thread_peek(this,m,this->m_pc+1);
+	break;
+      case 4:	  
+	//   if (cells[(IP+cells[IP+2])]==0) IP=cells[IP+1];
+	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2))==0) this->m_pc=thread_peek(this,m,this->m_pc+1);
+	else this->m_pc+=3;
+	break;
+      case 6:	  
+	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2))>0) this->m_pc=thread_peek(this,m,this->m_pc+1);
+	else this->m_pc+=3;
+	break;
+      case 7:	  
+	flag=this->m_pc+thread_peek(this,m,this->m_pc+2);
+	thread_poke(this,m,flag,thread_peek(this,m,flag)-1);	
+
+	if (thread_peek(this,m,flag)==0) this->m_pc=thread_peek(this,m,this->m_pc);
+	else this->m_pc+=3;
+	break;
+      case 8:	  
+	this->m_pc+=3;
+	break;
+      case 9:	  
+	//  if (cells[(IP+cells[IP+2])]!=cells[(IP+cells[IP+1])]) IP+=6;
+	if (thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+2)) != thread_peek(this,m,this->m_pc+thread_peek(this,m,this->m_pc+1))) this->m_pc+=6;
+	else this->m_pc+=3;
+	break;
 	}
+      printf("%c",this->m_pc);
+///////////////////////////////////////////////////////////////
+
+    case 7:
+      // SIR: add in input and output??? untested for audio but...
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%4){
+      case 0:
+	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128)) cells[IP]++;
+	if (thread_peek(this,m,this->m_pc+1)<128) thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)+1);
+	this->m_pc++;
+	break;
+      case 1:	  
+	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128))    if (rand()%10 < 4) cells[IP] = dead;     
+	if (thread_peek(this,m,this->m_pc+1)<128)  if (rand()%10 < 4) thread_poke(this,m,this->m_pc,255);     
+	this->m_pc++;
+	break;
+      case 2:
+	//  if (cells[(IP+1)] >= 128) cells[IP] = recovered;
+	if (thread_peek(this,m,this->m_pc+1)>=128)  thread_poke(this,m,this->m_pc,129);
+	this->m_pc++;
+	break;
+      case 3:
+	if (thread_peek(this,m,this->m_pc+1)==0){
+	  if ((thread_peek(this,m,this->m_pc-1)>0 && thread_peek(this,m,this->m_pc-1)<128) ||
+	      (thread_peek(this,m,this->m_pc+1)>0 && thread_peek(this,m,this->m_pc+1)<128))
+	    {
+	if (rand()%10 < 4) thread_poke(this,m,this->m_pc,129);
+	    }
+	}
+	this->m_pc++;
+	break;
+      }
+
+///////////////////////////////////////////////////////////////
+
+    case 8:
+      // WOrmcode: but was with overlaps and also we need extra buffer to steer!
+      //      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+
+      this->m_reg8bit3=biotadir[rand()%8]; // replace with buffer steering TODO!
+      this->m_pc+=this->m_reg8bit3;
+      instr=thread_peek(this,m,this->m_pc);
+      switch(instr%12){
+      case 0:
+	break;
+      case 1:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)+1);
+	break;
+      case 2:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)-1);
+	break;
+      case 3:
+	this->m_pc+=thread_peek(this,m,this->m_pc+this->m_reg8bit3);
+	break;
+      case 4:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)+thread_peek(this,m,this->m_pc+this->m_reg8bit3));
+	break;
+      case 5:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)-thread_peek(this,m,this->m_pc+this->m_reg8bit3));
+	break;
+      case 6:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)<<1);
+	break;
+      case 7:
+	thread_poke(this,m,this->m_pc,thread_peek(this,m,this->m_pc)>>1);
+	break;
+      case 8:
+	if (thread_peek(this,m,this->m_pc+(this->m_reg8bit3*2))==0) this->m_pc+=thread_peek(this,m,this->m_pc+this->m_reg8bit3);
+	break;
+      case 9:
+	flag=thread_peek(this,m,this->m_pc);
+	thread_poke(this,m,this->m_pc-this->m_reg8bit3,flag);
+	thread_poke(this,m,this->m_pc+this->m_reg8bit3,flag);
+	break;
+      case 10:
+	thread_push(this,thread_peek(this,m,this->m_pc+this->m_reg8bit3));
+	break;
+      case 11:
+	thread_poke(this,m,this->m_pc+this->m_reg8bit3,thread_pop(this));
+	break;
+      }
+      printf("%c",instr);
+
+///////////////////////////////////////////////////////////////
+
+/* "real" corewars redcode=
+
+/instr/2 operands each with 4 modes of addressing (say lowest 2 bits)
+
+also SPL for branchings... - add new thread
+
+see: http://vyznev.net/corewar/guide.html#start_instr
+
+also mars.c in Downloads... as sep. file?
+
+
+ */
+
+    }
+
 }
+
 
 const u8* thread_get_stack(thread* this) { 
     return this->m_stack; 
@@ -380,7 +584,7 @@ void machine_create(machine *this, uint8_t *buffer) {
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{
-	  thread_create(&this->m_threads[n], count, 4);// last is CPU
+	  thread_create(&this->m_threads[n], count, 8);// last is CPU
 	  count+=255;
     }
 }

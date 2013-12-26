@@ -1,8 +1,9 @@
 * plan
 
-send by 15th->pcbcartDONEawait PCBs
+send by 15th->pcbcartDONEawait PCBsARRIVED
 
-1 phase: hardware switchingsDONE + architecture outline 
+1 phase: hardware switchingsDONE + architecture outlineROUGH 
+
 2 phase: datagens
 3 phase: audio buffers and processing (any mixing of signals?)
 4 phase: knobs assigned and all tests/RELEASE
@@ -27,13 +28,27 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 - datagens: threading for instructions - see leaky.c
 
-- work schedule/plan for end January release
+- work schedule/plan for end January release:
+
+1week: datagens/test hardware (by begin JAN)
+2week: buffers/grains
+3week: knobs and tweaking
+* THU 26 DEC
+
+- port all microbdDONE
+- "real" redcode
+- potential other stack based machines:
+
+malbolge: converts all of memory first for interpreter?
+befunge: possible... http://en.wikipedia.org/wiki/Befunge
+stack1: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
+
+- stack conversions for some of CPUs in leaky.c
+- differentiate cpus and other datagens? competing for buffers?
 
 * MON 23 DEC
 
-- stacks for grains/villagers and for CPUS, mix, merge, leak each other
-- do we need 65,535/whatever wrap in cpus - machine peek and poke?
-- cpu stacks in ccmdata
+- 1-stacks for grains/villagers 2-stacks for CPUS, mix, merge, leak each other
 
 * WED 4 DEC
 
