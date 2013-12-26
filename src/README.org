@@ -39,12 +39,13 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 - "real" redcode
 - potential other stack based machines:
 
-malbolge: converts all of memory first for interpreter?
-befunge: possible... http://en.wikipedia.org/wiki/Befunge
-stack1: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
+malbolge: converts all of memory first for interpreter so no-go
+befunge: possible... http://en.wikipedia.org/wiki/Befunge DONE
+stack1: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321 DONE
 
 - stack conversions for some of CPUs in leaky.c
 - differentiate cpus and other datagens? competing for buffers?
+- stack code to add and subtract CPUs
 
 * MON 23 DEC
 

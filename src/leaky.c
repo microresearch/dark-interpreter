@@ -518,6 +518,186 @@ void thread_run(thread* this, machine *m) {
 
 ///////////////////////////////////////////////////////////////
 
+    case 9:
+      // stack machine a la: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
+      // but sans return stack
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%15){
+      case 0:
+	flag=thread_pop(this);
+	thread_poke(this,m,thread_pop(this),flag);
+	this->m_pc++;
+	break;
+      case 1:
+	thread_push(this,thread_pop(this)+thread_pop(this));
+	this->m_pc++;
+	break;
+      case 2:
+	thread_push(this,thread_pop(this)-thread_pop(this));
+	this->m_pc++;
+	break;
+      case 3:
+	thread_push(this,thread_peek(this,m,thread_pop(this)));
+	this->m_pc++;
+	break;
+      case 4:
+	thread_push(this,thread_pop(this)&thread_pop(this));
+	this->m_pc++;
+	break;
+      case 5:
+	thread_pop(this);
+	this->m_pc++;
+	break;
+      case 6:
+	flag=thread_pop(this);
+	thread_push(this,flag);
+	thread_push(this,flag);
+	this->m_pc++;
+	break;
+      case 7:
+	thread_push(this,thread_pop(this)|thread_pop(this));
+	this->m_pc++;
+	break;
+      case 8:
+	//Push a copy of the second element on the stack, N1, onto the top of the stack
+	this->m_reg8bit1=thread_pop(this);
+	this->m_reg8bit2=thread_pop(this);
+	thread_push(this,this->m_reg8bit2);
+	thread_push(this,this->m_reg8bit1);
+	thread_push(this,this->m_reg8bit2);
+	this->m_pc++;
+	break;
+      case 9:
+	this->m_reg8bit1=thread_pop(this);
+	this->m_reg8bit2=thread_pop(this);
+	thread_push(this,this->m_reg8bit1);
+	thread_push(this,this->m_reg8bit2);
+	this->m_pc++;
+	break;
+      case 10:
+	thread_push(this,thread_pop(this)^thread_pop(this));
+	this->m_pc++;
+	break;
+      case 11:
+	if (thread_pop(this)==0) this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	else 	this->m_pc++;
+	break;
+      case 12:
+	//sub call
+	thread_push(this,this->m_pc);
+	this->m_pc=thread_peek(this,m,thread_peek(this,m,this->m_pc+1));
+	break;
+      case 13:
+	//sub return
+	this->m_pc=thread_pop(this);
+	break;
+      case 14:
+	thread_push(this,thread_peek(this,m,this->m_pc+1));
+	this->m_pc++;
+	break;
+      }
+      printf("%c",this->m_pc);
+
+///////////////////////////////////////////////////////////////
+
+    case 10:
+      // befunge: http://en.wikipedia.org/wiki/Befunge
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%30){
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+	thread_push(this,instr%30);
+	break;
+      case 10:
+	thread_push(this,thread_pop(this)-thread_pop(this));
+	break;
+      case 11:
+	flag=thread_pop(this);
+	thread_push(this,thread_pop(this)-flag);
+	break;
+      case 12:
+	thread_push(this,thread_pop(this)*thread_pop(this));
+	break;
+      case 13:
+	flag=thread_pop(this);
+	if (flag!=0) thread_push(this,thread_pop(this)/flag);
+	break;
+      case 14:
+	flag=thread_pop(this);
+	if (flag!=0) thread_push(this,thread_pop(this)%flag);
+	break;
+      case 15:
+	flag=thread_pop(this);
+	if (flag==0) thread_push(this,1);
+	else thread_push(this,0);
+	break;
+      case 16:
+	flag=thread_pop(this);
+	if (thread_pop(this)>flag) thread_push(this,1);
+	else thread_push(this,0);
+	break;
+      case 17: // right
+	this->m_reg8bit3=2;
+	break;
+      case 18: // left
+	this->m_reg8bit3=6;
+	break;
+      case 19: // up
+	this->m_reg8bit3=0;
+	break;
+      case 20: // down
+	this->m_reg8bit3=4;
+	break;
+      case 21:
+	this->m_reg8bit3=(rand()%4)*2;
+	break;
+      case 22:
+	if (thread_pop(this)==0)	this->m_reg8bit3=2;
+	else 	this->m_reg8bit3=6;
+	break;
+      case 23:
+	if (thread_pop(this)==0)	this->m_reg8bit3=4;
+	else 	this->m_reg8bit3=0;
+	break;
+      case 24:
+	flag=thread_pop(this);
+	thread_push(this,flag);
+	thread_push(this,flag);
+	break;
+      case 25:
+	this->m_reg8bit1=thread_pop(this);
+	this->m_reg8bit2=thread_pop(this);
+	thread_push(this,this->m_reg8bit1);
+	thread_push(this,this->m_reg8bit2);
+	break;
+      case 26:
+	thread_pop(this);
+	break;
+      case 27:
+	this->m_pc+=biotadir[this->m_reg8bit3%8];
+	break;
+      case 28:
+	thread_poke(this,m,(thread_pop(this)&16)*(thread_pop(this)&16),thread_pop(this));
+	break;
+      case 29:
+	thread_push(this,thread_peek(this,m,thread_pop(this)&16)*(thread_pop(this)&16));
+	break;
+      }
+      this->m_pc+=biotadir[this->m_reg8bit3%8];
+      printf("%c",this->m_pc);
+
+///////////////////////////////////////////////////////////////
+
 /* "real" corewars redcode=
 
 /instr/2 operands each with 4 modes of addressing (say lowest 2 bits)
@@ -525,7 +705,7 @@ void thread_run(thread* this, machine *m) {
 also SPL for branchings... - add new thread
 
 see: http://vyznev.net/corewar/guide.html#start_instr
-
+g
 also mars.c in Downloads... as sep. file?
 
 
@@ -584,7 +764,7 @@ void machine_create(machine *this, uint8_t *buffer) {
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{
-	  thread_create(&this->m_threads[n], count, 8);// last is CPU
+	  thread_create(&this->m_threads[n], count, 10);// last is CPU type!
 	  count+=255;
     }
 }
