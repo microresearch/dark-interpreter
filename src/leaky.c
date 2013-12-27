@@ -7,23 +7,19 @@
 #include <sys/time.h>
 #include "leaky.h"
 
-/* For D.I:
+/* TODO D.I:
 
 - for each thread heap points into buffer - DONE
 - stack of diff cpus/threads which can be added/subbed to by knob - TODO(each thread has m_CPU)
 - re-init (per thread?)
-- do stack versions of each cpu (if not)
 - control of leakiness
 - cpus can also infect/take over each other (meta)
-
-- redo for overlap thread code or (as in grains?)
-
+- redo for overlap thread code (but should instruction pointer be int or?)
 - for wormcode steering buffer, also other cpus modded to read/write
   to that extra buffer - where to pass ref???
+- add SPL to redcode
 
-
-TODO: redcode with SPL
-
+TOTAL so far: 14 CPUs
 
 */
 
@@ -31,7 +27,7 @@ TODO: redcode with SPL
 
 void thread_create(thread *this, int start, uint8_t which) {
     this->m_CPU=which;
-    this->m_start=start;
+    this->m_start=start; // or overlap?
     this->m_pc=0;
     this->m_reg8bit1=rand()%255;
     this->m_reg8bit2=rand()%255;
@@ -56,9 +52,10 @@ void thread_poke(thread* this, machine *m, u8 addr, u8 data) {
 
 void thread_run(thread* this, machine *m) {
   u8 instr;	
-  u8 flag;
-  u8 biotadir[8]={239,240,1,17,16,15,254,238};
-
+  u8 flag,other;
+  u8 biotadir[8]={239,240,1,17,16,15,254,238}; 
+  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
+			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
   //  sleep(1);
 
@@ -198,7 +195,7 @@ void thread_run(thread* this, machine *m) {
       }
       else this->m_pc+=biotadir[this->m_reg8bit3%8];
       printf("%c",this->m_pc);
-      break;
+      //      break;
 ///////////////////////////////////////////////////////////////
 
     case 2:
@@ -390,23 +387,15 @@ void thread_run(thread* this, machine *m) {
 ///////////////////////////////////////////////////////////////
 
     case 6:
-/* "real" corewars redcode SPL - TODO!
+/* "real" corewars redcode SPL 
 
-/instr/2 operands each with 4 modes of addressing (say lowest 2 bits of each operand)
+TODO: SPL for branchings... - add new thread at address x
 
-also SPL for branchings... - add new thread at address x
+(add new threads till max and change leaks only for total threads)
 
-see: http://vyznev.net/corewar/guide.html#start_instr
-
-also mars.c in Downloads... as sep. file?
-
-// use later redcode or original (which is pretty much as above but sans addressing):?
+REF: http://vyznev.net/corewar/guide.html#start_instr
 
 http://www.koth.org/info/akdewdney/images/Redcode.jpg
-
-addr modes (4 bits of instruction)=#immediate=integer, direct=memoryaddress, @indirect=addresss specified by contents of
-
-also negative addresses
 
  */
       instr=thread_peek(this,m,this->m_pc);
@@ -590,7 +579,8 @@ also negative addresses
       //      instr=thread_peek(this,m,this->m_pc);
       //      printf("instr %d ",instr);
 
-      this->m_reg8bit3=biotadir[rand()%8]; // replace with buffer steering TODO!
+      //      this->m_reg8bit3=biotadir[rand()%8]; // replace with buffer steering TODO or:
+      this->m_reg8bit3=biotadir[thread_peek(this,m,this->m_pc)%8];
       this->m_pc+=this->m_reg8bit3;
       instr=thread_peek(this,m,this->m_pc);
       switch(instr%12){
@@ -815,10 +805,74 @@ also negative addresses
       printf("%c",this->m_pc);
 
 ///////////////////////////////////////////////////////////////
+
+    case 11:
+      // kind of langton's ant as CPU - each thread has direction and
+      // changes state of cell according to stack?
+      // turn right/left/flip and move on
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      switch(instr%14)
+	{
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	  thread_push(this,instr);
+	  break;
+	case 12:
+	  this->m_reg8bit3+=2;
+	  thread_poke(this,m,this->m_pc,instr^thread_pop(this));
+	  break;
+	case 13:
+	  this->m_reg8bit3-=2;
+	  thread_poke(this,m,this->m_pc,instr^thread_pop(this));
+	  break;
+	}
+      this->m_pc+=biotadir[this->m_reg8bit3%8];
+      printf("%c",this->m_pc);
+
+///////////////////////////////////////////////////////////////
+
+    case 12:
+      // turmites code: turmite has state,direction,position...
+      instr=thread_peek(this,m,this->m_pc);
+      thread_poke(this,m,this->m_pc,instr+this->m_reg8bit1);
+      //delta = dmove[(instr - this->reg8bit1) & 0xf];
+      flag=instr - this->m_reg8bit1;
+      //tm->dir = (tm->dir + delta) & 3;
+      this->m_reg8bit2=(this->m_reg8bit2+flag)&8;
+      //do move and wrap
+      this->m_pc+=biotadir[this->m_reg8bit2];
+      // finally
+      this->m_reg8bit1 = this->m_reg8bit1 + (deltastate[instr%16]<<4);
+      printf("%c",this->m_pc);
+
+///////////////////////////////////////////////////////////////
+
+    case 13:
+      // linear CA/life code. copies to 128 steps ahead new state and keeps going(?)
+      instr=thread_peek(this,m,this->m_pc);
+      //      printf("instr %d ",instr);
+      //      (cells[x-1]&0x01)+(cells[x+1]&0x01)+(cells[x-CELLLEN]&0x01)+(cells[x+CELLLEN]&0x01)+(cells[x-CELLLEN-1]&0x01)+(cells[x-CELLLEN+1]&0x01)+(cells[x+CELLLEN-1]&0x01)+(cells[x+CELLLEN+1]&0x01);
+      other=(thread_peek(this,m,this->m_pc-1)&1)+(thread_peek(this,m,this->m_pc+1)&1)+(thread_peek(this,m,this->m_pc-32)&1)+(thread_peek(this,m,this->m_pc+32)&1)+(thread_peek(this,m,this->m_pc-31)&1)+(thread_peek(this,m,this->m_pc-33)&1)+(thread_peek(this,m,this->m_pc+31)&1)+(thread_peek(this,m,this->m_pc+33)&1);
+
+    //    sum=sum-(cells[x]&0x01);
+      if (other==3 || (other+(instr&0x01)==3)) flag=255;
+      else flag=0;
+      thread_poke(this,m,this->m_pc+128,flag);
+      this->m_pc++;
+      printf("%c",instr);
     }
-
 }
-
 
 const u8* thread_get_stack(thread* this) { 
     return this->m_stack; 
@@ -868,7 +922,8 @@ void machine_create(machine *this, uint8_t *buffer) {
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{
-	  thread_create(&this->m_threads[n], count, 6);// last is CPU type!
+	  thread_create(&this->m_threads[n], count, 13);// last is CPU type!
+	  this->m_threadcount++;
 	  count+=255;
     }
 }
@@ -910,8 +965,8 @@ void leak(machine *m){
   // leak bottom of stack x into top y
   unsigned char x=1, y=1, count;
     while (x==y){ 
-  x=rand()%MAX_THREADS;
-  y=rand()%MAX_THREADS;
+  x=rand()%m->m_threadcount;
+  y=rand()%m->m_threadcount;
     }
 
   thread *xx=&m->m_threads[x];
@@ -931,17 +986,15 @@ void leak(machine *m){
 
 int main(void)
 {
-  int x; u8 test1,test2;
+  int x;
   u8 buffer[65536];
   srandom(time(0));
   for (x=0;x<65536;x++){
     buffer[x]=rand()%255;
   }
 
-
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,buffer);
-
 
   while(1) {
       machine_run(m);

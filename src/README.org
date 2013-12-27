@@ -3,10 +3,10 @@
 send by 15th->pcbcartDONEawait PCBsARRIVED
 
 1 phase: hardware switchingsDONE + architecture outlineROUGH 
+2 phase: datagens/hardware tests BY BEGIN JAN!
 
-2 phase: datagens
-3 phase: audio buffers and processing (any mixing of signals?)
-4 phase: knobs assigned and all tests/RELEASE
+3 phase: grains/audio buffers and processing (any mixing of signals?)
+4 phase: knobs assigned and all tests/tweak/RELEASE
 
 NOTE-==memory management/areas refresh==
 
@@ -28,12 +28,17 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 - datagens: threading for instructions - see leaky.c
 
-- work schedule/plan for end January release:
+* FRI 27 DEC
 
-1week: datagens/test hardware (by begin JAN)
-2week: buffers/grains
-3week: knobs and tweaking
+- turmite and ant code added as CPUs to leaky.c (total now 13 CPUs)
+
+- TODO add for datagens: CAs(one dim, life, two dim), finish
+  simulations, SIR and hodge.
+
 * THU 26 DEC
+
+-knob->samplerate
+-worm/ant as sample-er
 
 :::leaky.c
 
@@ -45,7 +50,6 @@ malbolge: converts all of memory first for interpreter so no-go
 befunge: possible... http://en.wikipedia.org/wiki/Befunge DONE
 stack1: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321 DONE
 
-- stack conversions for some of CPUs in leaky.c
 - differentiate cpus and other datagens? competing for buffers?
 - stack code to add and subtract CPUs and bring into main code for ARM
 

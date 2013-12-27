@@ -48,28 +48,34 @@ divide into:
 
 1- CPU/instruction sets from microbd (inc. corewars?) REDO AS THREADED/stacks
 
-+leaky stack machines and wormcode: see simulation dir (wormcode?)
++leaky stack machines and wormcode: see simulation dir
+
+SEE leaky.c
+
+!NEARLY DONE!
+
+/////
 
 2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
 
 see also: /root/collect2011/blackdeath/code/simulations
 
+////
+
 3- worms, langton's ants,turmites - NEW
 
-langton.c
+langton.c -> langtonrev.c (now in CPUs but could also be as datagens - depends how we divide up)
 
-4- esoteric:brainfuck - RETEST (but is as CPU or?)
+http://en.wikipedia.org/wiki/Langton%27s_ant
 
-5- simulations: 
+///
 
-rossler, orbital(bit fullon), ifs,
+4- simulations: 
+
+rosslerTOFINISH, orbital(bit fullon), ifs,
 
 fitzhughnagumo - see fitz.c, oreganotor, brusselator - NEW DONE(to
 test/tweak)
-
-6- SIR simple, SIR using equations, more ambitious models...
-
-+ hodge - hodge.c - how we map the 3 states (rewrite hodge.c)
 
 see also:
 
@@ -77,13 +83,21 @@ latestresearch/sc3-plugins-src-2012-05-26/source/SLUGens/SLUGens.cpp
 
 http://doc.sccode.org/Classes/FitzHughNagumo.html
 
+5- SIR simple, SIR using equations, more ambitious models...
+
+see: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
+
++ hodge - hodge.c - how we map the 3 states (rewrite hodge.c)
+
 */
 
 //1-INSTRUCTION SETS/threaded/leaks
 
-// *AS seperate file - leaky.c
+// *NOW seperate file - leaky.c*
 
-//5-SIMULATIONS - started to port from supercollider.. 
+//////
+
+//4-SIMULATIONS - started to port from supercollider.. 
 
 // rossler also in: /MCLDUGens/MCLDChaosUGens.cpp
 

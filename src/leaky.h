@@ -45,6 +45,7 @@ static const u8 MAX_THREADS=120;
     typedef struct {
       thread *m_threads;
       u8 *m_memory; 
+      u8 m_threadcount;
     } machine;
     
     u8 thread_peek(thread *t, machine *m, u8 addr);
