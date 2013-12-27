@@ -32,8 +32,14 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 - turmite and ant code added as CPUs to leaky.c (total now 13 CPUs)
 
-- TODO add for datagens: CAs(one dim, life, two dim), finish
+- TODO add for datagens: CAs(one dim, life, two dim)DONE, finish
   simulations, SIR and hodge.
+
+working on hodge: microbd version, old hodge.c version, just found version: http://hunter.apana.org.au/~cjb/Code/hodge.c
+
+- piece into datagens and resolve huge buffer question (perhaps that
+  simulation-style datagens write history consecutively into working
+  buffer but reserving first part for settings)
 
 * THU 26 DEC
 

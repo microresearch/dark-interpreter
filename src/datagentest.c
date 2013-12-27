@@ -23,6 +23,8 @@
 
 /* TODO:
 
+simulations, SIR, hodge
+
 - cpu/instruction sets should be threaded and some link to
   grains... so some kind of list of threads... port from leaky.c
 
@@ -52,11 +54,13 @@ divide into:
 
 SEE leaky.c
 
-!NEARLY DONE!
+DONE!
 
 /////
 
 2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
+
+see CA.c - port here
 
 see also: /root/collect2011/blackdeath/code/simulations
 
@@ -67,6 +71,8 @@ see also: /root/collect2011/blackdeath/code/simulations
 langton.c -> langtonrev.c (now in CPUs but could also be as datagens - depends how we divide up)
 
 http://en.wikipedia.org/wiki/Langton%27s_ant
+
+in leaky.c
 
 ///
 
@@ -91,11 +97,9 @@ see: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
 */
 
-//1-INSTRUCTION SETS/threaded/leaks
+//2-CA
 
-// *NOW seperate file - leaky.c*
-
-//////
+//
 
 //4-SIMULATIONS - started to port from supercollider.. 
 
