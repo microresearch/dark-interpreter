@@ -26,20 +26,51 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 40106 on TIM1_CH2 (pin 42) DONE/coded I think TEST
 
-- datagens: threading for instructions - see leaky.c
+* MON 30 DEC
+
+- MON/TUE:finish simulations(rossler,orbital, others), SIR and hodge.
+
+SIR and co. as simulation/as equations...
+
+notes:
+
+- each cell has population which can travel/move across cells
+
+SEIR model- number of pop of: suscept, exposed, infected, recovered
+
+see: http://users.dickinson.edu/~siglej/131/materials/labs/lab03/handout.html
+
+CAsDONE and hodge converted to cpus, hodge versionings: CA.c, hodge.c,
+hodgenet.c, microbd hodge
+
+but all needs larger cellspace...re-do leaky.c
+
+- problem with all datagens as cpus is floats issue
+
+- add wrap/limit and cellsize to each cpu if make full cell space
+
+----
+
+- added more ant code...
+
+http://www.google.com/url?q=http://arxiv.org/pdf/1202.1639&sa=U&ei=xXXBUpq_K8jNswal3IHYDA&ved=0CDAQFjAD&usg=AFQjCNHLwRHZkmxORJkDZN0wwj7JnVvA3g
 
 * FRI 27 DEC
 
-- turmite and ant code added as CPUs to leaky.c (total now 13 CPUs)
+- turmite and ant code added as CPUs to leaky.c (total now 14 CPUs)
 
-- TODO add for datagens: CAs(one dim, life, two dim)DONE, finish
-  simulations, SIR and hodge.
+- TODO add for datagens: CAs(2xone dim, life, two dim)DONE, 
 
-working on hodge: microbd version, old hodge.c version, just found version: http://hunter.apana.org.au/~cjb/Code/hodge.c
+working on hodge: microbd version, old hodge.c version, just found
+version is hodgenet in sim. mod each so is just one line at a time...
 
-- piece into datagens and resolve huge buffer question (perhaps that
-  simulation-style datagens write history consecutively into working
-  buffer but reserving first part for settings)
+//
+
+- place all into datagens and resolve huge buffer question (perhaps
+  that simulation-style datagens write history consecutively into
+  working buffer but reserving first part for settings)
+
+- war of "real" datagens/cpus
 
 * THU 26 DEC
 
