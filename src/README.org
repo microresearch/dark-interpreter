@@ -28,11 +28,14 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 * MON 30 DEC
 
-- MON/TUE:finish simulations(rossler,orbital, others), SIR and hodge.
+- MON/TUE:finish simulations(rossler,orbital, ifs), SIR and hodge.
 
-SIR and co. as simulation/as equations...
 
-notes:
+3 sorts of datagen: CPUs, float-style simulations, cellular
+automata...
+
+all of which are writing across 64k buffer space which grain
+parameters can move in directions across and also exchange with
 
 - each cell has population which can travel/move across cells
 
@@ -44,8 +47,6 @@ CAsDONE and hodge converted to cpus, hodge versionings: CA.c, hodge.c,
 hodgenet.c, microbd hodge
 
 but all needs larger cellspace...re-do leaky.c
-
-- problem with all datagens as cpus is floats issue
 
 - add wrap/limit and cellsize to each cpu if make full cell space
 

@@ -11,16 +11,71 @@
 
 - port for DI. still buffer question
 
-:: lifer, cel, runcell1d
+:: CA...lifer, cel, runcell1d
+
+add in microBD hodge code for testing...
+
+and rest of hodge code...
 
 */
 
-#define CELLLEN 128
+#define CELLLEN 255
 
 //2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
 // working with 64k buffers
 
 // 2d automata works on 128*128 buffer (could be larger)
+
+
+#define MAX_SAM 65536
+
+void hodge(unsigned char* cellies){
+  int sum=0, numill=0, numinf=0;
+  unsigned char q,k1,k2,g;
+  static unsigned int x=CELLLEN+1;
+  static unsigned char flag=0;
+  unsigned char *newcells, *cells;
+
+  if (flag&0x01==0) {
+    cells=cellies; newcells=&cellies[MAX_SAM/2];
+  }
+  else {
+    cells=&cellies[MAX_SAM/2]; newcells=cellies;
+  }      
+
+  q=cells[0];k1=cells[1];k2=cells[2];g=cells[3];
+  if (k1==0) k1=1;
+  if (k2==0) k2=1;
+
+  sum=cells[x]+cells[x-1]+cells[x+1]+cells[x-CELLLEN]+cells[x+CELLLEN]+cells[x-CELLLEN-1]+cells[x-CELLLEN+1]+cells[x+CELLLEN-1]+cells[x+CELLLEN+1];
+
+  if (cells[x-1]==(q-1)) numill++; else if (cells[x-1]>0) numinf++;
+  if (cells[x+1]==(q-1)) numill++; else if (cells[x+1]>0) numinf++;
+  if (cells[x-CELLLEN]==(q-1)) numill++; else if (cells[x-CELLLEN]>0) numinf++;
+  if (cells[x+CELLLEN]==(q-1)) numill++; else if (cells[x+CELLLEN]>0) numinf++;
+  if (cells[x-CELLLEN-1]==q) numill++; else if (cells[x-CELLLEN-1]>0) numinf++;
+  if (cells[x-CELLLEN+1]==q) numill++; else if (cells[x-CELLLEN+1]>0) numinf++;
+  if (cells[x+CELLLEN-1]==q) numill++; else if (cells[x+CELLLEN-1]>0) numinf++;
+  if (cells[x+CELLLEN+1]==q) numill++; else if (cells[x+CELLLEN+1]>0) numinf++;
+
+  if(cells[x] == 0)
+    newcells[x%(MAX_SAM/2)] = floor(numinf / k1) + floor(numill / k2);
+  else if(cells[x] < q - 1)
+    newcells[x%(MAX_SAM/2)] = floor(sum / (numinf + 1)) + g;
+  else
+    newcells[x%(MAX_SAM/2)] = 0;
+
+  if(newcells[x%(MAX_SAM/2)] > q - 1)
+    newcells[x%(MAX_SAM/2)] = q - 1;
+
+  x++;
+  printf("%c",newcells[x]);
+  if (x>((MAX_SAM/2)-CELLLEN-1)) {
+    x=CELLLEN+1;
+    flag^=0x01;
+  }
+}
+
 
 unsigned char lifer(unsigned char* cellies){
   unsigned char sum;
@@ -149,6 +204,7 @@ int main(void)
   inittable(3,4,rand()%65536); //radius,states(k),rule - init with cell starter
 
       while(1) {
-    x=lifer(buffer);
+	//    x=lifer(buffer);
+	hodge(buffer);
     }
 }
