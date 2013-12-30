@@ -76,8 +76,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	int32_t i,wcount,rcount; int16_t x;
-	
+
+#ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
+	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+
+#else
+	audio_split_stereo(sz, src, left_buffer, right_buffer);
+	
 
 	/*
 	// load right buffer into mainbuffer using writegrainlist
@@ -99,7 +105,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	*/
 		for (x=0;x<sz/2;x++){
 		  //		  left_buffer[(sz/2)-x]=right_buffer[x];
-		  left_buffer[x]=left_buffer[x]/16;
+		  left_buffer[x]=left_buffer[x]*16;
 		  //		  right_buffer[x]=0;
 	  }
 
@@ -108,5 +114,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// figure this out - 
 	//	audio_comb_stereo(sz, dst, right_buffer=filter, right_buffer=audio);
 	// and left is filter in
+
+#endif
 
 }

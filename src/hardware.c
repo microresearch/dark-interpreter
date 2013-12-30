@@ -112,6 +112,8 @@ all clocks set in datagens/elsewhere
 
 */
 
+void reset_switches(void);
+
 void dohardwareswitch(uint16_t modder){
   uint16_t res,res2;
   static uint8_t hangflag=0;
@@ -152,26 +154,31 @@ feedback on/off - jackin-> - lm358in->
     reset_switches();
   }
 
+#ifdef TEST_STRAIGHT
+  res=2;
+  res2=0;
+#endif // TEST_STRAIGHT
+
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRL = (1<<8); // L sets add in clear PC13DONE
-   GPIOC->BSSRH = (1<<13);
+   GPIOC->BSRRH = (1<<13);
    break;
  case 1:
    GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRL = (1<<8); 
-   GPIOC->BSSRH = (1<<13);
+   GPIOC->BSRRH = (1<<13);
    break;
  case 2:
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRH = (1<<8);// add in do PC13DONE
-   GPIOC->BSSRL = (1<<13);
+   GPIOC->BSRRL = (1<<13);
    break;
  case 3:
    GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRH = (1<<8);
-   GPIOC->BSSRL = (1<<13);
+   GPIOC->BSRRL = (1<<13);
 
  }
 

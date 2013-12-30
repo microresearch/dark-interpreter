@@ -13,7 +13,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 LDSCRIPT = stm32_flash.ld
 
 CFLAGS = -g -O2 -mlittle-endian -mthumb
-CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1'
+CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1'# -DTEST_STRAIGHT
 CFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard
 AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
@@ -45,15 +45,15 @@ flash: gdb_flash
 
 stlink_flash: main.bin
 	$(FLASH) write main.bin 0x08000000
-	
+
 gdb_flash: main.elf
 	$(GDB) -x flash_cmd.gdb -batch
 
 disassemble: main.elf
 	$(OBJDMP) -dS main.elf > main.dis
-	
+
 dist:
-	tar -c *.h *.c *.s Makefile *.cmd *.cfg openocd_doflash | gzip > minimal_hello_world.tar.gz
+	tar -c *.h *.c *.s Makefile *.cmd *.cfg openocd_doflash | gzip > darkint.zip
 
 main.ihex: main.elf
 	$(OBJCPY) --output-target=ihex main.elf main.ihex
