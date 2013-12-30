@@ -1,4 +1,8 @@
 //gcc -DLINUX -std=gnu99 CA.c -o CA -lm
+
+//CA...runlife, runce, runcell1d
+//runhodge(micro), 
+
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -9,13 +13,7 @@
 
 /* TODO D.I:
 
-- port for DI. still buffer question
-
-:: CA...lifer, cel, runcell1d
-
-add in microBD hodge code for testing...
-
-and rest of hodge code...
+ADD rest of hodge code...
 
 */
 
@@ -26,10 +24,11 @@ and rest of hodge code...
 
 // 2d automata works on 128*128 buffer (could be larger)
 
-
 #define MAX_SAM 65536
 
-void hodge(unsigned char* cellies){
+// Hodge-podge from microbd
+
+void runhodge(unsigned char* cellies){
   int sum=0, numill=0, numinf=0;
   unsigned char q,k1,k2,g;
   static unsigned int x=CELLLEN+1;
@@ -77,7 +76,7 @@ void hodge(unsigned char* cellies){
 }
 
 
-unsigned char lifer(unsigned char* cellies){
+unsigned char runlife(unsigned char* cellies){
   unsigned char sum;
   unsigned int x;
   static unsigned char flag=0;
@@ -110,7 +109,7 @@ unsigned char lifer(unsigned char* cellies){
 ////one dimensional - working line by line through buffer
 /// celllen for this one could be 255!
 
-unsigned char cel(unsigned char* cells){
+unsigned char runcel(unsigned char* cells){
 
   static unsigned char l=0; unsigned char cell, state, res;
   unsigned char rule=cells[0];
@@ -205,6 +204,6 @@ int main(void)
 
       while(1) {
 	//    x=lifer(buffer);
-	hodge(buffer);
+	runhodge(buffer);
     }
 }

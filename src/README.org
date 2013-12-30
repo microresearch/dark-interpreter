@@ -14,7 +14,11 @@ NOTE-==memory management/areas refresh==
 
 use 112KB+16 for general/96K sample buffer (1 second)
 
-ccmdata for datagens/backwards/forwards
+//how access 2nd block????
+
+ccmdata for datagens/backwards/forwards/BUFFER
+
+knob->control samplerate!
 
 * TODO
 
@@ -28,25 +32,19 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 * MON 30 DEC
 
-- MON/TUE:finish simulations(rossler,orbital, ifs), SIR and hodge.
+TODO: port hodge into CA.c, SIR code in simulations (few models), and
+CA style SIR code in CA.c
 
-
-3 sorts of datagen: CPUs, float-style simulations, cellular
+THUS there are 3 sorts of datagen: CPUs, float-style simulations, cellular
 automata...
 
 all of which are writing across 64k buffer space which grain
-parameters can move in directions across and also exchange with
+parameters can move in directions across (as a worm or CPU itself
+again) and also exchange data with...
 
-- each cell has population which can travel/move across cells
+window into each!
 
-SEIR model- number of pop of: suscept, exposed, infected, recovered
-
-see: http://users.dickinson.edu/~siglej/131/materials/labs/lab03/handout.html
-
-CAsDONE and hodge converted to cpus, hodge versionings: CA.c, hodge.c,
-hodgenet.c, microbd hodge
-
-but all needs larger cellspace...re-do leaky.c
+re-do leaky.c for larger cellspace/overlaps
 
 - add wrap/limit and cellsize to each cpu if make full cell space
 
@@ -55,6 +53,15 @@ but all needs larger cellspace...re-do leaky.c
 - added more ant code...
 
 http://www.google.com/url?q=http://arxiv.org/pdf/1202.1639&sa=U&ei=xXXBUpq_K8jNswal3IHYDA&ved=0CDAQFjAD&usg=AFQjCNHLwRHZkmxORJkDZN0wwj7JnVvA3g
+
+----
+
+- each cell has population which can travel/move across cells
+
+SEIR model- number of pop of: suscept, exposed, infected, recovered
+
+see: http://users.dickinson.edu/~siglej/131/materials/labs/lab03/handout.html
+
 
 * FRI 27 DEC
 
@@ -515,14 +522,10 @@ remade all and now works??? is in adc_buffer[9[]
 
 coding:
 
-* working notes
-
-audio.c hardware.c mainbuffer.c datagen.c
-
-with headers...
-
 
 * issues
+
+NEW DESIGN!
 
 - audio bleed is through 4066 feedback switch (even when off - perhaps
   add resistor to signal path (pin 2) - TEST! - with 10k is very
@@ -535,8 +538,6 @@ to change design so for first 10 leave without feedback path!)
 - power consumption seems high? TEST THIS
 
 - some issues with ringing of lm13700 in filter feedback path
-
-- also 
 
 * programming
 

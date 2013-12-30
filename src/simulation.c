@@ -1,8 +1,8 @@
 // gcc simulation.c -osim -lm
-
 // was datagen.c previously
 
-/* testing of all simulation data generators */
+/* All simulation data generators: IFS, rossler, secondrossler, fitz,
+   oregon, spruce, brussel, simpleSIR, sier, */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -21,16 +21,14 @@
 
 /* TODO:
 
-- *TODO* increment counter for each simulation datagen through working
+- check memory use!
+
+- increment counter for each simulation datagen through working
    buffer (second rossler is example here)
 
-- each datagen should return a value/values multiple values in
-  workingbuffer with first terms as settings (keep first n values
-  clear unless we flag otherwise)
+- !!!place workingbuffer init in init!!!
 
-so somehow declares offset for settings, or we store this somewhere
-
-but write across buffer sequentially as history
+- somehow declare offset for settings, or we store this somewhere
 
 - add stepsizing/speed for each
 
@@ -47,12 +45,344 @@ see: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
 //////////////////////////////////////////////////////////
 
-//4-SIMULATIONS
+// first SIR:
 
-//what do we do with NaN, what numbers should be fed in as inits from
-//workingbuffer?
+/*
 
-//what happens if workingbuffer is 0? copying across of workingbuffer/buffers...
+This is the C version of program 2.1 from page 19 of
+"Modeling Infectious Disease in humans and animals"
+by Keeling & Rohani.
+
+It is the simple SIR epidemic without births or deaths.
+
+ */
+
+struct simpleSIR{
+  double beta;//=520.0/365.0;
+  double gamm;//=1.0/7.0;
+  double S0;//=1.0-1e-6;
+  double I0;//=1e-6;
+  double step;
+  double S,I,R;
+  double dPop[3];
+};
+
+void Diff(struct simpleSIR* unit,double Pop[3])
+{
+  double tmpS, tmpI, tmpR;
+  tmpS=Pop[0]; tmpI=Pop[1]; tmpR=Pop[2];
+
+  unit->dPop[0] = - unit->beta*tmpS*tmpI;              // dS/dt
+  unit->dPop[1] = unit->beta*tmpS*tmpI - unit->gamm*tmpI;   // dI/dt
+  unit->dPop[2] = unit->gamm*tmpI;                    // dR/dt
+}
+
+
+void Runge_Kutta(struct simpleSIR* unit)
+{
+  unsigned char i;
+  double dPop1[3], dPop2[3], dPop3[3], dPop4[3];
+  double tmpPop[3], initialPop[3];
+
+  /* Integrates the equations one step, using Runge-Kutta 4
+     Note: we work with arrays rather than variables to make the
+     coding easier */
+
+  initialPop[0]=unit->S; initialPop[1]=unit->I; initialPop[2]=unit->R;
+
+  Diff(unit,initialPop);
+  for(i=0;i<3;i++)
+    {
+      dPop1[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop1[i]/2;
+    }
+
+  Diff(unit,tmpPop);
+  for(i=0;i<3;i++)
+    {
+      dPop2[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop2[i]/2;  
+    }
+
+  Diff(unit,tmpPop);
+  for(i=0;i<3;i++)
+    {
+      dPop3[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop3[i]; 
+    }
+
+  Diff(unit,tmpPop);
+
+  for(i=0;i<3;i++)
+    {
+      dPop4[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*unit->step;
+    }
+
+  unit->S=tmpPop[0]; unit->I=tmpPop[1]; unit->R=tmpPop[2];
+  //printf("%g %g %g\n",unit->S,unit->I,unit->R);
+
+  return;
+}
+
+void simplesirinit(struct simpleSIR* unit){
+
+  //  unit->t=0;
+
+  //TODO: init with workingbuffer
+
+  unit->beta=520.0/365.0;
+  unit->gamm=1.0/7.0;
+  unit->S0=1.0-1e-6;
+  unit->I0=1e-6;
+  unit->step=0.01/((unit->beta+unit->gamm)*unit->S0);
+  unit->S=unit->S0; unit->I=unit->I0; unit->R=1-unit->S-unit->I;
+  // what else in init?
+}
+
+uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct simpleSIR* unit){
+
+  int i;
+  for (i=0; i<howmuch; i++) {
+    Runge_Kutta(unit);//  unit->t+=step;
+    workingbuffer[count+i]=unit->I;
+    printf("%c",unit->I);
+  }
+  return count+i;
+
+}
+
+//////////////////////////////////////////////////////////
+
+// SEIR. SIR
+
+#define MAX_GROUPS 16
+
+struct SEIR {
+  double beta;
+  double step;
+  double gamm;
+  int n;
+  int m;
+  double mu;
+  double S0,I0;
+  double S,I[MAX_GROUPS]; // 4x8x16=512bytes
+  double dPop[MAX_GROUPS+1];//4x9=36bytes
+};
+
+void seirinit(struct SEIR* unit){
+  unsigned char i;
+unit->beta=17/5;
+unit->gamm=1.0/13;
+unit->n=13;
+unit->m=8;
+unit->mu=1.0/(55*365);
+unit->S0=0.05;
+unit->I0=0.00001;
+unit->step=0.01/(unit->beta+unit->gamm*unit->n+unit->mu);
+
+  unit->S=unit->S0;
+  for(i=0;i<unit->n;i++)
+    {
+      unit->I[i]=unit->I0/unit->n;
+    }
+
+
+}
+
+void seirDiff(struct SEIR* unit,double Pop[MAX_GROUPS+1])
+{
+  int i;
+  double Inf, tmpS;
+
+  /* Set up some temporary variables to make things easier.
+     Note I_i = Pop[i]  */
+  
+  tmpS=Pop[0];
+  Inf=0;
+  for(i=unit->m+1;i<=unit->n;i++)
+    {
+      Inf+=Pop[i];
+    }
+  
+  unit->dPop[0]= unit->mu - unit->beta*Inf*tmpS - unit->mu*tmpS;
+  unit->dPop[1]= unit->beta*Inf*tmpS - unit->gamm*unit->n*Pop[1] - unit->mu*Pop[1];
+
+  for(i=2;i<=unit->n;i++)
+    {
+      unit->dPop[i]= unit->gamm*unit->n*Pop[i-1] - unit->gamm*unit->n*Pop[i] - unit->mu*Pop[i];
+    }
+
+  return;
+}
+
+void seir_Runge_Kutta(struct SEIR* unit)
+{
+  int i;
+  double dPop1[MAX_GROUPS], dPop2[MAX_GROUPS], dPop3[MAX_GROUPS], dPop4[MAX_GROUPS];
+  double tmpPop[MAX_GROUPS],InitialPop[MAX_GROUPS];
+
+  /* Integrates the equations one step, using Runge-Kutta 4
+     Note: we work with arrays rather than variables to make the
+     coding easier */
+
+  InitialPop[0]=unit->S;
+  for(i=0;i<unit->n;i++)
+    {
+      InitialPop[i+1]=unit->I[i];
+    }
+
+  seirDiff(unit,InitialPop);
+  for(i=0;i<=unit->n;i++)
+    {
+      dPop1[i]=unit->dPop[i];
+      tmpPop[i]=InitialPop[i]+unit->step*dPop1[i]/2;
+    }
+
+  seirDiff(unit,tmpPop);
+  for(i=0;i<=unit->n;i++)
+    {
+      dPop2[i]=unit->dPop[i];
+      tmpPop[i]=InitialPop[i]+unit->step*dPop2[i]/2;  
+    }
+
+  seirDiff(unit,tmpPop);
+  for(i=0;i<=unit->n;i++)
+    {
+      dPop3[i]=unit->dPop[i];
+      tmpPop[i]=InitialPop[i]+unit->step*dPop3[i]; 
+    }
+
+  seirDiff(unit,tmpPop);
+
+  for(i=0;i<unit->n;i++)
+    {
+      dPop4[i+1]=unit->dPop[i+1];
+      unit->I[i]=unit->I[i]+(dPop1[i+1]/6 + dPop2[i+1]/3 + dPop3[i+1]/3 + dPop4[i+1]/6)*unit->step;
+    }
+  dPop4[0]=unit->dPop[0];
+  unit->S=unit->S+(dPop1[0]/6 + dPop2[0]/3 + dPop3[0]/3 + dPop4[0]/6)*unit->step;
+
+  return;
+}
+
+
+uint16_t runseir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SEIR* unit){
+
+  int i;
+  for (i=0; i<howmuch; i++) {
+    seir_Runge_Kutta(unit);//  unit->t+=step;
+    workingbuffer[count+i]=unit->S;
+    printf("%c",unit->S);
+  }
+  return count+i;
+
+}
+
+//////////////////////////////////////////////////////////
+
+// SICR. SIR
+
+struct SICR {
+  double beta;
+  double epsilon;
+  double gamm;
+  double Gamm; 
+  double mu;
+  double q;
+  double S0;
+  double I0;
+  double C0;
+  double t,S,I,C,R;
+  double dPop[3];
+  double step;
+};
+
+void sicrinit(struct SICR* unit){
+unit->beta=0.2;
+unit->epsilon=0.1;
+unit->gamm=1.0/100.0;
+unit->Gamm=1.0/1000.0;
+unit->mu=1.0/(50.0*365.0);
+unit->q=0.4;
+unit->S0=0.1;
+unit->I0=1e-4;
+unit->C0=1e-3;
+
+unit->S=unit->S0; unit->I=unit->I0; unit->C=unit->C0; unit->R=1-unit->S-unit->I-unit->C0;
+unit->step=0.01/((unit->beta+unit->gamm+unit->mu+unit->Gamm)*unit->S0);
+
+
+}
+
+void sicrdiff(struct SICR* unit,double Pop[3])
+{
+  double tmpS, tmpI, tmpC;
+  tmpS=Pop[0]; tmpI=Pop[1]; tmpC=Pop[2];
+  unit->dPop[0] = unit->mu - unit->beta*tmpS*(tmpI + unit->epsilon*tmpC) - unit->mu*tmpS;
+  unit->dPop[1] = unit->beta*tmpS*(tmpI + unit->epsilon*tmpC) - unit->gamm*tmpI -unit->mu*tmpI;
+  unit->dPop[2] = unit->gamm*unit->q*tmpI - unit->Gamm*tmpC - unit->mu*tmpC;
+  return;
+}
+
+void sicr_Runge_Kutta(struct SICR* unit)
+{
+  int i;
+  double dPop1[3], dPop2[3], dPop3[3], dPop4[3];
+  double tmpPop[3], initialPop[3];
+
+  initialPop[0]=unit->S; initialPop[1]=unit->I; initialPop[2]=unit->C;
+
+  sicrdiff(unit,initialPop);
+  for(i=0;i<3;i++)
+    {
+      dPop1[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop1[i]/2;
+    }
+
+  sicrdiff(unit,tmpPop);
+  for(i=0;i<3;i++)
+    {
+      dPop2[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop2[i]/2;  
+    }
+
+  sicrdiff(unit,tmpPop);
+  for(i=0;i<3;i++)
+    {
+      dPop3[i]=unit->dPop[i];
+      tmpPop[i]=initialPop[i]+unit->step*dPop3[i]; 
+    }
+
+  sicrdiff(unit,tmpPop);
+
+  for(i=0;i<3;i++)
+    {
+      dPop4[i]=unit->dPop[i];
+
+      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*unit->step;
+    }
+
+
+  unit->S=tmpPop[0]; unit->I=tmpPop[1]; unit->C=tmpPop[2];  unit->R=1-unit->S-unit->I-unit->C;
+ 
+  return;
+}
+
+uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SICR* unit){
+
+  int i;
+  for (i=0; i<howmuch; i++) {
+    sicr_Runge_Kutta(unit);//  unit->t+=step;
+    workingbuffer[count+i]=unit->S;
+    printf("%c",unit->S);
+  }
+  return count+i;
+
+}
+
+
+
 
 //////////////////////////////////////////////////////////
 
@@ -443,9 +773,9 @@ void runoregon(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *working
 	unit->z = z;
 }
 
-// FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
-
 //////////////////////////////////////////////////////////
+
+// FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
 
 struct Fitz
 {
@@ -541,21 +871,27 @@ void main(void)
   //  struct Brussel *unit=malloc(sizeof(struct Brussel));
   //  struct Rossler *unit=malloc(sizeof(struct Rossler));
   //  struct secondRossler *unit=malloc(sizeof(struct secondRossler));
-  struct IFS *unit=malloc(sizeof(struct IFS));
-
+  //  struct IFS *unit=malloc(sizeof(struct IFS));
+  //  struct simpleSIR *unit=malloc(sizeof(struct simpleSIR));
+  //  struct SEIR *unit=malloc(sizeof(struct SEIR));
+  struct SICR *unit=malloc(sizeof(struct SICR));
   //  fitzinit(unit);
   //  oregoninit(unit);
   //  spruceinit(unit); 
   //  brusselinit(unit); 
   // rosslerinit(unit)
   //  secondrosslerinit(unit);
-  ifsinit(unit);
+  //  ifsinit(unit);
+  //  simplesirinit(unit);
+  sicrinit(unit);
 
   //  printf("%f",(float)xxx[0]/65536.0);
         while(1){ 
 	  //	  count+=runsecondrossler(count,10,10,xxx,10,unit);
-	  count+=runifs(count,10,10,xxx,10,unit);
-
+	  //	  count+=runifs(count,10,10,xxx,10,unit);
+	  //	  count+=runsimplesir(count,10,10,xxx,10,unit);
+	  //	  count+=runseir(count,10,10,xxx,10,unit);
+	  count+=runsicr(count,10,10,xxx,10,unit);
 	  //	  printf("%d\n",count);
 	  /*	  for (x=3;x<13;x++){
 	    printf("%c",xxx[x]>>8);
