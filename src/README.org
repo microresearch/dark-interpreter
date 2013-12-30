@@ -32,8 +32,7 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 * MON 30 DEC
 
-TODO: port hodge into CA.c, SIR code in simulations (few models), and
-CA style SIR code in CA.c
+TODO: port hodge into CA.c, CA style SIR code in CA.c
 
 THUS there are 3 sorts of datagen: CPUs, float-style simulations, cellular
 automata...

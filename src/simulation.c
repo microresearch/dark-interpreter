@@ -21,6 +21,8 @@
 
 /* TODO:
 
+- SIRs should have workingbuffer init
+
 - check memory use!
 
 - increment counter for each simulation datagen through working
@@ -37,11 +39,6 @@
 
 - does NaN cause problems or not?
 
-//TODO: SIR using equations
-
-see: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
-
-*/
 
 //////////////////////////////////////////////////////////
 
@@ -54,6 +51,8 @@ This is the C version of program 2.1 from page 19 of
 by Keeling & Rohani.
 
 It is the simple SIR epidemic without births or deaths.
+
+see also: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
  */
 
