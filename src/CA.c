@@ -1,7 +1,6 @@
 //gcc -DLINUX -std=gnu99 CA.c -o CA -lm
 
-// runhodge, runhodgenet, runlife, runcel, runcel1d
-// + CA SIR code?
+// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
 #include <math.h>
 #include <stdio.h>
@@ -13,9 +12,7 @@
 
 /* TODO D.I:
 
-ADD forest fire and SIR code
-
--- init for all,, all types cleaned up - to test
+ADD SIR code
 
 */
 
@@ -265,8 +262,7 @@ uint16_t runfire(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t 
 
     y=x+32768;
 
-    if (cells[x]==0) cells[y]=0; //empty
-    else if (cells[x]==254) cells[y]=254;  // burnt
+    if (cells[x]==0 || cells[x]==254) cells[y]=cells[x]; //empty or burnt
     // now deal with vegetation(bit1 empty) and burning(&1)
     else if ((cells[x]&1)==0 && rand()%255<=(sum*unit->probI)) cells[y]=cells[x]|1;  //veg->burning
     else if ((cells[x]&1)==1 && rand()%255<=unit->probB) cells[y]=254; // burning->burnt
@@ -344,12 +340,16 @@ SIR:
 
 4 states 0=suscept/1=infected+days/255=D/-1=recovered?/dead
 
+#define recovered 129
+#define dead 255                                                                   
+#define susceptible 0
+
 Iprob = x # probability of transmission
 Dprob = x # probability of death
 
-- if infected add day until recovered or dprob dead
-- if susceptible then count surrounds and Iprob to be infected
 - if dead or recovered then leave as are
+- if infected (>1) add day until recovered(129) or dprob dead(255)
+- if susceptible (0) then count surrounds and Iprob to be infected
 
 [see also more complex models which include: population for each cell,
 S.I.R pops (4 bits each as 16 bit CA), parameters for radius,movement
@@ -357,6 +357,54 @@ prob, birth death, virus morbidity, contact infection prob, vectored
 infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
+
+struct SIR{
+  u8 probI,probD,celllen;
+};
+
+void SIRinit(struct SIR* unit, u8* cells){
+  unit->probD=cells[0]/32;
+  unit->probI=cells[1]/10;
+  unit->celllen=cells[2];
+}
+
+uint16_t runSIR(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct SIR* unit){
+
+  uint16_t y; u8 i;
+
+  for (i=0;i<howmuch;i++){
+
+    y=x+32768;
+
+    if (cells[x]==129 || cells[x]==255) cells[y]=cells[x]; //dead or recovered
+    //
+    else if (cells[x]==0){
+      // do count of surroundings
+      if ( (cells[x-unit->celllen]>0 && cells[x-unit->celllen]<129) ||
+	   (cells[x+unit->celllen]>0 && cells[x+unit->celllen]<129) ||
+	   (cells[x-1]>0 && cells[x-1]<129) ||
+	   (cells[x+1]>0 && cells[x+1]<129))
+	{
+	if (rand()%100 <= unit->probI) cells[y] = 1;       
+      }
+      
+      //calc probI
+    }
+    else if (cells[x]>1 && cells[x]<129){
+      if (rand()%100<unit->probD) cells[y]=255; //dead
+      else cells[y]=cells[x]+1;
+      // if infected (>1 and <129) add day until recovered(129) or dprob dead(255)
+    }
+
+    else cells[y]=cells[x]; // blank cells
+
+
+    printf("%c",cells[y]);
+    x++;
+  }
+  return i;
+}
+
 
 //////////////////////////////////////////
 
@@ -372,19 +420,22 @@ int main(void)
   inittable(3,4,rand()%65536); //radius,states(k),rule - init with cell starter
 
   //  struct hodge *unit=malloc(sizeof(struct hodge));
-    struct CA *unit=malloc(sizeof(struct CA));
+  //    struct CA *unit=malloc(sizeof(struct CA));
+    struct SIR *unit=malloc(sizeof(struct SIR));
   //struct fire *unit=malloc(sizeof(struct fire));
   //  hodgeinit(unit,buffer);
-    cainit(unit,buffer);
+    //    cainit(unit,buffer);
+    SIRinit(unit,buffer);
   //  fireinit(unit,buffer);
       while(1) {
 
 	//	count+=runhodge(count,10,10,buffer,10,unit);
 	//	count+=runcel1d(count,10,10,buffer,255,unit);
 	//	count+=runfire(count,10,10,buffer,255,unit);
-	count+=runwire(count,10,10,buffer,255,unit);
+	//	count+=runwire(count,10,10,buffer,255,unit);
+	count+=runSIR(count,10,10,buffer,255,unit);
 	//	printf("%d",count);
-	// runhodge, runhodgenet, runlife, runcel, runcel1d
+	// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
     }
 }

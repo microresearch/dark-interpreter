@@ -43,20 +43,81 @@ switch audio input on/off via PC13 (pin 2) DONE TEST
 
 //how SIR_CA can work with 16 bits per cell or somehow as parallel?
 
-de quincey quotes, 3 versions as mater ...
-
 simplest version more crush,loop,granulate (hence controls)
 
 64k max sample buffer size
 
 ** quotes
 
+- for the three versions:
+
+The eldest of the three is named Mater Lachrymarum, Our Lady of Tears.
+
+The second Sister is called Mater Suspiriorum, Our Lady of Sighs. 
+
+But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of
+Darkness.
+
+The truth I heard often in sleep from the lips of the Dark
+Interpreter. Who is he? He is a shadow, reader, but a shadow with whom
+you must suffer me to make you acquainted. You need not be afraid of
+him, for when I explain his nature and origin you will see that he is
+essentially inoffensive; or if sometimes he menaces with his
+countenance, that is but seldom: and then, as his features in those
+moods shift as rapidly as clouds in a gale of wind, you may always
+look for the terrific aspects to vanish as fast as they have
+gathered. As to his origin—what it is, I know exactly, but cannot
+without a little circuit of preparation make you understand. Perhaps
+you are aware of that power in the eye of many children by which in
+darkness they project a vast theatre of phantasmagorical figures
+moving forwards or backwards between their bed-curtains and the
+chamber walls. In some children this power is semi-voluntary—they
+can[Pg 8] control or perhaps suspend the shows; but in others it is
+altogether automatic. I myself, at the date of my last confessions,
+had seen in this way more processions—generally solemn, mournful,
+belonging to eternity, but also at times glad, triumphal pomps, that
+seemed to enter the gates of Time—than all the religions of paganism,
+fierce or gay, ever witnessed. Now, there is in the dark places of the
+human spirit—in grief, in fear, in vindictive wrath—a power of
+self-projection not unlike to this.
+
+This trial is decisive. You are now satisfied that the apparition is
+but a reflex of yourself; and, in uttering your secret feelings to
+him, you make this phantom _the dark symbolic mirror_ for reflecting to
+the daylight what else must be hidden for ever.
+
+(brocken)
+
+The Dark Interpeter "will not always be found sitting inside my
+dreams, but at times outside, and in open daylight." (see full quote below)
+
+The Greek chorus is perhaps not quite understood by critics, any more
+than the Dark Interpreter by myself. But the leading function of both
+must be supposed this- not to tell you anything absolutely new,- that
+was done by the actors in the drama; but to recall you to your own
+lurking thoughts,—hidden for the moment or imperfectly developed,—and
+to place before you, in immediate connection with groups vanishing too
+quickly for any effort of meditation on your own part, such
+commentaries, prophetic or looking back, pointing the moral or
+deciphering the mystery, justifying Providence, or mitigating the
+fierceness of anguish, as would or might have occurred to your own
+meditative heart, had only time been allowed for its motions.  The
+Interpreter is anchored and stationary in my dreams; but great storms
+and driving mists cause him to fluctuate uncertainly, or even to
+retire altogether, like his gloomy counterpart, the shy phantom of the
+Brocken,- and to assume new features or strange features, as in dreams
+always there is a power not contented with reproduction, but which
+absolutely creates or transforms. This dark being the reader will see
+again in a further stage of my opium experience; and I warn him that
+he will not always be found sitting inside nmy dreams, but at times
+outside, and in open daylight.
+
 * MON 30 DEC
 
-TODO: port hodge into CA.c, CA style SIR code in CA.c
+TODO: port hodge into CA.c, CA style SIR code in CA.cDONE
 
 THUS there are 3 sorts of datagen: CPUs, float-style simulations, cellular
-automata...
+automata
 
 all of which are writing across 64k buffer space which grain
 parameters can move in directions across (as a worm or CPU itself
@@ -64,7 +125,7 @@ again) and also exchange data with...
 
 window into each!
 
-re-do leaky.c for larger cellspace/overlaps
+TODO: re-do leaky.c for larger cellspace/overlaps
 
 - add wrap/limit and cellsize to each cpu if make full cell space
 
