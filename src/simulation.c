@@ -32,6 +32,8 @@ Based in part on SLUGens by Nicholas Collins.
 #include <time.h>
 #include <malloc.h>
 
+typedef unsigned char u8;
+
 #define true 1
 #define false 0
 #define MAX_SAM 65536
@@ -164,7 +166,7 @@ void simplesirinit(struct simpleSIR* unit){
 
 uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct simpleSIR* unit){
 
-  int i;
+  u8 i;
   for (i=0; i<howmuch; i++) {
     Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->I;
@@ -290,7 +292,7 @@ void seir_Runge_Kutta(struct SEIR* unit)
 
 uint16_t runseir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SEIR* unit){
 
-  int i;
+  u8 i;
   for (i=0; i<howmuch; i++) {
     seir_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->S;
@@ -348,7 +350,7 @@ void sicrdiff(struct SICR* unit,double Pop[3])
 
 void sicr_Runge_Kutta(struct SICR* unit)
 {
-  int i;
+  u8 i;
   double dPop1[3], dPop2[3], dPop3[3], dPop4[3];
   double tmpPop[3], initialPop[3];
 
@@ -392,7 +394,7 @@ void sicr_Runge_Kutta(struct SICR* unit)
 
 uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SICR* unit){
 
-  int i;
+  u8 i;
   for (i=0; i<howmuch; i++) {
     sicr_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->S;
@@ -418,8 +420,8 @@ struct IFS {
 	};
 
 void ifsinit(struct IFS* unit){
-  int i,iter;
-  int column = 6, row = 4;
+  u8 i,iter;
+  u8 column = 6, row = 4;
   unit->p1.x=0.1;
   unit->p1.y=0.1;         
 
@@ -437,8 +439,8 @@ void ifsinit(struct IFS* unit){
 uint16_t runifs(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct IFS* unit){
 
   double random_num;
-  int iter,i,it,x;
-  int column = 6, row = 4;
+  u8 iter,i,it,x;
+  u8 column = 6, row = 4;
 
 
   /*  ifs->prob[0]=0.0;
@@ -504,8 +506,7 @@ void rosslerinit(struct Rossler* unit) {
 uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Rossler* unit){
   double lx0,ly0,lz0,lx1,ly1,lz1;
   //  double h,a,b,c;
-  int x;
-  int i;
+  u8 i;
 
   /* which unit to vary according to workingbuffer */
   // leave as so!
@@ -569,7 +570,7 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t speed, uint16
   double xnm1 = unit->xnm1;
   double ynm1 = unit->ynm1;
   double znm1 = unit->znm1;
-  int i;
+  u8 i;
 	
 	if((unit->x0 != x0) || (unit->y0 != y0) || (unit->z0 != z0)){
 		xnm1 = xn;
@@ -665,7 +666,7 @@ void runbrussel(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workin
     float dx, dy; 
     
     float muplusone = 1.0f+mu; 
-    int i;
+    u8 i;
 
     for (i=0; i<howmuch; ++i) {
 		
@@ -717,7 +718,7 @@ void runspruce(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *working
     float y= unit->y;  
     
     float dx, dy; 
-    int i;
+    u8 i;
 
 	for (i=0; i<howmuch; ++i) {
 		
@@ -770,7 +771,7 @@ void runoregon(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *working
     
   float dx, dy, dz; 
         
-  int i;
+  u8 i;
 	for (i=0; i<howmuch; ++i) {
 		
         dx = epsilon*((q*y) -(x*y) + (x*(1-x))); 
@@ -821,7 +822,7 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbu
   u=unit->u;
   w=unit->w;
 
-  int x;
+  u8 x;
 
   for (x=0;x<howmuch;x++){
 

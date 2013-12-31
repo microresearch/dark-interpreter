@@ -146,14 +146,15 @@ uint16_t runlife(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t 
     /*    if (sum==3 || (sum+(cells[x]&0x01)==3)) newcells[x]=255; /// 
 	  else newcells[x]=0;*/
   y=x+32768;
-    if ((cells[x]&1)==1 && sum<2) cells[y]=0;
-    else if ((cells[x]&1)==1 && sum>3) cells[y]=0;
-    else if ((cells[x]&1)==0 && sum==3) cells[y]=255;
-    else cells[y]=cells[x];
-    printf("%c",cells[x]);
-    x++;
+  if ((cells[x]&1)==1 && sum<2) cells[y]=0;
+  else if ((cells[x]&1)==1 && sum>3) cells[y]=0;
+  else if ((cells[x]&1)==0 && sum==3) cells[y]=255;
+  else cells[y]=cells[x];
+
+  printf("%c",cells[x]);
+  x++;
   }
-  return x;
+  return i;
 }
 
 //////////////////////////////////////////
@@ -241,24 +242,119 @@ uint16_t runcel1d(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t
 
 //////////////////////////////////////////
 
-/*
+//forest fire
 
-all 2d automata (as in life)
+struct fire{
+  u8 probB,probI,celllen;
+};
 
-*notes for forest fire:
+void fireinit(struct fire* unit, u8* cells){
+  unit->probB=cells[0]/32;
+  unit->probI=cells[1]/10;
+  unit->celllen=cells[2];
+}
 
-cell states:
+uint16_t runfire(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct fire* unit){
 
-*for SIR:
+  u8 sum;
+  uint16_t y; u8 i;
 
-*for wireworld:
+  for (i=0;i<howmuch;i++){
+
+    sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
+
+    y=x+32768;
+
+    if (cells[x]==0) cells[y]=0; //empty
+    else if (cells[x]==254) cells[y]=254;  // burnt
+    // now deal with vegetation(bit1 empty) and burning(&1)
+    else if ((cells[x]&1)==0 && rand()%255<=(sum*unit->probI)) cells[y]=cells[x]|1;  //veg->burning
+    else if ((cells[x]&1)==1 && rand()%255<=unit->probB) cells[y]=254; // burning->burnt
+    else cells[y]=cells[x];
+    printf("%c",cells[y]);
+    x++;
+  }
+  return i;
+}
+
+//////////////////////////////////////////
+
+/*wireworld:
 
 4 states: blank, copper, head, tail
 
 blank(0) stays blank(0)
-head(<64) becomes tail(64->128)
-tail(64->128) becomes copper(>128)
-copper(>128) stays copper unless just 1 or 2 neighbours are heads(<64) then it becomes head(<64)
+head(1) becomes tail(255)
+tail(255) becomes copper(128-254)
+copper(?) stays copper unless just 1 or 2 neighbours are heads(1) then it becomes head(1)
+*/
+
+// use struct CA
+
+void wireinit(struct CA* unit, u8* cells){
+  unit->celllen=cells[0];
+}
+
+u8 headcount(struct CA* unit,u8 *cells,u16 place){
+  u8 counter=0;
+  place-=unit->celllen-1;
+  if (cells[place]==1) counter++;
+  place+=1;
+  if (cells[place]==1) counter++;
+  place+=1;
+  if (cells[place]==1) counter++;
+  place+=unit->celllen-2;
+  if (cells[place]==1) counter++;
+  place+=2;
+  if (cells[place]==1) counter++;
+  place+=unit->celllen-1;
+  if (cells[place]==1) counter++;
+  place+=1;
+  if (cells[place]==1) counter++;
+  place+=1;
+  if (cells[place]==1) counter++;
+  if (counter<3 && counter!=0) return 1;
+  else return 0;
+}
+
+uint16_t runwire(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+  u8 sum;
+  uint16_t y; u8 i;
+
+  for (i=0;i<howmuch;i++){
+
+    y=x+32768;
+
+    if (cells[x]==0) cells[y]=0; //blank
+    else if (cells[x]==1) cells[y]=255;  // head to tail
+    else if (cells[x]==255) cells[y]=129;  // tail to copper
+    else if (cells[x]>128 && headcount(unit,cells,x)==1) cells[y]=1;
+    else cells[y]=cells[x];
+    printf("%c",cells[y]);
+    x++;
+  }
+  return i;
+}
+
+//////////////////////////////////////////
+
+/*
+
+SIR:
+
+4 states 0=suscept/1=infected+days/255=D/-1=recovered?/dead
+
+Iprob = x # probability of transmission
+Dprob = x # probability of death
+
+- if infected add day until recovered or dprob dead
+- if susceptible then count surrounds and Iprob to be infected
+- if dead or recovered then leave as are
+
+[see also more complex models which include: population for each cell,
+S.I.R pops (4 bits each as 16 bit CA), parameters for radius,movement
+prob, birth death, virus morbidity, contact infection prob, vectored
+infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
 
@@ -266,7 +362,7 @@ copper(>128) stays copper unless just 1 or 2 neighbours are heads(<64) then it b
 
 int main(void)
 {
-  u16 x;
+  int x;
   u8 buffer[65536];
   uint16_t count=0;
   srandom(time(0));
@@ -276,15 +372,18 @@ int main(void)
   inittable(3,4,rand()%65536); //radius,states(k),rule - init with cell starter
 
   //  struct hodge *unit=malloc(sizeof(struct hodge));
-  struct CA *unit=malloc(sizeof(struct CA));
-
+    struct CA *unit=malloc(sizeof(struct CA));
+  //struct fire *unit=malloc(sizeof(struct fire));
   //  hodgeinit(unit,buffer);
-  cainit(unit,buffer);
+    cainit(unit,buffer);
+  //  fireinit(unit,buffer);
       while(1) {
 
 	//	count+=runhodge(count,10,10,buffer,10,unit);
-	count+=runlife(count,10,10,buffer,10,unit);
-	  
+	//	count+=runcel1d(count,10,10,buffer,255,unit);
+	//	count+=runfire(count,10,10,buffer,255,unit);
+	count+=runwire(count,10,10,buffer,255,unit);
+	//	printf("%d",count);
 	// runhodge, runhodgenet, runlife, runcel, runcel1d
 
     }
