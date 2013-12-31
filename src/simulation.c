@@ -4,6 +4,27 @@
 /* All simulation data generators: IFS, rossler, secondrossler, fitz,
    oregon, spruce, brussel, simpleSIR, sier, */
 
+/* 
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ 02110-1301 USA
+
+Based in part on SLUGens by Nicholas Collins.
+
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -20,6 +41,8 @@
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 
 /* TODO:
+
+- should howmuch be int or is u8 ok?
 
 - SIRs should have workingbuffer init
 
@@ -180,12 +203,11 @@ unit->S0=0.05;
 unit->I0=0.00001;
 unit->step=0.01/(unit->beta+unit->gamm*unit->n+unit->mu);
 
-  unit->S=unit->S0;
+ unit->S=unit->S0;
   for(i=0;i<unit->n;i++)
     {
       unit->I[i]=unit->I0/unit->n;
     }
-
 
 }
 

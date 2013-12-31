@@ -1,3 +1,36 @@
+
+//life
+
+unsigned char runfulllife(unsigned char* cellies){
+  unsigned char sum;
+  unsigned int x;
+  static unsigned char flag=0;
+  unsigned char *newcells, *cells;
+
+  if ((flag&0x01)==0) {
+    cells=(unsigned char*)cellies; newcells=(unsigned char*)cellies+32768;
+  }
+  else {
+    cells=(unsigned char*)cellies+32768; newcells=(unsigned char*)cellies;
+  }      
+
+  for (x=unit->celllen+1;x<(32768-unit->celllen-1);x++){ // could be less of a large chunk to process
+    sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
+
+    /*    if (sum==3 || (sum+(cells[x]&0x01)==3)) newcells[x]=255; /// 
+	  else newcells[x]=0;*/
+    if ((cells[x]&1)==1 && sum<2) newcells[x]=0;
+    else if ((cells[x]&1)==1 && sum>3) newcells[x]=0;
+    else if ((cells[x]&1)==0 && sum==3) newcells[x]=255;
+    else newcells[x]=cells[x];
+
+    printf("%c",cells[x]);
+  }
+  
+  flag^=0x01;
+  return sum;
+}
+
 /*
 1- CPU/instruction sets from microbd. DONE (mostly) as leaky.c
 

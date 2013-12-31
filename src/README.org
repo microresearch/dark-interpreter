@@ -1,9 +1,16 @@
+Oh, eternity with outstretched wings, that broodest over the secret
+truths in whose roots lie the mysteries of man—his whence, his
+whither—have I searched thee, and struck a right key on thy dreadful
+organ!
+
+[Thomas de Quincey. The Dark Interpreter] 
+
 * plan
 
-send by 15th->pcbcartDONEawait PCBsARRIVED
+send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be tested
 
 1 phase: hardware switchingsDONE + architecture outlineROUGH 
-2 phase: datagens/hardware tests BY BEGIN JAN!
+2 phase: datagens/hardware tests BY BEGIN JAN! close
 
 3 phase: grains/audio buffers and processing (any mixing of signals?)
 4 phase: knobs assigned and all tests/tweak/RELEASE
@@ -18,7 +25,8 @@ use 112KB+16 for general/96K sample buffer (1 second)
 
 ccmdata for datagens/backwards/forwards/BUFFER
 
-knob->control samplerate!
+knob->control samplerate, + writebuffer is just one edge moved by knob
+up to limit
 
 * TODO
 
@@ -29,6 +37,19 @@ knob->control samplerate!
 switch audio input on/off via PC13 (pin 2) DONE TEST
 
 40106 on TIM1_CH2 (pin 42) DONE/coded I think TEST
+
+* TUE 31 DEC
+
+
+//how SIR_CA can work with 16 bits per cell or somehow as parallel?
+
+de quincey quotes, 3 versions as mater ...
+
+simplest version more crush,loop,granulate (hence controls)
+
+64k max sample buffer size
+
+** quotes
 
 * MON 30 DEC
 

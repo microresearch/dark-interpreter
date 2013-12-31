@@ -1,7 +1,7 @@
 //gcc -DLINUX -std=gnu99 CA.c -o CA -lm
 
-//CA...runlife, runce, runcell1d
-//runhodge(micro), 
+// runhodge, runhodgenet, runlife, runcel, runcel1d
+// + CA SIR code?
 
 #include <math.h>
 #include <stdio.h>
@@ -13,142 +13,190 @@
 
 /* TODO D.I:
 
-ADD rest of hodge code...
+ADD forest fire and SIR code
+
+-- init for all,, all types cleaned up - to test
 
 */
 
-#define CELLLEN 255
+//////////////////////////////////////////
 
-//2- cellular automata: 1d,2d, classic, flexible - re-do all (again states 8 bits)
-// working with 64k buffers
+// hodge from microbd simplified with circular buffer and init
 
-// 2d automata works on 128*128 buffer (could be larger)
+struct hodge{
+  u8 q,k1,k2,g,celllen;
+  u16 x;
+};
 
-#define MAX_SAM 65536
-
-// Hodge-podge from microbd
-
-void runhodge(unsigned char* cellies){
-  int sum=0, numill=0, numinf=0;
-  unsigned char q,k1,k2,g;
-  static unsigned int x=CELLLEN+1;
-  static unsigned char flag=0;
-  unsigned char *newcells, *cells;
-
-  if (flag&0x01==0) {
-    cells=cellies; newcells=&cellies[MAX_SAM/2];
-  }
-  else {
-    cells=&cellies[MAX_SAM/2]; newcells=cellies;
-  }      
-
-  q=cells[0];k1=cells[1];k2=cells[2];g=cells[3];
-  if (k1==0) k1=1;
-  if (k2==0) k2=1;
-
-  sum=cells[x]+cells[x-1]+cells[x+1]+cells[x-CELLLEN]+cells[x+CELLLEN]+cells[x-CELLLEN-1]+cells[x-CELLLEN+1]+cells[x+CELLLEN-1]+cells[x+CELLLEN+1];
-
-  if (cells[x-1]==(q-1)) numill++; else if (cells[x-1]>0) numinf++;
-  if (cells[x+1]==(q-1)) numill++; else if (cells[x+1]>0) numinf++;
-  if (cells[x-CELLLEN]==(q-1)) numill++; else if (cells[x-CELLLEN]>0) numinf++;
-  if (cells[x+CELLLEN]==(q-1)) numill++; else if (cells[x+CELLLEN]>0) numinf++;
-  if (cells[x-CELLLEN-1]==q) numill++; else if (cells[x-CELLLEN-1]>0) numinf++;
-  if (cells[x-CELLLEN+1]==q) numill++; else if (cells[x-CELLLEN+1]>0) numinf++;
-  if (cells[x+CELLLEN-1]==q) numill++; else if (cells[x+CELLLEN-1]>0) numinf++;
-  if (cells[x+CELLLEN+1]==q) numill++; else if (cells[x+CELLLEN+1]>0) numinf++;
-
-  if(cells[x] == 0)
-    newcells[x%(MAX_SAM/2)] = floor(numinf / k1) + floor(numill / k2);
-  else if(cells[x] < q - 1)
-    newcells[x%(MAX_SAM/2)] = floor(sum / (numinf + 1)) + g;
-  else
-    newcells[x%(MAX_SAM/2)] = 0;
-
-  if(newcells[x%(MAX_SAM/2)] > q - 1)
-    newcells[x%(MAX_SAM/2)] = q - 1;
-
-  x++;
-  printf("%c",newcells[x]);
-  if (x>((MAX_SAM/2)-CELLLEN-1)) {
-    x=CELLLEN+1;
-    flag^=0x01;
-  }
+void hodgeinit(struct hodge* unit, u8* cells){
+  unit->q=cells[0];unit->k1=cells[1];unit->k2=cells[2];unit->g=cells[3];
+  unit->celllen=cells[4];
+  if (unit->k1==0) unit->k1=1;
+  if (unit->k2==0) unit->k2=1;
 }
 
+uint16_t runhodge(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct hodge* unit){
 
-unsigned char runlife(unsigned char* cellies){
-  unsigned char sum;
-  unsigned int x;
-  static unsigned char flag=0;
-  unsigned char *newcells, *cells;
+  u8 sum=0, numill=0, numinf=0;
+  uint16_t y; u8 i;
 
-  if ((flag&0x01)==0) {
-    cells=(unsigned char*)cellies; newcells=(unsigned char*)cellies+16384;
+  for (i=0;i<howmuch;i++){
+  sum=cells[x]+cells[x-1]+cells[x+1]+cells[x-unit->celllen]+cells[x+unit->celllen]+cells[x-unit->celllen-1]+cells[x-unit->celllen+1]+cells[x+unit->celllen-1]+cells[x+unit->celllen+1];
+
+  if (cells[x-1]==(unit->q-1)) numill++; else if (cells[x-1]>0) numinf++;
+  if (cells[x+1]==(unit->q-1)) numill++; else if (cells[x+1]>0) numinf++;
+  if (cells[x-unit->celllen]==(unit->q-1)) numill++; else if (cells[x-unit->celllen]>0) numinf++;
+  if (cells[x+unit->celllen]==(unit->q-1)) numill++; else if (cells[x+unit->celllen]>0) numinf++;
+  if (cells[x-unit->celllen-1]==unit->q) numill++; else if (cells[x-unit->celllen-1]>0) numinf++;
+  if (cells[x-unit->celllen+1]==unit->q) numill++; else if (cells[x-unit->celllen+1]>0) numinf++;
+  if (cells[x+unit->celllen-1]==unit->q) numill++; else if (cells[x+unit->celllen-1]>0) numinf++;
+  if (cells[x+unit->celllen+1]==unit->q) numill++; else if (cells[x+unit->celllen+1]>0) numinf++;
+
+    y=x+32768;
+  if(cells[x] == 0)
+    cells[y] = floor(numinf / unit->k1) + floor(numill / unit->k2);
+  else if(cells[x] < unit->q - 1)
+    cells[y] = floor(sum / (numinf + 1)) + unit->g;
+  else
+    cells[y] = 0;
+
+  if(cells[y] > unit->q - 1)
+    cells[y] = unit->q - 1;
+
+  x++;
+  printf("%c",cells[x]);
   }
-  else {
-    cells=(unsigned char*)cellies+16384; newcells=(unsigned char*)cellies;
-  }      
+  return x;
+}
 
-  for (x=CELLLEN+1;x<(16384-CELLLEN-1);x++){
-    sum=(cells[x-1]&0x01)+(cells[x+1]&0x01)+(cells[x-CELLLEN]&0x01)+(cells[x+CELLLEN]&0x01)+(cells[x-CELLLEN-1]&0x01)+(cells[x-CELLLEN+1]&0x01)+(cells[x+CELLLEN-1]&0x01)+(cells[x+CELLLEN+1]&0x01);
+//////////////////////////////////////////
+
+// hodge from hodgenet is pretty much same... but few
+// differences... so here they are expressed (also could be faster this way)
+
+uint16_t runhodgenet(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct hodge* unit){
+
+  u8 sum=0, numill=0, numinf=0; u16 place;
+  uint16_t y;
+  u8 i;
+
+  for (i=0;i<howmuch;i++){
+  place=x-unit->celllen-1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=unit->celllen-1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=2;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=unit->celllen-1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+  place+=1;
+  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+    y=x+32768;
+  if(cells[x] == 0)
+    cells[y] = floor(numinf / unit->k1) + floor(numill / unit->k2);
+  else if(cells[x] < unit->q)
+    cells[y] = floor(sum / (numinf + 1)) + unit->g;
+  else
+    cells[y] = 0;
+
+  if(cells[y] > unit->q)
+    cells[y] = unit->q;
+
+  x++;
+  printf("%c",cells[y]);
+  }
+  return x;
+}
+
+//////////////////////////////////////////
+
+//life - 2d CA - these all now use CA struct
+
+struct CA{
+  u8 celllen,rule;
+};
+
+void cainit(struct CA* unit, u8* cells){
+  unit->celllen=cells[0];
+  unit->rule=cells[1];
+}
+
+uint16_t runlife(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+
+  u8 sum;
+  uint16_t y; u8 i;
+
+  for (i=0;i<howmuch;i++){
+  sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
 
     /*    if (sum==3 || (sum+(cells[x]&0x01)==3)) newcells[x]=255; /// 
 	  else newcells[x]=0;*/
-    if ((cells[x]&1)==1 && sum<2) newcells[x]=0;
-    else if ((cells[x]&1)==1 && sum>3) newcells[x]=0;
-    else if ((cells[x]&1)==0 && sum==3) newcells[x]=255;
-    else newcells[x]=cells[x];
-
+  y=x+32768;
+    if ((cells[x]&1)==1 && sum<2) cells[y]=0;
+    else if ((cells[x]&1)==1 && sum>3) cells[y]=0;
+    else if ((cells[x]&1)==0 && sum==3) cells[y]=255;
+    else cells[y]=cells[x];
     printf("%c",cells[x]);
+    x++;
   }
-  
-  flag^=0x01;
-  return sum;
+  return x;
 }
 
-////one dimensional - working line by line through buffer
-/// celllen for this one could be 255!
+//////////////////////////////////////////
 
-unsigned char runcel(unsigned char* cells){
+//one dimensional - working line by line through buffer
 
-  static unsigned char l=0; unsigned char cell, state, res;
-  unsigned char rule=cells[0];
-  res=0;
-  l++;
-  l%=CELLLEN;
+uint16_t runcel(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
 
-  for (cell = 1; cell < CELLLEN; cell++){ 
+  u8 state,i;
+
+  for (i=1;i<howmuch;i++){
       state = 0;
-      if (cells[cell + 1+ (l*CELLLEN)]>128)
+
+      if (cells[x+i+1]>128)
 	state |= 0x4;
-      if (cells[cell+(CELLLEN*l)]>128)
+      if (cells[x+i]>128)
 	state |= 0x2;
-      if (cells[cell - 1 +(CELLLEN*l)]>128)
+      if (cells[x+i-1]>128)
 	state |= 0x1;
                      
-      if ((rule >> state) & 1){
-	res += 1; 
-	cells[cell+(((l+1)%CELLLEN)*CELLLEN)] = 255;
+      if ((unit->rule >> state) & 1){
+	cells[x+i+unit->celllen] = 255;
       }
       else{
-	cells[cell+(((l+1)%CELLLEN)*CELLLEN)] = 0;
+	cells[x+i+unit->celllen] = 0;
       } 
-      printf("%c",cells[cell+(l*CELLLEN)]);
-
+      printf("%c",cells[x+i+unit->celllen]);
   }
-  return res;
+  return i;
 }
 
-unsigned char *table;
+///////////////
+
+u8 *table;
 
 ///how much memory does table take?
 
-void inittable(unsigned char r, unsigned char k, int rule){
-  int max, z, summ;
+void inittable(u8 r, u8 k, int rule){
+  u8 max; int z; u8 summ;
 
   free(table);
   max = (k-1)*((r*2)+1);
-  table= (unsigned char *)malloc(max+1);
+  table= (u8 *)malloc(max+1);
   for (z=max;z>=0;z--){
     summ=0;
     while ((rule-pow(k,z))>=0) {
@@ -163,47 +211,81 @@ void inittable(unsigned char r, unsigned char k, int rule){
   }
 }
 
+//////////////////////////////////////////
+
 // 1d with rules
 
-int runcell1d(unsigned char *cells){
+uint16_t runcel1d(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
 
-  static unsigned char l=0; unsigned char cell; signed int sum,ssum,z,zz;
-  int radius=3, k=4;//k=states
+  u8 cell,sum; signed int z,zz;
+  u8 radius=3, k=4, i;//k=states
 
-  l++; ssum=0;
-  l%=CELLLEN;
-  for (cell = 0; cell < CELLLEN; cell++){ 
+  for (i=1;i<howmuch;i++){
     sum=0;
     
     // sum of cells in radius - not looping!
     for (z=-radius;z<radius;z++){
-      zz=cell+z;
-      if (zz>=CELLLEN) zz=zz-CELLLEN;
-      if (zz<0) zz=CELLLEN+zz;
-      sum+=cells[zz+(l*CELLLEN)]%k;
-      // printf("%d : %d\n",zz,sum);  
+      zz=x+i+z;
+      if (zz>=unit->celllen) zz=zz-unit->celllen;
+      if (zz<0) zz=unit->celllen+zz;
+      sum+=(cells[zz]>>4)%k;
     }
-    cells[cell+(((l+1)%CELLLEN)*CELLLEN)]= table[sum]; 
-    printf("%c",table[sum]<<4);
 
-    ssum+=sum;
+    cells[x+i+unit->celllen]= table[sum]<<4; 
+
+    printf("%c",table[sum]<<4);
   }
-  return ssum;
+
+  return i;
 }
 
+//////////////////////////////////////////
+
+/*
+
+all 2d automata (as in life)
+
+*notes for forest fire:
+
+cell states:
+
+*for SIR:
+
+*for wireworld:
+
+4 states: blank, copper, head, tail
+
+blank(0) stays blank(0)
+head(<64) becomes tail(64->128)
+tail(64->128) becomes copper(>128)
+copper(>128) stays copper unless just 1 or 2 neighbours are heads(<64) then it becomes head(<64)
+
+*/
+
+//////////////////////////////////////////
 
 int main(void)
 {
-  int x;
+  u16 x;
   u8 buffer[65536];
+  uint16_t count=0;
   srandom(time(0));
   for (x=0;x<65536;x++){
     buffer[x]=rand()%255;
   }
   inittable(3,4,rand()%65536); //radius,states(k),rule - init with cell starter
 
+  //  struct hodge *unit=malloc(sizeof(struct hodge));
+  struct CA *unit=malloc(sizeof(struct CA));
+
+  //  hodgeinit(unit,buffer);
+  cainit(unit,buffer);
       while(1) {
-	//    x=lifer(buffer);
-	runhodge(buffer);
+
+	//	count+=runhodge(count,10,10,buffer,10,unit);
+	count+=runlife(count,10,10,buffer,10,unit);
+	  
+	// runhodge, runhodgenet, runlife, runcel, runcel1d
+
     }
 }
