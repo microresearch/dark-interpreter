@@ -1,5 +1,5 @@
 // gcc simulation.c -osim -lm
-// was datagen.c previously
+// was datagentest.c previously
 
 /* All simulation data generators: IFS, rossler, secondrossler, fitz,
    oregon, spruce, brussel, simpleSIR, sier, */
@@ -164,7 +164,7 @@ void simplesirinit(struct simpleSIR* unit){
   // what else in init?
 }
 
-uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct simpleSIR* unit){
+uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct simpleSIR* unit){
 
   u8 i;
   for (i=0; i<howmuch; i++) {
@@ -290,7 +290,7 @@ void seir_Runge_Kutta(struct SEIR* unit)
 }
 
 
-uint16_t runseir(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SEIR* unit){
+uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct SEIR* unit){
 
   u8 i;
   for (i=0; i<howmuch; i++) {
@@ -392,7 +392,7 @@ void sicr_Runge_Kutta(struct SICR* unit)
   return;
 }
 
-uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct SICR* unit){
+uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct SICR* unit){
 
   u8 i;
   for (i=0; i<howmuch; i++) {
@@ -436,7 +436,7 @@ void ifsinit(struct IFS* unit){
   }
 }
 
-uint16_t runifs(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct IFS* unit){
+uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct IFS* unit){
 
   double random_num;
   u8 iter,i,it,x;
@@ -503,7 +503,7 @@ void rosslerinit(struct Rossler* unit) {
   unit->lz0 = 0;
 }
 
-uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Rossler* unit){
+uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Rossler* unit){
   double lx0,ly0,lz0,lx1,ly1,lz1;
   //  double h,a,b,c;
   u8 i;
@@ -553,7 +553,7 @@ void secondrosslerinit(struct secondRossler* unit){
 
   }
 
-uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct secondRossler* unit){
+uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct secondRossler* unit){
 
   
   double a = (float)workingbuffer[0]/65536.0;
@@ -655,7 +655,7 @@ void brusselinit(struct Brussel* unit) {
   unit->y = 0.5f; 
 }
 
-void runbrussel(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Brussel* unit){
+void runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Brussel* unit){
     
   float delta = (float)workingbuffer[0]/65536.0;
   float mu = (float)workingbuffer[1]/65536.0;
@@ -703,7 +703,7 @@ void spruceinit(struct Spruce* unit ) {
   unit->y = 0.1f; 
 }
 
-void runspruce(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Spruce* unit){
+void runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Spruce* unit){
 
   float k1 = (float)workingbuffer[0]/65536.0;
   float k2 = (float)workingbuffer[1]/65536.0;
@@ -758,7 +758,7 @@ void oregoninit(struct Oregon* unit) {
     unit->z = 0.5f; 
 }
 
-void runoregon(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Oregon* unit){
+void runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Oregon* unit){
     
   float delta = (float)workingbuffer[0]/65536.0;
   float epsilon = (float)workingbuffer[1]/65536.0;
@@ -809,7 +809,7 @@ void fitzinit(struct Fitz* unit) {
 	unit->w=0.0;
 }
 
-void runfitz(uint16_t count, uint16_t delay, uint16_t speed, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit){
+void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit){
 
   /* SETTINGS */
 
@@ -913,7 +913,7 @@ void main(void)
 	  //	  count+=runifs(count,10,10,xxx,10,unit);
 	  //	  count+=runsimplesir(count,10,10,xxx,10,unit);
 	  //	  count+=runseir(count,10,10,xxx,10,unit);
-	  count+=runsicr(count,10,10,xxx,10,unit);
+	  count+=runsicr(count,10,xxx,10,unit);
 	  //	  printf("%d\n",count);
 	  /*	  for (x=3;x<13;x++){
 	    printf("%c",xxx[x]>>8);

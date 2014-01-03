@@ -30,16 +30,22 @@ up to limit
 
 * TODO
 
-- re-test new hardware/pcb/constructed TO TEST
+* FRI 3 JAN 2013
 
-- new hardware switches: 
+!all hardware testing: straight throughDONE, our defineDONE, any bleedDONE, feedback
+switchPC13DONE,40106 pwmDONE,all hardware switches...
 
-switch audio input on/off via PC13 (pin 2) DONE TEST
+- re-test new hardware/pcb/constructed TO TEST-DONE
 
-40106 on TIM1_CH2 (pin 42) DONE/coded I think TEST
+- new hardware switches to note: 
+
+switch audio input on/off via PC13 (pin 2) DONE 
+
+40106 on TIM1_CH2 (pin 42) DONE/coded I think DONE
 
 * TUE 31 DEC
 
+// datagentest is now simulation.c
 
 //how SIR_CA can work with 16 bits per cell or somehow as parallel?
 

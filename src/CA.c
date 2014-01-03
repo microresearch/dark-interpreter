@@ -32,7 +32,7 @@ void hodgeinit(struct hodge* unit, u8* cells){
   if (unit->k2==0) unit->k2=1;
 }
 
-uint16_t runhodge(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct hodge* unit){
+uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct hodge* unit){
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i;
@@ -71,7 +71,7 @@ uint16_t runhodge(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-uint16_t runhodgenet(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct hodge* unit){
+uint16_t runhodgenet(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct hodge* unit){
 
   u8 sum=0, numill=0, numinf=0; u16 place;
   uint16_t y;
@@ -132,7 +132,7 @@ void cainit(struct CA* unit, u8* cells){
   unit->rule=cells[1];
 }
 
-uint16_t runlife(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runlife(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
 
   u8 sum;
   uint16_t y; u8 i;
@@ -158,7 +158,7 @@ uint16_t runlife(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t 
 
 //one dimensional - working line by line through buffer
 
-uint16_t runcel(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
 
   u8 state,i;
 
@@ -213,7 +213,7 @@ void inittable(u8 r, u8 k, int rule){
 
 // 1d with rules
 
-uint16_t runcel1d(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
 
   u8 cell,sum; signed int z,zz;
   u8 radius=3, k=4, i;//k=states
@@ -251,7 +251,7 @@ void fireinit(struct fire* unit, u8* cells){
   unit->celllen=cells[2];
 }
 
-uint16_t runfire(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct fire* unit){
+uint16_t runfire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct fire* unit){
 
   u8 sum;
   uint16_t y; u8 i;
@@ -313,7 +313,7 @@ u8 headcount(struct CA* unit,u8 *cells,u16 place){
   else return 0;
 }
 
-uint16_t runwire(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runwire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
   u8 sum;
   uint16_t y; u8 i;
 
@@ -368,7 +368,7 @@ void SIRinit(struct SIR* unit, u8* cells){
   unit->celllen=cells[2];
 }
 
-uint16_t runSIR(uint16_t x, uint16_t delay, uint16_t speed, u8 *cells, uint8_t howmuch, struct SIR* unit){
+uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct SIR* unit){
 
   uint16_t y; u8 i;
 
@@ -428,12 +428,7 @@ int main(void)
     SIRinit(unit,buffer);
   //  fireinit(unit,buffer);
       while(1) {
-
-	//	count+=runhodge(count,10,10,buffer,10,unit);
-	//	count+=runcel1d(count,10,10,buffer,255,unit);
-	//	count+=runfire(count,10,10,buffer,255,unit);
-	//	count+=runwire(count,10,10,buffer,255,unit);
-	count+=runSIR(count,10,10,buffer,255,unit);
+	count+=runSIR(count,10,buffer,255,unit);
 	//	printf("%d",count);
 	// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
