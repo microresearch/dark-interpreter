@@ -7,10 +7,10 @@ organ!
 
 * plan
 
-send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be tested
+send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be testedDONE
 
 1 phase: hardware switchingsDONE + architecture outlineROUGH 
-2 phase: datagens/hardware tests BY BEGIN JAN! close
+2 phase: datagens/hardware tests BY BEGIN JAN! DONE
 
 3 phase: grains/audio buffers and processing (any mixing of signals?)
 4 phase: knobs assigned and all tests/tweak/RELEASE
@@ -30,9 +30,13 @@ up to limit
 
 * TODO
 
+- add simple CPU and datagens (freq table, add, subtract, 
+
 * FRI 3 JAN 2013
 
-!all hardware testing: straight throughDONE, our defineDONE, any bleedDONE, feedback
+- fixed bug in count in simulation.c (retest SIR!)
+
+DONEall hardware testing: straight throughDONE, our defineDONE, any bleedDONE, feedback
 switchPC13DONE,40106 pwmDONE,all hardware switches...
 
 - re-test new hardware/pcb/constructed TO TEST-DONE

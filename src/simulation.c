@@ -4,6 +4,8 @@
 /* All simulation data generators: IFS, rossler, secondrossler, fitz,
    oregon, spruce, brussel, simpleSIR, sier, */
 
+//+ inc,dec,left,right and so on
+
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -33,6 +35,7 @@ Based in part on SLUGens by Nicholas Collins.
 #include <malloc.h>
 
 typedef unsigned char u8;
+typedef uint16_t u16;
 
 #define true 1
 #define false 0
@@ -46,7 +49,7 @@ typedef unsigned char u8;
 
 - should howmuch be int or is u8 ok?
 
-- SIRs should have workingbuffer init
+- all/SIRs should have workingbuffer init!! TODO
 
 - check memory use!
 
@@ -55,14 +58,207 @@ typedef unsigned char u8;
 
 - !!!place workingbuffer init in init!!!
 
-- somehow declare offset for settings, or we store this somewhere
+[- somehow declare offset for settings, or we store this somewhere]
 
-- add stepsizing/speed for each
+- add delay code for each
 
-- add re-init//trigger bit - also how to organize x bytes of
-  workingbuffer reserved or... (offset question)
+- add re-init//trigger bit
 
 - does NaN cause problems or not?
+
+*/
+
+//////////////////////////////////////////////////////////
+
+// sine
+
+struct siney{
+  u8 del;
+  u16 sin_data[256];  // sine LUT Array
+  u16 cc;
+};
+
+void sineinit(struct siney* unit){
+  unit->del=unit->cc=0;
+  float pi= 3.141592;
+  float w;    // ψ
+  float yi;
+  float phase;
+  int sign_samp,i;
+  w= 2*pi;
+  w= w/256;
+    for (i = 0; i <= 256; i++)
+    {
+      yi= 2047*sin(phase);
+      phase=phase+w;
+      sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
+      unit->sin_data[i]=sign_samp; // write value into array
+    }
+}
+
+uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct siney* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=unit->sin_data[unit->cc%256];
+    printf("%d\n",workingbuffer[count+(u16)i]);
+    unit->cc++;
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+
+//////////////////////////////////////////////////////////
+
+// generic arithmetik datagens 
+
+struct generik{
+  u8 del;
+  u16 cop;
+};
+
+void geninit(struct generik* unit){
+  unit->del=0;
+  unit->cop=1; // init with workingbuffer!!!
+}
+
+uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=unit->cop++;
+    printf("%d\n",workingbuffer[count+(u16)i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+i]=unit->cop--;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]<<=1;
+    printf("%d %d\n",count+(u16)i,workingbuffer[count+(u16)i]);
+  }
+  unit->del=0;
+  }
+  return count+(u16)i;
+}
+
+uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]>>=1;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0; u16 temp;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    temp=workingbuffer[count+(u16)i];
+    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i+1];
+    workingbuffer[count+(u16)i+1]=temp;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]+1;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]-1;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i]*=workingbuffer[count+(u16)i+1];
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    if ((workingbuffer[count+(u16)i+1])>0)   workingbuffer[count+(u16)i]/=workingbuffer[count+(u16)i+1];
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+
+uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i+1]=workingbuffer[count+(u16)i];
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
+uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
+  u8 i=0;
+  if (unit->del++==delay){
+  for (i=0; i<howmuch; i++) {
+    workingbuffer[count+(u16)i+1]=0;
+    printf("%d\n",workingbuffer[count+i]);
+  }
+    unit->del=0;
+  }
+  return count+i;
+}
+
 
 
 //////////////////////////////////////////////////////////
@@ -299,7 +495,6 @@ uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     printf("%c",unit->S);
   }
   return count+i;
-
 }
 
 //////////////////////////////////////////////////////////
@@ -334,7 +529,6 @@ unit->C0=1e-3;
 
 unit->S=unit->S0; unit->I=unit->I0; unit->C=unit->C0; unit->R=1-unit->S-unit->I-unit->C0;
 unit->step=0.01/((unit->beta+unit->gamm+unit->mu+unit->Gamm)*unit->S0);
-
 
 }
 
@@ -398,7 +592,7 @@ uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   for (i=0; i<howmuch; i++) {
     sicr_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->S;
-    printf("%c",unit->S);
+    printf("%d %d\n",count+i,unit->S);
   }
   return count+i;
 
@@ -895,8 +1089,9 @@ void main(void)
   //  struct secondRossler *unit=malloc(sizeof(struct secondRossler));
   //  struct IFS *unit=malloc(sizeof(struct IFS));
   //  struct simpleSIR *unit=malloc(sizeof(struct simpleSIR));
-  //  struct SEIR *unit=malloc(sizeof(struct SEIR));
-  struct SICR *unit=malloc(sizeof(struct SICR));
+  //    struct SEIR *unit=malloc(sizeof(struct SEIR));
+      struct SICR *unit=malloc(sizeof(struct SICR));
+  //  struct siney *unit=malloc(sizeof(struct siney));
   //  fitzinit(unit);
   //  oregoninit(unit);
   //  spruceinit(unit); 
@@ -905,15 +1100,18 @@ void main(void)
   //  secondrosslerinit(unit);
   //  ifsinit(unit);
   //  simplesirinit(unit);
-  sicrinit(unit);
-
+  //  geninit(unit);
+  //sineinit(unit);
+        sicrinit(unit);
+    //    seirinit(unit);
   //  printf("%f",(float)xxx[0]/65536.0);
         while(1){ 
-	  //	  count+=runsecondrossler(count,10,10,xxx,10,unit);
-	  //	  count+=runifs(count,10,10,xxx,10,unit);
-	  //	  count+=runsimplesir(count,10,10,xxx,10,unit);
-	  //	  count+=runseir(count,10,10,xxx,10,unit);
-	  count+=runsicr(count,10,xxx,10,unit);
+	  //	  count=runsecondrossler(count,10,10,xxx,10,unit);
+	  //	  count=runifs(count,10,10,xxx,10,unit);
+	  //	  count=runsimplesir(count,10,10,xxx,10,unit);
+	  //	  count=runseir(count,10,xxx,10,unit);
+	  	  count=runsicr(count,10,xxx,10,unit);
+	  //	  count=runsine(count,1,xxx,10,unit);
 	  //	  printf("%d\n",count);
 	  /*	  for (x=3;x<13;x++){
 	    printf("%c",xxx[x]>>8);
