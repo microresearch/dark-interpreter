@@ -30,11 +30,20 @@ up to limit
 
 * TODO
 
-- add simple CPU and datagens (freq table, add, subtract, 
+- add ifdefs, includes etc. for PC/arm code compilation
+- overlap and uint16 sizes for CPU.c
+- other TODOs from each file (eg. delay in simulation.c)
+- cleanups/fix adc code
+
+then start on buffer/grain code, hardware tie-ins and ADCs
 
 * FRI 3 JAN 2013
 
-- fixed bug in count in simulation.c (retest SIR!)
+- added simple CPU and datagens (freq table, add, subtract)
+
+- leaky.c renamed to CPU.c
+
+- fixed bug in count in simulation.c (retest SIR!_DONE)
 
 DONEall hardware testing: straight throughDONE, our defineDONE, any bleedDONE, feedback
 switchPC13DONE,40106 pwmDONE,all hardware switches...

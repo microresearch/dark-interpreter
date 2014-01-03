@@ -405,6 +405,41 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
   return i;
 }
 
+//////////////////////////////////////////
+
+/* 16 bit SIR with 4 4-bit fields:
+
+-total pop
+-S pop
+-I pop
+-R pop
+
+with probabilities fixed for:
+
+- movement
+- morbidity
+- vectored infection
+- contact infection
+- recovery
+- re-susceptible
+
+other params:
+
+motion radius, infection radius
+
+ */
+
+struct SIR16{
+
+};
+
+void SIR16init(struct SIR* unit, u8* cells){
+}
+
+uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct SIR16* unit){
+
+
+}
 
 //////////////////////////////////////////
 
