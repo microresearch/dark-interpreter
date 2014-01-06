@@ -77,7 +77,7 @@ void thread_create(thread *this, int start, uint8_t which) {
     this->m_reg8bit3=rand()%255;
     this->m_reg8bit4=rand()%255;
     this->m_stack_pos=-1;
-    this->m_stack=(u8*)malloc(sizeof(u8)*STACK_SIZE);
+    //this->m_stack=(u8*)malloc(STACK_SIZE);
 
     for (int n=0; n<STACK_SIZE; n++)
       {
@@ -1034,7 +1034,7 @@ void machine_create(machine *this, uint8_t *buffer) {
   int count=0;
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_memory=buffer;
-    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS);
+  this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{

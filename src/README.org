@@ -51,12 +51,18 @@ http://www.eevblog.com/forum/microcontrollers/stm32f4-arm-none-eabi-gcc-not-link
 
 https://github.com/libopencm3/libopencm3/pull/65
 
-getting there with Makefile - now problem with fmod (commented to fix)
-and also undefined reference to `_sbrk
+OK getting there with Makefile - now problem with fmod (commented to fix)
+and also undefined reference to `_sbrk (in mallocs in CPU.c) - something to do with newlib
 
 see:
 
+http://balau82.wordpress.com/2010/12/16/using-newlib-in-arm-bare-metal-programs/
+
 https://sites.google.com/site/stm32discovery/open-source-development-with-the-stm32-discovery/getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
+
+http://embdev.net/topic/266617
+
+TODO: test new compiling, FPU, what to do with fmod and malloc issues...
 
 * FRI 3 JAN 2014
 
