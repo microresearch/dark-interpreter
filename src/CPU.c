@@ -1,14 +1,21 @@
 // was leaky.c
 //gcc -DLINUX -std=gnu99 leaky.c -o leaky
 
+#include "leaky.h"
+
+#ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include "leaky.h"
-
+#else
+#include <malloc.h>
+#include <math.h>
+#endif
 /* 
+
+
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -150,7 +157,7 @@ void thread_run(thread* this, machine *m) {
     } break;
     case DUP: if (thread_stack_count(this,1)) thread_push(this,thread_top(this)); break;
     case SAY: 
-      printf("%c",thread_pop(this));
+      //      printf("%c",thread_pop(this));
       //      thread_poke(this,m,thread_peek(this,m,this->m_pc++),rand()%255);      
         break;
 	case INP:
@@ -242,7 +249,7 @@ void thread_run(thread* this, machine *m) {
 	this->m_reg8bit3-=1;
       }
       else this->m_pc+=biotadir[this->m_reg8bit3%8];
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
       //      break;
 ///////////////////////////////////////////////////////////////
 
@@ -281,7 +288,7 @@ void thread_run(thread* this, machine *m) {
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=16;
 	  break;
 	}
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
     
 ///////////////////////////////////////////////////////////////
 
@@ -335,7 +342,7 @@ void thread_run(thread* this, machine *m) {
 	  this->m_pc++;
 	  break;
 	}
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
     case 4:
@@ -367,7 +374,7 @@ void thread_run(thread* this, machine *m) {
 	break;
       }
 	if (thread_peek(this,m,this->m_pc)==255) this->m_reg8bit3+=4;
-      printf("%c",this->m_pc);
+	//      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
     case 5:
@@ -431,7 +438,7 @@ void thread_run(thread* this, machine *m) {
 	this->m_pc++;
 	break;
       }
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
     case 6:
@@ -585,7 +592,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc+=3;
 	break;
       }
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
     case 7:
@@ -670,7 +677,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_poke(this,m,this->m_pc+this->m_reg8bit3,thread_pop(this));
 	break;
       }
-      printf("%c",instr);
+      //      printf("%c",instr);
 
 ///////////////////////////////////////////////////////////////
 
@@ -753,7 +760,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc++;
 	break;
       }
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
 
 ///////////////////////////////////////////////////////////////
 
@@ -850,7 +857,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       }
       this->m_pc+=biotadir[this->m_reg8bit3%8];
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
 
@@ -886,7 +893,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  break;
 	}
       this->m_pc+=biotadir[this->m_reg8bit3%8];
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
 
@@ -903,7 +910,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       this->m_pc+=biotadir[this->m_reg8bit2];
       // finally
       this->m_reg8bit1 += deltastate[instr%16];
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
 
@@ -919,7 +926,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
     thread_poke(this,m,this->m_pc+128,flag);
       this->m_pc++; 
-      printf("%c",instr);
+      //      printf("%c",instr);
       break;
 
     case 14:
@@ -930,7 +937,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       thread_poke(this,m,this->m_pc,instr+1);
       this->m_reg8bit1=antrule(this->m_reg8bit1,instr%8,thread_peek(this,m,0));//last is rule
       this->m_pc+=biotadir[this->m_reg8bit1%8];
-      printf("%c",this->m_pc);
+      //      printf("%c",this->m_pc);
       break;
 
     case 15:
@@ -946,7 +953,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
       this->m_pc++; 
       if (this->m_pc==0) this->m_pc=1;
-      printf("%c",instr);
+      //      printf("%c",instr);
       break;
 
     case 16:
@@ -1054,16 +1061,6 @@ void machine_run(machine* this) {
 	}
 }
 
-const char *byte_to_binary(int x) {
-    static char b[9];
-    b[0] = '\0';
-    int z;
-    for (z = 128; z > 0; z >>= 1) {
-        strcat(b, ((x & z) == z) ? "1" : "0");
-    }
-    return b;
-}
-
 void write_mem(machine *m, int *a, uint16_t len) {
     for (uint16_t i=0; i<len; i++) {
         machine_poke(m,i,a[i]);
@@ -1093,6 +1090,7 @@ void leak(machine *m){
   }
 }
 
+#ifdef PCSIM
 int main(void)
 {
   int x;
@@ -1113,3 +1111,4 @@ int main(void)
 
   }
 }
+#endif
