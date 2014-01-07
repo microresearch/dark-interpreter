@@ -30,7 +30,7 @@ up to limit
 
 * TODO
 
-- add ifdefs, includes etc. for PC/arm code compilation
+- add ifdefs, includes etc. for PC/arm code compilation // fixing now compile options
 - overlap and uint16 sizes for CPU.c (or somehow 2 sets options)
 - other TODOs from each file (eg. delay in simulation.c)
 - cleanups/fix adc code/test ADC now?
@@ -38,7 +38,12 @@ up to limit
 then start on buffer/grain code, hardware tie-ins and ADCs
 
 
+* WED 8 JAN 2014
+
+- test new code that actually runs!
+
 * TUE 7 JAN 2014
+
 
 - downloading new ARM toolchain as described on first site below.
 
@@ -64,7 +69,13 @@ undefined reference to `_sbrk
 
 latest makefile
 
-and we should sort:  implicit declarations...
+- now with all flags works with -mfloat-abi=hard
+
+perhaps useful for ref: http://www.embedded.com/design/mcus-processors-and-socs/4007119/Building-Bare-Metal-ARM-Systems-with-GNU-Part-1--Getting-Started
+
+https://my.st.com/public/STe2ecommunities/mcu/Lists/STM32Discovery/Flat.aspx?RootFolder=%2Fpublic%2FSTe2ecommunities%2Fmcu%2FLists%2FSTM32Discovery%2FlibPDMFilter_GCC.a%20%28pdm_filter.o%29%20does%20not%20uses%20VFP&FolderCTID=0x01200200770978C69A1141439FE559EB459D75800084C20D8867EAD444A5987D47BE638E0F&currentviews=668
+
+https://wiki.debian.org/ArmHardFloatPort/VfpComparison#A.22softfp.22
 
 * MON 6 JAN 2014
 

@@ -4,7 +4,7 @@
 TOOL_PREFIX = /opt/ARM/arm-linaro-eabi-4.6
 
 PRG_PREFIX = $(TOOL_PREFIX)/bin/arm-none-eabi-
-#LIB_PREFIX = $(TOOL_PREFIX)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
+LIB_PREFIX = $(TOOL_PREFIX)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
 
 CC      = $(PRG_PREFIX)gcc
 LD      = $(PRG_PREFIX)gcc
@@ -27,15 +27,15 @@ LDSCRIPT = stm32_flash.ld
 CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99\
 	-DARM_MATH_CM4 -D'__FPU_PRESENT=1'\
 	-mthumb \
-	-c -fno-common -O2 -g \
+	-c -lm -lc -fno-common -O2 -g \
 	-mcpu=cortex-m4 \
-	-mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
+	-mfloat-abi=hard \
 	-fsingle-precision-constant
 
 
-AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=softfp
+AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
-LFLAGS  = -T $(LDSCRIPT) #-L$(LIB_PREFIX)
+LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX)
 LFLAGS_END = -lm -lc -Wl,--gc-sections
 
 # Executables
