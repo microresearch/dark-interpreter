@@ -37,6 +37,35 @@ up to limit
 
 then start on buffer/grain code, hardware tie-ins and ADCs
 
+
+* TUE 7 JAN 2014
+
+- downloading new ARM toolchain as described on first site below.
+
+- note also that we changed all doubles to floats in simulation.c
+
+// so after new toolchain only compiles if we use:
+
+: LD      = $(PRG_PREFIX)ld
+
+rather than gcc as indicated on site below (lots of VFP register errors)
+
+- now with gcc and a few changes:
+
+and we still have problems with the one malloc in cpu.c and with fmod!
+
+- now with -mfloat-abi=softfp which should still use FPU compiles but still:
+
+undefined reference to `_sbrk
+
+- now solved with additions:
+
+: LFLAGS_END = -lm -lc -Wl,--gc-sections
+
+latest makefile
+
+and we should sort:  implicit declarations...
+
 * MON 6 JAN 2014
 
 - question of malloc, sin, rand(replace with ADC), fmod, also with array init!
@@ -62,7 +91,9 @@ https://sites.google.com/site/stm32discovery/open-source-development-with-the-st
 
 http://embdev.net/topic/266617
 
-TODO: test new compiling, FPU, what to do with fmod and malloc issues...
+TODO: test new compiling, FPU testbed!, what to do with fmod and malloc issues:
+
+malloc do static, fmod????
 
 * FRI 3 JAN 2014
 

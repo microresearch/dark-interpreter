@@ -1034,7 +1034,7 @@ void machine_create(machine *this, uint8_t *buffer) {
   int count=0;
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_memory=buffer;
-  this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
+    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
 
 	for (unsigned char n=0; n<MAX_THREADS; n++)
 	{

@@ -1,6 +1,14 @@
 # Makefile for STM32F4
 # 11-10-2011 E. Brombaugh
 
+TOOL_PREFIX = /opt/ARM/arm-linaro-eabi-4.6
+
+PRG_PREFIX = $(TOOL_PREFIX)/bin/arm-none-eabi-
+#LIB_PREFIX = $(TOOL_PREFIX)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
+
+CC      = $(PRG_PREFIX)gcc
+LD      = $(PRG_PREFIX)gcc
+
 # Object files
 OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
@@ -11,24 +19,37 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 # Linker script
 #LDSCRIPT = stm32f407.ld
 LDSCRIPT = stm32_flash.ld
-LIB_PREFIX = /root/sat/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
 
-CFLAGS = -g -O2 -mlittle-endian -mthumb -std=gnu99
-CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1' #-DTEST_STRAIGHT #-DPCSIM
-CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard -L/root/sat/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/ -lm -lc -fsingle-precision-constant
-AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 
+#CFLAGS = -g -O2 -mlittle-endian -mthumb -std=gnu99
+#CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1' #-DTEST_STRAIGHT #-DPCSIM
+#CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
+
+CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99\
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1'\
+	-mthumb \
+	-c -fno-common -O2 -g \
+	-mcpu=cortex-m4 \
+	-mfloat-abi=softfp -mfpu=fpv4-sp-d16 \
+	-fsingle-precision-constant
+
+
+AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=softfp
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
-LFLAGS  = -T $(LDSCRIPT) -L$(LIB_PREFIX)  
-LFLAGS_END = -lm -lc 
+LFLAGS  = -T $(LDSCRIPT) #-L$(LIB_PREFIX)
+LFLAGS_END = -lm -lc -Wl,--gc-sections
 
 # Executables
 ARCH = arm-none-eabi
-CC = $(ARCH)-gcc
-LD = $(ARCH)-ld -v
-AS = $(ARCH)-as
-OBJCPY = $(ARCH)-objcopy
-OBJDMP = $(ARCH)-objdump
-GDB = $(ARCH)-gdb
+#CC = $(ARCH)-gcc
+#LD = $(ARCH)-ld -v
+
+OBJCPY      = $(PRG_PREFIX)objcopy
+OBJDMP      = $(PRG_PREFIX)objdump
+
+AS = $(PRG_PREFIX)as
+#OBJCPY = $(ARCH)-objcopy
+#OBJDMP = $(ARCH)-objdump
+GDB = $(PRG_PREFIX)-gdb
 
 #CPFLAGS = --output-target=binary -j .text -j .data
 CPFLAGS = --output-target=binary

@@ -1058,7 +1058,7 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
     u+=dudt;
     w+=dwdt;
     //assumes fmod works correctly for negative values
-    //    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
 
     int z=((float)(u)*1500);
     //    int zz=((float)(w)*1500);
@@ -1073,7 +1073,7 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
     u+=dudt;
     w+=dwdt;
     //assumes fmod works correctly for negative values
-    //    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+        if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
 
     int z=((float)(u)*700);
     int zz=((float)(w)*700);
@@ -1088,7 +1088,7 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
     u+=dudt;
     w+=dwdt;
     //assumes fmod works correctly for negative values
-    //    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+        if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
 
     int z=((float)(u)*3600);
     //		workingbuffer[x+(howmuch*2)]=z;
