@@ -40,18 +40,18 @@ Based in part on spork factory by Dave Griffiths.
 /* TODO:
 
 - stack of diff cpus/threads which can be added/subbed to by knob - TODO(each thread has m_CPU)
-- re-init (per thread?)
-- cpus link to grains...
 
-push and pop CPUs onto the thread stack. also some variable/array for
-exchange of grains/cpu start-end positions
+- cpus link to grains (how to work out?)
 
-- control of leakiness - add in mutation, cross-pollination, infection, plague, death so cpus can also infect/take over each other (meta)
+some variable/array for exchange of grains/cpu start-end positions
+
+- control of leakiness 
+
+- add in mutation, cross-pollination, infection, plague, death so cpus
+  can also infect/take over each other (meta)
 
 - for wormcode steering buffer, also other cpus modded to read/write
   to that extra buffer - where to pass ref??? some kind of window
-
-//// int/overlap////stack of cpus///add:
 
 - add SPL to redcode(make new thread)
 
@@ -73,11 +73,17 @@ DONE:
 
 void leak(machine *m);
 
-void thread_create(thread *this, uint8_t which) { // ??? or we steer each of these?
+void thread_create(thread *this, u16 address, uint8_t which) { // ??? or we steer each of these?
     this->m_CPU=which;
-    this->m_start=rand()<<4; // 16 bits
-    this->m_pc=this->m_start;
+
+    this->m_start=address;
+
+#ifdef PCSIM
+    this->m_wrap=this->m_start+rand()%65536;
+#else
     this->m_wrap=this->m_start+rand();
+#endif
+    this->m_pc=this->m_start;
     this->m_reg8bit1=rand()%255;
     this->m_reg8bit2=rand()%255;
     this->m_reg8bit3=rand()%255;
@@ -91,10 +97,10 @@ void thread_create(thread *this, uint8_t which) { // ??? or we steer each of the
       }
 }
 
-void cpustackpush(machine *this, u8 cputype){
+void cpustackpush(machine *this, u16 address, u8 cputype){
   if (this->m_threadcount==MAX_THREADS) return;
   else {
-  thread_create(&this->m_threads[this->m_threadcount], 22);// last is CPU type!
+    thread_create(&this->m_threads[this->m_threadcount], address, cputype);// last is CPU type!
   this->m_threadcount++;
   }
 }
@@ -124,18 +130,21 @@ void thread_run(thread* this, machine *m) {
   //  printf("running: %d ",this->m_start);
   //  sleep(1);
 
-	//			printf("%c",instr);
-	// SWITCH for m_CPU!
+  // SWITCH for m_CPU!
+
+
+#ifdef PCSIM
+  //      printf("CPU: %d\n",this->m_CPU);
+  printf("%c",machine_peek(m,this->m_pc));
+
+#endif
+
   switch(this->m_CPU)
     {
     case 0: // :LEAKY STACK! - working!
       instr=machine_peek(m,this->m_pc);
       this->m_pc++;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-
-#ifdef PCSIM
-      printf("%c",instr);
-#endif
       //			printf("%d", instr);
       switch(instr%25)
 	{
@@ -479,10 +488,6 @@ void thread_run(thread* this, machine *m) {
     case 6:
 /* "real" corewars redcode SPL 
 
-TODO: SPL for branchings... - add new thread at address x
-
-(add new threads till max and change leaks only for total threads)
-
 REF: http://vyznev.net/corewar/guide.html#start_instr
 
 http://www.koth.org/info/akdewdney/images/Redcode.jpg
@@ -492,7 +497,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       instr=machine_peek(m,this->m_pc);
-      switch(instr%30){
+      switch(instr%28){
       case 0:
 	// MOV # to direct.
 	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,this->m_pc+1));
@@ -627,6 +632,11 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	else this->m_pc+=3;
 	break;
       case 26:
+	// SPL
+	//- add new thread at address x
+	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],6);
+	break;
+      case 27:
 	this->m_pc+=3;
 	break;
       }
@@ -1145,28 +1155,17 @@ int main(void)
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
 
-  /*
-	for (unsigned char n=0; n<MAX_THREADS; n++)
+	for (unsigned char n=0; n<10; n++)
 	{
-	  thread_create(&this->m_threads[n], 22);// last is CPU type!
-	  this->m_threadcount++;
-	  count+=255;
-    }
-  */
-
-  // now we want stack of threads up to MAX_THREADS
-  // 
-
-	for (unsigned char n=0; n<MAX_THREADS; n++)
-	{
-  cpustackpush(m,rand()%23);
+#ifdef PCSIM
+	  cpustackpush(m,rand()%65536,rand()%23);
+#else
+	  cpustackpush(m,rand()<<4,rand()%23);
+#endif
 	}
 
   while(1) {
       machine_run(m);
-            if ((rand()%255)==1) cpustackpush(m,rand()%23);
-            else if ((rand()%255)==1) cpustackpop(m);
-
   }
 }
 #endif
