@@ -20,7 +20,7 @@ extern __IO uint16_t adc_buffer[10];
 
 /* TODO:
 
-ADD 16 bit SIR code
+ADD,,, 16 bit SIR code
 
 */
 

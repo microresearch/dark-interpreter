@@ -49,9 +49,12 @@ should have datagen->all hardware switch code!
 
 TODO:
 
-- overlap and uint16 sizes for CPU.c (or somehow 2 sets options - now working in CPUint.c
+- overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
+  working in CPUint.cDONE - do we need two versions?
 
-- other TODOs from each file simulation.cDONE, CPU.c, CA.c
+- other TODOs from each file simulation.c:
+
+add some stuff
 
 - new ADC - re-test with DMA// DONE - but need to test lower board alone!
 

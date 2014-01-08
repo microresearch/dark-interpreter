@@ -47,7 +47,7 @@ Based in part on spork factory by Dave Griffiths.
 
 - for wormcode steering buffer, also other cpus modded to read/write
   instruction pointer to that extra buffer - where to pass ref??? some
-  kind of window
+  kind of window or we just use sep. code for that?
 
 - add input into some CPUs (perhaps adc_buffer[somereg%10]) )
 
@@ -1225,6 +1225,9 @@ int main(void)
 	  cpustackpush(m,randi()%65536,23);
 #else
 	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
+	  // here we can also do so that they follow consequtively and
+	  // also pass wrap and other params? ???TODO???
+
 #endif
 	}
 
