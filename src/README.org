@@ -30,11 +30,11 @@ up to limit
 
 * TODO
 
-- overlap and uint16 sizes for CPU.c (or somehow 2 sets options)
-- other TODOs from each file (eg. delay in simulation.c)
 - test lower board potis!
 
 *then start on buffer/grain code, hardware tie-ins and ADCs*
+
+should have datagen->all hardware switch code!
 
 * DONE
 
@@ -42,15 +42,18 @@ up to limit
   compile optionsTEST-DONE
 - test new code/makefile that still actually runs! IT DOES!
 - cleanups/fix adc code/test ADC now?
+- replace RAND with ad620/floating-DONE
+  which is ADC 9-AD620 is on ADC1_IN11-DONE
 
 * WED 8 JAN 2014
 
 TODO:
 
+- overlap and uint16 sizes for CPU.c (or somehow 2 sets options - now working in CPUint.c
+
+- other TODOs from each file simulation.cDONE, CPU.c, CA.c
+
 - new ADC - re-test with DMA// DONE - but need to test lower board alone!
-- replace RAND with ad620/floating
-  which is ADC 9-AD620 is on ADC1_IN11-DONE
-- all headers/prototypes fixed-NEARLY
 
 * TUE 7 JAN 2014
 

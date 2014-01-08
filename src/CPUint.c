@@ -6,14 +6,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include "CPUint.h"
+#define randi() rand()
 #else
 #include <malloc.h>
-#define rand() (adc_buffer[9])
+#include "CPUint.h"
+#define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 #endif
 
 #include <math.h>
-#include "CPUint.h"
 
 /* 
 
@@ -36,40 +38,28 @@ Based in part on spork factory by Dave Griffiths.
 
 */
 
-
 /* TODO:
 
-- stack of diff cpus/threads which can be added/subbed to by knob - TODO(each thread has m_CPU)
+- cpus link to grains - some variable/array for exchange of grains/cpu
+  start-end positions
 
-- cpus link to grains (how to work out?)
-
-some variable/array for exchange of grains/cpu start-end positions
-
-- control of leakiness 
-
-- add in mutation, cross-pollination, infection, plague, death so cpus
-  can also infect/take over each other (meta)
+- control of leakiness m->m_leakiness
 
 - for wormcode steering buffer, also other cpus modded to read/write
-  to that extra buffer - where to pass ref??? some kind of window
+  instruction pointer to that extra buffer - where to pass ref??? some
+  kind of window
 
-- add SPL to redcode(make new thread)
+- add input into some CPUs (perhaps adc_buffer[somereg%10]) )
 
-- add hodge.c
+- add hodge.c in case 16:
 
-TOTAL so far: 23 CPUs
+- whether to push off threads from stack when full?
 
-/////
-
-DONE:
-
-- for each thread heap points into buffer - DONE
-
-/////
+TOTAL so far: 24 CPUs (0-23)
 
 */
 
-//int HEAP_SIZE=20400; // see above (80*255)
+#define CPU_TOTAL 24
 
 void leak(machine *m);
 
@@ -79,15 +69,15 @@ void thread_create(thread *this, u16 address, uint8_t which) { // ??? or we stee
     this->m_start=address;
 
 #ifdef PCSIM
-    this->m_wrap=this->m_start+rand()%65536;
+    this->m_wrap=this->m_start+randi()%65536;
 #else
-    this->m_wrap=this->m_start+rand();
+    this->m_wrap=this->m_start+randi();
 #endif
     this->m_pc=this->m_start;
-    this->m_reg8bit1=rand()%255;
-    this->m_reg8bit2=rand()%255;
-    this->m_reg8bit3=rand()%255;
-    this->m_reg8bit4=rand()%255;
+    this->m_reg8bit1=randi()%255;
+    this->m_reg8bit2=randi()%255;
+    this->m_reg8bit3=randi()%255;
+    this->m_reg8bit4=randi()%255;
     this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
@@ -124,7 +114,8 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
 void thread_run(thread* this, machine *m) {
   u8 instr;	
   u8 flag,other;
-  u8 biotadir[8]={239,240,1,17,16,15,254,238}; 
+  //  u8 biotadir[8]={239,240,1,17,16,15,254,238}; // now for 16 bit
+  u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
@@ -182,10 +173,10 @@ void thread_run(thread* this, machine *m) {
     case DUP: if (thread_stack_count(this,1)) thread_push(this,thread_top(this)); break;
     case SAY: 
       //      printf("%c",thread_pop(this));
-      //      machine_poke(m,machine_peek(m,this->m_pc++),rand()%255);      
+      //      machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
         break;
 	case INP:
-	  machine_poke(m,machine_peek(m,this->m_pc++),rand()%255);      
+	  machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
 	  break;
 
     default : break;
@@ -367,7 +358,7 @@ void thread_run(thread* this, machine *m) {
 	  this->m_pc++;
 	  break;
 	case 5:
-	  flag=rand()%4;
+	  flag=randi()%4;
 	  if (flag==0) 	  this->m_reg8bit2++;
 	  if (flag==1) 	  this->m_reg8bit2--;
 	  if (flag==2) 	  this->m_reg8bit2+=16;
@@ -655,8 +646,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc++;
 	break;
       case 1:	  
-	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128))    if (rand()%10 < 4) cells[IP] = dead;     
-	if (machine_peek(m,this->m_pc+1)<128)  if (rand()%10 < 4) machine_poke(m,this->m_pc,255);     
+	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128))    if (randi()%10 < 4) cells[IP] = dead;     
+	if (machine_peek(m,this->m_pc+1)<128)  if (randi()%10 < 4) machine_poke(m,this->m_pc,255);     
 	this->m_pc++;
 	break;
       case 2:
@@ -669,7 +660,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  if ((machine_peek(m,this->m_pc-1)>0 && machine_peek(m,this->m_pc-1)<128) ||
 	      (machine_peek(m,this->m_pc+1)>0 && machine_peek(m,this->m_pc+1)<128))
 	    {
-	if (rand()%10 < 4) machine_poke(m,this->m_pc,129);
+	if (randi()%10 < 4) machine_poke(m,this->m_pc,129);
 	    }
 	}
 	this->m_pc++;
@@ -683,7 +674,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
 
-      //      this->m_reg8bit3=biotadir[rand()%8]; // replace with buffer steering TODO or:
+      //      this->m_reg8bit3=biotadir[randi()%8]; // replace with buffer steering TODO or:
       this->m_reg8bit3=biotadir[machine_peek(m,this->m_pc)%8];
       this->m_pc+=this->m_reg8bit3;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
@@ -874,7 +865,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_reg8bit3=4;
 	break;
       case 21:
-	this->m_reg8bit3=(rand()%4)*2;
+	this->m_reg8bit3=(randi()%4)*2;
 	break;
       case 22:
 	if (thread_pop(this)==0)	this->m_reg8bit3=2;
@@ -1012,36 +1003,107 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       break;
 
     case 16:
-      // **TODO** port of hodgenet.c - but we need larger 255*128 cellspace in two halves...????
+      // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
+      // numill and numinf
+
       break;
     case 17:
       // start generic - add (add/sub/zero/copy/invert/swap)
       instr=machine_peek(m,this->m_pc);
       machine_poke(m,this->m_pc,instr+1);
+      this->m_pc++; 
       break;
     case 18:
       // generic - sub (add/sub/zero/copy/invert/swap)
       instr=machine_peek(m,this->m_pc);
       machine_poke(m,this->m_pc,instr-1);
+      this->m_pc++; 
       break;
     case 19:
       // generic - zero (add/sub/zero/copy/invert/swap)
       machine_poke(m,this->m_pc,0);
+      this->m_pc++; 
       break;
     case 20:
       // generic - copy (add/sub/zero/copy/invert/swap)
       machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+1));
+      this->m_pc++; 
       break;
     case 21:
       // generic - copy (add/sub/zero/copy/invert/swap)
       machine_poke(m,this->m_pc,machine_peek(m,this->m_pc^255));
+      this->m_pc++; 
       break;
     case 22:
       // generic - swap (add/sub/zero/copy/invert/swap)
       instr=machine_peek(m,this->m_pc+1);
       machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
       machine_poke(m,this->m_pc,instr);
+      this->m_pc++; 
       break;
+///////////////////////////////////////////////////////////////
+    case 23:
+      // from wormcode.c
+      instr=machine_peek(m,this->m_pc);
+      switch(instr%10)
+	{
+	case 0:
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 1:
+	  //inc
+	  machine_poke(m,this->m_pc,instr+1);
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 2:
+	  machine_poke(m,this->m_pc,instr-1);
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 3:
+	  this->m_pc=machine_peek(m,this->m_pc);
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 4:
+	  machine_poke(m,this->m_pc,randi()%255);
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 5:
+	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 6:
+	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 7:
+	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc-biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 8:
+	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc<<biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 9:
+	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc>>biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 10:
+	  if (machine_peek(m,this->m_pc+(biotadir[randi()%8]*2))==0) this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 11:
+	  machine_poke(m,(this->m_pc-biotadir[randi()%8]),instr);
+	  machine_poke(m,(this->m_pc+biotadir[randi()%8]),instr);
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 12:
+	  thread_push(this, machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	case 13:
+	  machine_poke(m,(this->m_pc+=biotadir[randi()%8]),thread_pop(this));
+	  this->m_pc+=biotadir[randi()%8];
+	  break;
+	}
     }
 }
 
@@ -1085,11 +1147,12 @@ u8 thread_top(thread* this) {
 
 ///////////////////////////////////////////////////////////////
 
-void machine_create(machine *this, uint8_t *buffer) {
+void machine_create(machine *this, u8 leakiness, uint8_t *buffer) {
   //  int count=0;
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_threadcount=0;
   this->m_memory=buffer;
+  this->m_leakiness=leakiness;
     this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
 }
 
@@ -1108,7 +1171,7 @@ void machine_run(machine* this) {
 	for (unsigned char n=0; n<MAX_THREADS; n++) {
 		thread_run(&this->m_threads[n],this);
 	}
-      if (rand()%20==0) {
+	if ((randi()%this->m_leakiness)==0) {
   	leak(this);
   	}
 }
@@ -1123,8 +1186,8 @@ void leak(machine *m){
   // leak bottom of stack x into top y
   unsigned char x=1, y=1, count;
     while (x==y){ 
-  x=rand()%m->m_threadcount;
-  y=rand()%m->m_threadcount;
+  x=randi()%m->m_threadcount;
+  y=randi()%m->m_threadcount;
     }
 
   thread *xx=&m->m_threads[x];
@@ -1149,23 +1212,36 @@ int main(void)
   u8 buffer[65536];
   srandom(time(0));
   for (x=0;x<65536;x++){
-    buffer[x]=rand()%255;
+    buffer[x]=randi()%255;
   }
 
   machine *m=(machine *)malloc(sizeof(machine));
-  machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
+  machine_create(m,randi()%255,buffer); // this just takes care of pointer to machine and malloc for threads
 
 	for (unsigned char n=0; n<10; n++)
 	{
 #ifdef PCSIM
-	  cpustackpush(m,rand()%65536,rand()%23);
+	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
+	  cpustackpush(m,randi()%65536,23);
 #else
-	  cpustackpush(m,rand()<<4,rand()%23);
+	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
 #endif
 	}
 
   while(1) {
       machine_run(m);
   }
+
+
+  /*- add in mutation, cross-pollination, infection, plague, death so cpus
+    can also infect/take over each other (meta)
+  
+    - mutation bit-flip a randiom CPU type
+    - address exchange
+    - infection
+    - death, killing
+
+  */
+
 }
 #endif

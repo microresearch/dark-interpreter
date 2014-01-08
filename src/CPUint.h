@@ -51,6 +51,7 @@ static const u8 MAX_THREADS=120;
       thread *m_threads;
       u8 *m_memory; 
       u8 m_threadcount;
+      u8 m_leakiness;
     } machine;
     
 //    u8 thread_peek(thread *t, machine *m, u8 addr);
@@ -71,7 +72,7 @@ static const u8 MAX_THREADS=120;
     
 /////////////////////////////////////////////////////////
     
-void machine_create(machine *t, u8 *buffer);
+void machine_create(machine *this, u8 leakiness, uint8_t *buffer);
 u8 machine_peek(const machine *t, u16 addr);
 void machine_poke(machine *t, u16 addr, u8 data);	
 void machine_run(machine *t);

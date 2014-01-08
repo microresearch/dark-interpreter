@@ -33,21 +33,24 @@ Based in part on SLUGens by Nicholas Collins.
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "simulation.h"
 #include <malloc.h>
+#define randi() rand()
 #else
+#include "simulation.h"
 #include <malloc.h>
 #include <math.h>
-#define rand() (adc_buffer[9])
+#define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 #endif
 
-#include "simulation.h"
+
 
 /* TODO:
 
-- clean ups for inits/each function and test all
-- does NaN cause problems or not?
+- clean ups for inits/each functionDONE and re-test all
 
+- does NaN cause problems or not on the ARM?
 - check memory use! also use of free and how we will do all inits
 
 /////resolved/////
@@ -593,17 +596,17 @@ void ifsinit(struct IFS* unit, uint16_t *workingbuffer){
 
   for (iter=0;iter<row;iter++){
     for (i=0;i<column;i++){
-      //      iter=rand()%row;
-      //      i=rand()%column;
+      //      iter=randi()%row;
+      //      i=randi()%column;
 
 #ifdef PCSIM
-      unit->coeff[iter][i]=((float)rand()/(float)(RAND_MAX));
-      if (((float)rand()/(float)(RAND_MAX))>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
-      unit->prob[iter]=((float)rand()/(float)(RAND_MAX));
+      unit->coeff[iter][i]=((float)randi()/(float)(RAND_MAX));
+      if (((float)randi()/(float)(RAND_MAX))>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
+      unit->prob[iter]=((float)randi()/(float)(RAND_MAX));
 #else
-      unit->coeff[iter][i]=((float)rand()/4096.0f);
-      if (((float)rand()/4096.0f)>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
-      unit->prob[iter]=((float)rand()/4096.0f);
+      unit->coeff[iter][i]=((float)randi()/4096.0f);
+      if (((float)randi()/4096.0f)>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
+      unit->prob[iter]=((float)randi()/4096.0f);
 #endif
 
   unit->prob[0]=(float)workingbuffer[0]/65536.0;
@@ -617,7 +620,7 @@ void ifsinit(struct IFS* unit, uint16_t *workingbuffer){
 
 uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct IFS* unit){
 
-  float random_num;
+  float randiom_num;
   u8 iter,i,it,x;
   u8 column = 6, row = 4;
 
@@ -630,14 +633,14 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   if (++unit->del==delay){
 
 #ifdef PCSIM
-  random_num = (float)rand()/(float)(RAND_MAX);
+  randiom_num = (float)randi()/(float)(RAND_MAX);
 #else
-  random_num = (float)rand()/4096.0;
+  randiom_num = (float)randi()/4096.0;
 #endif
 
   for (x=0;x<howmuch;x++){
   for(i = 0; i < row; i++){
-    if ( BET(random_num,unit->prob[i],unit->prob[i+1]) ){
+    if ( BET(randiom_num,unit->prob[i],unit->prob[i+1]) ){
       unit->p2.x = unit->coeff[i][0]*unit->p1.x + unit->coeff[i][1]*unit->p1.y + unit->coeff[i][4];
       unit->p2.y = unit->coeff[i][2]*unit->p1.x + unit->coeff[i][3]*unit->p1.y + unit->coeff[i][5];
       break;
@@ -651,11 +654,11 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     //   unit->returnvaly=(int)((unit->p2.y)*1024);
   workingbuffer[count+x]=unit->p2.x;
   //  printf("%c",unit->p2.x);
-  /*    iter=rand()%row;
-    i=rand()%column;
-    unit->coeff[iter][i]=((float)rand()/(float)(RAND_MAX));
-    if (((float)rand()/(float)(RAND_MAX))>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
-    unit->prob[iter]=((float)rand()/(float)(RAND_MAX));
+  /*    iter=randi()%row;
+    i=randi()%column;
+    unit->coeff[iter][i]=((float)randi()/(float)(RANDI_MAX));
+    if (((float)randi()/(float)(RANDI_MAX))>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
+    unit->prob[iter]=((float)randi()/(float)(RANDI_MAX));
     unit->p1.x=0.5;
     unit->p1.y=0.5;*/
 }
@@ -1056,7 +1059,7 @@ void main(void)
   srand(time(NULL));
 
   for (x=0;x<MAX_SAM;x++){
-    xxx[x]=rand()%65536;
+    xxx[x]=randi()%65536;
   }
 
   // for Fitz? de-alloc?
