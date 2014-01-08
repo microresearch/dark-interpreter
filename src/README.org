@@ -32,29 +32,27 @@ up to limit
 
 - overlap and uint16 sizes for CPU.c (or somehow 2 sets options)
 - other TODOs from each file (eg. delay in simulation.c)
-- cleanups/fix adc code/test ADC now?
+- test lower board potis!
 
-then start on buffer/grain code, hardware tie-ins and ADCs
+*then start on buffer/grain code, hardware tie-ins and ADCs*
 
 * DONE
 
-
 - add ifdefs, includes etc. for PC/arm code compilation // fixing now
   compile optionsTEST-DONE
-
 - test new code/makefile that still actually runs! IT DOES!
-
+- cleanups/fix adc code/test ADC now?
 
 * WED 8 JAN 2014
 
 TODO:
 
-- all headers/prototypes fixed
-- new ADC - re-test with DMA// and replace RAND with ad620/floating
-  which is ADC 9-AD620 is on ADC1_IN11
+- new ADC - re-test with DMA// DONE - but need to test lower board alone!
+- replace RAND with ad620/floating
+  which is ADC 9-AD620 is on ADC1_IN11-DONE
+- all headers/prototypes fixed-NEARLY
 
 * TUE 7 JAN 2014
-
 
 - downloading new ARM toolchain as described on first site below.
 

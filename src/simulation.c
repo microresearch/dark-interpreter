@@ -27,7 +27,6 @@ Based in part on SLUGens by Nicholas Collins.
 
 */
 
-#include "simulation.h"
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -42,26 +41,20 @@ Based in part on SLUGens by Nicholas Collins.
 extern __IO uint16_t adc_buffer[10];
 #endif
 
+#include "simulation.h"
+
 /* TODO:
 
-- should howmuch be int or is u8 ok?
+- clean ups for inits/each function and test all
+- does NaN cause problems or not?
 
-- all/SIRs should have workingbuffer init!! TODO
+- check memory use! also use of free and how we will do all inits
 
-- check memory use!
-
-- increment counter for each simulation datagen through working
-   buffer (second rossler is example here)
-
-- !!!place workingbuffer init in init!!!
+/////resolved/////
 
 [- somehow declare offset for settings, or we store this somewhere]
-
-- add delay code for each
-
-- add re-init//trigger bit
-
-- does NaN cause problems or not?
+[- should howmuch be int or is u8 ok? probably leave as u8]
+[- return count+i or i? - count+i in all cases]
 
 */
 
@@ -69,7 +62,7 @@ extern __IO uint16_t adc_buffer[10];
 
 // sine
 
-void sineinit(struct siney* unit){
+void sineinit(struct siney* unit, uint16_t *workingbuffer){
   unit->del=unit->cc=0;
   float pi= 3.141592;
   float w;    // ψ
@@ -107,14 +100,14 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // generic arithmetik datagens 
 
-void geninit(struct generik* unit){
+void geninit(struct generik* unit, uint16_t *workingbuffer){
   unit->del=0;
-  unit->cop=1; // init with workingbuffer!!!
+  unit->cop=workingbuffer[0]; 
 }
 
 uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=unit->cop++;
 #ifdef PCSIM
@@ -128,7 +121,7 @@ uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 
 uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+i]=unit->cop--;
 #ifdef PCSIM
@@ -142,7 +135,7 @@ uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 
 uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]<<=1;
 #ifdef PCSIM
@@ -156,7 +149,7 @@ uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]>>=1;
 #ifdef PCSIM
@@ -170,7 +163,7 @@ uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8
 
 uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0; u16 temp;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     temp=workingbuffer[count+(u16)i];
     workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i+1];
@@ -186,7 +179,7 @@ uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]+1;
 #ifdef PCSIM
@@ -200,7 +193,7 @@ uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 
 uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]-1;
 #ifdef PCSIM
@@ -214,7 +207,7 @@ uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 
 uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]*=workingbuffer[count+(u16)i+1];
 #ifdef PCSIM
@@ -228,7 +221,7 @@ uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, ui
 
 uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     if ((workingbuffer[count+(u16)i+1])>0)   workingbuffer[count+(u16)i]/=workingbuffer[count+(u16)i+1];
 #ifdef PCSIM
@@ -243,7 +236,7 @@ uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 
 uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i+1]=workingbuffer[count+(u16)i];
 #ifdef PCSIM
@@ -257,7 +250,7 @@ uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i+1]=0;
 #ifdef PCSIM
@@ -344,14 +337,16 @@ void Runge_Kutta(struct simpleSIR* unit)
   return;
 }
 
-void simplesirinit(struct simpleSIR* unit){
+void simplesirinit(struct simpleSIR* unit, uint16_t *workingbuffer){
 
   //  unit->t=0;
 
   //TODO: init with workingbuffer
 
-  unit->beta=520.0/365.0;
-  unit->gamm=1.0/7.0;
+  //  unit->beta=520.0/365.0;
+  //  unit->gamm=1.0/7.0;
+  unit->beta=(float)workingbuffer[0]/65536.0;
+  unit->gamm=(float)workingbuffer[1]/65536.0;
   unit->S0=1.0-1e-6;
   unit->I0=1e-6;
   unit->step=0.01/((unit->beta+unit->gamm)*unit->S0);
@@ -361,11 +356,15 @@ void simplesirinit(struct simpleSIR* unit){
 
 uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct simpleSIR* unit){
 
-  u8 i;
+  u8 i=0;
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->I;
     //    printf("%c",unit->I);
+    
+  }
+  unit->del=0;
   }
   return count+i;
 
@@ -375,18 +374,20 @@ uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
 
 // SEIR. SIR
 
-void seirinit(struct SEIR* unit){
+void seirinit(struct SEIR* unit, uint16_t *workingbuffer){
   unsigned char i;
-unit->beta=17/5;
-unit->gamm=1.0/13;
-unit->n=13;
-unit->m=8;
-unit->mu=1.0/(55*365);
-unit->S0=0.05;
-unit->I0=0.00001;
-unit->step=0.01/(unit->beta+unit->gamm*unit->n+unit->mu);
+  //unit->beta=17/5;
+  //unit->gamm=1.0/13;
+  unit->beta=(float)workingbuffer[0]/65536.0;
+  unit->gamm=(float)workingbuffer[1]/65536.0;
+  unit->n=13;
+  unit->m=8;
+  unit->mu=1.0/(55*365);
+  unit->S0=0.05;
+  unit->I0=0.00001;
+  unit->step=0.01/(unit->beta+unit->gamm*unit->n+unit->mu);
 
- unit->S=unit->S0;
+  unit->S=unit->S0;
   for(i=0;i<unit->n;i++)
     {
       unit->I[i]=unit->I0/unit->n;
@@ -473,11 +474,14 @@ void seir_Runge_Kutta(struct SEIR* unit)
 
 uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct SEIR* unit){
 
-  u8 i;
+  u8 i=0;
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     seir_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->S;
     //    printf("%c",unit->S);
+  }
+  unit->del=0;
   }
   return count+i;
 }
@@ -486,11 +490,15 @@ uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // SICR. SIR
 
-void sicrinit(struct SICR* unit){
-unit->beta=0.2;
-unit->epsilon=0.1;
-unit->gamm=1.0/100.0;
-unit->Gamm=1.0/1000.0;
+void sicrinit(struct SICR* unit, uint16_t *workingbuffer){
+  //unit->beta=0.2;
+  //unit->epsilon=0.1;
+//unit->gamm=1.0/100.0;
+//unit->Gamm=1.0/1000.0;
+unit->beta=(float)workingbuffer[0]/65536.0;
+unit->epsilon=(float)workingbuffer[1]/655360.0;
+unit->gamm=(float)workingbuffer[2]/655360.0;
+unit->Gamm=(float)workingbuffer[3]/655360.0;
 unit->mu=1.0/(50.0*365.0);
 unit->q=0.4;
 unit->S0=0.1;
@@ -514,7 +522,7 @@ void sicrdiff(struct SICR* unit,float Pop[3])
 
 void sicr_Runge_Kutta(struct SICR* unit)
 {
-  u8 i;
+  u8 i=0;
   float dPop1[3], dPop2[3], dPop3[3], dPop4[3];
   float tmpPop[3], initialPop[3];
 
@@ -558,14 +566,16 @@ void sicr_Runge_Kutta(struct SICR* unit)
 
 uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct SICR* unit){
 
-  u8 i;
+  u8 i=0;
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     sicr_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count+i]=unit->S;
     //    printf("%d %d\n",count+i,unit->S);
   }
+  unit->del=0;
+  }
   return count+i;
-
 }
 
 
@@ -575,7 +585,7 @@ uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // IFS
 
-void ifsinit(struct IFS* unit){
+void ifsinit(struct IFS* unit, uint16_t *workingbuffer){
   u8 i,iter;
   u8 column = 6, row = 4;
   unit->p1.x=0.1;
@@ -595,6 +605,12 @@ void ifsinit(struct IFS* unit){
       if (((float)rand()/4096.0f)>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
       unit->prob[iter]=((float)rand()/4096.0f);
 #endif
+
+  unit->prob[0]=(float)workingbuffer[0]/65536.0;
+  unit->prob[1]=(float)workingbuffer[1]/65536.0;
+  unit->prob[2]=(float)workingbuffer[2]/65536.0;
+  unit->prob[3]=(float)workingbuffer[3]/65536.0;
+  unit->prob[4]=(float)workingbuffer[4]/65536.0;
     }
   }
 }
@@ -605,19 +621,13 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   u8 iter,i,it,x;
   u8 column = 6, row = 4;
 
-
   /*  ifs->prob[0]=0.0;
   ifs->prob[1]=0.85; 
   ifs->prob[2]=0.92; 
   ifs->prob[3]=0.99; 
   ifs->prob[4]=1.0; 
   */
-
-  unit->prob[0]=(float)workingbuffer[0]/65536.0;
-  unit->prob[1]=(float)workingbuffer[1]/65536.0;
-  unit->prob[2]=(float)workingbuffer[2]/65536.0;
-  unit->prob[3]=(float)workingbuffer[3]/65536.0;
-  unit->prob[4]=(float)workingbuffer[4]/65536.0;
+  if (++unit->del==delay){
 
 #ifdef PCSIM
   random_num = (float)rand()/(float)(RAND_MAX);
@@ -639,7 +649,7 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     //    unit->returnvalx=(int)((unit->p2.x)*1024);
   //  if (unit->p2.y>0.0)
     //   unit->returnvaly=(int)((unit->p2.y)*1024);
-  workingbuffer[count+x+5]=unit->p2.x;
+  workingbuffer[count+x]=unit->p2.x;
   //  printf("%c",unit->p2.x);
   /*    iter=rand()%row;
     i=rand()%column;
@@ -649,18 +659,24 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     unit->p1.x=0.5;
     unit->p1.y=0.5;*/
 }
-  return x;
+  unit->del=0;
+  }
+  return count+x;
 }
 
 //////////////////////////////////////////////////////////
 
 // ROSSLER
 
-void rosslerinit(struct Rossler* unit) {
-  unit->h = 0.1;
+void rosslerinit(struct Rossler* unit, uint16_t *workingbuffer) {
+  /*  unit->h = 0.1;
   unit->a = 0.3;
   unit->b = 0.2;
-  unit->c = 5.8;
+  unit->c = 5.8;*/
+
+  unit->h = (float)workingbuffer[0]/120536.0;
+  unit->a = (float)workingbuffer[1]/122536.0;
+  unit->b = (float)workingbuffer[2]/100536.0;
   unit->lx0 = 0.1;
   unit->ly0 = 0;
   unit->lz0 = 0;
@@ -669,19 +685,17 @@ void rosslerinit(struct Rossler* unit) {
 uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Rossler* unit){
   float lx0,ly0,lz0,lx1,ly1,lz1;
   //  float h,a,b,c;
-  u8 i;
+  u8 i=0;
 
   /* which unit to vary according to workingbuffer */
   // leave as so!
 
-  float  h = unit->h;
-  //  a = unit->a;
-  //  b = unit->b;
+  float h = unit->h;
+  float a = unit->a;
+  float b = unit->b;
   float c = unit->c;
 
-  //  float h = (float)workingbuffer[0]/120536.0;
-  float a = (float)workingbuffer[1]/122536.0;
-  float b = (float)workingbuffer[2]/100536.0;
+  if (++unit->del==delay){
 
   for (i=0; i<howmuch; i++) {
 
@@ -695,53 +709,55 @@ uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   unit->ly0 = ly1;
   unit->lz0 = lz1;
   //  printf("%d",lz1);
-  workingbuffer[count+i+3]=lx1;
+  workingbuffer[count+i]=lx1;
   //  workingbuffer[i+1]=ly1;
   //  workingbuffer[i+2]=lz1;
-
   }
-  return i;
+  unit->del=0;
+  }
+
+  return count+i;
 }
 
 //////////////////////////////////////////////////////////
 
 // 2nd rossler from: MCLDChaosUGens.cpp
 
-void secondrosslerinit(struct secondRossler* unit){
+void secondrosslerinit(struct secondRossler* unit, uint16_t *workingbuffer){
+  
+  unit->a = (float)workingbuffer[0]/65536.0;
+  unit->b = (float)workingbuffer[1]/65536.0;
+  unit->c = (float)workingbuffer[2]/65536.0;
+  unit->h = (float)workingbuffer[3]/65536.0;
+  unit->x0 = (float)workingbuffer[4]/65536.0;
+  unit->y0 = (float)workingbuffer[5]/65536.0;
+  unit->z0 = (float)workingbuffer[6]/65536.0;
 
   }
 
 uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct secondRossler* unit){
 
-  
-  float a = (float)workingbuffer[0]/65536.0;
-  float b = (float)workingbuffer[1]/65536.0;
-  float c = (float)workingbuffer[2]/65536.0;
-  float h = (float)workingbuffer[3]/65536.0;
-  float x0 = (float)workingbuffer[4]/65536.0;
-  float y0 = (float)workingbuffer[5]/65536.0;
-  float z0 = (float)workingbuffer[6]/65536.0;
+  u8 i=0;
 
-  float xn = unit->xn;
-  float yn = unit->yn;
-  float zn = unit->zn;
+  if (++unit->del==delay){
+    
+    float a=unit->a;
+    float b=unit->b;
+    float c=unit->b;
+    float h=unit->h;
+    float x0=unit->x0;
+    float y0=unit->y0;
+    float z0=unit->z0;
+
+      float xn = unit->xn;
+    float yn = unit->yn;
+    float zn = unit->zn;
   float xnm1 = unit->xnm1;
   float ynm1 = unit->ynm1;
   float znm1 = unit->znm1;
-  u8 i;
-	
-	if((unit->x0 != x0) || (unit->y0 != y0) || (unit->z0 != z0)){
-		xnm1 = xn;
-		ynm1 = yn;
-		znm1 = zn;
-		unit->x0 = xn = x0;
-		unit->y0 = yn = y0;
-		unit->z0 = zn = z0;
-	}
-
-	float dx = xn - xnm1;
-	float dy = yn - ynm1;
-	float dz = zn - znm1;
+  float dx = xn - xnm1;
+  float dy = yn - ynm1;
+  float dz = zn - znm1;
 
 	for (i=0; i<howmuch; ++i) {
 
@@ -788,7 +804,7 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 	/*		ZXP(xout) = (xnm1 + dx) * 0.5f;
 		ZXP(yout) = (ynm1 + dy) * 0.5f;
 		ZXP(zout) = (znm1 + dz) * 1.0f;*/
-			workingbuffer[count+i+7]=xnm1+dx;
+			workingbuffer[count+i]=xnm1+dx;
 			//			printf("%c",(xnm1+dx));
 	}
 	unit->xn = xn;
@@ -797,177 +813,185 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 	unit->xnm1 = xnm1;
 	unit->ynm1 = ynm1;
 	unit->znm1 = znm1;
-	return i;
+	unit->del=0;
+  }
+  return count+i;
 }
 
 //////////////////////////////////////////////////////////
 
 // BRUSSELATOR
 
-void brusselinit(struct Brussel* unit) {
+void brusselinit(struct Brussel* unit, uint16_t *workingbuffer) {
   unit->x = 0.5f; 
   unit->y = 0.5f; 
+  unit->delta = (float)workingbuffer[0]/65536.0;
+  unit->mu = (float)workingbuffer[1]/65536.0;
+  unit->gamma = (float)workingbuffer[2]/65536.0;
+  unit->del=0;
 }
 
-void runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Brussel* unit){
+uint16_t runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Brussel* unit){
     
-  float delta = (float)workingbuffer[0]/65536.0;
-  float mu = (float)workingbuffer[1]/65536.0;
-  float gamma = (float)workingbuffer[2]/65536.0;
+  float dx, dy; 
+  
+  u8 i=0;
+
+  if (++unit->del==delay){
+  float muplusone = 1.0f+unit->mu; 
   float x= unit->x; 
   float y= unit->y;  
-    
-    float dx, dy; 
-    
-    float muplusone = 1.0f+mu; 
-    u8 i;
-
     for (i=0; i<howmuch; ++i) {
 		
-        float temp = x*x*y; 
+      float temp = x*x*y; 
         
-        dx = temp - (muplusone*x) + gamma;
-        dy =  (mu*x)  - temp; 
+        dx = temp - (muplusone*x) + unit->gamma;
+        dy =  (unit->mu*x)  - temp; 
         
-        x += delta*dx; 
-        y += delta*dy; 
-        
-	//	output1[i]= x; 
-	//        output2[i]= y; 
-		
+        x += unit->delta*dx; 
+        y += unit->delta*dy; 
+	workingbuffer[count+(u16)i]=x*65536.0;
 	}
-	
+#ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-	
-	unit->x = x; 
-	unit->y = y;
+    printf("%d\n",workingbuffer[count+(u16)i]); 
+#endif
+    unit->del=0;
+    unit->x = x; 
+    unit->y = y;
+  }
+  return count+i;
 }
 
 //////////////////////////////////////////////////////////
 
 // spruceworm
 
-void spruceinit(struct Spruce* unit ) {
+void spruceinit(struct Spruce* unit, uint16_t *workingbuffer) {
 	
   unit->x = 0.9f; 
   unit->y = 0.1f; 
+  unit->k1 = (float)workingbuffer[0]/65536.0;
+  unit->k2 = (float)workingbuffer[1]/65536.0;
+  unit->alpha = (float)workingbuffer[2]/65536.0;
+  unit->beta = (float)workingbuffer[3]/65536.0;
+  unit->mu = (float)workingbuffer[4]/65536.0;
+  unit->rho = (float)workingbuffer[5]/65536.0;
+  unit->delta = (float)workingbuffer[6]/65536.0;
 }
 
-void runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Spruce* unit){
+uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Spruce* unit){
 
-  float k1 = (float)workingbuffer[0]/65536.0;
-  float k2 = (float)workingbuffer[1]/65536.0;
-  float alpha = (float)workingbuffer[2]/65536.0;
-  float beta = (float)workingbuffer[3]/65536.0;
-  float mu = (float)workingbuffer[4]/65536.0;
-  float rho = (float)workingbuffer[5]/65536.0;
-  float delta = (float)workingbuffer[6]/65536.0;
+  float dx, dy; 
+  u8 i=0;
 
-    
+  if (++unit->del==delay){
     float x= unit->x; 
     float y= unit->y;  
-    
-    float dx, dy; 
-    u8 i;
 
 	for (i=0; i<howmuch; ++i) {
 		
         float temp = y*y; 
-        float temp2 = beta*x;
+        float temp2 = unit->beta*x;
         
-        dx = (k1* x* (1.0-x)) - (mu*y);
-        dy = (k2*y*(1.0- (y/(alpha*x))))  - (rho*(temp/(temp2*temp2 +  temp))); 
-        
-        
-        x += delta*dx; 
-        y += delta*dy; 
-        
-	//	output1[i]= x; 
-	//        output2[i]= y; 
-		
+        dx = (unit->k1* x* (1.0-x)) - (unit->mu*y);
+        dy = (unit->k2*y*(1.0- (y/(unit->alpha*x))))  - (unit->rho*(temp/(temp2*temp2 +  temp))); 
+        x += unit->delta*dx; 
+        y += unit->delta*dy; 
 	}
 	
-	//	printf("spruce: x %f y %f z %f\n",x,y); 
-	
-	unit->x = x; 
-	unit->y = y;
+  unit->del=0;
+  unit->x = x; 
+  unit->y = y;
+#ifdef PCSIM
+  	printf("spruce: x %f y %f z %f\n",x,y); 
+#endif
+  }
+  return count+i;
 }
 
 //////////////////////////////////////////////////////////
 
 // OREGONATOR
 
-void oregoninit(struct Oregon* unit) {
+void oregoninit(struct Oregon* unit, uint16_t *workingbuffer) {
     unit->x = 0.5f; 
     unit->y = 0.5f; 
     unit->z = 0.5f; 
+    unit->delta = (float)workingbuffer[0]/65536.0;
+    unit->epsilon = (float)workingbuffer[1]/65536.0;
+    unit->mu = (float)workingbuffer[2]/65536.0;
+    unit->q = (float)workingbuffer[3]/65536.0;
+
 }
 
-void runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Oregon* unit){
-    
-  float delta = (float)workingbuffer[0]/65536.0;
-  float epsilon = (float)workingbuffer[1]/65536.0;
-  float mu = (float)workingbuffer[2]/65536.0;
-  float q = (float)workingbuffer[3]/65536.0;
-    
+uint16_t runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Oregon* unit){
+  
+  float dx, dy, dz; 
+  u8 i=0;
+  
+  if (++unit->del==delay){
+
   float x= unit->x; 
   float y= unit->y; 
   float z= unit->z; 
-    
-  float dx, dy, dz; 
-        
-  u8 i;
 	for (i=0; i<howmuch; ++i) {
 		
-        dx = epsilon*((q*y) -(x*y) + (x*(1-x))); 
-	dy = mu* (-(q*y) -(x*y) + z); 
+        dx = unit->epsilon*((unit->q*y) -(x*y) + (x*(1-x))); 
+	dy = unit->mu* (-(unit->q*y) -(x*y) + z); 
         dz = x-y; 
         
-        x += delta*dx; 
-        y += delta*dy; 
-        z += delta*dz; 
+        x += unit->delta*dx; 
+        y += unit->delta*dy; 
+        z += unit->delta*dz; 
         
 	//	output1[i]= x; 
 	//        output2[i]= y; 
 	//        output3[i]= z; 
-		
+	workingbuffer[count+(u16)i]=x*65536.0;
 	}
-	
-	//	printf("Oregonator: x %f y %f z %f\n",x,y,z); 
-	
+#ifdef PCSIM
+	printf("Oregonator: x %f y %f z %f\n",x,y,z); 
+#endif
 	unit->x = x; 
 	unit->y = y;
 	unit->z = z;
+	unit->del=0;
+}
+return count+i;
 }
 
 //////////////////////////////////////////////////////////
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
 
-void fitzinit(struct Fitz* unit) {
+void fitzinit(struct Fitz* unit, uint16_t *workingbuffer) {
 	unit->u=0.0;
 	unit->w=0.0;
+	//	unit->b0= 1.4;
+	//	unit->b1= 1.1;
+	unit->b0=(float)workingbuffer[0]/32768.0;
+	unit->b1=(float)workingbuffer[1]/32768.0;
 }
 
-void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit){
+uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit){
 
   /* SETTINGS */
 
   float urate= 0.7;
   float wrate= 1.7;
-  float b0= 1.4;
-  float b1= 1.1;
   float u,w;
+  u8 x=0;
+
+  if (++unit->del==delay){
 
   u=unit->u;
   w=unit->w;
 
-  u8 x;
-
   for (x=0;x<howmuch;x++){
 
     float dudt= urate*(u-(0.33333*u*u*u)-w);
-    float dwdt= wrate*(b0+b1*u-w);
+    float dwdt= wrate*(unit->b0+unit->b1*u-w);
 	  
     u+=dudt;
     w+=dwdt;
@@ -976,13 +1000,19 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
 
     int z=((float)(u)*1500);
     //    int zz=((float)(w)*1500);
-    workingbuffer[x]=z;//workingbuffer[x+2]=zz;
+    workingbuffer[count+x]=z;//workingbuffer[x+2]=zz;
+#ifdef PCSIM
+    //    printf("brussels: x %f y %f\n",x,y); 
+    printf("%d\n",workingbuffer[count+x]); 
+#endif
+
   }
+  count+=x;
 
   for (x=0;x<howmuch;x++){
 
     float dudt= urate*(u-(0.33333*u*u*u)-w);
-    float dwdt= wrate*(b0+b1*u-w);
+    float dwdt= wrate*(unit->b0+unit->b1*u-w);
 
     u+=dudt;
     w+=dwdt;
@@ -991,13 +1021,13 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
 
     int z=((float)(u)*700);
     int zz=((float)(w)*700);
-    //		workingbuffer[x+howmuch]=z;//deltay[x]=zz;
+    workingbuffer[count+x]=z;//deltay[x]=zz;
   }
-
+  count+=x;
   for (x=0;x<howmuch;x++){
 
     float dudt= urate*(u-(0.33333*u*u*u)-w);
-    float dwdt= wrate*(b0+b1*u-w);
+    float dwdt= wrate*(unit->b0+unit->b1*u-w);
 
     u+=dudt;
     w+=dwdt;
@@ -1006,14 +1036,17 @@ void runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t ho
 
     int z=((float)(u)*3600);
     //		workingbuffer[x+(howmuch*2)]=z;
-    workingbuffer[x]=z;
+    workingbuffer[count+x]=z;
   }
   unit->u=u;
   unit->w=w;
-}
+  unit->del=0;
+  }
+  return count+x;
+  }
 
 #ifdef PCSIM
-//void main(int argc, char **argv)
+
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
@@ -1027,38 +1060,29 @@ void main(void)
   }
 
   // for Fitz? de-alloc?
-  //  struct Fitz *unit=malloc(sizeof(struct Fitz));
-  //  struct Oregon *unit=malloc(sizeof(struct Oregon));
-  //  struct Spruce *unit=malloc(sizeof(struct Spruce));
-  //  struct Brussel *unit=malloc(sizeof(struct Brussel));
+    struct Fitz *unit=malloc(sizeof(struct Fitz));
+  //    struct Oregon *unit=malloc(sizeof(struct Oregon));
+  //    struct Spruce *unit=malloc(sizeof(struct Spruce));
+  //    struct Brussel *unit=malloc(sizeof(struct Brussel));
   //  struct Rossler *unit=malloc(sizeof(struct Rossler));
   //  struct secondRossler *unit=malloc(sizeof(struct secondRossler));
   //  struct IFS *unit=malloc(sizeof(struct IFS));
   //  struct simpleSIR *unit=malloc(sizeof(struct simpleSIR));
   //    struct SEIR *unit=malloc(sizeof(struct SEIR));
-      struct SICR *unit=malloc(sizeof(struct SICR));
+  //      struct SICR *unit=malloc(sizeof(struct SICR));
   //  struct siney *unit=malloc(sizeof(struct siney));
-  //  fitzinit(unit);
-  //  oregoninit(unit);
-  //  spruceinit(unit); 
-  //  brusselinit(unit); 
-  // rosslerinit(unit)
-  //  secondrosslerinit(unit);
-  //  ifsinit(unit);
-  //  simplesirinit(unit);
-  //  geninit(unit);
-  //sineinit(unit);
-        sicrinit(unit);
-    //    seirinit(unit);
-  //  printf("%f",(float)xxx[0]/65536.0);
+  //  spruceinit(unit,xxx); 
+    fitzinit(unit,xxx); 
+    //  brusselinit(unit,xxx); 
+
         while(1){ 
-	  //	  count=runsecondrossler(count,10,10,xxx,10,unit);
-	  //	  count=runifs(count,10,10,xxx,10,unit);
-	  //	  count=runsimplesir(count,10,10,xxx,10,unit);
+	  //	  count=runoregon(count,1,xxx,1,unit);
+	  count=runfitz(count,1,xxx,1,unit);
+
 	  //	  count=runseir(count,10,xxx,10,unit);
-	  	  count=runsicr(count,10,xxx,10,unit);
+	  //	  count=runsicr(count,10,xxx,10,unit);
 	  //	  count=runsine(count,1,xxx,10,unit);
-	  //	  printf("%d\n",count);
+	  //	  	  printf("count %d\n",count);
 	  /*	  for (x=3;x<13;x++){
 	    printf("%c",xxx[x]>>8);
 	    }*/

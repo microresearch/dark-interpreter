@@ -4,9 +4,6 @@
 #include "stdlib.h"
 #endif
 
-typedef unsigned char u8;
-typedef uint16_t u16;
-
 #define true 1
 #define false 0
 #define MAX_SAM 65536
@@ -14,6 +11,9 @@ typedef uint16_t u16;
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16
+
+typedef unsigned char u8;
+typedef uint16_t u16;
 
 struct siney{
   u8 del;
@@ -34,6 +34,7 @@ struct simpleSIR{
   float step;
   float S,I,R;
   float dPop[3];
+  u8 del;
 };
 
 struct SEIR {
@@ -46,6 +47,7 @@ struct SEIR {
   float S0,I0;
   float S,I[MAX_GROUPS]; // 4x8x16=512bytes
   float dPop[MAX_GROUPS+1];//4x9=36bytes
+  u8 del;
 };
 
 struct SICR {
@@ -61,39 +63,51 @@ struct SICR {
   float t,S,I,C,R;
   float dPop[3];
   float step;
+  u8 del;
 };
 
 typedef struct{ float x, y; } Point;
 
 struct IFS {
-	float prob[5];
-	float coeff[4][6];
-	Point p1,p2;
+  float prob[5];
+  float coeff[4][6];
+  Point p1,p2;
+  u8 del;
 	};
 
 struct Rossler{
   float h,a,b,c,lx0,ly0,lz0;
+  u8 del;
 };
 
 struct secondRossler{
   float z0, zn, znm1;
+  float a,b,c,h;
   float x0, y0, xn, yn, xnm1, ynm1;
+  u8 del;
 };
 
 struct Brussel{
-    float x,y; 
+  float x,y; 
+  float delta,mu,gamma;
+  u8 del;
 };
 
 struct Spruce{
-    float x, y; 
+  float x, y; 
+  float k1,k2,alpha,beta,mu,rho,delta;
+  u8 del;
 };
 
 struct Oregon
 {
   float x, y, z; 
+  float delta,epsilon,mu,q;
+  u8 del;
 };
 
 struct Fitz
 {
-	float u,w;
+  float u,w,b0,b1;
+  u8 del;
 };
