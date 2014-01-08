@@ -30,17 +30,28 @@ up to limit
 
 * TODO
 
-- add ifdefs, includes etc. for PC/arm code compilation // fixing now compile options
 - overlap and uint16 sizes for CPU.c (or somehow 2 sets options)
 - other TODOs from each file (eg. delay in simulation.c)
 - cleanups/fix adc code/test ADC now?
 
 then start on buffer/grain code, hardware tie-ins and ADCs
 
+* DONE
+
+
+- add ifdefs, includes etc. for PC/arm code compilation // fixing now
+  compile optionsTEST-DONE
+
+- test new code/makefile that still actually runs! IT DOES!
+
 
 * WED 8 JAN 2014
 
-- test new code that actually runs!
+TODO:
+
+- all headers/prototypes fixed
+- new ADC - re-test with DMA// and replace RAND with ad620/floating
+  which is ADC 9-AD620 is on ADC1_IN11
 
 * TUE 7 JAN 2014
 
@@ -77,6 +88,13 @@ https://my.st.com/public/STe2ecommunities/mcu/Lists/STM32Discovery/Flat.aspx?Roo
 
 https://wiki.debian.org/ArmHardFloatPort/VfpComparison#A.22softfp.22
 
+//just to rewind: was compiling fine with hard from brombaugh makefile
+before rand (to replace) and fmod, malloc...
+
+Note: for toolchain following triplespark below but _without_ dev branch (just as:
+
+:  git clone git://github.com/esden/summon-arm-toolchain
+
 * MON 6 JAN 2014
 
 - question of malloc, sin, rand(replace with ADC), fmod, also with array init!
@@ -85,7 +103,7 @@ hardware floating point issue see:
 
 http://www.triplespark.net/elec/pdev/arm/stm32.html
 
-UNSOLVED: other refs:
+SOLVED: other refs:
 
 http://www.eevblog.com/forum/microcontrollers/stm32f4-arm-none-eabi-gcc-not-linking-to-math/
 
@@ -101,10 +119,6 @@ http://balau82.wordpress.com/2010/12/16/using-newlib-in-arm-bare-metal-programs/
 https://sites.google.com/site/stm32discovery/open-source-development-with-the-stm32-discovery/getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
 
 http://embdev.net/topic/266617
-
-TODO: test new compiling, FPU testbed!, what to do with fmod and malloc issues:
-
-malloc do static, fmod????
 
 * FRI 3 JAN 2014
 

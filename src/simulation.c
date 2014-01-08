@@ -27,31 +27,20 @@ Based in part on SLUGens by Nicholas Collins.
 
 */
 
+#include "simulation.h"
 #ifdef PCSIM
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include <malloc.h>
-
 #else
 #include <malloc.h>
 #include <math.h>
-#include "leaky.h"
+#define rand() (adc_buffer[9])
+extern __IO uint16_t adc_buffer[10];
 #endif
-
-typedef unsigned char u8;
-typedef uint16_t u16;
-
-#define true 1
-#define false 0
-#define MAX_SAM 65536
-#define floor(x) ((int)(x))
-#define HEX__(n) 0x##n##UL
-#define ONESIXTH 0.1666666666666667
-#define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 
 /* TODO:
 
@@ -79,12 +68,6 @@ typedef uint16_t u16;
 //////////////////////////////////////////////////////////
 
 // sine
-
-struct siney{
-  u8 del;
-  u16 sin_data[256];  // sine LUT Array
-  u16 cc;
-};
 
 void sineinit(struct siney* unit){
   unit->del=unit->cc=0;
@@ -123,11 +106,6 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 //////////////////////////////////////////////////////////
 
 // generic arithmetik datagens 
-
-struct generik{
-  u8 del;
-  u16 cop;
-};
 
 void geninit(struct generik* unit){
   unit->del=0;
@@ -309,16 +287,6 @@ see also: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
  */
 
-struct simpleSIR{
-  float beta;//=520.0/365.0;
-  float gamm;//=1.0/7.0;
-  float S0;//=1.0-1e-6;
-  float I0;//=1e-6;
-  float step;
-  float S,I,R;
-  float dPop[3];
-};
-
 void Diff(struct simpleSIR* unit,float Pop[3])
 {
   float tmpS, tmpI, tmpR;
@@ -328,7 +296,6 @@ void Diff(struct simpleSIR* unit,float Pop[3])
   unit->dPop[1] = unit->beta*tmpS*tmpI - unit->gamm*tmpI;   // dI/dt
   unit->dPop[2] = unit->gamm*tmpI;                    // dR/dt
 }
-
 
 void Runge_Kutta(struct simpleSIR* unit)
 {
@@ -407,20 +374,6 @@ uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
 //////////////////////////////////////////////////////////
 
 // SEIR. SIR
-
-#define MAX_GROUPS 16
-
-struct SEIR {
-  float beta;
-  float step;
-  float gamm;
-  int n;
-  int m;
-  float mu;
-  float S0,I0;
-  float S,I[MAX_GROUPS]; // 4x8x16=512bytes
-  float dPop[MAX_GROUPS+1];//4x9=36bytes
-};
 
 void seirinit(struct SEIR* unit){
   unsigned char i;
@@ -533,21 +486,6 @@ uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // SICR. SIR
 
-struct SICR {
-  float beta;
-  float epsilon;
-  float gamm;
-  float Gamm; 
-  float mu;
-  float q;
-  float S0;
-  float I0;
-  float C0;
-  float t,S,I,C,R;
-  float dPop[3];
-  float step;
-};
-
 void sicrinit(struct SICR* unit){
 unit->beta=0.2;
 unit->epsilon=0.1;
@@ -637,14 +575,6 @@ uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // IFS
 
-typedef struct{ float x, y; } Point;
-
-struct IFS {
-	float prob[5];
-	float coeff[4][6];
-	Point p1,p2;
-	};
-
 void ifsinit(struct IFS* unit){
   u8 i,iter;
   u8 column = 6, row = 4;
@@ -655,9 +585,16 @@ void ifsinit(struct IFS* unit){
     for (i=0;i<column;i++){
       //      iter=rand()%row;
       //      i=rand()%column;
+
+#ifdef PCSIM
       unit->coeff[iter][i]=((float)rand()/(float)(RAND_MAX));
       if (((float)rand()/(float)(RAND_MAX))>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
       unit->prob[iter]=((float)rand()/(float)(RAND_MAX));
+#else
+      unit->coeff[iter][i]=((float)rand()/4096.0f);
+      if (((float)rand()/4096.0f)>0.5) unit->coeff[iter][i]= unit->coeff[iter][i]-1;
+      unit->prob[iter]=((float)rand()/4096.0f);
+#endif
     }
   }
 }
@@ -682,7 +619,11 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   unit->prob[3]=(float)workingbuffer[3]/65536.0;
   unit->prob[4]=(float)workingbuffer[4]/65536.0;
 
+#ifdef PCSIM
   random_num = (float)rand()/(float)(RAND_MAX);
+#else
+  random_num = (float)rand()/4096.0;
+#endif
 
   for (x=0;x<howmuch;x++){
   for(i = 0; i < row; i++){
@@ -714,10 +655,6 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 //////////////////////////////////////////////////////////
 
 // ROSSLER
-
-struct Rossler{
-  float h,a,b,c,lx0,ly0,lz0;
-};
 
 void rosslerinit(struct Rossler* unit) {
   unit->h = 0.1;
@@ -769,11 +706,6 @@ uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 //////////////////////////////////////////////////////////
 
 // 2nd rossler from: MCLDChaosUGens.cpp
-
-struct secondRossler{
-  float z0, zn, znm1;
-  float x0, y0, xn, yn, xnm1, ynm1;
-};
 
 void secondrosslerinit(struct secondRossler* unit){
 
@@ -872,10 +804,6 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 
 // BRUSSELATOR
 
-struct Brussel{
-    float x,y; 
-};
-
 void brusselinit(struct Brussel* unit) {
   unit->x = 0.5f; 
   unit->y = 0.5f; 
@@ -918,10 +846,6 @@ void runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 //////////////////////////////////////////////////////////
 
 // spruceworm
-
-struct Spruce{
-    float x, y; 
-};
 
 void spruceinit(struct Spruce* unit ) {
 	
@@ -973,11 +897,6 @@ void runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t 
 
 // OREGONATOR
 
-struct Oregon
-{
-  float x, y, z; 
-};
-
 void oregoninit(struct Oregon* unit) {
     unit->x = 0.5f; 
     unit->y = 0.5f; 
@@ -1024,11 +943,6 @@ void runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t 
 //////////////////////////////////////////////////////////
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
-
-struct Fitz
-{
-	float u,w;
-};
 
 void fitzinit(struct Fitz* unit) {
 	unit->u=0.0;

@@ -1,5 +1,3 @@
-# Makefile for STM32F4
-# 11-10-2011 E. Brombaugh
 
 TOOL_PREFIX = /opt/ARM/arm-linaro-eabi-4.6
 
@@ -14,7 +12,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
-			audio.o hardware.o simulation.o CPU.o
+			audio.o hardware.o simulation.o CPU.o CA.o
 
 # Linker script
 #LDSCRIPT = stm32f407.ld

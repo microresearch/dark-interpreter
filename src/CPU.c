@@ -1,7 +1,7 @@
 // was leaky.c
 //gcc -DLINUX -std=gnu99 leaky.c -o leaky
 
-#include "leaky.h"
+#include "CPU.h"
 
 #ifdef PCSIM
 #include <stdio.h>
@@ -12,7 +12,10 @@
 #else
 #include <malloc.h>
 #include <math.h>
+#define rand() (adc_buffer[9])
+extern __IO uint16_t adc_buffer[10];
 #endif
+
 /* 
 
 
@@ -67,6 +70,8 @@ TOTAL so far: 23 CPUs
 */
 
 //int HEAP_SIZE=20400; // see above (80*255)
+
+void leak(machine *m);
 
 void thread_create(thread *this, int start, uint8_t which) {
     this->m_CPU=which;
@@ -1059,6 +1064,9 @@ void machine_run(machine* this) {
 	for (unsigned char n=0; n<MAX_THREADS; n++) {
 		thread_run(&this->m_threads[n],this);
 	}
+      if (rand()%20==0) {
+  	leak(this);
+  	}
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1105,10 +1113,6 @@ int main(void)
 
   while(1) {
       machine_run(m);
-      if (rand()%20==0) {
-  	leak(m);
-  	}
-
   }
 }
 #endif

@@ -2,28 +2,28 @@
 
 // runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
+#include "CA.h"
+#ifdef PCSIM
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include "leaky.h"
+#else
+#define rand() (adc_buffer[9])
+extern __IO uint16_t adc_buffer[10];
+#endif
 
 /* TODO D.I:
 
-ADD SIR code
+ADD  16 bit SIR code
 
 */
 
 //////////////////////////////////////////
 
 // hodge from microbd simplified with circular buffer and init
-
-struct hodge{
-  u8 q,k1,k2,g,celllen;
-  u16 x;
-};
 
 void hodgeinit(struct hodge* unit, u8* cells){
   unit->q=cells[0];unit->k1=cells[1];unit->k2=cells[2];unit->g=cells[3];
@@ -61,7 +61,7 @@ uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
     cells[y] = unit->q - 1;
 
   x++;
-  printf("%c",cells[x]);
+  //  printf("%c",cells[x]);
   }
   return x;
 }
@@ -114,7 +114,7 @@ uint16_t runhodgenet(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, str
     cells[y] = unit->q;
 
   x++;
-  printf("%c",cells[y]);
+  //  printf("%c",cells[y]);
   }
   return x;
 }
@@ -122,10 +122,6 @@ uint16_t runhodgenet(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, str
 //////////////////////////////////////////
 
 //life - 2d CA - these all now use CA struct
-
-struct CA{
-  u8 celllen,rule;
-};
 
 void cainit(struct CA* unit, u8* cells){
   unit->celllen=cells[0];
@@ -148,7 +144,7 @@ uint16_t runlife(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct 
   else if ((cells[x]&1)==0 && sum==3) cells[y]=255;
   else cells[y]=cells[x];
 
-  printf("%c",cells[x]);
+  //  printf("%c",cells[x]);
   x++;
   }
   return i;
@@ -178,7 +174,7 @@ uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct C
       else{
 	cells[x+i+unit->celllen] = 0;
       } 
-      printf("%c",cells[x+i+unit->celllen]);
+      //      printf("%c",cells[x+i+unit->celllen]);
   }
   return i;
 }
@@ -231,7 +227,7 @@ uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 
     cells[x+i+unit->celllen]= table[sum]<<4; 
 
-    printf("%c",table[sum]<<4);
+    //    printf("%c",table[sum]<<4);
   }
 
   return i;
@@ -240,10 +236,6 @@ uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 //////////////////////////////////////////
 
 //forest fire
-
-struct fire{
-  u8 probB,probI,celllen;
-};
 
 void fireinit(struct fire* unit, u8* cells){
   unit->probB=cells[0]/32;
@@ -267,7 +259,7 @@ uint16_t runfire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct 
     else if ((cells[x]&1)==0 && rand()%255<=(sum*unit->probI)) cells[y]=cells[x]|1;  //veg->burning
     else if ((cells[x]&1)==1 && rand()%255<=unit->probB) cells[y]=254; // burning->burnt
     else cells[y]=cells[x];
-    printf("%c",cells[y]);
+    //    printf("%c",cells[y]);
     x++;
   }
   return i;
@@ -326,7 +318,7 @@ uint16_t runwire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct 
     else if (cells[x]==255) cells[y]=129;  // tail to copper
     else if (cells[x]>128 && headcount(unit,cells,x)==1) cells[y]=1;
     else cells[y]=cells[x];
-    printf("%c",cells[y]);
+    //    printf("%c",cells[y]);
     x++;
   }
   return i;
@@ -357,10 +349,6 @@ prob, birth death, virus morbidity, contact infection prob, vectored
 infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
-
-struct SIR{
-  u8 probI,probD,celllen;
-};
 
 void SIRinit(struct SIR* unit, u8* cells){
   unit->probD=cells[0]/32;
@@ -399,7 +387,7 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
     else cells[y]=cells[x]; // blank cells
 
 
-    printf("%c",cells[y]);
+    //    printf("%c",cells[y]);
     x++;
   }
   return i;
@@ -443,6 +431,7 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 
 //////////////////////////////////////////
 
+#ifdef PCSIM
 int main(void)
 {
   int x;
@@ -469,3 +458,4 @@ int main(void)
 
     }
 }
+#endif
