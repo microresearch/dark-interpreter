@@ -421,7 +421,7 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
 
 //////////////////////////////////////////
 
-/* 16 bit SIR with 4 4-bit fields:
+/* 16 bit SIR with 4x 4-bit fields:
 
 -total pop
 -S pop

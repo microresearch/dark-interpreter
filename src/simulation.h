@@ -6,7 +6,7 @@
 
 #define true 1
 #define false 0
-#define MAX_SAM 65536
+#define MAX_SAM 32768
 #define floor(x) ((int)(x))
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */

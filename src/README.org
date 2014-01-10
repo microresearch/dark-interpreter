@@ -19,7 +19,7 @@ NOTE-==memory management/areas refresh==
 
 3 blocks SRAM : 112KB + 16KB + 64KB (64 is ccmdata see delay code)
 
-use 112KB+16 for general/96K sample buffer (1 second)
+use 112KB+16 for general/sample buffer (int pointer to int will use 128k?)
 
 //how access 2nd block????
 
@@ -32,7 +32,7 @@ up to limit
 
 - test lower board potis!
 
-*then start on buffer/grain code, hardware tie-ins and ADCs*
+*then start on buffer/grain code, hardware tie-ins*
 
 should have datagen->all hardware switch code!
 
@@ -44,25 +44,40 @@ should have datagen->all hardware switch code!
 - cleanups/fix adc code/test ADC now?
 - replace RAND with ad620/floating-DONE
   which is ADC 9-AD620 is on ADC1_IN11-DONE
+- overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
+  working in CPUint.cDONE - do we need two versions?
+
+* FRI 10 JAN 2014
+
+- delay for each cpu
+- test pointers to int/char
+
+* THU 9 JAN 2014
+
+- oops we can't store 65536 ints for simulation.c (only)! FIXED
+  with overflow of 800 bytes to save on mods...
 
 * WED 8 JAN 2014
 
 TODO:
 
-- overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
-  working in CPUint.cDONE - do we need two versions?
+- TODOs from each file
+- new ADC - re-test with DMA// DONE - but need to test lower board alone!TODO
+- for lone lower board hardware.c sans hanging - IFDEF!
 
-- other TODOs from each file simulation.c:
-
-add some stuff
-
-- new ADC - re-test with DMA// DONE - but need to test lower board alone!
+- changing sample rates only possible for usual 44.1, 16, 48, 96, 8, 88.2 KHz
 
 * TUE 7 JAN 2014
+
+RESOLVED with latest makefile
+
+- now with all flags works with -mfloat-abi=hard
 
 - downloading new ARM toolchain as described on first site below.
 
 - note also that we changed all doubles to floats in simulation.c
+
+//older...>
 
 // so after new toolchain only compiles if we use:
 
@@ -81,10 +96,6 @@ undefined reference to `_sbrk
 - now solved with additions:
 
 : LFLAGS_END = -lm -lc -Wl,--gc-sections
-
-latest makefile
-
-- now with all flags works with -mfloat-abi=hard
 
 perhaps useful for ref: http://www.embedded.com/design/mcus-processors-and-socs/4007119/Building-Bare-Metal-ARM-Systems-with-GNU-Part-1--Getting-Started
 
@@ -718,7 +729,7 @@ coding:
 
 * issues
 
-NEW DESIGN!
+NEW DESIGN fixs!
 
 - audio bleed is through 4066 feedback switch (even when off - perhaps
   add resistor to signal path (pin 2) - TEST! - with 10k is very
@@ -742,7 +753,7 @@ to change design so for first 10 leave without feedback path!)
 connection on own board is VDD, SCLCK, SWDIO, GND (so last 2 are
 swapped from STLINK board)
 
-* TODO:
+* older TODO:
 
 0- all code structure with headersDONE
 

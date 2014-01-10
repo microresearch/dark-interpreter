@@ -37,7 +37,7 @@ static const u8 MAX_THREADS=120;
 #define INP 24
 
     typedef struct {
-      u8 m_CPU;
+      u8 m_CPU, m_del,m_delc;
       u16 m_reg16bit1; u16 m_reg16bit2;
       u8 m_reg8bit1; u8 m_reg8bit2; u8 m_reg8bit3; u8 m_reg8bit4;
       uint16_t m_start;

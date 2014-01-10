@@ -1,5 +1,7 @@
 // was CPU.c but now with overlap, uint16_t blah
 
+// void cpustackpush(machine *this, u16 address, u8 cputype, u8 delay)
+
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -40,6 +42,11 @@ Based in part on spork factory by Dave Griffiths.
 
 /* TODO:
 
+   cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
+   // here we can also do so that they follow consequtively and
+   // also pass wrap and other params? ???TODO???
+   // also pass biotadir for 8bit 16bit
+
 - cpus link to grains - some variable/array for exchange of grains/cpu
   start-end positions
 
@@ -63,9 +70,9 @@ TOTAL so far: 24 CPUs (0-23)
 
 void leak(machine *m);
 
-void thread_create(thread *this, u16 address, uint8_t which) { // ??? or we steer each of these?
+void thread_create(thread *this, u16 address, uint8_t which, u8 delay) { // ??? or we steer each of these?
     this->m_CPU=which;
-
+    this->m_del=delay; this->m_delc=0;
     this->m_start=address;
 
 #ifdef PCSIM
@@ -87,10 +94,10 @@ void thread_create(thread *this, u16 address, uint8_t which) { // ??? or we stee
       }
 }
 
-void cpustackpush(machine *this, u16 address, u8 cputype){
+void cpustackpush(machine *this, u16 address, u8 cputype, u8 delay){
   if (this->m_threadcount==MAX_THREADS) return;
   else {
-    thread_create(&this->m_threads[this->m_threadcount], address, cputype);// last is CPU type!
+    thread_create(&this->m_threads[this->m_threadcount], address, cputype,delay);// last is CPU type!
   this->m_threadcount++;
   }
 }
@@ -130,6 +137,7 @@ void thread_run(thread* this, machine *m) {
 
 #endif
 
+  if (++this->m_delc==this->m_del){
   switch(this->m_CPU)
     {
     case 0: // :LEAKY STACK! - working!
@@ -625,7 +633,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],6);
+	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],6,this->m_del);
 	break;
       case 27:
 	this->m_pc+=3;
@@ -1045,7 +1053,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 23:
       // from wormcode.c
       instr=machine_peek(m,this->m_pc);
-      switch(instr%10)
+      switch(instr%14)
 	{
 	case 0:
 	  this->m_pc+=biotadir[randi()%8];
@@ -1105,6 +1113,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  break;
 	}
     }
+      this->m_delc=0;
+  } // if del
 }
 
 const u8* thread_get_stack(thread* this) { 
@@ -1222,9 +1232,9 @@ int main(void)
 	{
 #ifdef PCSIM
 	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
-	  cpustackpush(m,randi()%65536,23);
+	  cpustackpush(m,randi()%65536,23,1);
 #else
-	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
+	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL,1);
 	  // here we can also do so that they follow consequtively and
 	  // also pass wrap and other params? ???TODO???
 

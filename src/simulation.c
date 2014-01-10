@@ -6,6 +6,26 @@
 
 //+ inc,dec,left,right and so on
 
+
+/* TODO:
+
+- fix misunderstanding (as we want 64k with buffer so buffer is 32768
+  samples long with u16)
+
+- clean ups for inits/each functionDONE and re-test all
+
+- does NaN cause problems or not on the ARM?
+- check memory use! also use of free and how we will do all inits
+
+/////resolved/////
+
+[- somehow declare offset for settings, or we store this somewhere]
+[- should howmuch be int or is u8 ok? probably leave as u8]
+[- return count+i or i? - count+i in all cases]
+
+*/
+
+
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -44,23 +64,6 @@ Based in part on SLUGens by Nicholas Collins.
 extern __IO uint16_t adc_buffer[10];
 #endif
 
-
-
-/* TODO:
-
-- clean ups for inits/each functionDONE and re-test all
-
-- does NaN cause problems or not on the ARM?
-- check memory use! also use of free and how we will do all inits
-
-/////resolved/////
-
-[- somehow declare offset for settings, or we store this somewhere]
-[- should howmuch be int or is u8 ok? probably leave as u8]
-[- return count+i or i? - count+i in all cases]
-
-*/
-
 //////////////////////////////////////////////////////////
 
 // sine
@@ -85,7 +88,7 @@ void sineinit(struct siney* unit, uint16_t *workingbuffer){
 
 uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct siney* unit){
   u8 i=0;
-  if (unit->del++==delay){
+  if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     workingbuffer[count+(u16)i]=unit->sin_data[unit->cc%256];
 #ifdef PCSIM
@@ -1006,7 +1009,7 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     workingbuffer[count+x]=z;//workingbuffer[x+2]=zz;
 #ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-    printf("%d\n",workingbuffer[count+x]); 
+    //    printf("%d\n",workingbuffer[count+x]); 
 #endif
 
   }
@@ -1054,11 +1057,12 @@ void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x;
-  uint16_t xxx[MAX_SAM+12],result;
+  u8 howmuch;
+  uint16_t xxx[MAX_SAM+780],result; //780 is max we can go over for 3xu8 howmuch with fitz as 3x
   uint16_t count=0;
   srand(time(NULL));
 
-  for (x=0;x<MAX_SAM;x++){
+  for (x=0;x<MAX_SAM+780;x++){
     xxx[x]=randi()%65536;
   }
 
@@ -1080,8 +1084,10 @@ void main(void)
 
         while(1){ 
 	  //	  count=runoregon(count,1,xxx,1,unit);
-	  count=runfitz(count,1,xxx,1,unit);
 
+	  count=runfitz(count,1,xxx,10,unit);
+	  if (count>=MAX_SAM) count=0;
+	  //	  printf("count: %d\n", count);
 	  //	  count=runseir(count,10,xxx,10,unit);
 	  //	  count=runsicr(count,10,xxx,10,unit);
 	  //	  count=runsine(count,1,xxx,10,unit);
