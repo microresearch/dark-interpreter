@@ -9,9 +9,6 @@
 
 /* TODO:
 
-- fix misunderstanding (as we want 64k with buffer so buffer is 32768
-  samples long with u16)
-
 - clean ups for inits/each functionDONE and re-test all
 
 - does NaN cause problems or not on the ARM?
@@ -19,6 +16,8 @@
 
 /////resolved/////
 
+[- fix misunderstanding (as we want 64k with buffer so buffer is 32768
+  samples long with u16) DONE]
 [- somehow declare offset for settings, or we store this somewhere]
 [- should howmuch be int or is u8 ok? probably leave as u8]
 [- return count+i or i? - count+i in all cases]

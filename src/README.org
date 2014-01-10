@@ -49,8 +49,24 @@ should have datagen->all hardware switch code!
 
 * FRI 10 JAN 2014
 
-- delay for each cpu
-- test pointers to int/char
+- delay for each CPU-DONE
+- test pointers to int/char - seems work OK
+
+general TODOs:
+
+//for CPUint:
+
+hodge.c CPU, test new functions and note that infection only updates
+cpu cells when it is run
+
+also question of wrap on and wrap off functions...
+and wormcode steering buffer
+
++ much more
+
+//for CA:
+
+16 bit SIR
 
 * THU 9 JAN 2014
 

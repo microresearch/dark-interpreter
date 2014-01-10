@@ -42,6 +42,8 @@ Based in part on spork factory by Dave Griffiths.
 
 /* TODO:
 
+output for reddeath and few other
+
    cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
    // here we can also do so that they follow consequtively and
    // also pass wrap and other params? ???TODO???
@@ -50,28 +52,29 @@ Based in part on spork factory by Dave Griffiths.
 - cpus link to grains - some variable/array for exchange of grains/cpu
   start-end positions
 
-- control of leakiness m->m_leakiness
+- control of leakiness m->m_leakiness and other params, infection and so on
 
 - for wormcode steering buffer, also other cpus modded to read/write
   instruction pointer to that extra buffer - where to pass ref??? some
   kind of window or we just use sep. code for that?
 
-- add input into some CPUs (perhaps adc_buffer[somereg%10]) )
-
 - add hodge.c in case 16:
+
+///
 
 - whether to push off threads from stack when full?
 
-TOTAL so far: 24 CPUs (0-23)
+TOTAL so far: 25 CPUs (0-24)
 
 */
 
-#define CPU_TOTAL 24
+#define CPU_TOTAL 25
 
 void leak(machine *m);
 
 void thread_create(thread *this, u16 address, uint8_t which, u8 delay) { // ??? or we steer each of these?
-    this->m_CPU=which;
+  this->m_infection=0;
+  this->m_CPU=which;
     this->m_del=delay; this->m_delc=0;
     this->m_start=address;
 
@@ -84,7 +87,6 @@ void thread_create(thread *this, u16 address, uint8_t which, u8 delay) { // ??? 
     this->m_reg8bit1=randi()%255;
     this->m_reg8bit2=randi()%255;
     this->m_reg8bit3=randi()%255;
-    this->m_reg8bit4=randi()%255;
     this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
@@ -138,7 +140,7 @@ void thread_run(thread* this, machine *m) {
 #endif
 
   if (++this->m_delc==this->m_del){
-  switch(this->m_CPU)
+  switch(this->m_CPU % CPU_TOTAL)
     {
     case 0: // :LEAKY STACK! - working!
       instr=machine_peek(m,this->m_pc);
@@ -184,7 +186,9 @@ void thread_run(thread* this, machine *m) {
       //      machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
         break;
 	case INP:
-	  machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
+#ifndef PCSIM
+	  machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[thread_pop(this)%10]);      
+#endif
 	  break;
 
     default : break;
@@ -281,7 +285,7 @@ void thread_run(thread* this, machine *m) {
 ///////////////////////////////////////////////////////////////
 
     case 2:
-      // brainfuck: add in input and output???
+      // brainfuck: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
@@ -289,7 +293,7 @@ void thread_run(thread* this, machine *m) {
       instr=machine_peek(m,this->m_pc);
 
       //      printf("instr %d ",instr);
-      switch(instr%6)
+      switch(instr%7)
 	{
 	case 0:
 	  this->m_reg8bit1++;
@@ -319,13 +323,20 @@ void thread_run(thread* this, machine *m) {
 	  this->m_reg8bit2-=1;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=16;
 	  break;
+	case 6:
+	  //  cells[omem] = adcread(3); 
+#ifndef PCSIM
+	  machine_poke(m,this->m_reg8bit1,adc_buffer[this->m_reg8bit1%10]);
+#endif
+	  this->m_pc++;
+	  break;
 	}
       //      printf("%c",this->m_pc);
     
 ///////////////////////////////////////////////////////////////
 
     case 3:
-      // masque red death: add in input and output???
+      // masque red death: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
@@ -350,10 +361,11 @@ void thread_run(thread* this, machine *m) {
 	else this->m_pc++;
 	break;
       case 2:
-	this->m_reg16bit1++;
-	if ((this->m_reg16bit1%60)==0){
+	this->m_reg8bit3++;
+	if (this->m_reg8bit3==60){
 	  this->m_reg8bit2++;
 	  machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)^255);
+	  this->m_reg8bit3=0;
 	}
 	else this->m_pc++;
 	break;
@@ -375,6 +387,9 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	case 6:
 	  //cells[omem+1]=adcread(3); rEADIN TODO
+#ifndef PCSIM
+	  machine_poke(m,this->m_reg8bit1+1,adc_buffer[this->m_reg8bit1%10]);
+#endif
 	  this->m_pc++;
 	  break;
 	}
@@ -382,14 +397,14 @@ void thread_run(thread* this, machine *m) {
 ///////////////////////////////////////////////////////////////
 
     case 4:
-      // plague: add in input and output???
+      // plague: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
 
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%4){
+      switch(instr%5){
       case 0:
 	machine_poke(m,this->m_pc,255);
 	machine_poke(m,this->m_pc+1,255);
@@ -412,19 +427,25 @@ void thread_run(thread* this, machine *m) {
 	else this->m_reg8bit3*=machine_peek(m,this->m_pc)>>4;
 	this->m_pc+=biotadir[this->m_reg8bit3%8];
 	break;
+      case 4:
+#ifndef PCSIM
+	machine_poke(m,this->m_pc+1,adc_buffer[this->m_reg8bit1%10]);
+#endif
+	  break;
+
       }
 	if (machine_peek(m,this->m_pc)==255) this->m_reg8bit3+=4;
 	//      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
     case 5:
-      // first from micro: add in input and output???
+      // first from micro: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%14){
+      switch(instr%15){
       case 0:
 	this->m_reg8bit1++;
 	this->m_pc++;
@@ -480,6 +501,11 @@ void thread_run(thread* this, machine *m) {
       case 13:	  
 	this->m_pc++;
 	break;
+      case 14:
+#ifndef PCSIM
+	machine_poke(m,this->m_pc,adc_buffer[this->m_reg8bit1%10]);
+#endif
+	break;
       }
       //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
@@ -496,7 +522,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       instr=machine_peek(m,this->m_pc);
-      switch(instr%28){
+      switch(instr%30){
       case 0:
 	// MOV # to direct.
 	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,this->m_pc+1));
@@ -638,6 +664,16 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 27:
 	this->m_pc+=3;
 	break;
+      case 28:
+	// input to direct.
+	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),randi()%255);
+	this->m_pc+=3;
+	break;
+      case 29:
+	// to indirect.
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),randi()%255);
+	this->m_pc+=3;
+	break;
       }
       //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
@@ -647,7 +683,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%4){
+      switch(instr%5){
       case 0:
 	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128)) cells[IP]++;
 	if (machine_peek(m,this->m_pc+1)<128) machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)+1);
@@ -673,6 +709,12 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	}
 	this->m_pc++;
 	break;
+      case 4:
+#ifndef PCSIM
+	machine_poke(m,this->m_pc,randi()%255);
+#endif
+	break;
+
       }
 
 ///////////////////////////////////////////////////////////////
@@ -683,11 +725,11 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      printf("instr %d ",instr);
 
       //      this->m_reg8bit3=biotadir[randi()%8]; // replace with buffer steering TODO or:
-      this->m_reg8bit3=biotadir[machine_peek(m,this->m_pc)%8];
+      this->m_reg8bit3=biotadir[randi()%8];
       this->m_pc+=this->m_reg8bit3;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
-      switch(instr%12){
+      switch(instr%13){
       case 0:
 	break;
       case 1:
@@ -725,6 +767,11 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 11:
 	machine_poke(m,this->m_pc+this->m_reg8bit3,thread_pop(this));
 	break;
+      case 12:
+#ifndef PCSIM
+	machine_poke(m,this->m_pc+this->m_reg8bit3,adc_buffer[thread_pop(this)%10]);      
+#endif
+	break;
       }
       //      printf("%c",instr);
 
@@ -736,7 +783,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%15){
+      switch(instr%16){
       case 0:
 	flag=thread_pop(this);
 	machine_poke(m,thread_pop(this),flag);
@@ -809,6 +856,12 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_push(this,machine_peek(m,this->m_pc+1));
 	this->m_pc++;
 	break;
+      case 15:
+#ifndef PCSIM
+	machine_poke(m,machine_peek(m,this->m_pc+1),adc_buffer[thread_pop(this)%10]);      
+#endif
+	break;
+
       }
       //      printf("%c",this->m_pc);
 
@@ -819,7 +872,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
-      switch(instr%30){
+      switch(instr%31){
       case 0:
       case 1:
       case 2:
@@ -901,11 +954,17 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc+=biotadir[this->m_reg8bit3%8];
 	break;
       case 28:
-	machine_poke(m,(thread_pop(this)&16)*(thread_pop(this)&16),thread_pop(this));
+	machine_poke(m,(thread_pop(this))*(thread_pop(this)),thread_pop(this));
 	break;
       case 29:
 	thread_push(this,machine_peek(m,thread_pop(this)&16)*(thread_pop(this)&16));
 	break;
+      case 30:
+#ifndef PCSIM
+	machine_poke(m,(thread_pop(this))*(thread_pop(this)),adc_buffer[thread_pop(this)%10]);      
+#endif
+	break;
+
       }
       this->m_pc+=biotadir[this->m_reg8bit3%8];
       //      printf("%c",this->m_pc);
@@ -1049,11 +1108,17 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_poke(m,this->m_pc,instr);
       this->m_pc++; 
       break;
-///////////////////////////////////////////////////////////////
     case 23:
+      #ifndef PCSIM
+      machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_peek(m,this->m_pc)%10]);     
+#endif
+
+
+///////////////////////////////////////////////////////////////
+    case 24:
       // from wormcode.c
       instr=machine_peek(m,this->m_pc);
-      switch(instr%14)
+      switch(instr%15)
 	{
 	case 0:
 	  this->m_pc+=biotadir[randi()%8];
@@ -1111,6 +1176,11 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  machine_poke(m,(this->m_pc+=biotadir[randi()%8]),thread_pop(this));
 	  this->m_pc+=biotadir[randi()%8];
 	  break;
+      case 14:
+#ifndef PCSIM
+	machine_poke(m,(this->m_pc+=biotadir[randi()%8]),adc_buffer[thread_pop(this)%10]);      
+#endif
+	break;
 	}
     }
       this->m_delc=0;
@@ -1215,46 +1285,127 @@ void leak(machine *m){
   }
 }
 
+void mutate(machine *m, u8 which, u8 identifier){
+  // select CPU and flip bits within contraints
+  // what are identifiers? del, wrap, pc also registers or not?
+  u8 x; u16 temp;
+  //  x=which%m->m_threadcount;
+  thread *this=&m->m_threads[which];
+  switch (identifier%4){
+  case 0:
+    this->m_CPU^=(1<<randi()%4);
+    break;
+  case 1:
+    temp=this->m_wrap-this->m_start;
+    temp^=(1<<randi()%16);
+    this->m_wrap=this->m_start+temp;
+    break;
+  case 2:
+    this->m_del^=(1<<randi()%8);
+    break;
+  case 3:
+    this->m_pc^=(1<<randi()%16);
+    this->m_wrap=this->m_start+randi();
+    break;
+  }
+}
+
+void swapcpu(machine *m, u8 which, u8 identifier){
+  u8 x,y,temp; u16 tempi;
+  x=randi()%m->m_threadcount;
+  y=(x+1)%m->m_threadcount;
+  thread *this=&m->m_threads[x];
+  thread *that=&m->m_threads[y];
+  switch (identifier%3){
+  case 0:
+    temp=this->m_CPU;
+    this->m_CPU=that->m_CPU;
+    that->m_CPU=temp;
+    break;
+  case 1:
+    tempi=this->m_start;
+    this->m_start=that->m_start;
+    that->m_start=tempi;
+    tempi=this->m_wrap;
+    this->m_wrap=that->m_wrap;
+    that->m_wrap=tempi;
+    break;
+  case 2:
+    temp=this->m_del;
+    this->m_del=that->m_del;
+    that->m_del=temp;
+    break;
+  }
+}
+
+void killcpu(machine *m, u8 killed);
+
+void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
+  // chances of infecting neighbouring cell which in time is killed or recovers
+  thread *this=&m->m_threads[(infected+1)%m->m_threadcount];
+
+  // if is recovered leave alone
+  if (this->m_infection==129) return;
+
+  // if is infected calc whether to kill or inc to recovery
+  else if (this->m_infection>1) {
+    if (randi()%255 <=probD) killcpu(m,(infected+1)%m->m_threadcount);
+    else this->m_infection++;
+  }
+
+  // if not infected then prob to infect it
+  else if (this->m_infection==0){
+    if (randi()%255 <= probI) this->m_infection=1;
+  }
+}
+
+void killcpu(machine *m, u8 killed){
+  u8 x;
+  // or should we run through and kill one - how re-org list.
+  //  cpustackpop(m);
+  //  thread *this=&m->m_threads[which];
+  //this->m_threads[this->m_threadcount]
+  for (x=killed;x<m->m_threadcount-1;x++){
+    m->m_threads[x]=m->m_threads[x+1];
+  }
+  m->m_threadcount--;
+}
+
+
+
 #ifdef PCSIM
 int main(void)
 {
   int x;
-  u8 buffer[65536];
+  u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
   for (x=0;x<65536;x++){
     buffer[x]=randi()%255;
   }
+
+  /*
+  testo=(u8 *)buffer+1;
+  testi=(u16 *)buffer+1;
+  //  (u8 *)buffer+=1;
+  //  (u16 *)testi;
+  printf("buffer %p\n",(long *)testi);
+  printf("buffer %p\n",(long *)testo); // 
+  */
 
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,randi()%255,buffer); // this just takes care of pointer to machine and malloc for threads
 
 	for (unsigned char n=0; n<10; n++)
 	{
-#ifdef PCSIM
 	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
 	  cpustackpush(m,randi()%65536,23,1);
-#else
-	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL,1);
+	  //	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL,1);
 	  // here we can also do so that they follow consequtively and
 	  // also pass wrap and other params? ???TODO???
-
-#endif
 	}
 
-  while(1) {
-      machine_run(m);
-  }
-
-
-  /*- add in mutation, cross-pollination, infection, plague, death so cpus
-    can also infect/take over each other (meta)
-  
-    - mutation bit-flip a randiom CPU type
-    - address exchange
-    - infection
-    - death, killing
-
-  */
-
+	  while(1) {
+          machine_run(m);
+	  }
 }
 #endif

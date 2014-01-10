@@ -448,10 +448,14 @@ void SIR16init(struct SIR* unit, u8* cells){
 }
 
 uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct SIR16* unit){
-
+  u8 i; u16 y;
   if (++unit->del==delay){
 
+  for (i=0;i<howmuch;i++){
+    y=x+32768;
 
+
+  }
   }
   unit->del=0;
   return x;
