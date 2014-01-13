@@ -20,7 +20,7 @@ extern __IO uint16_t adc_buffer[10];
 
 /* TODO:
 
-ADD,,, 16 bit SIR code
+16 bit SIR code
 
 */
 
@@ -431,6 +431,7 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
 with probabilities fixed for:
 
 - movement
+
 - morbidity
 - vectored infection
 - contact infection
@@ -439,20 +440,96 @@ with probabilities fixed for:
 
 other params:
 
-motion radius, infection radius
+infection radius, max population=16
 
  */
 
-void SIR16init(struct SIR* unit, u8* cells){
+void SIR16init(struct SIR16* unit, u8* cells){
   unit->del=0;
+  // distribute totals for SIR and probs...
+  unit->probM=cells[0];
 }
 
+
+u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
+
 uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct SIR16* unit){
-  u8 i; u16 y;
+  u8 i; u16 y,dest;
+  u8 totalhost,totaldest,which,sirhost,sirdest;
   if (++unit->del==delay){
 
+    // select random cell, for each of ind, select neighbour and move
+    // it there based on probability and neighbour not full
   for (i=0;i<howmuch;i++){
+#ifdef PCSIM
+    y=randi()%65536;
+#else
+    y=randi()<<4;
+#endif
+    // choose random neighbour
+    dest=y+biotadir[randi()%8];
+    // 16 bits: top/lower top/lower
+    totaldest=cells[dest]>>4;
+    if (totaldest<15 && randi()%255<=unit->probM){
+    totalhost=cells[y]>>4;
+    // from host choose S,I or R to shift over if motionP and not full
+    // then update both host y and dest...
+      which=randi()%3;
+      switch(which)
+	{
+	case 0:
+	  totaldest+=1;
+	  totalhost-=1;
+	  sirdest=cells[dest]&15;
+	  sirhost=cells[y]&15;
+	  sirdest+=1;
+	  sirhost-=1;
+	  // updating
+	  cells[dest]=totaldest+sirdest;
+	  cells[y]=totalhost+sirhost;
+	  break;
+	case 1:
+	  totaldest+=1;
+	  totalhost-=1;
+	  sirdest=cells[dest+1]>>4;
+	  sirhost=cells[y+1]>>4;
+	  sirdest+=1;
+	  sirhost-=1;
+	  // updating
+	  // total
+	  cells[dest]=(cells[dest]&15)+totaldest;
+	  cells[y]=(cells[y]&15)+totalhost;
+	  cells[dest+1]=(cells[dest+1]^240)+(sirdest<<4);
+	  cells[y+1]=(cells[y+1]^240)+(sirhost<<4);
+	  break;
+	case 2:
+	  totaldest+=1;
+	  totalhost-=1;
+	  sirdest=cells[dest+1]&15;
+	  sirhost=cells[y+1]&15;
+	  sirdest+=1;
+	  sirhost-=1;
+	  // updating
+	  cells[dest]=(cells[dest]&15)+totaldest;
+	  cells[y]=(cells[y]&15)+totalhost;
+	  cells[dest+1]=(cells[dest+1]^15)+sirdest;
+	  cells[y+1]=(cells[y+1]^15)+sirhost;
+	  break;
+	}
+    }
+  }
+
+  for (i=0;i<(howmuch*2);i+=2){
     y=x+32768;
+ 
+    // select cell
+    // deduct natural deaths, virus morbidity
+    // compute vectored and contact infections?
+    // spontaneous infections
+    // recoveries
+    // re-suscept
+    
+
 
 
   }

@@ -30,4 +30,5 @@ struct SIR{
 
 struct SIR16{
   u8 del;
+  u8 probM;
 };
