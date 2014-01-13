@@ -430,23 +430,22 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
 
 with probabilities fixed for:
 
-- movement
-
-- morbidity
-- vectored infection
-- contact infection
-- recovery
-- re-susceptible
+- movement=probM
+- morbidity=probR
+- vectored infection=probI
+- contact infection=probC
+- recovery=probV
+- re-susceptible=probS
 
 other params:
 
-infection radius, max population=16
+infection radius???, max population=15
 
  */
 
 void SIR16init(struct SIR16* unit, u8* cells){
   unit->del=0;
-  // distribute totals for SIR and probs...
+  // distribute totals and SIR and probs...
   unit->probM=cells[0];
 }
 
@@ -470,8 +469,8 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
     dest=y+biotadir[randi()%8];
     // 16 bits: top/lower top/lower
     totaldest=cells[dest]>>4;
-    if (totaldest<15 && randi()%255<=unit->probM){
     totalhost=cells[y]>>4;
+    if (totaldest<15 &&totalhost>0 && randi()%255<=unit->probM){
     // from host choose S,I or R to shift over if motionP and not full
     // then update both host y and dest...
       which=randi()%3;
@@ -522,8 +521,7 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
   for (i=0;i<(howmuch*2);i+=2){
     y=x+32768;
  
-    // select cell
-    // deduct natural deaths, virus morbidity
+    // deduct virus morbidity
     // compute vectored and contact infections?
     // spontaneous infections
     // recoveries

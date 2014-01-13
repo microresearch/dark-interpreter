@@ -34,7 +34,14 @@ up to limit
 
 *then start on buffer/grain code, hardware tie-ins*
 
-should have datagen->all hardware switch code!
+- should have datagen->change all hardware switch code!
+
+- add to knobs if have space - general complexity, from 0[signal
+  thru/1maintain output/no write] to 3[signal thru/4datagens->hardware]
+  to 5[change sample by datagen buffer/6hardware] to 7[basic granulation
+  buffer/8hardware] to 9[granulation buffer as pointer to
+  locations/10-hardware] and further as 11+change sample/12-hardware
+  and so on to 15!
 
 * DONE
 
@@ -66,7 +73,7 @@ and wormcode steering buffer
 
 //for CA:
 
-16 bit SIR
+16 bit SIR // in progress
 
 * THU 9 JAN 2014
 
