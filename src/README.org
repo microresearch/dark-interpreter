@@ -40,8 +40,9 @@ up to limit
   thru/1maintain output/no write] to 3[signal thru/4datagens->hardware]
   to 5[change sample by datagen buffer/6hardware] to 7[basic granulation
   buffer/8hardware] to 9[granulation buffer as pointer to
-  locations/10-hardware] and further as 11+change sample/12-hardware
-  and so on to 15!
+  locations/10-hardware] to 11[+change sample/12-hardware] to
+  13[worming thru buffer(according to datagen)/14change
+  sample/15hardware] .. hardware as bit/mod...
 
 * DONE
 
