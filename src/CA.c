@@ -191,7 +191,7 @@ uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct C
   unit->del=0;
   }
 
-  return i;
+  return x;
 }
 
 ///////////////
@@ -245,7 +245,7 @@ uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
     //    printf("%c",table[sum]<<4);
   }
 
-  return i;
+  return x+i;
 }
 
 //////////////////////////////////////////
@@ -280,7 +280,7 @@ uint16_t runfire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct 
   }
   unit->del=0;
   }
-  return i;
+  return x;
 }
 
 //////////////////////////////////////////
@@ -343,7 +343,7 @@ uint16_t runwire(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct 
   }
   unit->del=0;
   }
-  return i;
+  return x;
 }
 
 //////////////////////////////////////////
@@ -416,7 +416,7 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
   }
   unit->del=0;
   }
-  return i;
+  return x;
 }
 
 //////////////////////////////////////////
@@ -428,33 +428,41 @@ uint16_t runSIR(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct S
 -I pop
 -R pop
 
-with probabilities fixed for:
-
-- movement=probM
-- morbidity=probR
-- vectored infection=probI
-- contact infection=probC
-- recovery=probV
-- re-susceptible=probS
-
-other params:
-
 infection radius???, max population=15
 
  */
 
 void SIR16init(struct SIR16* unit, u8* cells){
-  unit->del=0;
-  // distribute totals and SIR and probs...
+  unit->del=0; u16 i; u8 total,suscept,infected;
+
+  /*with probabilities fixed for:
+
+- movement=probM
+- morbidity=probR
+- contact infection=probC
+- recovery=probV
+*/
+
   unit->probM=cells[0];
+  unit->probR=cells[1];
+  unit->probC=cells[2];
+  unit->probV=cells[3];
+  // distribute totals and SIR - total must be sum of S.I.R in other bits
+  for (i=0;i<65534;i+=2){
+    total=(cells[i]>>4);
+    suscept=cells[i]%15;
+    infected=total-suscept;
+    cells[i]=(cells[i]&240)+suscept;
+    cells[i+1]=(infected<<4);
+  }
 }
 
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
 uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct SIR16* unit){
-  u8 i; u16 y,dest;
-  u8 totalhost,totaldest,which,sirhost,sirdest;
+  u8 i,ii; u16 y,dest;
+  u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
   if (++unit->del==delay){
 
     // select random cell, for each of ind, select neighbour and move
@@ -467,7 +475,7 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 #endif
     // choose random neighbour
     dest=y+biotadir[randi()%8];
-    // 16 bits: top/lower top/lower
+    // 16 bits: top/lower top/lower total/S/I/R
     totaldest=cells[dest]>>4;
     totalhost=cells[y]>>4;
     if (totaldest<15 &&totalhost>0 && randi()%255<=unit->probM){
@@ -518,21 +526,41 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
     }
   }
 
-  for (i=0;i<(howmuch*2);i+=2){
+  for (i=0;i<howmuch;i++){
     y=x+32768;
- 
+
+    // leave recovered as they are 
+    // 16 bits: top/lower top/lower as-> total/S/I/R
+    futuretotal=cells[x]>>4;
+    futurerecovered=cells[x+1]&15;
+    infected=futureinfected=cells[x+1]>>4;
+
+    for (ii=0;ii<infected;ii++){
+    // for each of infected:
     // deduct virus morbidity
-    // compute vectored and contact infections?
-    // spontaneous infections
     // recoveries
-    // re-suscept
-    
+      if ((randi()%255)<=unit->probR) {futureinfected--; futuretotal--;} // dead
+      if ((randi()%255)<=unit->probV) {futurerecovered++; futureinfected--;} // recovered
+    }
+    suscept=futuresuscept=cells[i]&15;
+    for (ii=0;ii<suscept;ii++){
+    // for each of suscept:
+    // compute contact infections based on how many infected in cell
+      if (((randi()%16)*infected)>unit->probC) {futureinfected++; futuresuscept--;} // dead
+    }
 
+    // put all back together???
+    cells[y]=(futuretotal<<4)+futuresuscept;
+    cells[y+1]=(futureinfected<<4)+futurerecovered;
+    x+=2;
+#ifdef PCSIM
+     printf("%c%c",cells[y],cells[y+1]);
+#endif
 
-
-  }
   }
   unit->del=0;
+  
+  }
   return x;
 }
 
@@ -541,26 +569,27 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 #ifdef PCSIM
 int main(void)
 {
-  int x;
+  u16 x;
   u8 buffer[65536];
   uint16_t count=0;
   srandom(time(0));
-  for (x=0;x<65536;x++){
+  for (x=0;x<65535;x++){
     buffer[x]=randi()%255;
   }
-  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
+  //  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
   //  struct hodge *unit=malloc(sizeof(struct hodge));
   //    struct CA *unit=malloc(sizeof(struct CA));
-    struct SIR *unit=malloc(sizeof(struct SIR));
+    struct SIR16 *unit=malloc(sizeof(struct SIR16));
   //struct fire *unit=malloc(sizeof(struct fire));
   //  hodgeinit(unit,buffer);
     //    cainit(unit,buffer);
-    SIRinit(unit,buffer);
+        SIR16init(unit,buffer);
   //  fireinit(unit,buffer);
       while(1) {
-	count=runSIR(count,10,buffer,255,unit);
-	//	printf("%d",count);
+	count=runSIR16(count,1,buffer,255,unit);
+
+	//	printf("%d\n",count);
 	// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
     }
