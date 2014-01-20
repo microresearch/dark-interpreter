@@ -50,7 +50,7 @@ static const u8 MAX_THREADS=120;
     
     typedef struct {
       thread *m_threads;
-      u8 *m_memory; 
+      u8 *m_memory; u8 m_infectprob, m_mutateprob;
       u8 m_threadcount;
       u8 m_leakiness;
     } machine;
@@ -77,7 +77,8 @@ void machine_create(machine *this, u8 leakiness, uint8_t *buffer);
 u8 machine_peek(const machine *t, u16 addr);
 void machine_poke(machine *t, u16 addr, u8 data);	
 void machine_run(machine *t);
-    
+void infectcpu(machine *m, u8 probI, u8 probD, u8 infected);    
+void mutate(machine *m, u8 which, u8 identifier);
 void write_mem(machine *m, int *a, u16 len);
 
 const char *byte_to_binary(int x);

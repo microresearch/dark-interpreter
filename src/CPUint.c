@@ -1,6 +1,6 @@
 // was CPU.c but now with overlap, uint16_t blah
 
-// void cpustackpush(machine *this, u16 address, u8 cputype, u8 delay)
+// void cpustackpush(machine *this, u16 address, u16 wrapaddress, u8 cputype, u8 delay)
 
 #ifdef PCSIM
 #include <stdio.h>
@@ -18,6 +18,12 @@ extern __IO uint16_t adc_buffer[10];
 #endif
 
 #include <math.h>
+
+#ifdef PCSIM
+u8 wormdir; // worm direction
+#else
+extern u8 wormdir;
+#endif
 
 /* 
 
@@ -42,21 +48,20 @@ Based in part on spork factory by Dave Griffiths.
 
 /* TODO:
 
-output for reddeath and few other
-
-   cpustackpush(m,randi()<<4,randi()%CPU_TOTAL);
-   // here we can also do so that they follow consequtively and
-   // also pass wrap and other params? ???TODO???
-   // also pass biotadir for 8bit 16bit
+output for reddeath and few others (how?)
 
 - cpus link to grains - some variable/array for exchange of grains/cpu
-  start-end positions
+  start-end positions (or is just machine)?
 
-- control of leakiness m->m_leakiness and other params, infection and so on
+- control of leakiness m->m_leakiness and other params, infection and so onDONE
 
 - for wormcode steering buffer, also other cpus modded to read/write
   instruction pointer to that extra buffer - where to pass ref??? some
   kind of window or we just use sep. code for that?
+  
+//this is wormdir extern u8 variable now!
+
+- also that we should change wrap/jump in some CA inspired code
 
 - add hodge.c in case 16:
 
@@ -72,22 +77,17 @@ TOTAL so far: 25 CPUs (0-24)
 
 void leak(machine *m);
 
-void thread_create(thread *this, u16 address, uint8_t which, u8 delay) { // ??? or we steer each of these?
+void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
   this->m_infection=0;
   this->m_CPU=which;
-    this->m_del=delay; this->m_delc=0;
-    this->m_start=address;
-
-#ifdef PCSIM
-    this->m_wrap=this->m_start+randi()%65536;
-#else
-    this->m_wrap=this->m_start+randi();
-#endif
-    this->m_pc=this->m_start;
-    this->m_reg8bit1=randi()%255;
-    this->m_reg8bit2=randi()%255;
-    this->m_reg8bit3=randi()%255;
-    this->m_stack_pos=-1;
+  this->m_del=delay; this->m_delc=0;
+  this->m_start=address;
+  this->m_wrap=wrapaddress;
+  this->m_pc=this->m_start;
+  this->m_reg8bit1=randi()%255;
+  this->m_reg8bit2=randi()%255;
+  this->m_reg8bit3=randi()%255;
+  this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
     for (int n=0; n<STACK_SIZE; n++)
@@ -96,10 +96,10 @@ void thread_create(thread *this, u16 address, uint8_t which, u8 delay) { // ??? 
       }
 }
 
-void cpustackpush(machine *this, u16 address, u8 cputype, u8 delay){
+void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
   if (this->m_threadcount==MAX_THREADS) return;
   else {
-    thread_create(&this->m_threads[this->m_threadcount], address, cputype,delay);// last is CPU type!
+    thread_create(&this->m_threads[this->m_threadcount], address, wrapaddress,cputype,delay);// last is CPU type!
   this->m_threadcount++;
   }
 }
@@ -120,15 +120,28 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
 
 }
 
+void dircalc(u16 *mmm, u16 wrapper,u16 liner){
+  mmm[0]=wrapper-liner;
+  mmm[1]=(wrapper-liner)+1;
+  mmm[2]=1;
+  mmm[3]=liner+1;
+  mmm[4]=liner;
+  mmm[5]=liner-1;
+  mmm[6]=wrapper-1;
+  mmm[7]=wrapper-liner-1;
+}
+
 void thread_run(thread* this, machine *m) {
-  u8 instr;	
+  u8 instr,temp;
+  u16 y;
   u8 flag,other;
-  //  u8 biotadir[8]={239,240,1,17,16,15,254,238}; // now for 16 bit
-  u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
   //  sleep(1);
+  u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
+
+  //  dircalc(biotadir,65536,256);
 
   // SWITCH for m_CPU!
 
@@ -227,9 +240,10 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	case 4:
 	  //    * g -- go to a non-empty character ahead (tries to move DC straight ahead, then right and left 45 degrees, then 90, then 135, then back).
-	  this->m_reg8bit2+=biotadir[this->m_reg8bit1%8];
+	  temp=this->m_reg8bit1%8;
+	  this->m_reg8bit2+=biotadir[temp];
 	  if (machine_peek(m,this->m_reg8bit2)==0) {
-	    this->m_reg8bit2-=biotadir[this->m_reg8bit1%8]; // go back
+	    this->m_reg8bit2-=biotadir[temp]; // go back
 	    this->m_reg8bit2+=biotadir[(this->m_reg8bit1+1)%8]; // right 45
 	    if (machine_peek(m,this->m_reg8bit2)==0) {
 	      this->m_reg8bit2-=biotadir[(this->m_reg8bit1+1)%8]; // go back
@@ -276,10 +290,11 @@ void thread_run(thread* this, machine *m) {
 
       // - this->m_pc turns (where?) when it finds an empty location or a failing instruction
       // m_reg8bit3 is direction
+      wormdir=this->m_reg8bit3%8;
       if (machine_peek(m,this->m_pc)==0 || flag==1){
 	this->m_reg8bit3-=1;
       }
-      else this->m_pc+=biotadir[this->m_reg8bit3%8];
+      else this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       //      break;
 ///////////////////////////////////////////////////////////////
@@ -338,7 +353,7 @@ void thread_run(thread* this, machine *m) {
     case 3:
       // masque red death: add in output???
 
-      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
+      if (this->m_pc>=this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
 
       //      instr=machine_peek(m,this->m_pc);
@@ -435,6 +450,7 @@ void thread_run(thread* this, machine *m) {
 
       }
 	if (machine_peek(m,this->m_pc)==255) this->m_reg8bit3+=4;
+	wormdir=this->m_reg8bit3%8;
 	//      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
@@ -659,7 +675,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],6,this->m_del);
+	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],(u16)m->m_memory[this->m_pc+2],6,this->m_del);
 	break;
       case 27:
 	this->m_pc+=3;
@@ -725,7 +741,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      printf("instr %d ",instr);
 
       //      this->m_reg8bit3=biotadir[randi()%8]; // replace with buffer steering TODO or:
-      this->m_reg8bit3=biotadir[randi()%8];
+      wormdir=randi()%8;
+      this->m_reg8bit3=biotadir[wormdir];
       this->m_pc+=this->m_reg8bit3;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_peek(m,this->m_pc);
@@ -773,6 +790,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 #endif
 	break;
       }
+
       //      printf("%c",instr);
 
 ///////////////////////////////////////////////////////////////
@@ -966,7 +984,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 
       }
-      this->m_pc+=biotadir[this->m_reg8bit3%8];
+      wormdir=this->m_reg8bit3%8;
+      this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
@@ -1003,7 +1022,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  machine_poke(m,this->m_pc,instr^thread_pop(this));
 	  break;
 	}
-      this->m_pc+=biotadir[this->m_reg8bit3%8];
+      wormdir=this->m_reg8bit3%8;
+      this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
@@ -1019,7 +1039,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //tm->dir = (tm->dir + delta) & 3;
       this->m_reg8bit2=(this->m_reg8bit2+flag)&8;
       //do move and wrap
-      this->m_pc+=biotadir[this->m_reg8bit2];
+      wormdir=this->m_reg8bit2;
+      this->m_pc+=biotadir[wormdir];
       // finally
       this->m_reg8bit1 += deltastate[instr%16];
       //      printf("%c",this->m_pc);
@@ -1047,7 +1068,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // read cell//process rule string//change cell//move ant
       // rule string is from cell[0]
       instr=machine_peek(m,this->m_pc);
-      machine_poke(m,this->m_pc,instr+1);
+      //      machine_poke(m,this->m_pc,instr+1);
+      machine_poke(m,this->m_pc,instr+biotadir[this->m_reg8bit1%8]);
       this->m_reg8bit1=antrule(this->m_reg8bit1,instr%8,machine_peek(m,0));//last is rule
       this->m_pc+=biotadir[this->m_reg8bit1%8];
       //      printf("%c",this->m_pc);
@@ -1072,8 +1094,35 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 16:
       // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
       // numill and numinf
+      flag=temp=0;
+      temp=machine_peek(m,this->m_pc)+machine_peek(m,this->m_pc-1)+machine_peek(m,this->m_pc+1)+machine_peek(m,this->m_pc-256)+machine_peek(m,this->m_pc+256)+machine_peek(m,this->m_pc-255)+machine_peek(m,this->m_pc-257)+machine_peek(m,this->m_pc+255)+machine_peek(m,this->m_pc+257);
 
-      break;
+      if (machine_peek(m,this->m_pc-1)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc+1)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc-256)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc+256)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc-255)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc-257)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc+255)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_peek(m,this->m_pc+257)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+
+      y=this->m_pc+32768;
+      if (y<4) y=4;
+
+  if(machine_peek(m,this->m_pc) == 0)
+    machine_poke(m,this->m_pc,floor(other / machine_peek(m,1)) + floor(flag/machine_peek(m,2)));
+  else if(machine_peek(m,this->m_pc) < machine_peek(m,0)-1)
+    machine_poke(m,y,floor(temp / (other + 1)) + machine_peek(m,3));
+  else
+    machine_poke(m,y,0);
+
+  if(machine_peek(m,this->m_pc) > machine_peek(m,0)-1)
+    machine_poke(m,y,machine_peek(m,0)-1);
+
+  this->m_pc++; 
+  if (this->m_pc<4) this->m_pc=4;
+
+  break;
     case 17:
       // start generic - add (add/sub/zero/copy/invert/swap)
       instr=machine_peek(m,this->m_pc);
@@ -1121,60 +1170,80 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       switch(instr%15)
 	{
 	case 0:
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 1:
 	  //inc
 	  machine_poke(m,this->m_pc,instr+1);
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 2:
 	  machine_poke(m,this->m_pc,instr-1);
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 3:
 	  this->m_pc=machine_peek(m,this->m_pc);
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 4:
 	  machine_poke(m,this->m_pc,randi()%255);
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 5:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 6:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 7:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc-biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 8:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc<<biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  break;
 	case 9:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc>>biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
+
 	  break;
 	case 10:
-	  if (machine_peek(m,this->m_pc+(biotadir[randi()%8]*2))==0) this->m_pc+=biotadir[randi()%8];
+	  if (machine_peek(m,this->m_pc+(biotadir[randi()%8]*2))==0){
+	    wormdir=biotadir[randi()%8];
+	    this->m_pc+=wormdir;
+	  }
 	  break;
 	case 11:
 	  machine_poke(m,(this->m_pc-biotadir[randi()%8]),instr);
 	  machine_poke(m,(this->m_pc+biotadir[randi()%8]),instr);
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
+
 	  break;
 	case 12:
 	  thread_push(this, machine_peek(m,this->m_pc+biotadir[randi()%8]));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
+
 	  break;
 	case 13:
 	  machine_poke(m,(this->m_pc+=biotadir[randi()%8]),thread_pop(this));
-	  this->m_pc+=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
+
 	  break;
       case 14:
 #ifndef PCSIM
@@ -1232,7 +1301,6 @@ void machine_create(machine *this, u8 leakiness, uint8_t *buffer) {
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_threadcount=0;
   this->m_memory=buffer;
-  this->m_leakiness=leakiness;
     this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
 }
 
@@ -1248,12 +1316,30 @@ void machine_poke(machine* this, uint16_t addr, u8 data) {
 }
 
 void machine_run(machine* this) {
-	for (unsigned char n=0; n<MAX_THREADS; n++) {
+	for (unsigned char n=0; n<this->m_threadcount; n++) {
 		thread_run(&this->m_threads[n],this);
 	}
 	if ((randi()%this->m_leakiness)==0) {
   	leak(this);
   	}
+
+	// do infection/mutation
+
+	if ((randi()%this->m_infectprob)==0) {
+	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
+	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
+	}
+
+	if ((randi()%this->m_mutateprob)==0) {
+
+	  //void mutate(machine *m, u8 which, u8 identifier){
+	  mutate(this,randi()%this->m_threadcount,randi()%16);
+
+	  //	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
+	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
+	}
+
+
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1376,12 +1462,13 @@ void killcpu(machine *m, u8 killed){
 #ifdef PCSIM
 int main(void)
 {
-  int x;
+  int x; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
   for (x=0;x<65536;x++){
     buffer[x]=randi()%255;
   }
+
 
   /*
   testo=(u8 *)buffer+1;
@@ -1394,14 +1481,43 @@ int main(void)
 
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,randi()%255,buffer); // this just takes care of pointer to machine and malloc for threads
+  m->m_leakiness=randi()%255;
+  m->m_infectprob=randi()%255;
+  m->m_mutateprob=randi()%255;
+
+  // what about swapping????
 
 	for (unsigned char n=0; n<10; n++)
 	{
 	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
-	  cpustackpush(m,randi()%65536,23,1);
-	  //	  cpustackpush(m,randi()<<4,randi()%CPU_TOTAL,1);
-	  // here we can also do so that they follow consequtively and
-	  // also pass wrap and other params? ???TODO???
+
+// void cpustackpush(machine *this, u16 address, u16 wrapaddress, u8 cputype, u8 delay)
+
+/*
+#ifdef PCSIM
+    this->m_wrap=this->m_start+randi()%65536;
+#else
+    this->m_wrap=this->m_start+randi();
+#endif
+*/
+	  addr=randi()%65536;
+	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
+
+  u8 flag,other;
+  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
+			6, 11, 5, 13};	/* change in state indexed by color */
+  //  printf("running: %d ",this->m_start);
+  //  sleep(1);
+  u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
+
+  //  dircalc(biotadir,65536,256);
+
+  // SWITCH for m_CPU!
+
+	  addr=randi()%65536;
+	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
+	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
+	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
 	}
 
 	  while(1) {

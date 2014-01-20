@@ -449,10 +449,10 @@ void SIR16init(struct SIR16* unit, u8* cells){
   unit->probV=cells[3];
   // distribute totals and SIR - total must be sum of S.I.R in other bits
   for (i=0;i<65534;i+=2){
-    total=(cells[i]>>4);
-    suscept=cells[i]%15;
+    total=(cells[i]>>4)|1;
+    suscept=cells[i]%total;
     infected=total-suscept;
-    cells[i]=(cells[i]&240)+suscept;
+    cells[i]=(total<<4)+suscept;
     cells[i+1]=(infected<<4);
   }
 }
@@ -492,8 +492,8 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 	  sirdest+=1;
 	  sirhost-=1;
 	  // updating
-	  cells[dest]=totaldest+sirdest;
-	  cells[y]=totalhost+sirhost;
+	  cells[dest]=(totaldest<<4)+sirdest;
+	  cells[y]=(totalhost<<4)+sirhost;
 	  break;
 	case 1:
 	  totaldest+=1;
@@ -504,8 +504,8 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 	  sirhost-=1;
 	  // updating
 	  // total
-	  cells[dest]=(cells[dest]&15)+totaldest;
-	  cells[y]=(cells[y]&15)+totalhost;
+	  cells[dest]=(cells[dest]&15)+(totaldest<<4);
+	  cells[y]=(cells[y]&15)+(totalhost<<4);
 	  cells[dest+1]=(cells[dest+1]^240)+(sirdest<<4);
 	  cells[y+1]=(cells[y+1]^240)+(sirhost<<4);
 	  break;
@@ -517,8 +517,8 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
 	  sirdest+=1;
 	  sirhost-=1;
 	  // updating
-	  cells[dest]=(cells[dest]&15)+totaldest;
-	  cells[y]=(cells[y]&15)+totalhost;
+	  cells[dest]=(cells[dest]&15)+(totaldest<<4);
+	  cells[y]=(cells[y]&15)+(totalhost<<4);
 	  cells[dest+1]=(cells[dest+1]^15)+sirdest;
 	  cells[y+1]=(cells[y+1]^15)+sirhost;
 	  break;
@@ -554,7 +554,7 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct
     cells[y+1]=(futureinfected<<4)+futurerecovered;
     x+=2;
 #ifdef PCSIM
-     printf("%c%c",cells[y],cells[y+1]);
+    printf("%c%c",cells[y],cells[y+1]);
 #endif
 
   }
@@ -589,7 +589,7 @@ int main(void)
       while(1) {
 	count=runSIR16(count,1,buffer,255,unit);
 
-	//	printf("%d\n",count);
+	//		printf("%d\n",count);
 	// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
     }

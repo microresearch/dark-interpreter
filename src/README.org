@@ -44,6 +44,8 @@ up to limit
   13[worming thru buffer(according to datagen)/14change
   sample/15hardware] .. hardware as bit/mod...
 
+or have datagens->hardware on hardware knob???
+
 * DONE
 
 - add ifdefs, includes etc. for PC/arm code compilation // fixing now
@@ -54,6 +56,24 @@ up to limit
   which is ADC 9-AD620 is on ADC1_IN11-DONE
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE - do we need two versions?
+
+
+* MON 20 JAN 2014
+
+- testing 16 bit SIR -DONE
+- CPUint.c: note that infection only updates cpu cells when it is run
+
+infection, mutation now as machine characteristics (swap not yet implemented)
+
+[[[[[[hodge.c CPU
+
+: extern u8 wormdir 
+
+---> is wormcode direction
+
+* TUE 14 JAN 2014
+
+- 16 bit SIR code 
 
 * FRI 10 JAN 2014
 
@@ -74,7 +94,7 @@ and wormcode steering buffer
 
 //for CA:
 
-16 bit SIR // in progress
+16 bit SIR // in progressDONE
 
 * THU 9 JAN 2014
 
