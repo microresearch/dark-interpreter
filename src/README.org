@@ -21,7 +21,7 @@ NOTE-==memory management/areas refresh==
 
 use 112KB+16 for general/sample buffer (int pointer to int will use 128k?)
 
-//how access 2nd block????
+//how access 2nd block - should be continuous addressing with first
 
 ccmdata for datagens/backwards/forwards/BUFFER
 
@@ -58,6 +58,13 @@ or have datagens->hardware on hardware knob???
   working in CPUint.cDONE - do we need two versions?
 
 
+* TUE 212 JAN 2014
+
+- memory management _DONE/still untested 
+- outline flow
+- first attempt at audio buffer (how to restrict to 32768 index & 32768)
+- test lower layer potis
+
 * MON 20 JAN 2014
 
 - testing 16 bit SIR -DONE
@@ -65,11 +72,13 @@ or have datagens->hardware on hardware knob???
 
 infection, mutation now as machine characteristics (swap not yet implemented)
 
-[[[[[[hodge.c CPU
+added and tested hodge cpu...
 
 : extern u8 wormdir 
 
 ---> is wormcode direction
+
+swapping of cpus is possible but we never call this function
 
 * TUE 14 JAN 2014
 

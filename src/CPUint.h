@@ -6,6 +6,8 @@
 
 typedef unsigned char u8;
 typedef uint16_t u16;
+
+#define DATA_BUFSZ 65535
     
 static const u8 STACK_SIZE=16;
 static const u8 MAX_THREADS=120;
