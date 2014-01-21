@@ -58,12 +58,21 @@ or have datagens->hardware on hardware knob???
   working in CPUint.cDONE - do we need two versions?
 
 
-* TUE 212 JAN 2014
+* WED 22 JAn 2014
+
+- edger should be direct poti(as all should be)! mark all as **TODO
+
+* TUE 21 JAN 2014
 
 - memory management _DONE/still untested 
-- outline flow
+- outline flow -DONE
+
 - first attempt at audio buffer (how to restrict to 32768 index & 32768)
+
 - test lower layer potis
+
+- complexity can also figure how many simultaneous datagens
+- also datagen rebooting!
 
 * MON 20 JAN 2014
 
