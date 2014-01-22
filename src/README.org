@@ -66,14 +66,18 @@ code/sample steering enabled, add/subtract from stack..?
 2-edge (for incoming samples) (3)
 
 3-modifier (4) - eg. speed, selection, re-inits, add to stack, memory
-exchange,samplerate, leakiness, mutation rate, sample effects, granular or not
+exchange,samplerate, leakiness, mutation rate, sample effects,
+granular or not, step through datagen buffer...
 
 4-complexity (1)
 
 <^> - as finger = up/down set position in stack/settings-(micro-macro), left/right mod settings...
  V
 
-how micro-macro knobs works with this and how we add/subtract to cpu stack...
+how micro-macro knobs works with this and how we add/subtract to cpu
+stack...
+
+option: grain stack//straight read samples from datagen position
 
 also that we could have to/from limits for reading from datagen
 
@@ -82,7 +86,7 @@ removed steps thru
 
 // TODO:
 
-- 16 bit math ops in cpuint??, and what about stepping - step through databuffer...
+- 16 bit math ops in cpuint - DONE and also fixed float error in hodge
 
 - fix simulation.c overflow possibility - SHOULD be fixed - TEST!
 

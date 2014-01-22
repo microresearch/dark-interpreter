@@ -64,9 +64,9 @@ static const u8 MAX_THREADS=120;
     u8 thread_get_pc(thread *t);
     u8 thread_get_start(thread *t);
     void thread_run(thread *t, machine *m);
-    const u8* thread_get_stack(thread *t);
-    const int thread_get_stack_pos(thread *t);
-    const u8 thread_stack_count(thread* this, u8 c);
+    u8* thread_get_stack(thread *t);
+    u8 thread_get_stack_pos(thread *t);
+    u8 thread_stack_count(thread* this, u8 c);
     u8 thread_is_active(thread *t);
     void thread_set_active(thread *t, u8 s);
     void thread_push(thread *t, u8 data);
@@ -75,7 +75,7 @@ static const u8 MAX_THREADS=120;
     
 /////////////////////////////////////////////////////////
     
-void machine_create(machine *this, u8 leakiness, uint8_t *buffer);
+void machine_create(machine *this, uint8_t *buffer);
 u8 machine_peek(const machine *t, u16 addr);
 void machine_poke(machine *t, u16 addr, u8 data);	
 void machine_run(machine *t);

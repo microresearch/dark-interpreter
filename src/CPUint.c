@@ -73,7 +73,7 @@ TOTAL so far: 25 CPUs (0-24)
 
 */
 
-#define CPU_TOTAL 25
+#define CPU_TOTAL 30
 
 void leak(machine *m);
 
@@ -148,12 +148,12 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
   //      printf("CPU: %d\n",this->m_CPU);
-  printf("%c",machine_peek(m,this->m_pc));
+  //      printf("%c",machine_peek(m,this->m_pc));
 
 #endif
 
   if (++this->m_delc==this->m_del){
-  switch(this->m_CPU % CPU_TOTAL)
+  switch(this->m_CPU)
     {
     case 0: // :LEAKY STACK! - working!
       instr=machine_peek(m,this->m_pc);
@@ -1110,7 +1110,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (y<4) y=4;
 
   if(machine_peek(m,this->m_pc) == 0)
-    machine_poke(m,this->m_pc,floor(other / machine_peek(m,1)) + floor(flag/machine_peek(m,2)));
+    machine_poke(m,this->m_pc,floor(other / (machine_peek(m,1)+1)) + floor(flag/(machine_peek(m,2)+1)));
   else if(machine_peek(m,this->m_pc) < machine_peek(m,0)-1)
     machine_poke(m,y,floor(temp / (other + 1)) + machine_peek(m,3));
   else
@@ -1158,11 +1158,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       this->m_pc++; 
       break;
     case 23:
-      #ifndef PCSIM
+#ifndef PCSIM
       machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_peek(m,this->m_pc)%10]);     
+      break;
 #endif
-
-
 ///////////////////////////////////////////////////////////////
     case 24:
       // from wormcode.c
@@ -1216,9 +1215,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  break;
 	case 9:
 	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc>>biotadir[randi()%8]));
-	  	  wormdir=biotadir[randi()%8];
+	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
-
 	  break;
 	case 10:
 	  if (machine_peek(m,this->m_pc+(biotadir[randi()%8]*2))==0){
@@ -1231,19 +1229,16 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  machine_poke(m,(this->m_pc+biotadir[randi()%8]),instr);
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
-
 	  break;
 	case 12:
 	  thread_push(this, machine_peek(m,this->m_pc+biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
-
 	  break;
 	case 13:
 	  machine_poke(m,(this->m_pc+=biotadir[randi()%8]),thread_pop(this));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
-
 	  break;
       case 14:
 #ifndef PCSIM
@@ -1251,20 +1246,68 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 #endif
 	break;
 	}
+      break;
+///////////////////////////////////////////////////////////////
+    case 25:
+      // 16 bit increment
+      instr=machine_peek(m,this->m_pc);
+      y=(instr<<8)+machine_peek(m,this->m_pc+1)+1;
+      machine_poke(m,this->m_pc,y>>8);      
+      machine_poke(m,this->m_pc+1,y&255);      
+      this->m_pc+=2;
+      //      printf("%d\n",y);
+      break;
+///////////////////////////////////////////////////////////////
+    case 26:
+      // 16 bit decrement
+      instr=machine_peek(m,this->m_pc);
+      y=(instr<<8)+machine_peek(m,this->m_pc+1)-1;
+      machine_poke(m,this->m_pc,y>>8);      
+      machine_poke(m,this->m_pc+1,y&255);      
+      this->m_pc+=2;
+      //      printf("%d\n",y);
+      break;
+///////////////////////////////////////////////////////////////
+    case 27:
+      // 16 bit left
+      instr=machine_peek(m,this->m_pc);
+      y=(instr<<9)+machine_peek(m,this->m_pc+1)<<1;
+      machine_poke(m,this->m_pc,y>>8);      
+      machine_poke(m,this->m_pc+1,y&255);      
+      this->m_pc+=2;
+      //      printf("%d\n",y);
+      break;
+///////////////////////////////////////////////////////////////
+    case 28:
+      // 16 bit right
+      instr=machine_peek(m,this->m_pc);
+      y=(instr<<7)+machine_peek(m,this->m_pc+1)>>1;
+      machine_poke(m,this->m_pc,y>>8);      
+      machine_poke(m,this->m_pc+1,y&255);      
+      this->m_pc+=2;
+      //      printf("%d\n",y);
+      break;
+///////////////////////////////////////////////////////////////
+    case 29:
+      // pure leakage - push instr onto stack. when stack is full pull off...
+      if (thread_stack_count(this,STACK_SIZE)) machine_poke(m,this->m_pc,thread_pop(this));
+      else thread_push(this,machine_peek(m,this->m_pc));
+      this->m_pc++;
+      break;
     }
       this->m_delc=0;
   } // if del
 }
 
-const u8* thread_get_stack(thread* this) { 
+u8* thread_get_stack(thread* this) { 
     return this->m_stack; 
 }
 
-const u8 thread_stack_count(thread* this, u8 c) { 
+u8 thread_stack_count(thread* this, u8 c) { 
     return (c-1)<=this->m_stack_pos; 
 }
 
-const int thread_get_stack_pos(thread* this) { 
+u8 thread_get_stack_pos(thread* this) { 
     return this->m_stack_pos; 
 }
 
@@ -1296,7 +1339,7 @@ u8 thread_top(thread* this) {
 
 ///////////////////////////////////////////////////////////////
 
-void machine_create(machine *this, u8 leakiness, uint8_t *buffer) {
+void machine_create(machine *this, uint8_t *buffer) {
   //  int count=0;
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_threadcount=0;
@@ -1319,12 +1362,13 @@ void machine_run(machine* this) {
 	for (unsigned char n=0; n<this->m_threadcount; n++) {
 		thread_run(&this->m_threads[n],this);
 	}
-	if ((randi()%this->m_leakiness)==0) {
+
+		if ((randi()%this->m_leakiness)==0) {
   	leak(this);
   	}
 
 	// do infection/mutation
-
+	
 	if ((randi()%this->m_infectprob)==0) {
 	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
@@ -1337,9 +1381,7 @@ void machine_run(machine* this) {
 
 	  //	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
-	}
-
-
+	}       
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1480,7 +1522,7 @@ int main(void)
   */
 
   machine *m=(machine *)malloc(sizeof(machine));
-  machine_create(m,randi()%255,buffer); // this just takes care of pointer to machine and malloc for threads
+  machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
   m->m_leakiness=randi()%255;
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
@@ -1516,10 +1558,13 @@ int main(void)
 
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
+	   	  cpustackpush(m,addr,addr+randi()%65536,randi()%30,randi()%255);
+	  //	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
+	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 
+
+	
 	  while(1) {
           machine_run(m);
 	  }

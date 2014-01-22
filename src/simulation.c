@@ -1082,7 +1082,7 @@ void main(void)
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x;
   u8 howmuch;
-  uint16_t xxx[MAX_SAM],result; //780 is max we can go over for 3xu8 howmuch with fitz as 3x
+  uint16_t xxx[MAX_SAM],result;
   uint16_t count=0;
   srand(time(NULL));
 
