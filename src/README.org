@@ -12,6 +12,12 @@ send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be testedDONE
 1 phase: hardware switchingsDONE + architecture outlineROUGH 
 2 phase: datagens/hardware tests BY BEGIN JAN! DONE
 
+3 editions: lach,susp,tene
+
+1-Mater Lachrymarum, Our Lady of Tears: just processing: no hardware/untying.
+2-Mater Suspiriorum, Our Lady of Sighs: no untying.
+3-Mater Tenebrarum,—Our Lady of Darkness: all.
+
 3 phase: grains/audio buffers and processing (any mixing of signals?)
 4 phase: knobs assigned and all tests/tweak/RELEASE
 
@@ -34,17 +40,7 @@ up to limit
 
 *then start on buffer/grain code, hardware tie-ins*
 
-- should have datagen->change all hardware switch code!
-
-- add to knobs if have space - general complexity, from 0[signal
-  thru/1maintain output/no write] to 3[signal thru/4datagens->hardware]
-  to 5[change sample by datagen buffer/6hardware] to 7[basic granulation
-  buffer/8hardware] to 9[granulation buffer as pointer to
-  locations/10-hardware] to 11[+change sample/12-hardware] to
-  13[worming thru buffer(according to datagen)/14change
-  sample/15hardware] .. hardware as bit/mod...
-
-or have datagens->hardware on hardware knob???
+- mark all questions as **TODO
 
 * DONE
 
@@ -60,18 +56,47 @@ or have datagens->hardware on hardware knob???
 
 * WED 22 JAn 2014
 
-- edger should be direct poti(as all should be)! mark all as **TODO
+rough poti list (top down= 2,0,3,4,1):
+
+0-hardware(2) (and for Lachrymarum? - shift some modifiers
+
+1-micro->macro with cross - how? (0) - mods the cross/so for example
+code/sample steering enabled, add/subtract from stack..?
+
+2-edge (for incoming samples) (3)
+
+3-modifier (4) - eg. speed, selection, re-inits, add to stack, memory
+exchange,samplerate, leakiness, mutation rate, sample effects, granular or not
+
+4-complexity (1)
+
+<^> - as finger = up/down set position in stack/settings-(micro-macro), left/right mod settings...
+ V
+
+how micro-macro knobs works with this and how we add/subtract to cpu stack...
+
+also that we could have to/from limits for reading from datagen
+
+path through datagen can be stepped, can be dictated by datagen... x
+removed steps thru
+
+// TODO:
+
+- 16 bit math ops in cpuint??, and what about stepping - step through databuffer...
+
+- fix simulation.c overflow possibility - SHOULD be fixed - TEST!
 
 * TUE 21 JAN 2014
 
 - memory management _DONE/still untested 
 - outline flow -DONE
 
-- first attempt at audio buffer (how to restrict to 32768 index & 32768)
+- first attempt at audio buffer (how to restrict to 32768 index & 32767)
 
 - test lower layer potis
 
 - complexity can also figure how many simultaneous datagens
+
 - also datagen rebooting!
 
 * MON 20 JAN 2014
