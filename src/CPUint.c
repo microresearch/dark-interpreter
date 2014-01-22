@@ -148,7 +148,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
   //      printf("CPU: %d\n",this->m_CPU);
-  //      printf("%c",machine_peek(m,this->m_pc));
+        printf("%c",machine_peek(m,this->m_pc));
 
 #endif
 

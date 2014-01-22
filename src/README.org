@@ -58,16 +58,20 @@ up to limit
 
 rough poti list (top down= 2,0,3,4,1):
 
-0-hardware(2) (and for Lachrymarum? - shift some modifiers
+0-hardware(2) (and for Lachrymarum? - repeat up/down of 4finger-mod?)
 
 1-micro->macro with cross - how? (0) - mods the cross/so for example
-code/sample steering enabled, add/subtract from stack..?
+code/sample steering enabled, add/subtract from stack..? also see
+modifier below
 
-2-edge (for incoming samples) (3)
+2-edge (for incoming samples) (3) DONE
 
 3-modifier (4) - eg. speed, selection, re-inits, add to stack, memory
-exchange,samplerate, leakiness, mutation rate, sample effects,
-granular or not, step through datagen buffer...
+exchange, cpu-swap, samplerate, leakiness, mutation rate, sample effects,
+digital filter effects, granular or not, step through datagen
+buffer... or most as in 1 above // here focus on speed/step
+
+[changing sample rates only possible for usual 1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
 4-complexity (1)
 
@@ -86,14 +90,9 @@ removed steps thru
 
 // TODO:
 
-- 16 bit math ops in cpuint - DONE and also fixed float error in hodge
+- 16 bit math ops in cpuint - DONE and also fixed float error in hodgeDONE
 
-- fix simulation.c overflow possibility - SHOULD be fixed - TEST!
-
-* TUE 21 JAN 2014
-
-- memory management _DONE/still untested 
-- outline flow -DONE
+- fix simulation.c overflow possibility - SHOULD be fixed - DONE!
 
 - first attempt at audio buffer (how to restrict to 32768 index & 32767)
 
@@ -101,7 +100,11 @@ removed steps thru
 
 - complexity can also figure how many simultaneous datagens
 
-- also datagen rebooting!
+* TUE 21 JAN 2014
+
+- memory management _DONE/still untested 
+- outline flow -DONE
+
 
 * MON 20 JAN 2014
 

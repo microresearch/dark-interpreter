@@ -1,0 +1,59 @@
+* parts list
+
+** Resistors
+
+330Rx1
+1Kx3
+4.7Kx2
+5.6Kx4
+10K xmany
+33Kx1
+100K x1
+200K x2
+390K x1
+470Kx4
+1Mx1
+10Mx2
+
+** Caps
+
+18pF/22pF x2
+220pFx1
+1nFx3
+10nF x2
+100nF xMANY
+470nF x1
+1uFx2
+2.2uFx2
+4.7uFx1
+10uFx7
+
+** Active
+
+LEDx1 
+AD620/INA129x1 -top
+DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R)
+OP27x3 -top
+HCT40106x1
+CD74HCT4053M96x1
+HCT4066x3
+LM13700MX/NOPB (mouser)
+LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser)
+LM1117-5Vx1  DT-5(mouser)
+LM358x1
+MAX7400x1
+STM32F405RGT6x1 (mouser)
+8 MHz XTAL (SMD HC49)x1
+
+** other
+
+inductorx1: 81-BLM18BD252SN1D (mouser)
+JACKSx2 (Banzai)
+switchx1 (ebay supplier)
+connectorx2 (REICHELT: BL 2X25G8 2,54)
+connectorx1 (REICHELT: BSL 2X25G 2,54)
+2.1mm DC socketx1 (SEGOR)
+(offsets DI 20mm,screws??)
+potisx1
+battery holder 9vx1 534-1294 (mouser)
+

@@ -11,7 +11,10 @@
 void setup_switches(void);
 void switch_jack(void);
 void changepwm(uint16_t value);
-
+void initpwm(void);
+void setlmpwm(uint16_t value, uint16_t value2);
+void set40106pwm(uint16_t value);
+void setmaximpwm(uint16_t value);
 #endif
 
 /* what are pins we need to be switching?

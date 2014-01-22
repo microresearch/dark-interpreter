@@ -11,6 +11,7 @@ LINEIN/OUTL-filter
 */
 
 #include "audio.h"
+#include "CPUint.h"
 
 /* Stereo buffers */
 #define STEREO_BUFSZ (BUFF_LEN/2)
@@ -18,10 +19,15 @@ LINEIN/OUTL-filter
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 		mono_buffer[MONO_BUFSZ];
 
-//int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".ccmdata")));;
+extern __IO uint16_t adc_buffer[10];
+//extern u16 edger; // REPLACE with direct poti! **TODO
+
+u8 digfilterflag;
+
+#define edger (adc_buffer[3])
+
+extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
-int16_t writeloc[BUFF_LEN/2];
-int16_t readloc[BUFF_LEN/2];
 int16_t *audio_ptr;
 
 void Audio_Init(void)
@@ -50,6 +56,23 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 	}
 }
 
+void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge)
+{
+  static u16 count;
+	while(sz)
+	{
+		*ldst++ = *src++;
+		sz--;
+		count++;
+		if (count>=AUDIO_BUFSZ) count=edge;
+		*rdst++ = *src;
+		audio_buffer[count] = *src++;
+		//		*rdst++ = 0;
+		sz--;
+	}
+}
+
+
 void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 {
 	while(sz)
@@ -60,6 +83,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 		sz--;
 	}
 }
+
 
 
 void buffer_put(int16_t in)
@@ -82,39 +106,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
-	audio_split_stereo(sz, src, left_buffer, right_buffer);
+
+	// TODO- processing here:
+	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
+	di_split_stereo(sz, src, left_buffer, right_buffer, edger);
+
+	// 2- databuffer or wormdir or complexities/combination of these
+	// databuffer[x] as index into audiobuf & 32767 ??? 
+
+	// direction of reading, stepsize etc. as pos_func(complexity,dir,step)
+	// passed as function pointer to:
+
+	//	di_process_buffer(sz,right_buffer,mono_buffer,complexity, dir, step)
+	// mono is result... right_buffer there just for possible process
+
+	// or as grains with grainsize???
+	//   granular style (start->end%maxgrainsize) - as option
 	
+	// 3- any processing of left buffer for filter (check digfilterflag)
 
-	/*
-	// load right buffer into mainbuffer using writegrainlist
-	// or is just list of sz positions
-	for (x=0;x<sz/2;x++){
-	  audio_buffer[wcount+x]=right_buffer[x];
-	}
-
-	// load mainbuffer into right buffer using readgrainlist
-	// or is just list of sz positions
-	for (x=0;x<sz/2;x++){
-	  right_buffer[x]= audio_buffer[rcount+x];
-	}
-	
-	rcount+=(sz/2); // now works for each knob/adc - TODO-test all
-	wcount+=(sz/2);
-	  if (wcount>48000) wcount=0;
-	  if (rcount>48000) rcount=0;
-	*/
-		for (x=0;x<sz/2;x++){
-		  //		  left_buffer[(sz/2)-x]=right_buffer[x];
-		  left_buffer[x]=left_buffer[x]*16;
-		  //		  right_buffer[x]=0;
-	  }
-
-	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-	// but what we hear is right_buffer here, left is for filter feedback
-	// figure this out - 
-	//	audio_comb_stereo(sz, dst, right_buffer=filter, right_buffer=audio);
-	// and left is filter in
-
+	// 4-out
+	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif
 
 }

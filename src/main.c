@@ -26,12 +26,17 @@ make stlink_flash
 #include "adc.h"
 #include "audio.h"
 #include "hardware.h"
+#include "CPUint.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
+
+int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
+
+u8 wormdir; // worm direction
 
 #define delay()						\
 do {							\
@@ -57,18 +62,26 @@ void main(void)
 	uint32_t state;
 	int32_t idx, rcount,wcount;
 	uint16_t data,x,y,i,highest,lowest;
-		
+	
+	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
+	
 #if 1
-	ADC1_Initonce();
+	//	ADC1_Initonce();
+	ADC1_Init((uint16_t *)adc_buffer);
+
+#ifndef LACH
 	setup_switches();
+#endif
 
 	// maintain order
 
 	Audio_Init();
 	Codec_Init(48000);
 	delay();
+
+#ifndef LACH
 	initpwm(); 	
-		
+#endif		
 
 	I2S_Block_Init();
 	
@@ -85,24 +98,28 @@ void main(void)
 	}
 #endif
 	x=rcount=i=wcount=highest=lowest=0;
-	//	switch_jack();	
+
+	// init machine/datagens
+	
 	while(1)
 	{
-	  i++;
-	  if (i>4096) i=0;
 	  // top down knobs: 2,0,3,4,1 
+	  //	  y=adc_buffer[2];
 
-	  	  for (x=0;x<32;x++){
-	      y+= ADC1_Measure();
-	  	  }	  
-	  	  y=y/32;
-		  dohardwareswitch(y);
-	  //	  y=0;
-	  	  set40106pwm(i);
-		  //		  setmaximpwm(200+i);// 200 to 4800 (lowest frequency)
-		  setmaximpwm(200+i);// 200 to 4800 (lowest frequency)
-		  //		  setlmpwm(i,(4096-i)/10);
-		  //		  delay2();
+	  // 1-run machine/datagen code (how to select?)
+	  // [2-assign buffer for grains (is this just pointer into datagen buffer?)
+	  // - question also of wormcode and how we step through this (self-reference)
+	  // - this could be in audio.c]
+	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
+	  // 4-any hardware operations
+
+
+#ifndef LACH
+	  dohardwareswitch(adc_buffer[2]);
+#endif
+
+
+
 	}
 }
 
