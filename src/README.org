@@ -58,7 +58,8 @@ up to limit
 
 rough poti list (top down= 2,0,3,4,1):
 
-0-hardware(2) (and for Lachrymarum? - repeat up/down of 4finger-mod?)
+0-hardware(2) (and for Lachrymarum? - repeat up/down of 4finger-mod?
+or simply leave off this knob?)
 
 1-micro->macro with cross - how? (0) - mods the cross/so for example
 code/sample steering enabled, add/subtract from stack..? also see
@@ -66,27 +67,25 @@ modifier below
 
 2-edge (for incoming samples) (3) DONE
 
-3-modifier (4) - eg. speed, selection, re-inits, add to stack, memory
-exchange, cpu-swap, samplerate, leakiness, mutation rate, sample effects,
-digital filter effects, granular or not, step through datagen
-buffer... or most as in 1 above // here focus on speed/step
+3-modifier (4) - eg. speed, re-inits, add to stack, memory exchange,
+cpu-swap factor, samplerate, leakiness, mutation rate, sample effects,
+digital filter effects, granular or not, step through datagen buffer,
+datagen-to-clocks, chaining of datagens (new stack) ... or most as in
+1 above // here focus on speed/samplerate/step 
 
 [changing sample rates only possible for usual 1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
-4-complexity (1)
+4-complexity (1) - signal straight thru/no write/sample by simple
+datagen/effect/granulation/meta-pointer-to-pointer/effectonsample(bitwise
+thru all!)  /wormthrubuffer/othermovementthrubuffer
+
+///
 
 <^> - as finger = up/down set position in stack/settings-(micro-macro), left/right mod settings...
  V
 
-how micro-macro knobs works with this and how we add/subtract to cpu
-stack...
-
-option: grain stack//straight read samples from datagen position
-
-also that we could have to/from limits for reading from datagen
-
-path through datagen can be stepped, can be dictated by datagen... x
-removed steps thru
++ steps/path through datagen counter/dir // hardwareswitch into
+  datagen // filterops into datagen and clocks into datagen
 
 // TODO:
 
@@ -98,13 +97,12 @@ removed steps thru
 
 - test lower layer potis
 
-- complexity can also figure how many simultaneous datagens
+- how we access datagen in hardwareswitch 
 
 * TUE 21 JAN 2014
 
 - memory management _DONE/still untested 
 - outline flow -DONE
-
 
 * MON 20 JAN 2014
 

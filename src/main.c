@@ -107,18 +107,14 @@ void main(void)
 	  //	  y=adc_buffer[2];
 
 	  // 1-run machine/datagen code (how to select?)
-	  // [2-assign buffer for grains (is this just pointer into datagen buffer?)
-	  // - question also of wormcode and how we step through this (self-reference)
-	  // - this could be in audio.c]
-	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
-	  // 4-any hardware operations
 
+	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
+
+	  // 4-any hardware operations
 
 #ifndef LACH
 	  dohardwareswitch(adc_buffer[2]);
 #endif
-
-
 
 	}
 }

@@ -104,9 +104,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-
 #else
-
 	// TODO- processing here:
 	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
 	di_split_stereo(sz, src, left_buffer, right_buffer, edger);

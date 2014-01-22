@@ -207,7 +207,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL= (1<<10);
    break;
   case 1:
-    // **TODO: replace this one with datagen->hardware options (mask)
+    // **TODO: replace this one with datagen->hardware options except input (mask)!
 
     /*
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
