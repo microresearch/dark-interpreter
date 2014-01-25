@@ -55,6 +55,29 @@ up to limit
   working in CPUint.cDONE 
 
 
+* SAT 25 JAN 2014
+
+notes on datagens:
+
+CPUint.c:
+
+machine *m=(machine *)malloc(sizeof(machine));
+machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
+m->m_leakiness=randi()%255;
+m->m_infectprob=randi()%255;
+m->m_mutateprob=randi()%255;
+
+cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay) -up to max of 30 CPUs
+
+and: 
+
+machine_run(m); (which can also be slowed/delayed)
+
+
+////////////////////
+
+
+
 * WED 22 JAN 2014
 
 poti list (top down= 2,0,3,4,1):
@@ -98,7 +121,7 @@ or knob as position in stack/settings and use left/right to set these
 
 *shorthand above as samp/hard/clocks*
 
-//eg.samp->step,position,direction(into array),speed,post-process,start,end 
+//eg.xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
 
 (but also how often we _want_ to update hardware and clocks which are
 different, also samp has granular start/end option)
