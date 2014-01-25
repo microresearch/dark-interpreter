@@ -77,6 +77,10 @@ machine_run(m); (which can also be slowed/delayed)
 ////////////////////
 
 
+////////////////////
+
+in hardware.c we could pass hdgen to dohardwareswitch
+
 
 * WED 22 JAN 2014
 

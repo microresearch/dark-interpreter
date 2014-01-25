@@ -8,6 +8,7 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
 
+void dohardwareswitch(uint16_t modder, u8 hdgen);
 void setup_switches(void);
 void switch_jack(void);
 void changepwm(uint16_t value);

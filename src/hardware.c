@@ -33,7 +33,6 @@ test leave all hanging= GPIO_Mode_IN_FLOATING
 - clean up for functions below and test all combinations:
 
   functions:
-
 - justfilter
 - justdistortion
 - filterthendistortion
@@ -121,9 +120,8 @@ all clocks set in datagens/elsewhere
 
 void reset_switches(void);
 
-void dohardwareswitch(uint16_t modder){
+void dohardwareswitch(uint16_t modder, u8 hdgen){
   uint16_t res,res2;
-  u8 hdgen;
   static uint8_t hangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
@@ -208,11 +206,6 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
   case 1:
     // **TODO: replace this one with datagen->hardware options except input (mask)!
-
-    // do hardware datagen walk into hdgen( 8 bit)
-
-    // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,post-process,start,end 
-    
     // GPIOB->0,3,4,5,6,8,9...
     GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
     GPIOB->ODR |= ~((hdgen&2) | ((hdgen&4)<<3) | ((hdgen&8)<<4) | ((hdgen&16)<<5) | ((hdgen&32)<<6) | ((hdgen&64)<<8) | ((hdgen&128)<<9));		    

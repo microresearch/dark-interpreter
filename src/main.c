@@ -52,7 +52,6 @@ do {							\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
-void dohardwareswitch(uint16_t modder);
 
 void main(void)
 {
@@ -62,6 +61,7 @@ void main(void)
 	uint32_t state;
 	int32_t idx, rcount,wcount;
 	uint16_t data,x,y,i,highest,lowest;
+	u8 hdgen;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 	
@@ -113,7 +113,11 @@ void main(void)
 	  // 4-any hardware operations
 
 #ifndef LACH
-	  dohardwareswitch(adc_buffer[2]);
+
+	  // do hardware datagen walk into hdgen( 8 bit)
+	  // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
+
+	  dohardwareswitch(adc_buffer[2],hdgen);
 #endif
 
 	}
