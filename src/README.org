@@ -37,29 +37,30 @@ up to limit
 * TODO
 
 - test lower board potis!
+- test simplest hardware
 
 *then start on buffer/grain code, hardware tie-ins*
 
-- mark all questions as **TODO
+- marked all questions as **TODO
 
 * DONE
 
-- add ifdefs, includes etc. for PC/arm code compilation // fixing now
+- add ifdefs, includes etc. for PC/arm code compilation
   compile optionsTEST-DONE
 - test new code/makefile that still actually runs! IT DOES!
 - cleanups/fix adc code/test ADC now?
 - replace RAND with ad620/floating-DONE
   which is ADC 9-AD620 is on ADC1_IN11-DONE
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
-  working in CPUint.cDONE - do we need two versions?
+  working in CPUint.cDONE 
 
 
-* WED 22 JAn 2014
+* WED 22 JAN 2014
 
-rough poti list (top down= 2,0,3,4,1):
+poti list (top down= 2,0,3,4,1):
 
-0-hardware(2) (and for Lachrymarum? - repeat up/down of 4finger-mod?
-or simply leave off this knob?)
+0-hardware(2) (and for Lachrymarum? - options: repeat up/down of
+4finger-mod, simply leave off this knob, as end of sample in (edger style))
 
 1-micro->macro with cross - how? (0) - mods the cross/so for example
 code/sample steering enabled, add/subtract from stack..? also see
@@ -67,11 +68,13 @@ modifier below
 
 2-edge (for incoming samples) (3) DONE
 
-3-modifier (4) - eg. speed, re-inits, add to stack, memory exchange,
-cpu-swap factor, samplerate, leakiness, mutation rate, sample effects,
-digital filter effects, granular or not, step through datagen buffer,
-datagen-to-clocks, chaining of datagens (new stack) ... or most as in
-1 above // here focus on speed/samplerate/step 
+3-modifier (4) - re-inits, add to stack, memory exchange, cpu-swap
+factor, samplerate, leakiness, mutation rate, digital filter effects,
+granular or not, chaining of datagens (new stack) ... or most as in 1
+above
+
+// here focus on speed/and/step but these are for each CPU
+and/or for: samp/hard/clocks
 
 [changing sample rates only possible for usual 1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
@@ -79,13 +82,29 @@ datagen-to-clocks, chaining of datagens (new stack) ... or most as in
 datagen/effect/granulation/meta-pointer-to-pointer/effectonsample(bitwise
 thru all!)  /wormthrubuffer/othermovementthrubuffer
 
+max number of cpus, of datagens...
+
 ///
 
 <^> - as finger = up/down set position in stack/settings-(micro-macro), left/right mod settings...
  V
 
-+ steps/path through datagen counter/dir // hardwareswitch into
-  datagen // filterops into datagen and clocks into datagen
+or knob as position in stack/settings and use left/right to set these
+(and up and down just for direction?)
+
++ steps/path/speed through 1-sampledatagen counter/dir //
+  2-hardwareswitch into datagen // 3-filterops into datagen //
+  4-clocks into datagen
+
+*shorthand above as samp/hard/clocks*
+
+//eg.samp->step,position,direction(into array),speed,post-process,start,end 
+
+(but also how often we _want_ to update hardware and clocks which are
+different, also samp has granular start/end option)
+
+refine all to ops in datagen-buffer/swaps with samplebuffer
+movements through datagen-buffer
 
 // TODO:
 
@@ -98,6 +117,10 @@ thru all!)  /wormthrubuffer/othermovementthrubuffer
 - test lower layer potis
 
 - how we access datagen in hardwareswitch 
+
+- does NaN cause problems or not?
+
+- redo pad maps (now where is it?)
 
 * TUE 21 JAN 2014
 

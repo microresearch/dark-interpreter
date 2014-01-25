@@ -22,8 +22,6 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 //extern u16 edger; // REPLACE with direct poti! **TODO
 
-u8 digfilterflag;
-
 #define edger (adc_buffer[3])
 
 extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
@@ -104,24 +102,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+
 #else
+
 	// TODO- processing here:
 	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
 	di_split_stereo(sz, src, left_buffer, right_buffer, edger);
 
 	// 2- databuffer or wormdir or complexities/combination of these
-	// databuffer[x] as index into audiobuf & 32767 ??? 
+	// databuffer[x] as index into audiobuf & 32767 
 
-	// direction of reading, stepsize etc. as pos_func(complexity,dir,step)
-	// passed as function pointer to:
-
-	//	di_process_buffer(sz,right_buffer,mono_buffer,complexity, dir, step)
+	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
 	// mono is result... right_buffer there just for possible process
 
 	// or as grains with grainsize???
 	//   granular style (start->end%maxgrainsize) - as option
+	// - reads back samples into right_buffer with any processing
 	
-	// 3- any processing of left buffer for filter (check digfilterflag)
+
+
+	// 3- any processing of left buffer eg...
 
 	// 4-out
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
