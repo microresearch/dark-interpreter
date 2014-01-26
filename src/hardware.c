@@ -122,7 +122,7 @@ void reset_switches(void);
 
 void dohardwareswitch(uint16_t modder, u8 hdgen){
   uint16_t res,res2;
-  static uint8_t hangflag=0;
+  static uint8_t hangflag=0, clockhangflag;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
   // mod is 12 bits 0-4096
@@ -147,7 +147,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->25
   res2=(modder>>8); // so now we have 4 bits left = 0->4 options
 
-  if (res2!=1 && res2!=2 && hangflag==1){
+  if (res2!=2 && hangflag==1){
     hangflag=0;
     reset_switches();
   }
@@ -156,8 +156,6 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   res=2;
   res2=0; // test pwm
 #endif // TEST_STRAIGHT
-
-  digfilterflag=0;
 
   /*
 RES: feedback on/off - jackin-> - lm358in->
@@ -182,6 +180,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
    // **TODO! 
    // add unhang for clocks?
+   clockhangflag=1;
    break;
  case 2:
    GPIOB->BSRRH = (1<<7);
@@ -195,6 +194,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
  }
 
+  digfilterflag=0;
   switch(res2){
   case 0:
    //1-straightout
@@ -215,8 +215,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL=(1<<11);
     GPIOC->BSRRH=(1<<10);
     GPIOC->ODR|=((hdgen&1)<<10);
-    digfilterflag=1;
-
+    if (clockhangflag==0) digfilterflag=15;
+    else digfilterflag=1;
     /*
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     //question is if really makes sense to unhang _all_
@@ -245,12 +245,15 @@ RES: feedback on/off - jackin-> - lm358in->
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
   GPIO_Init(GPIOC, &GPIO_InitStructure);
+    if (clockhangflag==0) digfilterflag=15;
+    else digfilterflag=1;
     break;
   case 3:
     //3-just40106
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6);
+    if (clockhangflag==0) digfilterflag=2;
     break;
   case 4:
     //4-filterthen40106-->|filterpath=1lm/2digital-distort on/off in each case
@@ -258,6 +261,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOB->BSRRL=(1<<3) | (1<<6);
     GPIOC->BSRRL=(1<<11) | (1<<10);
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 5: // 
     //filterpath->lm distort
@@ -265,13 +269,14 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<10);
     GPIOB->BSRRL=(1<<3) | (1<<6);
     GPIOC->BSRRL=(1<<11);
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 6:
     //filterpath->digital no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
     GPIOC->BSRRL=(1<<11) | (1<<10);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=11;
     break;
   case 7: //
     //filterpath->digital distort
@@ -279,7 +284,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<10);
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
     GPIOC->BSRRL=(1<<11);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=11;
     break;
   case 8:
     //5-40106thenfilter-->|
@@ -288,12 +293,14 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
     GPIOC->BSRRL= (1<<10);
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 9:
     //filterpath->lm distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11) | (1<<10);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 10:
     //filter->digital no distort
@@ -301,14 +308,14 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRL= (1<<10);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=11;
     break;
   case 11:
     //filter->digital distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
     GPIOC->BSRRH= (1<<11) | (1<<10);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 12:
     //6-justfilter------->|
@@ -316,6 +323,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<10) | (1<<11);
+    if (clockhangflag==0) digfilterflag=12;
     break;
   case 13:
     //filterpath->lm distort
@@ -323,13 +331,14 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<10);
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<11);
+    if (clockhangflag==0) digfilterflag=14;
     break;
   case 14:
     //filterpath->digital no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
     GPIOB->BSRRL= (1<<4) | (1<<8) | (1<<9);
     GPIOC->BSRRL= (1<<10) | (1<<11);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=9;
     break;
   case 15:
     //filterpath->digital distort
@@ -337,7 +346,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<10) | (1<<8) | (1<<9);
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<11);
-    digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=11;
     break;
   }
 }

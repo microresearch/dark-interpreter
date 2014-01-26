@@ -55,11 +55,19 @@ up to limit
   working in CPUint.cDONE 
 
 
+* MON 27 JAN 2014
+
+- specify potis my way of inside (fine &x) and outside >> bitshift settings
+
+- what relations could be between post-filter and input
+
+- simple co-eff filter additions in cpu or simulations
+
 * SAT 25 JAN 2014
 
 notes on datagens:
 
-CPUint.c:
+*CPUint.c:*
 
 machine *m=(machine *)malloc(sizeof(machine));
 machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
@@ -71,16 +79,29 @@ cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay) -
 
 and: 
 
-machine_run(m); (which can also be slowed/delayed)
+machine_run(m); (which can also be slowed/delayed with surroundings)
+
+////////////////////
+
+*CA.c:*
+
+specific inits and specific:
+
+count=runSIR16(count,1,buffer,howmuch,unit);
 
 
 ////////////////////
 
+*simulation.c:*
+
+specific inits and specific:
+
+count=runfitz(count,1,xxx,howmuch,unit);
 
 ////////////////////
 
-in hardware.c we could pass hdgen to dohardwareswitch
-
+so sim and ca can be stacked as function pointers, machine_run is bitwise
+within complexity setting
 
 * WED 22 JAN 2014
 
@@ -103,7 +124,11 @@ above
 // here focus on speed/and/step but these are for each CPU
 and/or for: samp/hard/clocks
 
-[changing sample rates only possible for usual 1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
+[changing sample rates only possible for usual 1-44.1, 2-16, 3-48,
+4-96, 5-8, 6-88.2 KHz]
+
+so we could have 0-5 on outside for sample rate and perhaps generic
+speed multiplier for all on inside!
 
 4-complexity (1) - signal straight thru/no write/sample by simple
 datagen/effect/granulation/meta-pointer-to-pointer/effectonsample(bitwise

@@ -118,6 +118,12 @@ void main(void)
 	  // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
 
 	  dohardwareswitch(adc_buffer[2],hdgen);
+	  
+	  // do
+	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
+	  // have to generate/update- 3 bits-40106/lm/maxim + filterbit on/off
+
+
 #endif
 
 	}

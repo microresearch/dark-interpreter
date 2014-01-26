@@ -24,6 +24,7 @@ extern __IO uint16_t adc_buffer[10];
 
 #define edger (adc_buffer[3])
 
+extern u8 digfilterflag;
 extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
@@ -113,15 +114,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// databuffer[x] as index into audiobuf & 32767 
 
 	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
-	// mono is result... right_buffer there just for possible process
+	// mono is result... right_buffer there just for possible processing
 
 	// or as grains with grainsize???
 	//   granular style (start->end%maxgrainsize) - as option
 	// - reads back samples into right_buffer with any processing
 	
+	if (digfilterflag&1){
+	// 3- any processing of left buffer
 
+	}
 
-	// 3- any processing of left buffer eg...
 
 	// 4-out
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
