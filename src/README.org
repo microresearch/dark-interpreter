@@ -59,9 +59,17 @@ up to limit
 
 - specify potis my way of inside (fine &x) and outside >> bitshift settings
 
-- what relations could be between post-filter and input
+- what relations could be between post-filter and input (we can go
+  straight out/thru 40106 but still switch in digital filter and mix
+  left INTO right)... but where to spec. - in complexity (as hardware
+  settings are full)
+
+TODO: add as options in hardware.c with control by complexity 
 
 - simple co-eff filter additions in cpu or simulations
+
+- do lower potis, build simplest, images, test potis/straight thru on
+  both, test datagens on ARM (NaN etc.)
 
 * SAT 25 JAN 2014
 

@@ -39,7 +39,7 @@ test leave all hanging= GPIO_Mode_IN_FLOATING
 - distortionthenfilter
 - distortioninfilter on/off (could be done fast also)
 - setfiltfeedbackpath - digital/lm13700
-- feedback (leave for now)
+- feedback 
 - setfloating (enum list)
 - setallfloating (or how to set diff ones but not just one)
 
@@ -194,6 +194,8 @@ RES: feedback on/off - jackin-> - lm358in->
 
  }
 
+  //digfilterflag= 8.4.2.1=maxim,lm,40106,digfilter
+
   digfilterflag=0;
   switch(res2){
   case 0:
@@ -203,8 +205,13 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL = (1<<2);//
     GPIOC->BSRRL= (1<<10);
+
+    // toggle option to send signal to filter as well + digital/with/without distort
+    // pc11, pb9 and distort is on pc10 (1 is no distort)...
+    // could also pass through 40106 first but too many options
+
    break;
-  case 1:
+  case 2:
     // **TODO: replace this one with datagen->hardware options except input (mask)!
     // GPIOB->0,3,4,5,6,8,9...
     GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
@@ -233,7 +240,7 @@ RES: feedback on/off - jackin-> - lm358in->
       GPIO_Init(GPIOC, &GPIO_InitStructure);
     */
     break;
-  case 2:
+  case 3:
         //2-unhang all except input [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     // input is pb7
     hangflag=1;
@@ -248,11 +255,16 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=15;
     else digfilterflag=1;
     break;
-  case 3:
+  case 1:
     //3-just40106
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6);
+
+    // toggle option to send signal to filter as well + digital/with/without distort
+    // pc11, pb9 and distort is on pc10 (1 is no distort)...
+    // could also pass through 40106 first but too many options
+
     if (clockhangflag==0) digfilterflag=2;
     break;
   case 4:
