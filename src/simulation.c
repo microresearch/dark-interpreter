@@ -65,6 +65,42 @@ extern __IO uint16_t adc_buffer[10];
 
 //////////////////////////////////////////////////////////
 
+// convolve
+
+void convinit(struct CONV* unit, uint16_t *workingbuffer){
+  unit->del=0;
+  unit->c0=(float)workingbuffer[0]/65536.0;
+  unit->c1=(float)workingbuffer[1]/65536.0;
+  unit->c2=(float)workingbuffer[2]/65536.0;
+}
+
+uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct CONV* unit){
+  u8 i=0; u16 y,tmp;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+    y=count+16384;
+    y=y%32768;
+    if (count==0) tmp=32767;
+    else tmp=count-1;
+			
+    workingbuffer[y]=((float)workingbuffer[tmp]*unit->c0)+((float)workingbuffer[count]*unit->c1)+((float)workingbuffer[(count+1)%32768]*unit->c2);
+
+#ifdef PCSIM
+    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[count]);
+    //    printf("%c",workingbuffer[count]>>8);
+
+#endif
+  }
+    unit->del=0;
+  }
+  return count;
+}
+
+
+//////////////////////////////////////////////////////////
+
 // sine
 
 void sineinit(struct siney* unit, uint16_t *workingbuffer){
@@ -89,16 +125,17 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+i]=unit->sin_data[unit->cc%256];
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=unit->sin_data[unit->cc%256];
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+(u16)i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
     unit->cc++;
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 
@@ -115,137 +152,146 @@ uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=unit->cop++;
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=unit->cop++;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+(u16)i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+i]=unit->cop--;
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=unit->cop--;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]<<=1;
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count+(u16)i]=workingbuffer[count]<<=1;
 #ifdef PCSIM
-    printf("%d %d\n",count+(u16)i,workingbuffer[count+(u16)i]);
+    printf("%d %d\n",count,workingbuffer[count]);
 #endif
   }
   unit->del=0;
   }
-  return count+(u16)i;
+  return count;
 }
 
 uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i]>>=1;
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=workingbuffer[count]>>=1;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0; u16 temp;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    temp=workingbuffer[count+(u16)i];
-    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i+1];
-    workingbuffer[count+(u16)i+1]=temp;
+    count++;
+    if (count==MAX_SAM) count=0;
+    temp=workingbuffer[count];
+    workingbuffer[count]=workingbuffer[count+1];
+    workingbuffer[count+1]=temp;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i+1)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i+1]+1;
+    count++;
+    if ((count+1)==MAX_SAM) count=0;
+    workingbuffer[count]=workingbuffer[count+1]+1;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i+1)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=workingbuffer[count+(u16)i+1]-1;
+    count++;
+    if ((count+1)==MAX_SAM) count=0;
+    workingbuffer[count]=workingbuffer[count+1]-1;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i+1)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]*=workingbuffer[count+(u16)i+1];
+    count++;
+    if ((count+1)==MAX_SAM) count=0;
+    workingbuffer[count]*=workingbuffer[count+1];
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i+1)==MAX_SAM) count=0;
-    if ((workingbuffer[count+(u16)i+1])>0)   workingbuffer[count+(u16)i]/=workingbuffer[count+(u16)i+1];
+    count++;
+    if ((count+1)==MAX_SAM) count=0;
+    if ((workingbuffer[count+1])>0)   workingbuffer[count]/=workingbuffer[count+1];
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 
@@ -253,30 +299,32 @@ uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i+1)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i+1]=workingbuffer[count+(u16)i];
+    count++;
+    if ((count+1)==MAX_SAM) count=0;
+    workingbuffer[count+1]=workingbuffer[count];
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct generik* unit){
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=0;
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=0;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count+i]);
+    printf("%d\n",workingbuffer[count]);
 #endif
   }
     unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 
@@ -376,15 +424,16 @@ uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
+    count++;
+    if (count==MAX_SAM) count=0;
     Runge_Kutta(unit);//  unit->t+=step;
-    workingbuffer[count+i]=unit->I;
+    workingbuffer[count]=unit->I;
     //    printf("%c",unit->I);
     
   }
   unit->del=0;
   }
-  return count+i;
+  return count;
 
 }
 
@@ -495,14 +544,15 @@ uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
+    count++;
+    if (count==MAX_SAM) count=0;
     seir_Runge_Kutta(unit);//  unit->t+=step;
-    workingbuffer[count+i]=unit->S;
+    workingbuffer[count]=unit->S;
     //    printf("%c",unit->S);
   }
   unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -588,14 +638,15 @@ uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   u8 i=0;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    if ((count+i)==MAX_SAM) count=0;
+    count++;
+    if (count==MAX_SAM) count=0;
     sicr_Runge_Kutta(unit);//  unit->t+=step;
-    workingbuffer[count+i]=unit->S;
-    //    printf("%d %d\n",count+i,unit->S);
+    workingbuffer[count]=unit->S;
+    //    printf("%d %d\n",count,unit->S);
   }
   unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 
@@ -656,6 +707,7 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 #endif
 
   for (x=0;x<howmuch;x++){
+    count++;
   for(i = 0; i < row; i++){
     if ( BET(randiom_num,unit->prob[i],unit->prob[i+1]) ){
       unit->p2.x = unit->coeff[i][0]*unit->p1.x + unit->coeff[i][1]*unit->p1.y + unit->coeff[i][4];
@@ -669,8 +721,8 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     //    unit->returnvalx=(int)((unit->p2.x)*1024);
   //  if (unit->p2.y>0.0)
     //   unit->returnvaly=(int)((unit->p2.y)*1024);
-  if ((count+x)==MAX_SAM) count=0;
-  workingbuffer[count+x]=unit->p2.x;
+  if (count==MAX_SAM) count=0;
+  workingbuffer[count]=unit->p2.x;
   //  printf("%c",unit->p2.x);
   /*    iter=randi()%row;
     i=randi()%column;
@@ -682,7 +734,7 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 }
   unit->del=0;
   }
-  return count+x;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -719,7 +771,7 @@ uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   if (++unit->del==delay){
 
   for (i=0; i<howmuch; i++) {
-
+    count++;
   lx0 = unit->lx0;
   ly0 = unit->ly0;
   lz0 = unit->lz0;
@@ -730,15 +782,15 @@ uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   unit->ly0 = ly1;
   unit->lz0 = lz1;
   //  printf("%d",lz1);
-  if ((count+i)==MAX_SAM) count=0;
-  workingbuffer[count+i]=lx1;
+  if (count==MAX_SAM) count=0;
+  workingbuffer[count]=lx1;
   //  workingbuffer[i+1]=ly1;
   //  workingbuffer[i+2]=lz1;
   }
   unit->del=0;
   }
 
-  return count+i;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -782,7 +834,7 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
   float dz = zn - znm1;
 
 	for (i=0; i<howmuch; ++i) {
-
+    count++;
 			xnm1 = xn;
 			ynm1 = yn;
 			znm1 = zn;
@@ -826,8 +878,8 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 	/*		ZXP(xout) = (xnm1 + dx) * 0.5f;
 		ZXP(yout) = (ynm1 + dy) * 0.5f;
 		ZXP(zout) = (znm1 + dz) * 1.0f;*/
-	    if ((count+i)==MAX_SAM) count=0;
-	    workingbuffer[count+i]=xnm1+dx;
+	    if (count==MAX_SAM) count=0;
+	    workingbuffer[count]=xnm1+dx;
 			//			printf("%c",(xnm1+dx));
 	}
 	unit->xn = xn;
@@ -838,7 +890,7 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 	unit->znm1 = znm1;
 	unit->del=0;
   }
-  return count+i;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -865,7 +917,7 @@ uint16_t runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   float x= unit->x; 
   float y= unit->y;  
     for (i=0; i<howmuch; ++i) {
-		
+	    count++;	
       float temp = x*x*y; 
         
         dx = temp - (muplusone*x) + unit->gamma;
@@ -873,18 +925,18 @@ uint16_t runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
         
         x += unit->delta*dx; 
         y += unit->delta*dy; 
-	if ((count+i)==MAX_SAM) count=0;
-	workingbuffer[count+(u16)i]=x*65536.0;
+	if (count==MAX_SAM) count=0;
+	workingbuffer[count]=x*65536.0;
 	}
 #ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-    printf("%d\n",workingbuffer[count+(u16)i]); 
+    printf("%d\n",workingbuffer[count]); 
 #endif
     unit->del=0;
     unit->x = x; 
     unit->y = y;
   }
-  return count+i;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -914,7 +966,7 @@ uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
     float y= unit->y;  
 
 	for (i=0; i<howmuch; ++i) {
-		
+	    count++;	
         float temp = y*y; 
         float temp2 = unit->beta*x;
         
@@ -923,8 +975,8 @@ uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
         x += unit->delta*dx; 
         y += unit->delta*dy; 
 
-	if ((count+i)==MAX_SAM) count=0;
-	workingbuffer[count+(u16)i]=x*65536.0;
+	if (count==MAX_SAM) count=0;
+	workingbuffer[count]=x*65536.0;
 
 	}
 	
@@ -935,7 +987,7 @@ uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
   	printf("spruce: x %f y %f z %f\n",x,y); 
 #endif
   }
-  return count+i;
+  return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -964,7 +1016,7 @@ uint16_t runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
   float y= unit->y; 
   float z= unit->z; 
 	for (i=0; i<howmuch; ++i) {
-		
+	    count++;	
         dx = unit->epsilon*((unit->q*y) -(x*y) + (x*(1-x))); 
 	dy = unit->mu* (-(unit->q*y) -(x*y) + z); 
         dz = x-y; 
@@ -976,8 +1028,8 @@ uint16_t runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
 	//	output1[i]= x; 
 	//        output2[i]= y; 
 	//        output3[i]= z; 
-	if ((count+i)==MAX_SAM) count=0;
-	workingbuffer[count+(u16)i]=x*65536.0;
+	if (count==MAX_SAM) count=0;
+	workingbuffer[count]=x*65536.0;
 	}
 #ifdef PCSIM
 	printf("Oregonator: x %f y %f z %f\n",x,y,z); 
@@ -987,7 +1039,7 @@ uint16_t runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
 	unit->z = z;
 	unit->del=0;
 }
-return count+i;
+return count;
 }
 
 //////////////////////////////////////////////////////////
@@ -1018,7 +1070,8 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   w=unit->w;
 
   for (x=0;x<howmuch;x++){
-
+    count++;
+    if (count==MAX_SAM) count=0;
     float dudt= urate*(u-(0.33333*u*u*u)-w);
     float dwdt= wrate*(unit->b0+unit->b1*u-w);
 	  
@@ -1029,18 +1082,18 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
     int z=((float)(u)*1500);
     //    int zz=((float)(w)*1500);
-    if ((count+x)==MAX_SAM) count=0;
-    workingbuffer[count+x]=z;//workingbuffer[x+2]=zz;
+    workingbuffer[count]=z;//workingbuffer[x+2]=zz;
 #ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-       printf("%d\n",workingbuffer[count+x]); 
+       printf("%d\n",workingbuffer[count]); 
 #endif
 
   }
-  count+=x;
+  //  count+=x;
 
   for (x=0;x<howmuch;x++){
-
+    count++;
+    if (count==MAX_SAM) count=0;
     float dudt= urate*(u-(0.33333*u*u*u)-w);
     float dwdt= wrate*(unit->b0+unit->b1*u-w);
 
@@ -1051,11 +1104,12 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
     int z=((float)(u)*700);
     int zz=((float)(w)*700);
-    workingbuffer[count+x]=z;//deltay[x]=zz;
+    workingbuffer[count]=z;//deltay[x]=zz;
   }
-  count+=x;
+  //  count+=x;
   for (x=0;x<howmuch;x++){
-
+    count++;
+    if (count==MAX_SAM) count=0;
     float dudt= urate*(u-(0.33333*u*u*u)-w);
     float dwdt= wrate*(unit->b0+unit->b1*u-w);
 
@@ -1066,13 +1120,13 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
     int z=((float)(u)*3600);
     //		workingbuffer[x+(howmuch*2)]=z;
-    workingbuffer[count+x]=z;
+    workingbuffer[count]=z;
   }
   unit->u=u;
   unit->w=w;
   unit->del=0;
   }
-  return count+x;
+  return count;
   }
 
 #ifdef PCSIM
@@ -1091,7 +1145,8 @@ void main(void)
   }
 
   // for Fitz? de-alloc?
-    struct Fitz *unit=malloc(sizeof(struct Fitz));
+  //    struct Fitz *unit=malloc(sizeof(struct Fitz));
+    struct CONV *unit=malloc(sizeof(struct CONV));
   //    struct Oregon *unit=malloc(sizeof(struct Oregon));
   //    struct Spruce *unit=malloc(sizeof(struct Spruce));
   //    struct Brussel *unit=malloc(sizeof(struct Brussel));
@@ -1103,7 +1158,8 @@ void main(void)
   //      struct SICR *unit=malloc(sizeof(struct SICR));
   //  struct siney *unit=malloc(sizeof(struct siney));
   //  spruceinit(unit,xxx); 
-    fitzinit(unit,xxx); 
+    //    fitzinit(unit,xxx); 
+    convinit(unit,xxx); 
     //  brusselinit(unit,xxx); 
 
         while(1){ 
@@ -1111,7 +1167,7 @@ void main(void)
 	  //runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit)
 	  //	  if ((count+howmuch)>MAX_SAM) count=0;
 	  howmuch=10;
-	  count=runfitz(count,1,xxx,howmuch,unit);
+	  count=runconv(count,1,xxx,howmuch,unit);
 	  
 	  //	  printf("count: %d\n", count);
 	  //	  count=runseir(count,10,xxx,10,unit);

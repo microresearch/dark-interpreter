@@ -69,11 +69,9 @@ output for reddeath and few others (how?)
 
 - whether to push off threads from stack when full?
 
-TOTAL so far: 25 CPUs (0-24)
-
 */
 
-#define CPU_TOTAL 30
+#define CPU_TOTAL 31
 
 void leak(machine *m);
 
@@ -1294,6 +1292,16 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       else thread_push(this,machine_peek(m,this->m_pc));
       this->m_pc++;
       break;
+///////////////////////////////////////////////////////////////
+    case 30:
+      // convolution
+      temp=(machine_peek(m,this->m_pc-1)*machine_peek(m,0))+(machine_peek(m,this->m_pc)*machine_peek(m,1))+(machine_peek(m,this->m_pc+1)*machine_peek(m,2));
+      y=this->m_pc+32768;
+      if (y<3) y=3;
+      machine_poke(m,y,temp);
+      this->m_pc++; 
+      if (this->m_pc<3) this->m_pc=3;
+
     }
       this->m_delc=0;
   } // if del
@@ -1344,7 +1352,7 @@ void machine_create(machine *this, uint8_t *buffer) {
   //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
   this->m_threadcount=0;
   this->m_memory=buffer;
-    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk
+    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 }
 
 u8 machine_peek(const machine* this, uint16_t addr) {

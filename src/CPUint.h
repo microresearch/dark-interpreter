@@ -9,8 +9,8 @@ typedef uint16_t u16;
 
 #define DATA_BUFSZ 65535
     
-static const u8 STACK_SIZE=16;
-static const u8 MAX_THREADS=120;
+#define STACK_SIZE 16
+#define MAX_THREADS 120
 
 #define NOP 0
 #define ORG 1
@@ -47,7 +47,7 @@ static const u8 MAX_THREADS=120;
       u16 m_pc;
       u16 m_wrap;
       u8 m_stack_pos;
-      u8 m_stack[16];
+      u8 m_stack[STACK_SIZE];
     } thread;
     
     typedef struct {

@@ -1,6 +1,6 @@
 // gcc -DLINUX -std=gnu99 CA.c -o CA -lm -DPCSIM
 
-// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
+// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16
 
 #ifdef PCSIM
 #include <math.h>
@@ -590,7 +590,6 @@ int main(void)
 	count=runSIR16(count,1,buffer,255,unit);
 
 	//		printf("%d\n",count);
-	// runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR
 
     }
 }

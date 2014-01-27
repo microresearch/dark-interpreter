@@ -66,10 +66,12 @@ up to limit
 
 TODO: add as options in hardware.c with control by complexity 
 
-- simple co-eff filter additions in cpu or simulations
+- simple co-eff filter additions in cpuDONE simulation.cTODO (8bit and 16bit)
 
 - do lower potis, build simplest, images, test potis/straight thru on
   both, test datagens on ARM (NaN etc.)
+
+- fix count problem in simulation.c - TO TEST
 
 * SAT 25 JAN 2014
 

@@ -21,6 +21,11 @@ struct siney{
   u16 cc;
 };
 
+struct CONV{
+  u8 del;
+float c0, c1, c2;
+};
+
 struct generik{
   u8 del;
   u16 cop;

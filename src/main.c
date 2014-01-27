@@ -36,6 +36,8 @@ __IO uint16_t adc_buffer[10];
 
 int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
 
+extern u8 digfilterflag;
+
 u8 wormdir; // worm direction
 
 #define delay()						\
@@ -122,7 +124,7 @@ void main(void)
 	  // do
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
 	  // have to generate/update- 3 bits-40106/lm/maxim + filterbit on/off
-
+	  // depends on digfilterflag
 
 #endif
 
