@@ -45,6 +45,7 @@ up to limit
 
 * DONE
 
+- simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
 - add ifdefs, includes etc. for PC/arm code compilation
   compile optionsTEST-DONE
 - test new code/makefile that still actually runs! IT DOES!
@@ -64,16 +65,17 @@ up to limit
   left INTO right)... but where to spec. - in complexity (as hardware
   settings are full)
 
-TODO: add as options in hardware.c with control by complexity 
-
-- simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
+TODO: add as extra 2 options in hardware.c with control by complexity (marked as **TODO)
 
 - do lower potis, build simplest, images, test potis/straight thru on
   both, test datagens on ARM (NaN etc.)
 
-- fix count problem in simulation.c and leakage in CPUint - TO TEST in full...
+- fix count problem in simulation.c and leakage in CPUint - TO TEST in
+  full...
 
 - for some reason when use malloc in main need to provide _sbrk stub???
+
+(as we don;t use it elsewhere as that is defined for pc code)
 
 according to:
 
@@ -99,7 +101,7 @@ cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay) -
 
 and: 
 
-machine_run(m); (which can also be slowed/delayed with surroundings)
+machine_run(m); (which can also be slowed/delayed with surrounding delay)
 
 ////////////////////
 
@@ -296,6 +298,8 @@ before rand (to replace) and fmod, malloc...
 Note: for toolchain following triplespark below but _without_ dev branch (just as:
 
 :  git clone git://github.com/esden/summon-arm-toolchain
+
+note tho that malloc was not in stm code only in pc code
 
 * MON 6 JAN 2014
 

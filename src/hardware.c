@@ -141,10 +141,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
 
   //    res = (uint16_t)(((float)modder) / 512.f)%4;
 
-  // **TODO question: have datagens->hardware on hardware knob???
-  // also set global digital filterflag
-
-  res= modder&3; // 12 bits now lose 5 = 7 bits = 0->25
+  res= modder&3; // 12 bits now lose 5 = 7 bits = 0->25 - already >>5
   res2=modder>>3; // so now we have 4 bits left = 0->4 options
 
   if (res2!=2 && hangflag==1){
@@ -206,13 +203,12 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<2);//
     GPIOC->BSRRL= (1<<10);
 
-    // toggle option to send signal to filter as well + digital/with/without distort
+    // **TODO: toggle option to send signal to filter as well + digital/with/without distort
     // pc11, pb9 and distort is on pc10 (1 is no distort)...
     // could also pass through 40106 first but too many options
 
    break;
   case 2:
-    // **TODO: replace this one with datagen->hardware options except input (mask)!
     // GPIOB->0,3,4,5,6,8,9...
     GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
     GPIOB->ODR |= ~((hdgen&2) | ((hdgen&4)<<3) | ((hdgen&8)<<4) | ((hdgen&16)<<5) | ((hdgen&32)<<6) | ((hdgen&64)<<8) | ((hdgen&128)<<9));		    
@@ -222,8 +218,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL=(1<<11);
     GPIOC->BSRRH=(1<<10);
     GPIOC->ODR|=((hdgen&1)<<10);
-    if (clockhangflag==0) digfilterflag=15;
-    else digfilterflag=1;
+    if (clockhangflag==0) digfilterflag=31; // flags to use hdgen
+    else digfilterflag=17;
     /*
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     //question is if really makes sense to unhang _all_
@@ -261,7 +257,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6);
 
-    // toggle option to send signal to filter as well + digital/with/without distort
+    // **TODO: toggle option to send signal to filter as well + digital/with/without distort
     // pc11, pb9 and distort is on pc10 (1 is no distort)...
     // could also pass through 40106 first but too many options
 

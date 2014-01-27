@@ -1537,6 +1537,15 @@ int main(void)
 
   // what about swapping????
 
+  u8 flag,other;
+  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
+			6, 11, 5, 13};	/* change in state indexed by color */
+  //  printf("running: %d ",this->m_start);
+  //  sleep(1);
+  u16 biotadir[8]={65280,65281,1,257,256,255,65535,65279}; //65536
+
+  //  dircalc(biotadir,65536,256);
+
 	for (unsigned char n=0; n<100; n++)
 	{
 	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
@@ -1552,14 +1561,6 @@ int main(void)
 */
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 
-  u8 flag,other;
-  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
-			6, 11, 5, 13};	/* change in state indexed by color */
-  //  printf("running: %d ",this->m_start);
-  //  sleep(1);
-  u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-
-  //  dircalc(biotadir,65536,256);
 
   // SWITCH for m_CPU!
 
@@ -1570,10 +1571,8 @@ int main(void)
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 
-
-	
-	  while(1) {
+	/*	  while(1) {
           machine_run(m);
-	  }
+	  }*/
 }
 #endif
