@@ -19,6 +19,10 @@ PATH=~/stm32f4/stlink/flash:$PATH
 
 make stlink_flash
  */
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/times.h>
+#include <sys/unistd.h>
 
 #include "stm32f4xx.h"
 #include "codec.h"
@@ -26,6 +30,7 @@ make stlink_flash
 #include "adc.h"
 #include "audio.h"
 #include "hardware.h"
+#include "simulation.h"
 #include "CPUint.h"
 
 /* DMA buffers for I2S */
@@ -39,6 +44,13 @@ int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
 extern u8 digfilterflag;
 
 u8 wormdir; // worm direction
+
+struct dgenwalker{
+  // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
+  u8 step,dir,speed;
+  u16 pos,start,end;
+};
+
 
 #define delay()						\
 do {							\
@@ -54,6 +66,39 @@ do {							\
     __asm__ __volatile__ ("nop\n\t":::"memory");	\
 } while (0)
 
+/*
+ sbrk
+ Increase program data space.
+ Malloc and related functions depend on this
+ */
+
+
+caddr_t _sbrk(int incr) {
+
+    extern char _ebss; // Defined by the linker
+    static char *heap_end;
+    char *prev_heap_end;
+
+    if (heap_end == 0) {
+        heap_end = &_ebss;
+    }
+    prev_heap_end = heap_end;
+
+   
+char * stack = (char*) __get_MSP();
+     if (heap_end + incr >  stack)
+     {
+       //         _write (STDERR_FILENO, "Heap and stack collision\n", 25);
+         errno = ENOMEM;
+         return  (caddr_t) -1;
+         //abort ();
+     }
+
+    heap_end += incr;
+    return (caddr_t) prev_heap_end;
+
+    }
+
 
 void main(void)
 {
@@ -66,7 +111,17 @@ void main(void)
 	u8 hdgen;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
-	
+
+	struct dgenwalker *lmer=malloc(sizeof(struct dgenwalker));
+	struct dgenwalker *maximer=malloc(sizeof(struct dgenwalker));
+	struct dgenwalker *f0106er=malloc(sizeof(struct dgenwalker));
+
+	//  u8 step,dir,speed;  u16 pos,start,end;
+	lmer->step=1; lmer->speed=1; lmer->dir=1;lmer->pos=1;lmer->start=1;lmer->end=DATA_BUFSZ;
+	maximer->step=1; maximer->speed=1; maximer->dir=1;maximer->pos=1;maximer->start=1;maximer->end=DATA_BUFSZ;
+	f0106er->step=1; f0106er->speed=1; f0106er->dir=1;f0106er->pos=1;f0106er->start=1;f0106er->end=DATA_BUFSZ;
+
+
 #if 1
 	//	ADC1_Initonce();
 	ADC1_Init((uint16_t *)adc_buffer);
@@ -119,11 +174,13 @@ void main(void)
 	  // do hardware datagen walk into hdgen( 8 bit)
 	  // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
 
-	  dohardwareswitch(adc_buffer[2],hdgen);
+	  // do we need do this if adc_buffer[2]>>5 has not changed...
+	  // only if we also change via datagen...
+	  dohardwareswitch(adc_buffer[2]>>5,hdgen);
 	  
 	  // do
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
-	  // have to generate/update- 3 bits-40106/lm/maxim + filterbit on/off
+	  // have to generate/update- 3 bits-401062/lm4/maxim8 + filterbit on/off
 	  // depends on digfilterflag
 
 #endif

@@ -141,15 +141,11 @@ void thread_run(thread* this, machine *m) {
 
   //  dircalc(biotadir,65536,256);
 
-  // SWITCH for m_CPU!
-
-
-
   if (++this->m_delc==this->m_del){
 
 #ifdef PCSIM
-      printf("CPU: %d\n",this->m_CPU);
-    //printf("%c",machine_peek(m,this->m_pc));
+    //      printf("CPU: %d\n",this->m_CPU);
+    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
 
@@ -1377,7 +1373,7 @@ void machine_run(machine* this) {
 	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
   	}
-	/*
+	
 	// do infection/mutation
 	
 	if ((randi()%this->m_infectprob)==0) {
@@ -1392,7 +1388,7 @@ void machine_run(machine* this) {
 
 	  //	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
-	  } */      
+	  }
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1569,8 +1565,8 @@ int main(void)
 
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
-	  //	  	  cpustackpush(m,addr,addr+randi()%65536,30,randi()%255);
+	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
+		  //	  	  cpustackpush(m,addr,addr+randi()%65536,30,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 

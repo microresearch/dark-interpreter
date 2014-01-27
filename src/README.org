@@ -66,12 +66,22 @@ up to limit
 
 TODO: add as options in hardware.c with control by complexity 
 
-- simple co-eff filter additions in cpuDONE simulation.cTODO (8bit and 16bit)
+- simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
 
 - do lower potis, build simplest, images, test potis/straight thru on
   both, test datagens on ARM (NaN etc.)
 
-- fix count problem in simulation.c - TO TEST
+- fix count problem in simulation.c and leakage in CPUint - TO TEST in full...
+
+- for some reason when use malloc in main need to provide _sbrk stub???
+
+according to:
+
+https://sites.google.com/site/stm32discovery/open-source-development-with-the-stm32-discovery/getting-newlib-to-work-with-stm32-and-code-sourcery-lite-eabi
+
+all mallocs should be TESTED
+
+- how to index into settings easily?
 
 * SAT 25 JAN 2014
 
@@ -117,16 +127,16 @@ within complexity setting
 
 poti list (top down= 2,0,3,4,1):
 
-0-hardware(2) (and for Lachrymarum? - options: repeat up/down of
+*0*-hardware(2) (and for Lachrymarum? - options: repeat up/down of
 4finger-mod, simply leave off this knob, as end of sample in (edger style))
 
-1-micro->macro with cross - how? (0) - mods the cross/so for example
+*1*-micro->macro with cross - how? (0) - mods the cross/so for example
 code/sample steering enabled, add/subtract from stack..? also see
 modifier below
 
-2-edge (for incoming samples) (3) DONE
+*2*-edge (for incoming samples) (3) DONE
 
-3-modifier (4) - re-inits, add to stack, memory exchange, cpu-swap
+*3*-SPEED///modifier (4) - re-inits, add to stack, memory exchange, cpu-swap
 factor, samplerate, leakiness, mutation rate, digital filter effects,
 granular or not, chaining of datagens (new stack) ... or most as in 1
 above
@@ -140,7 +150,7 @@ and/or for: samp/hard/clocks
 so we could have 0-5 on outside for sample rate and perhaps generic
 speed multiplier for all on inside!
 
-4-complexity (1) - signal straight thru/no write/sample by simple
+*4*-complexity (1) - signal straight thru/no write/sample by simple
 datagen/effect/granulation/meta-pointer-to-pointer/effectonsample(bitwise
 thru all!)  /wormthrubuffer/othermovementthrubuffer
 

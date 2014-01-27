@@ -125,7 +125,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   static uint8_t hangflag=0, clockhangflag;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
-  // mod is 12 bits 0-4096
+  // mod is 12 bits 0-4096 - bitshift >>5 by time we get here
 
   // last 2 bits toggle input
 
@@ -144,8 +144,8 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   // **TODO question: have datagens->hardware on hardware knob???
   // also set global digital filterflag
 
-  res= (modder>>5)&3; // 12 bits now lose 5 = 7 bits = 0->25
-  res2=(modder>>8); // so now we have 4 bits left = 0->4 options
+  res= modder&3; // 12 bits now lose 5 = 7 bits = 0->25
+  res2=modder>>3; // so now we have 4 bits left = 0->4 options
 
   if (res2!=2 && hangflag==1){
     hangflag=0;
@@ -289,6 +289,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
     GPIOC->BSRRL=(1<<11) | (1<<10);
     if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
     break;
   case 7: //
     //filterpath->digital distort
@@ -297,6 +298,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
     GPIOC->BSRRL=(1<<11);
     if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
     break;
   case 8:
     //5-40106thenfilter-->|
@@ -321,6 +323,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRL= (1<<10);
     if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
     break;
   case 11:
     //filter->digital distort
@@ -328,6 +331,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11) | (1<<10);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     if (clockhangflag==0) digfilterflag=14;
+    else digfilterflag=1;
     break;
   case 12:
     //6-justfilter------->|
@@ -351,6 +355,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL= (1<<4) | (1<<8) | (1<<9);
     GPIOC->BSRRL= (1<<10) | (1<<11);
     if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
     break;
   case 15:
     //filterpath->digital distort
@@ -359,6 +364,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<11);
     if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
     break;
   }
 }
