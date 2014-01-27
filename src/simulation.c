@@ -69,9 +69,9 @@ extern __IO uint16_t adc_buffer[10];
 
 void convinit(struct CONV* unit, uint16_t *workingbuffer){
   unit->del=0;
-  unit->c0=(float)workingbuffer[0]/65536.0;
-  unit->c1=(float)workingbuffer[1]/65536.0;
-  unit->c2=(float)workingbuffer[2]/65536.0;
+  unit->c0=(float)workingbuffer[0]/16384.0;
+  unit->c1=(float)workingbuffer[1]/16384.0;
+  unit->c2=(float)workingbuffer[2]/16384.0;
 }
 
 uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct CONV* unit){
@@ -88,8 +88,9 @@ uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     workingbuffer[y]=((float)workingbuffer[tmp]*unit->c0)+((float)workingbuffer[count]*unit->c1)+((float)workingbuffer[(count+1)%32768]*unit->c2);
 
 #ifdef PCSIM
-    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[count]);
-    //    printf("%c",workingbuffer[count]>>8);
+    //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[count]);
+    //    printf("%f %f %f\n",unit->c0,unit->c1,unit->c2);
+            printf("%c",workingbuffer[count]%255);
 
 #endif
   }

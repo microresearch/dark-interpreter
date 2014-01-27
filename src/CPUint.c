@@ -144,13 +144,15 @@ void thread_run(thread* this, machine *m) {
   // SWITCH for m_CPU!
 
 
+
+  if (++this->m_delc==this->m_del){
+
 #ifdef PCSIM
-  //      printf("CPU: %d\n",this->m_CPU);
-        printf("%c",machine_peek(m,this->m_pc));
+      printf("CPU: %d\n",this->m_CPU);
+    //printf("%c",machine_peek(m,this->m_pc));
 
 #endif
 
-  if (++this->m_delc==this->m_del){
   switch(this->m_CPU)
     {
     case 0: // :LEAKY STACK! - working!
@@ -1370,18 +1372,19 @@ void machine_run(machine* this) {
 	for (unsigned char n=0; n<this->m_threadcount; n++) {
 		thread_run(&this->m_threads[n],this);
 	}
-
-		if ((randi()%this->m_leakiness)==0) {
-  	leak(this);
+	
+	
+	if ((randi()%this->m_leakiness)==0) {
+	    	leak(this);
   	}
-
+	/*
 	// do infection/mutation
 	
 	if ((randi()%this->m_infectprob)==0) {
 	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
 	}
-
+	
 	if ((randi()%this->m_mutateprob)==0) {
 
 	  //void mutate(machine *m, u8 which, u8 identifier){
@@ -1389,7 +1392,7 @@ void machine_run(machine* this) {
 
 	  //	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
-	}       
+	  } */      
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1414,9 +1417,10 @@ void leak(machine *m){
   if (xx->m_stack_pos>1){
   thread_push(yy,xx->m_stack[0]);
   // how to remove from stack xx?
-  for (count=xx->m_stack_pos;count>0; count--){
-    xx->m_stack[count-1]=xx->m_stack[count];
-  }
+      for (count=xx->m_stack_pos;count>0;count--){
+	    xx->m_stack[count-1]=xx->m_stack[count];
+	    //	    printf("xxxxleaky %d\n", count);
+      }
 		 xx->m_stack_pos--;
   }
 }
@@ -1537,7 +1541,7 @@ int main(void)
 
   // what about swapping????
 
-	for (unsigned char n=0; n<10; n++)
+	for (unsigned char n=0; n<100; n++)
 	{
 	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
 
@@ -1550,7 +1554,6 @@ int main(void)
     this->m_wrap=this->m_start+randi();
 #endif
 */
-	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 
   u8 flag,other;
@@ -1566,8 +1569,8 @@ int main(void)
 
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-	   	  cpustackpush(m,addr,addr+randi()%65536,randi()%30,randi()%255);
-	  //	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
+	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
+	  //	  	  cpustackpush(m,addr,addr+randi()%65536,30,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 

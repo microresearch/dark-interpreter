@@ -46,7 +46,7 @@ typedef uint16_t u16;
       u16 m_start;
       u16 m_pc;
       u16 m_wrap;
-      u8 m_stack_pos;
+      char m_stack_pos;
       u8 m_stack[STACK_SIZE];
     } thread;
     
