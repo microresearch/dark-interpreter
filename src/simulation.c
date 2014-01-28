@@ -2,7 +2,7 @@
 // was datagentest.c previously
 
 /* All simulation data generators: IFS, rossler, secondrossler, fitz,
-   oregon, spruce, brussel, simpleSIR, seir, */
+   oregon, spruce, brussel, simpleSIR, seir, conv, sine */
 
 //+ inc,dec,left,right and so on
 
@@ -1132,10 +1132,19 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 #ifdef PCSIM
 
+void passingarraytest(uint8_t *buffer) {
+  u8 *m_memory; u16 i;
+  m_memory=buffer;
+  for (i=0;i<65535;i++){
+    printf("%d %d\n",i, m_memory[i]);
+  }
+}
+
+
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
-  int x;
+  u16 x;
   u8 howmuch;
   uint16_t xxx[MAX_SAM],result;
   uint16_t count=0;
@@ -1163,7 +1172,19 @@ void main(void)
     convinit(unit,xxx); 
     //  brusselinit(unit,xxx); 
 
-        while(1){ 
+    // test casts?
+    for (x=0;x<65535;x++){
+      //      printf("%d %d\n",x, *((u8 *)(xxx)+x));
+	    //      printf("%d %d\n",x, *(u8 *)((u8 *)(xxx)+x));
+      //      printf("%d %d\n",x, ((u8 *)(xxx))[x]);
+      passingarraytest((u8 *)(xxx));
+      //	machine_create(m,((u8 *)(datagenbuffer))); // this just takes care of pointer to machine and malloc for threads
+      // test passing of this
+
+    }
+    
+
+    /*        while(1){ 
 	  //	  count=runoregon(count,1,xxx,1,unit);
 	  //runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit)
 	  //	  if ((count+howmuch)>MAX_SAM) count=0;
@@ -1175,10 +1196,7 @@ void main(void)
 	  //	  count=runsicr(count,10,xxx,10,unit);
 	  //	  count=runsine(count,1,xxx,10,unit);
 	  //	  	  printf("count %d\n",count);
-	  /*	  for (x=3;x<13;x++){
-	    printf("%c",xxx[x]>>8);
-	    }*/
 	    
-    }
+    }*/
 }
 #endif

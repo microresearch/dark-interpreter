@@ -109,7 +109,6 @@ void main(void)
   //	uint32_t state;
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
-	u8 hdgen;
 	u16 tmp,oldhardware,hardware;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
@@ -126,6 +125,7 @@ void main(void)
 	hdgener->step=1; hdgener->speed=1; hdgener->dir=1;hdgener->pos=1;hdgener->start=1;hdgener->end=65535; hdgener->del=0;
 
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+	u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
 	//	ADC1_Initonce();
 	ADC1_Init((uint16_t *)adc_buffer);
@@ -150,11 +150,15 @@ void main(void)
 	//	x=rcount=i=wcount=highest=lowest=0;
 
 	// init machine/datagens
-	
+	machine *m=(machine *)malloc(sizeof(machine));
+	machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
+
+
 	while(1)
 	{
 
 	  // **TODO: WORM_OVER_RIDE for all directions!!!!
+	  // generic speed modifier
 
 	  // top down knobs: 2,0,3,4,1 
 
@@ -165,36 +169,44 @@ void main(void)
 
 	  u16 (*stacky[16]) (uint16_t delay, u8 *cells, uint8_t howmuch, void * unit);
 
+#ifndef TEST_STRAIGHT
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
+	  // -micro/macro - adc_buffer[0]
+	  // generic speed and samplerate - adc_buffer[4]
+	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
 	  // 4-hardware operations->
+
+#endif
 
 #ifndef LACH
 
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 
-	  if (digfilterflag&16){ //we use hdgen at all
+	  if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==lmer->speed){
-	    //generate hdgen as 8 bit cast
 
-	    dohardwareswitch(adc_buffer[2]>>5,hdgen);
+    	    tmp=hdgener->step*direction8bit[hdgener->dir];
+	    if ((hdgener->start+hdgener->pos+tmp)>=hdgener->end) hdgener->pos=(hdgener->pos+tmp)%(hdgener->end-hdgener->start);
+	    else hdgener->pos+=tmp;
+	    dohardwareswitch(adc_buffer[2]>>5,((u8 *)(datagenbuffer))[hdgener->start+hdgener->pos]);
 	    hdgener->del=0;
 	    }
 	  }
 	  else
 	    {
 	    hardware=adc_buffer[2]>>5;
-	    if (hardware!=oldhardware) dohardwareswitch(hardware>>5,hdgen);
+	    if (hardware!=oldhardware) dohardwareswitch(hardware>>5,0);
 	    oldhardware=hardware;
 	    }
-	  // do
+
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
-	  // have to generate/update- 3 bits-401062/lm4/maxim8 + filterbit on/off
-	  // depends on digfilterflag: lmer,maximer,f0106er
 	  if (digfilterflag&2){
 	    if (++f0106er->del==f0106er->speed){
-    
-	    //f106er - set40106pwm
+    	    tmp=f0106er->step*direction[f0106er->dir];
+	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
+	    else f0106er->pos+=tmp;
+	    set40106pwm(datagenbuffer[(f0106er->start+f0106er->pos)]); 
 	      f0106er->del=0;
 	    }
 	  }
@@ -202,11 +214,10 @@ void main(void)
 	  if (digfilterflag&4){
 	    if (++lmer->del==lmer->speed){
 	    //lmer - set lmpwm
-	    // lmer->step=1 step through datagenbuffer; lmer->speed=1; lmer->dir=1;lmer->pos=1;lmer->start=1;lmer->end=DATA_BUFSZ;
 	    tmp=lmer->step*direction[lmer->dir];
 	    if ((lmer->start+lmer->pos+tmp)>=lmer->end) lmer->pos=(lmer->pos+tmp)%(lmer->end-lmer->start);
 	    else lmer->pos+=tmp;
-	    setlmpwm(datagenbuffer[(lmer->start+lmer->pos)],datagenbuffer[(lmer->start+lmer->pos+1)%32768]); // test this
+	    setlmpwm(datagenbuffer[(lmer->start+lmer->pos)],datagenbuffer[(lmer->start+lmer->pos+1)%32768]); 
 	    lmer->del=0;
 	    }
 
@@ -215,6 +226,10 @@ void main(void)
 	  if (digfilterflag&8){
 	    //maximer - setmaximpwm - just one
 	    if (++maximer->del==maximer->speed){
+	    tmp=maximer->step*direction[maximer->dir];
+	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
+	    else maximer->pos+=tmp;
+	    setmaximpwm(datagenbuffer[(maximer->start+maximer->pos)]); 
 
 	      maximer->del=0;
 	    }

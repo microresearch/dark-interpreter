@@ -56,6 +56,19 @@ up to limit
   working in CPUint.cDONE 
 
 
+* TUE 28 JAN 2014 +
+
+- do lower potisDONE, build simplest, photos, test potis/straight thru on
+  both, test datagens on ARM (NaN etc.)
+
+- test new hardware ops in main (counter wrap)DONE, u8 cast
+
+- test cpuint, simulation (NaN), malloc on ARM
+
+- datagen stack
+
+- generic speed setting
+
 * MON 27 JAN 2014
 
 - specify potis my way of inside (fine &x) and outside >> bitshift settings
@@ -66,9 +79,6 @@ up to limit
   settings are full)
 
 TODO: add as extra 2 options in hardware.c with control by complexity (marked as **TODO)
-
-- do lower potis, build simplest, images, test potis/straight thru on
-  both, test datagens on ARM (NaN etc.)
 
 - fix count problem in simulation.c and leakage in CPUint - TO TEST in
   full...
@@ -119,11 +129,6 @@ count=runSIR16(count,1,buffer,howmuch,unit);
 specific inits and specific:
 
 count=runfitz(count,1,xxx,howmuch,unit);
-
-////////////////////
-
-so sim and ca can be stacked as function pointers, machine_run is bitwise
-within complexity setting
 
 * WED 22 JAN 2014
 
@@ -190,11 +195,7 @@ movements through datagen-buffer
 
 - test lower layer potis
 
-- how we access datagen in hardwareswitch 
-
 - does NaN cause problems or not?
-
-- redo pad maps (now where is it?)
 
 * TUE 21 JAN 2014
 
