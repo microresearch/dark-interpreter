@@ -59,9 +59,14 @@ up to limit
 * WED 29 JAN 2014 +
 
 - if we do make stack of function pointers then each function (in
-  simulation.c we start to test this) needs to cast void as per:
+  simulation.c we start to test this) needs to cast void to relevant
+  struct as per:
 
 http://en.wikibooks.org/wiki/C_Programming/Pointers_and_arrays
+
+- totalleaky.c - called by complexity setting - all memory and
+  parameters are in the datagenbuffer!
+
 
 * TUE 28 JAN 2014 +
 
