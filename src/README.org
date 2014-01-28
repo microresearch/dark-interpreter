@@ -56,12 +56,19 @@ up to limit
   working in CPUint.cDONE 
 
 
+* WED 29 JAN 2014 +
+
+- if we do make stack of function pointers then each function (in
+  simulation.c we start to test this) needs to cast void as per:
+
+http://en.wikibooks.org/wiki/C_Programming/Pointers_and_arrays
+
 * TUE 28 JAN 2014 +
 
 - do lower potisDONE, build simplest, photos, test potis/straight thru on
-  both, test datagens on ARM (NaN etc.)
+  both
 
-- test new hardware ops in main (counter wrap)DONE, u8 cast
+- test new hardware ops in main (counter wrap)DONE, u8 castDONE
 
 - test cpuint, simulation (NaN), malloc on ARM
 
@@ -128,7 +135,7 @@ count=runSIR16(count,1,buffer,howmuch,unit);
 
 specific inits and specific:
 
-count=runfitz(count,1,xxx,howmuch,unit);
+//runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit)
 
 * WED 22 JAN 2014
 

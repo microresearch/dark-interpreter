@@ -163,11 +163,12 @@ void main(void)
 	  // top down knobs: 2,0,3,4,1 
 
 	  // 1-run machine/datagen code (how to select?)
-	  // machine_run(m); with delay wrapper
+	  // machine_run(m); with delay wrapper - also complexity bitwise
+
 	  // and rest as x functions??? no pointers as different structures
 	  // or would void pointer work?
 
-	  u16 (*stacky[16]) (uint16_t delay, u8 *cells, uint8_t howmuch, void * unit);
+	  u16 (*stacky[16]) (uint16_t count, uint16_t delay, u8 *cells, uint8_t howmuch, void * unit);
 
 #ifndef TEST_STRAIGHT
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
@@ -175,14 +176,11 @@ void main(void)
 	  // generic speed and samplerate - adc_buffer[4]
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
-	  // 4-hardware operations->
-
 #endif
 
 #ifndef LACH
-
+	  // 4-hardware operations->
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
-
 	  if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==lmer->speed){
 
@@ -234,7 +232,6 @@ void main(void)
 	      maximer->del=0;
 	    }
 	  }
-
 #endif
 	}
 }

@@ -1140,6 +1140,16 @@ void passingarraytest(uint8_t *buffer) {
   }
 }
 
+void func_push(u16 (* stack[16])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
+
+  stack[0]=xxx;
+  /*	if (this->m_stack_pos<STACK_SIZE-1)
+	{
+		this->m_stack[++this->m_stack_pos]=data;
+		}*/
+
+
+}
 
 void main(void)
 {
@@ -1150,13 +1160,13 @@ void main(void)
   uint16_t count=0;
   srand(time(NULL));
 
+  u16 (*stacky[16]) (uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit);
   for (x=0;x<MAX_SAM;x++){
     xxx[x]=randi()%65536;
   }
 
   // for Fitz? de-alloc?
   //    struct Fitz *unit=malloc(sizeof(struct Fitz));
-    struct CONV *unit=malloc(sizeof(struct CONV));
   //    struct Oregon *unit=malloc(sizeof(struct Oregon));
   //    struct Spruce *unit=malloc(sizeof(struct Spruce));
   //    struct Brussel *unit=malloc(sizeof(struct Brussel));
@@ -1169,20 +1179,22 @@ void main(void)
   //  struct siney *unit=malloc(sizeof(struct siney));
   //  spruceinit(unit,xxx); 
     //    fitzinit(unit,xxx); 
-    convinit(unit,xxx); 
     //  brusselinit(unit,xxx); 
+    struct CONV *unit=malloc(sizeof(struct CONV));
+    convinit(unit,xxx); 
+    // TODO: array stack of function pointers
+    func_push(stacky,runconv);
 
-    // test casts?
+    /*
+    // test casts? DONE
     for (x=0;x<65535;x++){
       //      printf("%d %d\n",x, *((u8 *)(xxx)+x));
 	    //      printf("%d %d\n",x, *(u8 *)((u8 *)(xxx)+x));
       //      printf("%d %d\n",x, ((u8 *)(xxx))[x]);
-      passingarraytest((u8 *)(xxx));
-      //	machine_create(m,((u8 *)(datagenbuffer))); // this just takes care of pointer to machine and malloc for threads
-      // test passing of this
-
+      passingarraytest( (u8 *)(xxx));
     }
-    
+    */    
+
 
     /*        while(1){ 
 	  //	  count=runoregon(count,1,xxx,1,unit);
