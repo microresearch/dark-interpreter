@@ -60,9 +60,11 @@ up to limit
 
 - if we do make stack of function pointers then each function (in
   simulation.c we start to test this) needs to cast void to relevant
-  struct as per:
+  struct
 
-http://en.wikibooks.org/wiki/C_Programming/Pointers_and_arrays
+(but is more complex as we need to init (and maybe malloc) each as we
+add/free from stack - answer would be to malloc one instance of each,
+and add init/re-init with flag to running
 
 - totalleaky.c - called by complexity setting - all memory and
   parameters are in the datagenbuffer!

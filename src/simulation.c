@@ -63,6 +63,8 @@ Based in part on SLUGens by Nicholas Collins.
 extern __IO uint16_t adc_buffer[10];
 #endif
 
+#define STACK_SIZE 16
+
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -74,8 +76,12 @@ void convinit(struct CONV* unit, uint16_t *workingbuffer){
   unit->c2=(float)workingbuffer[2]/16384.0;
 }
 
-uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct CONV* unit){
+
+// **TODO: altered for stack with cast of void
+uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 y,tmp;
+  struct CONV *unit=unity;
+
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     count++;
@@ -1140,16 +1146,34 @@ void passingarraytest(uint8_t *buffer) {
   }
 }
 
-void func_push(u16 (* stack[16])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
+char stack_pos;
 
-  stack[0]=xxx;
-  /*	if (this->m_stack_pos<STACK_SIZE-1)
+void func_push(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
+
+  	if (stack_pos<STACK_SIZE-1)
 	{
-		this->m_stack[++this->m_stack_pos]=data;
-		}*/
-
-
+	  stack[++stack_pos]=xxx;
+	}
 }
+
+void func_pop(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
+
+ 	if (stack_pos>=0)
+	{
+		stack_pos--;
+	}
+}
+
+void func_runall(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) {
+  u8 i;
+  if (stack_pos>0){
+    for (i=0;i<stack_pos;i++){
+      stack[i](count,delay,workingbuffer,howmuch,unit);
+    }
+  }
+}
+
+
 
 void main(void)
 {
@@ -1160,7 +1184,9 @@ void main(void)
   uint16_t count=0;
   srand(time(NULL));
 
-  u16 (*stacky[16]) (uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit);
+  u16 (*stacky[STACK_SIZE]) (uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit);
+  stack_pos=-1;
+
   for (x=0;x<MAX_SAM;x++){
     xxx[x]=randi()%65536;
   }
@@ -1184,7 +1210,9 @@ void main(void)
     convinit(unit,xxx); 
     // TODO: array stack of function pointers
     func_push(stacky,runconv);
-
+    while(1){
+    count=stacky[0](count,1,xxx,howmuch,unit);
+    }
     /*
     // test casts? DONE
     for (x=0;x<65535;x++){
