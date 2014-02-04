@@ -165,7 +165,7 @@ uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     if (count==MAX_SAM) count=0;
     workingbuffer[count]=unit->cop++;
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count]);
+    printf("%c",workingbuffer[count]);
 #endif
   }
     unit->del=0;
@@ -1107,7 +1107,7 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     workingbuffer[count]=z;//workingbuffer[x+2]=zz;
 #ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-       printf("%d\n",workingbuffer[count]); 
+       printf("%c",workingbuffer[count]>>8); 
 #endif
 
   }
@@ -1163,7 +1163,16 @@ void passingarraytest(uint8_t *buffer) {
 
 char stack_pos;
 
-void func_push(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
+void func_push(struct stackey stack[STACK_SIZE],u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit), void* unit){
+  if (stack_pos<STACK_SIZE-1)
+    {
+      ++stack_pos;
+      stack[stack_pos].functione=xxx;
+      stack[stack_pos].unit=unit;
+    }
+}
+
+/*void func_push(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
 
   	if (stack_pos<STACK_SIZE-1)
 	{
@@ -1179,20 +1188,21 @@ void func_pop(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t
 	}
 }
 
-void func_runall(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) {
+u16 func_runall(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch) {
   u8 i;
   if (stack_pos>0){
-    for (i=0;i<stack_pos;i++){
-      stack[i](count,delay,workingbuffer,howmuch,unit);
+    for (i=0;i<stack_pos+1;i++){
+      count = stack[i](count,delay,workingbuffer,howmuch,unit);
     }
   }
-}
+  return count;
+  }*/
 
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   u16 x;
-  u8 howmuch;
+  u8 howmuch,i,delay[STACK_SIZE];
   uint16_t xxx[MAX_SAM],result;
   uint16_t count=0;
   srand(time(NULL));
@@ -1204,52 +1214,44 @@ void main(void)
     xxx[x]=randi()%65536;
   }
 
+  for (x=0;x<STACK_SIZE;x++){
+    delay[x]=randi()%255;
+  }
+
+  struct stackey stack[STACK_SIZE];
+
+   /*   struct Oregon *unit=malloc(sizeof(struct Oregon)); */
+   /*   struct Spruce *unit=malloc(sizeof(struct Spruce)); */
+   /*   struct Brussel *unit=malloc(sizeof(struct Brussel)); */
+   /* struct Rossler *unit=malloc(sizeof(struct Rossler)); */
+   /* struct secondRossler *unit=malloc(sizeof(struct secondRossler)); */
+   /* struct IFS *unit=malloc(sizeof(struct IFS)); */
+   /* struct simpleSIR *unit=malloc(sizeof(struct simpleSIR)); */
+   /*   struct SEIR *unit=malloc(sizeof(struct SEIR)); */
+   /*     struct SICR *unit=malloc(sizeof(struct SICR)); */
+   /* struct siney *unit=malloc(sizeof(struct siney)); */
+   /* spruceinit(unit,xxx);  */
+   /*     fitzinit(unit,xxx);  */
+   /*   brusselinit(unit,xxx);  */
+
+
   // for Fitz? de-alloc?
-  //    struct Fitz *unit=malloc(sizeof(struct Fitz));
-  //    struct Oregon *unit=malloc(sizeof(struct Oregon));
-  //    struct Spruce *unit=malloc(sizeof(struct Spruce));
-  //    struct Brussel *unit=malloc(sizeof(struct Brussel));
-  //  struct Rossler *unit=malloc(sizeof(struct Rossler));
-  //  struct secondRossler *unit=malloc(sizeof(struct secondRossler));
-  //  struct IFS *unit=malloc(sizeof(struct IFS));
-  //  struct simpleSIR *unit=malloc(sizeof(struct simpleSIR));
-  //    struct SEIR *unit=malloc(sizeof(struct SEIR));
-  //      struct SICR *unit=malloc(sizeof(struct SICR));
-  //  struct siney *unit=malloc(sizeof(struct siney));
-  //  spruceinit(unit,xxx); 
-    //    fitzinit(unit,xxx); 
-    //  brusselinit(unit,xxx); 
-    struct CONV *unit=malloc(sizeof(struct CONV));
-    convinit(unit,xxx); 
-    // TODO: array stack of function pointers
-    func_push(stacky,runconv);
-    while(1){
-    count=stacky[0](count,1,xxx,howmuch,unit);
-    }
-    /*
-    // test casts? DONE
-    for (x=0;x<65535;x++){
-      //      printf("%d %d\n",x, *((u8 *)(xxx)+x));
-	    //      printf("%d %d\n",x, *(u8 *)((u8 *)(xxx)+x));
-      //      printf("%d %d\n",x, ((u8 *)(xxx))[x]);
-      passingarraytest( (u8 *)(xxx));
-    }
-    */    
+       struct Fitz *unita=malloc(sizeof(struct Fitz));
+       struct generik *unitb=malloc(sizeof(struct generik));
+       struct CONV *unit=malloc(sizeof(struct CONV));
+       convinit(unit,xxx); 
+       fitzinit(unita,xxx);
+       geninit(unitb,xxx);
+       // TODO: array stack of function pointers
+       func_push(stack,runinc,unitb);
+       func_push(stack,runconv,unit);
+       func_push(stack,runfitz,unita);
 
-
-    /*        while(1){ 
-	  //	  count=runoregon(count,1,xxx,1,unit);
-	  //runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, struct Fitz* unit)
-	  //	  if ((count+howmuch)>MAX_SAM) count=0;
-	  howmuch=10;
-	  count=runconv(count,1,xxx,howmuch,unit);
-	  
-	  //	  printf("count: %d\n", count);
-	  //	  count=runseir(count,10,xxx,10,unit);
-	  //	  count=runsicr(count,10,xxx,10,unit);
-	  //	  count=runsine(count,1,xxx,10,unit);
-	  //	  	  printf("count %d\n",count);
-	    
-    }*/
+       while(1){
+	 for (i=0;i<(stack_pos+1);i++){
+	   count=stack[i].functione(count,1,xxx,1,stack[i].unit);
+	 }
+	 // u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)
+       }
 }
 #endif

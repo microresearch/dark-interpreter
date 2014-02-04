@@ -61,7 +61,12 @@ up to limit
 - in complexity setting we could select have 2 knobs as selectors /or/
   up-down as settings
 
-- hardware tweaks/output (filter settings) in cpus
+- hardware tweaks/output (filter settings) in CPUint.c
+
+- problem in simulationforstack as all delay limts are shared (or use
+  as array-DONE) and maybe array for howmuch (movements through stack)
+
+- further problems with access to unit -. now fixed!
 
 * WED 29 JAN 2014 +
 
@@ -73,11 +78,10 @@ up to limit
 add/free from stack - one answer would be to malloc one instance of each,
 and add init/re-init with flag to running - or init/re-init in stack push?
 
-now as simulationforstack.c
+now as simulationforstack.c DONE
 
 - totalleaky.c - called by complexity setting - all memory and
   parameters are in the datagenbuffer (based on CPUint.c)
-
 
 * TUE 28 JAN 2014 +
 
