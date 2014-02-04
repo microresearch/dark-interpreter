@@ -56,6 +56,15 @@ up to limit
   working in CPUint.cDONE 
 
 
+* WED 5 FEB
+
+- break down to arch. specific tests and do these. test lower potis,
+  test Nan, malloc, simple board, hardware
+
+- further non-arch code
+
+- fix cpuint issues below
+
 * TUE 4 fEB 2014
 
 - in complexity setting we could select have 2 knobs as selectors /or/
@@ -68,11 +77,19 @@ up to limit
 
 - further problems with access to unit -. now fixed!
 
+- fixed m_pc bug in CPUint.c
+
+- TODO 8bit bug in CPUint.c with machine poke always to 8 bit address
+
+and in peek return u16 (preferred) or add start - fix also in pureleak
+
+but need >>8 when we want 8 bit result!!!
+
 * WED 29 JAN 2014 +
 
 - if we do make stack of function pointers then each function (in
   simulation.c we start to test this) needs to cast void to relevant
-  struct
+  struct DONE
 
 //but is more complex as we need to init (and maybe malloc) each as we
 add/free from stack - one answer would be to malloc one instance of each,
@@ -80,8 +97,10 @@ and add init/re-init with flag to running - or init/re-init in stack push?
 
 now as simulationforstack.c DONE
 
-- totalleaky.c - called by complexity setting - all memory and
+- pureleak.c - called by complexity setting - all memory and
   parameters are in the datagenbuffer (based on CPUint.c)
+
+
 
 * TUE 28 JAN 2014 +
 

@@ -160,10 +160,11 @@ void thread_run(thread* this, machine *m) {
 	{
 	  
     case NOP: break;
-    case ORG: this->m_start=this->m_start+this->m_pc-1; this->m_pc=1; break;
+    case ORG: this->m_start=this->m_start+this->m_pc-1; this->m_pc=this->m_start+1; break;
+      //	return machine_peek(m,this->m_start+addr);
     case EQU: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
-    case JMP: this->m_pc=machine_peek(m,this->m_pc++); break;
-    case JMPZ: if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=machine_peek(m,this->m_pc); else this->m_pc++; break;
+	case JMP: this->m_pc=this->m_start+machine_peek(m,this->m_pc++); break;
+    case JMPZ: if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=this->m_start+machine_peek(m,this->m_pc); else this->m_pc++; break;
     case PSHL: thread_push(this,machine_peek(m,this->m_pc++)); break;
     case PSH: thread_push(this,machine_peek(m,machine_peek(m,this->m_pc++))); break;
     case PSHI: thread_push(this,machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc++)))); break;
@@ -358,7 +359,7 @@ void thread_run(thread* this, machine *m) {
       case 0:
 	if (this->m_reg8bit2==12){
 	  machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
-	  if (this->m_pc==255) this->m_reg8bit2=13;
+	  if (machine_peek(m,this->m_pc)==255) this->m_reg8bit2=13;
 	  this->m_pc++;
 	}
 	else this->m_pc++;
@@ -495,7 +496,7 @@ void thread_run(thread* this, machine *m) {
 	this->m_pc++;
 	break;
       case 9:	  
-	if (machine_peek(m,this->m_pc+1)==0) this->m_pc=this->m_reg8bit1;
+	if (machine_peek(m,this->m_pc+1)==0) this->m_pc=this->m_start+this->m_reg8bit1;
 	//	this->m_pc++;
 	break;
       case 10:	  
@@ -601,7 +602,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 13:
 	// jmp to indirect
-	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	break;
       case 14:
 	// JMZdirect to direct
@@ -610,7 +611,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 15:
 	// JMZdirect to indirect
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 16:	
@@ -620,7 +621,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 17:
 	// JMZindirect to indirect
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 18:
@@ -630,7 +631,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 19:
 	// JMGdirect to indirect
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))>0) 	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))>0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 20:	
@@ -640,7 +641,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 21:
 	// JMGindirect to indirect
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 22:
@@ -653,7 +654,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 23:
 	// DJZ dir to indir
 	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2), machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))-1);
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0)	  this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0)	  this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else this->m_pc+=3;
 	break;
       case 24:
@@ -665,7 +666,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 25:
 	// DJZ indir to indir
 	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)), machine_peek(m,machine_peek(m,this->m_pc+2)-1));
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) this->m_pc=machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+1)));
+	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) this->m_pc=this->m_start+machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+1)));
 	else this->m_pc+=3;
 	break;
       case 26:
@@ -854,17 +855,17 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc++;
 	break;
       case 11:
-	if (thread_pop(this)==0) this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (thread_pop(this)==0) this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc++;
 	break;
       case 12:
 	//sub call
 	thread_push(this,this->m_pc);
-	this->m_pc=machine_peek(m,machine_peek(m,this->m_pc+1));
+	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	break;
       case 13:
 	//sub return
-	this->m_pc=thread_pop(this);
+	this->m_pc=this->m_start+thread_pop(this);
 	break;
       case 14:
 	thread_push(this,machine_peek(m,this->m_pc+1));
@@ -1180,7 +1181,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  this->m_pc+=wormdir;
 	  break;
 	case 3:
-	  this->m_pc=machine_peek(m,this->m_pc);
+	  this->m_pc=this->m_start+machine_peek(m,this->m_pc);
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
@@ -1305,16 +1306,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
   } // if del
 }
 
-u8* thread_get_stack(thread* this) { 
-    return this->m_stack; 
-}
-
 u8 thread_stack_count(thread* this, u8 c) { 
     return (c-1)<=this->m_stack_pos; 
-}
-
-u8 thread_get_stack_pos(thread* this) { 
-    return this->m_stack_pos; 
 }
 
 void thread_push(thread* this, u8 data) {

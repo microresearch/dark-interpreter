@@ -22,6 +22,7 @@ extern u8 wormdir;
 #endif
 
 #define MAX_FRED 60
+#define max_cpus 31
 
 /* 
 
@@ -46,22 +47,21 @@ Based in part on spork factory by Dave Griffiths.
 
 #define CPU_TOTAL 31
 
-#define CPU (buffer[offset])
-#define DELAY (buffer[offset+1])
-#define DELC (buffer[offset+2])
-#define ADDRHI (buffer[offset+3])
-#define ADDRLO (buffer[offset+4])
-#define WRAPADDRHI (buffer[offset+5])
-#define WRAPADDRLO (buffer[offset+6])
-#define PCADDRHI (buffer[offset+7])
-#define PCADDRLO (buffer[offset+8])
-#define BIT81 (buffer[offset+9])
-#define BIT82 (buffer[offset+10])
-#define BIT83 (buffer[offset+11])
-#define STACK (buffer[offset+12])
-#define STACKSTART (buffer[offset+13])
+#define CPU buffer[offset]
+#define DELAY buffer[offset+1]
+#define DELC buffer[offset+2]
+#define ADDRHI buffer[offset+3]
+#define ADDRLO buffer[offset+4]
+#define WRAPADDRHI buffer[offset+5]
+#define WRAPADDRLO buffer[offset+6]
+#define PCADDRHI buffer[offset+7]
+#define PCADDRLO buffer[offset+8]
+#define BIT81 buffer[offset+9]
+#define BIT82 buffer[offset+10]
+#define BIT83 buffer[offset+11]
+#define STACK buffer[offset+12]
 
-u16 thread_create(u8* buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
+u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   u8 n;
   buffer[offset]=which; // cpu
   buffer[offset+1]=delay;
@@ -76,19 +76,46 @@ u16 thread_create(u8* buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u1
   buffer[offset+10]=randi()%255;
   buffer[offset+11]=randi()%255;
   buffer[offset+12]=0; // stack_pos -1????
+  return offset+13+STACK_SIZE;
+}
 
-  for (n=0; n<STACK_SIZE; n++)
-      {
-	buffer[offset+13+n]=0;
-	//	this->m_stack[n]=0;
-      }
-  return offset+13+n;
+u16 machine_peekkk(u8* buffer, uint16_t addr);
+void machine_pokeee(u8* buffer, uint16_t addr, u8 data);
+
+u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) { 
+  return c<=STACK; // but now we start at 0
+}
+
+void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
+	if (STACK<STACK_SIZE)
+	{
+	  buffer[(++STACK)+1]=data;
+	}
+}
+
+u8 thread_poppp(u8* buffer, u16 offset) {
+ 	if (STACK>=1)
+	{
+		u8 ret=buffer[STACK+1];
+		STACK--;
+		return ret;
+	}
+	//    printf("errorr\n");
+	return 0;   
+}
+
+u8 thread_toppp(u8 *buffer, u16 offset) {
+	if (STACK>=1)
+	{
+		return buffer[STACK+1];
+	}
+	return 0;
 }
 
 
 void thread_runnn(u8* buffer, u16 offset) {
   u8 instr,temp;
-  u16 y;
+  u16 y,addr;
   u8 flag,other;
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
@@ -97,36 +124,133 @@ void thread_runnn(u8* buffer, u16 offset) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-
+  CPU=0;
   if (++DELC==DELAY){
+  switch(CPU%max_cpus)
+    {
+
+    case 0: // :LEAKY STACK! - working!
+      instr=machine_peekkk(buffer,((PCADDRHI<<8)+PCADDRLO))>>8;
+      //       this->m_pc++; PCADDRHI and LO!
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    //    printf("%c",machine_peek(m,this->m_pc));
-
+      printf("%c",instr);
 #endif
 
-  switch(CPU)
+      addr=((PCADDRHI<<8)+PCADDRLO);
+      addr++;
+      if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
+  switch(instr%25)
     {
-    case 0: // :LEAKY STACK! - working!
-      //      instr=machine_peek(m,this->m_pc);
-      //       this->m_pc++; PCADDRHI and LO!
-      //      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      //			printf("%d", instr);
+    case NOP: break;
+
+    case ORG: //this->m_start=this->m_start+this->m_pc-1; this->m_pc=this->m_start+1; break;
+      addr=((ADDRHI<<8)+ADDRLO);
+      if (addr=addr+((PCADDRHI<<8)+PCADDRLO-1))	addr=((PCADDRHI<<8)+PCADDRLO+1);
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
       break;
+    case EQU: //if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
+      if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)==thread_poppp(buffer,offset),offset);
+      break;
+    case JMP: //this->m_pc=this->machine_peek(m,this->m_pc++); break;
+      addr=machine_peekkk(buffer,addr++);
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
+      break;      
+    case JMPZ:// if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=machine_peek(m,this->m_pc); else this->m_pc++; break;
+      if (thread_stack_counttt(buffer,1,offset) && thread_poppp(buffer,offset)==0) machine_peekkk(buffer,addr); else addr++; 
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
+      break;
+    case PSHL: //thread_push(this,machine_peek(m,this->m_pc++)); break;
+      thread_pushhh(buffer,machine_peekkk(buffer,addr++)>>8,offset);
+      break;
+
+    case PSH: ///thread_push(this,machine_peek(m,machine_peek(m,this->m_pc++))); break;
+      thread_pushhh(buffer,machine_peekkk(buffer,machine_peekkk(buffer,addr++))>>8,offset); break;
+
+    case PSHI://  thread_push(this,machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc++)))); break;
+      thread_pushhh(buffer,machine_peekkk(buffer,machine_peekkk(buffer,machine_peekkk(buffer,addr++)))>>8,offset); break;
+
+    case POP:// if (thread_stack_count(this,1)) machine_poke(m,machine_peek(m,this->m_pc++),thread_pop(this)); break;
+      if (thread_stack_counttt(buffer,1,offset)) machine_pokeee(buffer,machine_peekkk(buffer,addr),thread_poppp(buffer,offset)); break;
+
+    case POPI: //if (thread_stack_count(this,1)) machine_poke(m,((ADDRHI<<8)+ADDRLO)+machine_peek(m,machine_peek(m,this->m_pc++)),thread_pop(this)); break;
+      if (thread_stack_counttt(buffer,1,offset)) machine_pokeee(buffer,machine_peekkk(buffer,machine_peekkk(buffer,addr++)),thread_poppp(buffer,offset)); break;
+
+    case ADD: //if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)+thread_pop(this)); break;
+      if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)+thread_poppp(buffer,offset),offset); break;
+
+    case SUB: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)-thread_poppp(buffer,offset),offset); break;
+
+    case INC: if (thread_stack_counttt(buffer,1,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)+1,offset); break;
+
+    case DEC: if (thread_stack_counttt(buffer,1,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)-1,offset); break;
+      ////////// 
+    case AND: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)&thread_poppp(buffer,offset),offset); 
+break;
+    case OR: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)|thread_poppp(buffer,offset),offset); break;
+    case XOR: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)^thread_poppp(buffer,offset),offset); break;
+    case NOT: if (thread_stack_counttt(buffer,1,offset)) thread_pushhh(buffer,~thread_poppp(buffer,offset),offset); break;
+
+    case ROR: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)>>(machine_peekkk(buffer,addr)%8),offset); break;
+
+    case ROL: if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)<<(machine_peekkk(buffer,addr)%8),offset); break;
+    case PIP: 
+    {
+      u16 d=machine_peekkk(buffer,addr++);
+      //        machine_poke(m,d,machine_peek(m,d)+1); 
+
+      machine_pokeee(buffer,d,machine_peekkk(buffer,d)+1); 
+    } break;
+    case PDP: 
+    {
+      u16 d=machine_peekkk(buffer,addr++); 
+      machine_pokeee(buffer,d,machine_peekkk(buffer,d)-1); 
+    } break;
+    case DUP: if (thread_stack_counttt(buffer,1,offset)) thread_pushhh(buffer,thread_toppp(buffer,offset),offset); break;
+    case SAY: 
+      //      printf("%c",thread_poppp(buffer));
+      //      machine_poke(m,machine_peek(m,buffer->m_pc++),randi()%255);      
+        break;
+	case INP:
+#ifndef PCSIM
+	  machine_pokeee(buffer,((ADDRHI<<8)+ADDRLO)+machine_peekkkk(buffer,buffer->m_pc++),adc_buffer[thread_poppp(buffer)%10],offset);      
+#endif
+	  addr++;
+	  break;
+
+    default : break;
+	}
     }
   }
 }
+
+u16 machine_peekkk(u8* buffer, uint16_t addr) {
+  //	return buffer->m_heap[addr%HEAP_SIZE];
+  return (buffer[addr]<<8)+buffer[addr+1];
+}
+
+void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
+  //	buffer->m_heap[addr%HEAP_SIZE]=data;
+  buffer[addr]=data;
+}
+
+
 
 ///////////////////////////////////////////////////////////////
 
 #ifdef PCSIM
 int main(void)
 {
-  u8 x,threadcount; u16 addr,offset=0;
+  u16 x; u16 addr,offset=0;
   u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
-  for (x=0;x<65536;x++){
+  for (x=0;x<65535;x++){
     buffer[x]=randi()%255;
   }
 
@@ -138,17 +262,20 @@ int main(void)
 
   // inc threadcount, array of offsets
   for (x=0;x<MAX_FRED;x++){
-    threadcount++;
     addr=randi()%65536;
     threads[x]=offset;
-    offset+=thread_create(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+    offset=thread_create(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+
+    //u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   }
 
   // run threads
   
-
-	/*	  while(1) {
-          machine_run(m);
-	  }*/
+  
+  while(1) {
+        for (x=0;x<MAX_FRED;x++){
+          thread_runnn(buffer,threads[x]);
+    	  }
+  }
 }
 #endif
