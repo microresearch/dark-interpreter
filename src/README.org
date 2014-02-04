@@ -56,18 +56,27 @@ up to limit
   working in CPUint.cDONE 
 
 
+* TUE 4 fEB 2014
+
+- in complexity setting we could select have 2 knobs as selectors /or/
+  up-down as settings
+
+- hardware tweaks/output (filter settings) in cpus
+
 * WED 29 JAN 2014 +
 
 - if we do make stack of function pointers then each function (in
   simulation.c we start to test this) needs to cast void to relevant
   struct
 
-(but is more complex as we need to init (and maybe malloc) each as we
-add/free from stack - answer would be to malloc one instance of each,
-and add init/re-init with flag to running
+//but is more complex as we need to init (and maybe malloc) each as we
+add/free from stack - one answer would be to malloc one instance of each,
+and add init/re-init with flag to running - or init/re-init in stack push?
+
+now as simulationforstack.c
 
 - totalleaky.c - called by complexity setting - all memory and
-  parameters are in the datagenbuffer!
+  parameters are in the datagenbuffer (based on CPUint.c)
 
 
 * TUE 28 JAN 2014 +
