@@ -145,12 +145,12 @@ void thread_runnn(u8* buffer, u16 offset) {
     {
     case NOP: break;
 
-    case ORG: //this->m_start=this->m_start+this->m_pc-1; this->m_pc=this->m_start+1; break;
+    case ORG: //this->m_start=this->m_pc-1; this->m_pc=this->m_start+1; break;
       /////
-      addr=((ADDRHI<<8)+ADDRLO)+addr-1;
+      addr-=1;
       ADDRHI=addr>>8; // hi/lo
       ADDRLO=addr&255;
-      addr=((ADDRHI<<8)+ADDRLO+1);
+      addr+=1;
       break;
     case EQU: //if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
       if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)==thread_poppp(buffer,offset),offset);

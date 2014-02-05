@@ -42,7 +42,7 @@ typedef uint16_t u16;
       u8 m_CPU;
       u8 m_del,m_delc;
       u8 m_infection;
-      u8 m_reg8bit1; u8 m_reg8bit2; u8 m_reg8bit3; 
+      u16 m_reg16bit1; u8 m_reg8bit1, m_reg8bit2;
       u16 m_start;
       u16 m_pc;
       u16 m_wrap;
@@ -76,7 +76,8 @@ typedef uint16_t u16;
 /////////////////////////////////////////////////////////
     
 void machine_create(machine *this, uint8_t *buffer);
-u8 machine_peek(const machine *t, u16 addr);
+u16 machine_peek(const machine *t, u16 addr); // changed for CPUintrev2.h
+u8 machine_p88k(const machine* this, uint16_t addr); // ditto added
 void machine_poke(machine *t, u16 addr, u8 data);	
 void machine_run(machine *t);
 void infectcpu(machine *m, u8 probI, u8 probD, u8 infected);    

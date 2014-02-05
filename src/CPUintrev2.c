@@ -88,7 +88,7 @@ void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8
   this->m_pc=this->m_start;
   this->m_reg8bit1=randi()%255;
   this->m_reg8bit2=randi()%255;
-  this->m_reg8bit3=randi()%255;
+  this->m_reg16bit1=randi()%65536;
   this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
@@ -152,25 +152,25 @@ void thread_run(thread* this, machine *m) {
     printf("%c",machine_peek(m,this->m_pc));
 
 #endif
-
-  switch(this->m_CPU)
-    {
-    case 0: // :LEAKY STACK! - working!
-      instr=machine_peek(m,this->m_pc);
+    this->m_CPU=5;
+    switch(this->m_CPU)
+      {
+      case 0: // :LEAKY STACK! - working!
+      instr=machine_p88k(m,this->m_pc);
       this->m_pc++;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       //			printf("%d", instr);
       switch(instr%25)
 	{
 	  
-    case NOP: break;
-    case ORG: this->m_start=this->m_start+this->m_pc-1; this->m_pc=this->m_start+1; break;
-    case EQU: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
-	case JMP: this->m_pc=this->m_start+machine_peek(m,this->m_pc++); break;
-    case JMPZ: if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=this->m_start+machine_peek(m,this->m_pc); else this->m_pc++; break;
+	case NOP: break;
+	case ORG: this->m_start=this->m_pc-1; this->m_pc=this->m_start+1; break;
+	case EQU: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
+	case JMP: this->m_pc=machine_peek(m,this->m_pc++); break;
+	case JMPZ: if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=machine_peek(m,this->m_pc); else this->m_pc++; break;
     case PSHL: thread_push(this,machine_peek(m,this->m_pc++)); break;
-    case PSH: thread_push(this,machine_peek(m,machine_peek(m,this->m_pc++))); break;
-    case PSHI: thread_push(this,machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc++)))); break;
+	case PSH: thread_push(this,machine_p88k(m,machine_peek(m,this->m_pc++))); break;
+	case PSHI: thread_push(this,machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc++)))); break;
 	case POP: if (thread_stack_count(this,1)) machine_poke(m,machine_peek(m,this->m_pc++),thread_pop(this)); break;
     case POPI: if (thread_stack_count(this,1)) machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc++)),thread_pop(this)); break;
     case ADD: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)+thread_pop(this)); break;
@@ -181,16 +181,16 @@ void thread_run(thread* this, machine *m) {
     case OR: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)|thread_pop(this)); break;
     case XOR: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)^thread_pop(this)); break;
     case NOT: if (thread_stack_count(this,1)) thread_push(this,~thread_pop(this)); break;
-    case ROR: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)>>(machine_peek(m,this->m_pc++)%8)); break;
-    case ROL: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)<<(machine_peek(m,this->m_pc++)%8)); break;
+    case ROR: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)>>(machine_p88k(m,this->m_pc++)%8)); break;
+    case ROL: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)<<(machine_p88k(m,this->m_pc++)%8)); break;
     case PIP: 
     {
-        u8 d=machine_peek(m,this->m_pc++); 
+        u16 d=machine_peek(m,this->m_pc++); 
         machine_poke(m,d,machine_peek(m,d)+1); 
     } break;
     case PDP: 
     {
-        u8 d=machine_peek(m,this->m_pc++); 
+        u16 d=machine_peek(m,this->m_pc++); 
         machine_poke(m,d,machine_peek(m,d)-1); 
     } break;
     case DUP: if (thread_stack_count(this,1)) thread_push(this,thread_top(this)); break;
@@ -202,6 +202,7 @@ void thread_run(thread* this, machine *m) {
 #ifndef PCSIM
 	  machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[thread_pop(this)%10]);      
 #endif
+	  this->m_pc++;
 	  break;
 
     default : break;
@@ -214,7 +215,7 @@ void thread_run(thread* this, machine *m) {
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       //      instr=machine_peek(m,this->m_pc);
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
 
       flag=0;
       //      printf("instr %d ",instr);
@@ -222,13 +223,13 @@ void thread_run(thread* this, machine *m) {
 	{
 	case 0:
 	  //s -- straight: move DC in the current direction. Fail if that cell is empty.
-	  this->m_reg8bit2+=biotadir[this->m_reg8bit1%8];
-	  if (machine_peek(m,this->m_reg8bit2)==0) flag=1;
+	  this->m_reg16bit1+=biotadir[this->m_reg8bit1%8];
+	  if (machine_p88k(m,this->m_reg16bit1)==0) flag=1;
 	  break;
 	case 1:
 	  //* b -- backup: move DC opposite the current direction. Fail if that cell is empty.
-	  this->m_reg8bit2+=biotadir[(this->m_reg8bit1+4)%8];
-	  if (machine_peek(m,this->m_reg8bit2)==0) flag=1;
+	  this->m_reg16bit1+=biotadir[(this->m_reg8bit1+4)%8];
+	  if (machine_p88k(m,this->m_reg16bit1)==0) flag=1;
 	  break;
 	case 2:
 	  //* t -- turn DC right 45 degrees
@@ -241,28 +242,28 @@ void thread_run(thread* this, machine *m) {
 	case 4:
 	  //    * g -- go to a non-empty character ahead (tries to move DC straight ahead, then right and left 45 degrees, then 90, then 135, then back).
 	  temp=this->m_reg8bit1%8;
-	  this->m_reg8bit2+=biotadir[temp];
-	  if (machine_peek(m,this->m_reg8bit2)==0) {
-	    this->m_reg8bit2-=biotadir[temp]; // go back
-	    this->m_reg8bit2+=biotadir[(this->m_reg8bit1+1)%8]; // right 45
-	    if (machine_peek(m,this->m_reg8bit2)==0) {
-	      this->m_reg8bit2-=biotadir[(this->m_reg8bit1+1)%8]; // go back
-	      this->m_reg8bit2+=biotadir[(this->m_reg8bit1-1)%8]; // left 45
-	      if (machine_peek(m,this->m_reg8bit2)==0) {
-		this->m_reg8bit2-=biotadir[(this->m_reg8bit1-1)%8]; // go back
-		this->m_reg8bit2+=biotadir[(this->m_reg8bit1+2)%8]; // right 90
-		if (machine_peek(m,this->m_reg8bit2)==0) {
-		  this->m_reg8bit2-=biotadir[(this->m_reg8bit1+2)%8]; // go back
-		  this->m_reg8bit2+=biotadir[(this->m_reg8bit1-2)%8]; // left 90
-		  if (machine_peek(m,this->m_reg8bit2)==0) {
-		    this->m_reg8bit2-=biotadir[(this->m_reg8bit1-2)%8]; // go back
-		    this->m_reg8bit2+=biotadir[(this->m_reg8bit1+3)%8]; // right 135
-		  if (machine_peek(m,this->m_reg8bit2)==0) {
-		    this->m_reg8bit2-=biotadir[(this->m_reg8bit1-3)%8]; // go back
-		    this->m_reg8bit2+=biotadir[(this->m_reg8bit1-3)%8]; // left 135
-		  if (machine_peek(m,this->m_reg8bit2)==0) {
-		    this->m_reg8bit2-=biotadir[(this->m_reg8bit1-3)%8]; // go back
-		    this->m_reg8bit2+=biotadir[(this->m_reg8bit1+4)%8]; // back
+	  this->m_reg16bit1+=biotadir[temp];
+	  if (machine_p88k(m,this->m_reg16bit1)==0) {
+	    this->m_reg16bit1-=biotadir[temp]; // go back
+	    this->m_reg16bit1+=biotadir[(this->m_reg8bit1+1)%8]; // right 45
+	    if (machine_p88k(m,this->m_reg16bit1)==0) {
+	      this->m_reg16bit1-=biotadir[(this->m_reg8bit1+1)%8]; // go back
+	      this->m_reg16bit1+=biotadir[(this->m_reg8bit1-1)%8]; // left 45
+	      if (machine_p88k(m,this->m_reg16bit1)==0) {
+		this->m_reg16bit1-=biotadir[(this->m_reg8bit1-1)%8]; // go back
+		this->m_reg16bit1+=biotadir[(this->m_reg8bit1+2)%8]; // right 90
+		if (machine_p88k(m,this->m_reg16bit1)==0) {
+		  this->m_reg16bit1-=biotadir[(this->m_reg8bit1+2)%8]; // go back
+		  this->m_reg16bit1+=biotadir[(this->m_reg8bit1-2)%8]; // left 90
+		  if (machine_p88k(m,this->m_reg16bit1)==0) {
+		    this->m_reg16bit1-=biotadir[(this->m_reg8bit1-2)%8]; // go back
+		    this->m_reg16bit1+=biotadir[(this->m_reg8bit1+3)%8]; // right 135
+		    if (machine_p88k(m,this->m_reg16bit1)==0) {
+		    this->m_reg16bit1-=biotadir[(this->m_reg8bit1-3)%8]; // go back
+		    this->m_reg16bit1+=biotadir[(this->m_reg8bit1-3)%8]; // left 135
+		    if (machine_p88k(m,this->m_reg16bit1)==0) {
+		    this->m_reg16bit1-=biotadir[(this->m_reg8bit1-3)%8]; // go back
+		    this->m_reg16bit1+=biotadir[(this->m_reg8bit1+4)%8]; // back
 		  }
 		  }
 		  }
@@ -273,15 +274,15 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	case 5:
 	  //    * c -- clear character at DC. Fails if already empty.
-	  if (machine_peek(m,this->m_reg8bit2)!=0) machine_poke(m,this->m_reg8bit2,0); 
+	  if (machine_p88k(m,this->m_reg16bit1)!=0) machine_poke(m,this->m_reg16bit1,0); 
 	  else flag=1;
 	  break;
 	case 6:
 	  //    * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
 	  // left is -2
 
-	  if (machine_peek(m,this->m_reg8bit2)==0 || (machine_peek(m,this->m_reg8bit2+(this->m_reg8bit2+((this->m_reg8bit1-4)%8))))!=0) flag=1;
-	  else machine_poke(m,this->m_reg8bit2+(this->m_reg8bit2+((this->m_reg8bit1-4)%8)),machine_peek(m,this->m_reg8bit2));
+	  if (machine_p88k(m,this->m_reg16bit1)==0 || (machine_p88k(m,this->m_reg16bit1+(this->m_reg16bit1+((this->m_reg8bit1-4)%8))))!=0) flag=1;
+	  else machine_poke(m,this->m_reg16bit1+(this->m_reg16bit1+((this->m_reg8bit1-4)%8)),machine_p88k(m,this->m_reg16bit1));
 	  break;
 	case 7:
 	  //    * . -- no-op, a non-empty do nothing. 
@@ -290,14 +291,15 @@ void thread_run(thread* this, machine *m) {
 
       // - this->m_pc turns (where?) when it finds an empty location or a failing instruction
       // m_reg8bit3 is direction
-      wormdir=this->m_reg8bit3%8;
-      if (machine_peek(m,this->m_pc)==0 || flag==1){
-	this->m_reg8bit3-=1;
+      wormdir=this->m_reg8bit2%8;
+      if (machine_p88k(m,this->m_pc)==0 || flag==1){
+	this->m_reg8bit2-=1;
       }
       else this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       //      break;
-///////////////////////////////////////////////////////////////
+      
+/////////////////////////////////////////////////////////////////
 
     case 2:
       // brainfuck: add in output???
@@ -305,43 +307,45 @@ void thread_run(thread* this, machine *m) {
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       //      instr=machine_peek(m,this->m_pc);
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
 
       //      printf("instr %d ",instr);
       switch(instr%7)
 	{
 	case 0:
-	  this->m_reg8bit1++;
+	  this->m_reg16bit1+=2;
 	  this->m_pc++;
 	  break;
 	case 1:
-	  this->m_reg8bit1--;
+	  this->m_reg16bit1-=2;
 	  this->m_pc++;
 	  break;
 	case 2:
 	  //	    cells[omem]=cells[omem]++; 
-	  machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)+1);
+	  machine_poke(m,this->m_reg16bit1,machine_peek(m,this->m_reg16bit1)+1);
 	  this->m_pc++;
 	  break;
 	case 3:
-	  machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)-1);
+	  machine_poke(m,this->m_reg16bit1,machine_peek(m,this->m_reg16bit1)-1);
 	  this->m_pc++;
 	  break;
 	case 4:
-	  this->m_reg8bit2++;
-	  if (this->m_reg8bit2>=16) this->m_reg8bit2=0;
-	  this->m_stack[this->m_reg8bit2]= this->m_pc;
+	  this->m_reg8bit2+=2;
+	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
+	  this->m_stack[this->m_reg8bit2]= this->m_pc>>8;
+	  this->m_stack[this->m_reg8bit2+1]= this->m_pc&255;
 	  this->m_pc++;
 	  break;
 	case 5:
-	  if (machine_peek(m,this->m_reg8bit1)!=0) this->m_pc=this->m_stack[this->m_reg8bit2]-1;
-	  this->m_reg8bit2-=1;
-	  if (this->m_reg8bit2==0) this->m_reg8bit2=16;
+	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
+	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=(this->m_stack[this->m_reg8bit2])<<8+((this->m_stack[this->m_reg8bit2+1]));
+	  this->m_reg8bit2-=2;
+	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
 	case 6:
 	  //  cells[omem] = adcread(3); 
 #ifndef PCSIM
-	  machine_poke(m,this->m_reg8bit1,adc_buffer[this->m_reg8bit1%10]);
+	  machine_poke(m,this->m_reg16bit1,adc_buffer[this->m_reg16bit1%10]);
 #endif
 	  this->m_pc++;
 	  break;
@@ -354,33 +358,33 @@ void thread_run(thread* this, machine *m) {
       // masque red death: add in output???
 
       if (this->m_pc>=this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
 
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%7){
       case 0:
 	if (this->m_reg8bit2==12){
-	  machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
-	  if (machine_peek(m,this->m_pc)==255) this->m_reg8bit2=13;
+	  machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc)>>8);
+	  if ((machine_peek(m,this->m_pc)>>8)==255) this->m_reg8bit2=13;
 	  this->m_pc++;
 	}
 	else this->m_pc++;
 	break;
       case 1:
 	if (this->m_reg8bit2==13){
-	  this->m_reg8bit1++;
-	  //	  machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_pc)); READ IN! TODO!
-	  //	  this->m_pc++;
+	  this->m_reg16bit1++;
+	  machine_poke(m,this->m_reg16bit1,machine_p88k(m,this->m_pc)); //READ IN! TODO!
+	  this->m_pc++;
 	}
 	else this->m_pc++;
 	break;
       case 2:
-	this->m_reg8bit3++;
-	if (this->m_reg8bit3==60){
+	this->m_reg8bit2++;
+	if (this->m_reg8bit2==60){
 	  this->m_reg8bit2++;
-	  machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)^255);
-	  this->m_reg8bit3=0;
+	  machine_poke(m,this->m_reg16bit1,machine_p88k(m,this->m_reg16bit1)^255);
+	  this->m_reg8bit2=0;
 	}
 	else this->m_pc++;
 	break;
@@ -388,8 +392,8 @@ void thread_run(thread* this, machine *m) {
 	  //	  seven rooms: divide cellspace into 7 - 7 layers with filter each: TODO
 	  break;
 	case 4:
-	  machine_poke(m,this->m_reg8bit1-1,machine_peek(m,this->m_reg8bit1-1)^255);
-	  machine_poke(m,this->m_reg8bit1+1,machine_peek(m,this->m_reg8bit1+1)^255);
+	  machine_poke(m,this->m_reg16bit1-1,machine_peek(m,this->m_reg8bit1-1)^255);
+	  machine_poke(m,this->m_reg16bit1+1,machine_peek(m,this->m_reg8bit1+1)^255);
 	  this->m_pc++;
 	  break;
 	case 5:
@@ -403,7 +407,7 @@ void thread_run(thread* this, machine *m) {
 	case 6:
 	  //cells[omem+1]=adcread(3); rEADIN TODO
 #ifndef PCSIM
-	  machine_poke(m,this->m_reg8bit1+1,adc_buffer[this->m_reg8bit1%10]);
+	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[this->m_reg16bit1%10]);
 #endif
 	  this->m_pc++;
 	  break;
@@ -415,7 +419,7 @@ void thread_run(thread* this, machine *m) {
       // plague: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
 
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
@@ -426,21 +430,21 @@ void thread_run(thread* this, machine *m) {
 	this->m_pc+=2;
 	break;
       case 1:
-	if (machine_peek(m,this->m_pc)<128){
-	  machine_poke(m,this->m_pc-1,machine_peek(m,this->m_pc));
-	  machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
+	if ((machine_peek(m,this->m_pc)>>8)<128){
+	  machine_poke(m,this->m_pc-1,machine_p88k(m,this->m_pc));
+	  machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
 	}
-	this->m_pc+=biotadir[this->m_reg8bit3%8];
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
       case 2:
 	machine_poke(m,this->m_pc-1,0);
 	machine_poke(m,this->m_pc+1,0);
-	this->m_pc+=biotadir[this->m_reg8bit3%8];
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
       case 3:
-	if ((machine_peek(m,this->m_pc)%0x03)==1) this->m_reg8bit3+=4;
-	else this->m_reg8bit3*=machine_peek(m,this->m_pc)>>4;
-	this->m_pc+=biotadir[this->m_reg8bit3%8];
+	if ((machine_p88k(m,this->m_pc)%0x03)==1) this->m_reg8bit2+=4;
+	else this->m_reg8bit2*=machine_p88k(m,this->m_pc)>>4;
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
       case 4:
 #ifndef PCSIM
@@ -449,69 +453,70 @@ void thread_run(thread* this, machine *m) {
 	  break;
 
       }
-	if (machine_peek(m,this->m_pc)==255) this->m_reg8bit3+=4;
-	wormdir=this->m_reg8bit3%8;
+      if (machine_p88k(m,this->m_pc)==255) this->m_reg8bit2+=4;
+	wormdir=this->m_reg8bit2%8;
 	//      printf("%c",this->m_pc);
+	
 ///////////////////////////////////////////////////////////////
 
-    case 5:
+      case 5:
       // first from micro: add in output???
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%15){
       case 0:
-	this->m_reg8bit1++;
+	this->m_reg16bit1+=2;
 	this->m_pc++;
 	break;
       case 1:
-	this->m_reg8bit1--;
+	this->m_reg16bit1-=2;
 	this->m_pc++;
 	break;
       case 2:
-	machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)+1);
+	machine_poke(m,this->m_reg16bit1,machine_p88k(m,this->m_reg16bit1)+1);
 	this->m_pc++;
 	break;
       case 3:	  
-	machine_poke(m,this->m_reg8bit1,machine_peek(m,this->m_reg8bit1)-1);
+	machine_poke(m,this->m_reg16bit1,machine_p88k(m,this->m_reg16bit1)-1);
 	this->m_pc++;
 	break;
       case 4:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)+1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)+1);
 	this->m_pc++;
 	break;
       case 5:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)-1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)-1);
 	this->m_pc++;
 	break;
       case 6:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)<<1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)>>1);
 	this->m_pc++;
 	break;
       case 7:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)<<2);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)>>2);
 	this->m_pc++;
 	break;
       case 8:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)<<3);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)>>3);
 	this->m_pc++;
 	break;
       case 9:	  
-	if (machine_peek(m,this->m_pc+1)==0) this->m_pc=this->m_start+this->m_reg8bit1;
+	if (machine_peek(m,this->m_pc+1)==0) this->m_pc=this->m_start+this->m_reg16bit1;
 	//	this->m_pc++;
 	break;
       case 10:	  
-	if (machine_peek(m,this->m_pc+1)<128) this->m_pc+=machine_peek(m,this->m_pc+1);
+	if (machine_p88k(m,this->m_pc+1)<128) this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc++;
 	break;
       case 11:	  
-	if (machine_peek(m,this->m_pc-1)<128) machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
+	if (machine_p88k(m,this->m_pc-1)<128) machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
 	this->m_pc++;
 	break;
       case 12:	  
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+1));
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+1));
 	this->m_pc++;
 	break;
       case 13:	  
@@ -537,139 +542,139 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       switch(instr%30){
       case 0:
 	// MOV # to direct.
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,this->m_pc+1));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,this->m_pc+1));
 	this->m_pc+=3;
 	break;
       case 1:	  
 	// MOV indirect to direct.
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,machine_peek(m,this->m_pc+1)));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1)));
 	this->m_pc+=3;
 	break;
       case 2:
 	// MOV # to indirect.
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,this->m_pc+1));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,this->m_pc+1));
 	this->m_pc+=3;
 	break;
       case 3:
 	//MOV indirect to indirect
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,machine_peek(m,this->m_pc+1)));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,machine_peek(m,this->m_pc+1)));
 	this->m_pc+=3;
 	break;
       case 4:
 	//ADD # to direct
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,this->m_pc+1)+machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2)));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
-      case 5:
+	//HERE      case 5:
 	// ADD indirect to direct.
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,machine_peek(m,this->m_pc+1)+machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1))+(machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2)>>8)));
 	this->m_pc+=3;
 	break;
       case 6:
 	// ADD # to indirect.
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,this->m_pc+1)+machine_peek(m,machine_peek(m,this->m_pc+2)));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,this->m_pc+1)+machine_p88k(m,machine_peek(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
       case 7:
 	//ADD indirect to indirect
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,machine_peek(m,this->m_pc+1))+machine_peek(m,machine_peek(m,this->m_pc+2)));
+	machine_poke(m,machine_p88k(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,machine_peek(m,this->m_pc+1))+machine_p88k(m,machine_peek(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
       case 8:
 	//SUB # to direct
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,this->m_pc+1)-machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2)));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,this->m_pc+1)-machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
       case 9:
 	// indirect to direct.
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),machine_peek(m,machine_peek(m,this->m_pc+1)-machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1)-machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))));
 	this->m_pc+=3;
 	break;
       case 10:
 	// # to indirect.
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,this->m_pc+1)-machine_peek(m,machine_peek(m,this->m_pc+2)));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,this->m_pc+1)-machine_p88k(m,machine_peek(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
       case 11:
 	// indirect to indirect
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_peek(m,machine_peek(m,this->m_pc+1))-machine_peek(m,machine_peek(m,this->m_pc+2)));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)),machine_p88k(m,machine_peek(m,this->m_pc+1))-machine_p88k(m,machine_peek(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
       case 12:
 	// jmp to direct
-	this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	this->m_pc+=machine_p88k(m,this->m_pc+1);
 	break;
       case 13:
 	// jmp to indirect
-	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	break;
       case 14:
 	// JMZdirect to direct
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))==0) 	this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc+=3;
 	break;
       case 15:
 	// JMZdirect to indirect
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_p88k(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 16:	
 	// JMZindirect to direct
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc+=3;
 	break;
       case 17:
 	// JMZindirect to indirect
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) 	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 18:
 	// JMGdirect to direct
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))>0) 	this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))>0) 	this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc+=3;
 	break;
       case 19:
 	// JMGdirect to indirect
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))>0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))>0) 	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 20:	
 	// JMGindirect to direct
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc+=3;
 	break;
       case 21:
 	// JMGindirect to indirect
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))>0) 	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 22:
 	// Dec, jump if zero... sub 1 from b. jump to a if b is zero
 	// DJZ dir to dir
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2), machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))-1);
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0)	  this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2), machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))-1);
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))==0)	  this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else this->m_pc+=3;
 	break;
       case 23:
 	// DJZ dir to indir
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2), machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))-1);
-	if (machine_peek(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0)	  this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2), machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))-1);
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))==0)	  this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else this->m_pc+=3;
 	break;
       case 24:
 	// DJZ indir to dir
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)), machine_peek(m,machine_peek(m,this->m_pc+2)-1));
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0)this->m_pc+=(unsigned char)machine_peek(m,this->m_pc+1);
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)), machine_p88k(m,machine_peek(m,this->m_pc+2)-1));
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else this->m_pc+=3;
 	break;
       case 25:
 	// DJZ indir to indir
-	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)), machine_peek(m,machine_peek(m,this->m_pc+2)-1));
-	if (machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) this->m_pc=this->m_start+machine_peek(m,machine_peek(m,machine_peek(m,this->m_pc+1)));
+	machine_poke(m,machine_peek(m,machine_peek(m,this->m_pc+2)), machine_p88k(m,machine_peek(m,this->m_pc+2)-1));
+	if (machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+2)))==0) this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,machine_peek(m,this->m_pc+1)));
 	else this->m_pc+=3;
 	break;
       case 26:
@@ -682,7 +687,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 28:
 	// input to direct.
-	machine_poke(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2),randi()%255);
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),randi()%255);
 	this->m_pc+=3;
 	break;
       case 29:
@@ -697,28 +702,28 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 7:
       // SIR: add in input and output??? untested for audio but...
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%5){
       case 0:
 	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128)) cells[IP]++;
-	if (machine_peek(m,this->m_pc+1)<128) machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)+1);
+	if (machine_p88k(m,this->m_pc+1)<128) machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)+1);
 	this->m_pc++;
 	break;
       case 1:	  
 	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128))    if (randi()%10 < 4) cells[IP] = dead;     
-	if (machine_peek(m,this->m_pc+1)<128)  if (randi()%10 < 4) machine_poke(m,this->m_pc,255);     
+	if (machine_p88k(m,this->m_pc+1)<128)  if (randi()%10 < 4) machine_poke(m,this->m_pc,255);     
 	this->m_pc++;
 	break;
       case 2:
 	//  if (cells[(IP+1)] >= 128) cells[IP] = recovered;
-	if (machine_peek(m,this->m_pc+1)>=128)  machine_poke(m,this->m_pc,129);
+	if (machine_p88k(m,this->m_pc+1)>=128)  machine_poke(m,this->m_pc,129);
 	this->m_pc++;
 	break;
       case 3:
-	if (machine_peek(m,this->m_pc+1)==0){
-	  if ((machine_peek(m,this->m_pc-1)>0 && machine_peek(m,this->m_pc-1)<128) ||
-	      (machine_peek(m,this->m_pc+1)>0 && machine_peek(m,this->m_pc+1)<128))
+	if (machine_p88k(m,this->m_pc+1)==0){
+	  if ((machine_p88k(m,this->m_pc-1)>0 && machine_p88k(m,this->m_pc-1)<128) ||
+	      (machine_p88k(m,this->m_pc+1)>0 && machine_p88k(m,this->m_pc+1)<128))
 	    {
 	if (randi()%10 < 4) machine_poke(m,this->m_pc,129);
 	    }
@@ -740,53 +745,53 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
 
-      //      this->m_reg8bit3=biotadir[randi()%8]; // replace with buffer steering TODO or:
+      //      this->m_reg8bit2=biotadir[randi()%8]; // replace with buffer steering TODO or:
       wormdir=randi()%8;
-      this->m_reg8bit3=biotadir[wormdir];
-      this->m_pc+=this->m_reg8bit3;
+      this->m_reg16bit1=biotadir[wormdir];
+      this->m_pc+=this->m_reg16bit1;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       switch(instr%13){
       case 0:
 	break;
       case 1:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)+1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)+1);
 	break;
       case 2:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)-1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)-1);
 	break;
       case 3:
-	this->m_pc+=machine_peek(m,this->m_pc+this->m_reg8bit3);
+	this->m_pc+=machine_p88k(m,this->m_pc+this->m_reg16bit1);
 	break;
       case 4:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)+machine_peek(m,this->m_pc+this->m_reg8bit3));
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)+machine_p88k(m,this->m_pc+this->m_reg16bit1));
 	break;
       case 5:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)-machine_peek(m,this->m_pc+this->m_reg8bit3));
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)-machine_p88k(m,this->m_pc+this->m_reg16bit1));
 	break;
       case 6:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)<<1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)<<1);
 	break;
       case 7:
-	machine_poke(m,this->m_pc,machine_peek(m,this->m_pc)>>1);
+	machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc)>>1);
 	break;
       case 8:
-	if (machine_peek(m,this->m_pc+(this->m_reg8bit3*2))==0) this->m_pc+=machine_peek(m,this->m_pc+this->m_reg8bit3);
+	if (machine_p88k(m,this->m_pc+(this->m_reg8bit2*2))==0) this->m_pc+=machine_p88k(m,this->m_pc+this->m_reg16bit1);
 	break;
       case 9:
-	flag=machine_peek(m,this->m_pc);
-	machine_poke(m,this->m_pc-this->m_reg8bit3,flag);
-	machine_poke(m,this->m_pc+this->m_reg8bit3,flag);
+	flag=machine_p88k(m,this->m_pc);
+	machine_poke(m,this->m_pc-this->m_reg16bit1,flag);
+	machine_poke(m,this->m_pc+this->m_reg16bit1,flag);
 	break;
       case 10:
-	thread_push(this,machine_peek(m,this->m_pc+this->m_reg8bit3));
+	thread_push(this,machine_p88k(m,this->m_pc+this->m_reg16bit1));
 	break;
       case 11:
-	machine_poke(m,this->m_pc+this->m_reg8bit3,thread_pop(this));
+	machine_poke(m,this->m_pc+this->m_reg16bit1,thread_pop(this));
 	break;
       case 12:
 #ifndef PCSIM
-	machine_poke(m,this->m_pc+this->m_reg8bit3,adc_buffer[thread_pop(this)%10]);      
+	machine_poke(m,this->m_pc+this->m_reg16bit1,adc_buffer[thread_pop(this)%10]);      
 #endif
 	break;
       }
@@ -799,7 +804,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // stack machine a la: http://www.ece.cmu.edu/~koopman/stack_computers/sec3_2.html#321
       // but sans return stack
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%16){
       case 0:
@@ -816,7 +821,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc++;
 	break;
       case 3:
-	thread_push(this,machine_peek(m,thread_pop(this)));
+	thread_push(this,machine_p88k(m,thread_pop(this)));
 	this->m_pc++;
 	break;
       case 4:
@@ -858,20 +863,20 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	this->m_pc++;
 	break;
       case 11:
-	if (thread_pop(this)==0) this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (thread_pop(this)==0) this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc++;
 	break;
       case 12:
 	//sub call
 	thread_push(this,this->m_pc);
-	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	break;
       case 13:
 	//sub return
 	this->m_pc=this->m_start+thread_pop(this);
 	break;
       case 14:
-	thread_push(this,machine_peek(m,this->m_pc+1));
+	thread_push(this,machine_p88k(m,this->m_pc+1));
 	this->m_pc++;
 	break;
       case 15:
@@ -888,7 +893,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 10:
       // befunge: http://en.wikipedia.org/wiki/Befunge
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%31){
       case 0:
@@ -932,27 +937,27 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	else thread_push(this,0);
 	break;
       case 17: // right
-	this->m_reg8bit3=2;
+	this->m_reg8bit2=2;
 	break;
       case 18: // left
-	this->m_reg8bit3=6;
+	this->m_reg8bit2=6;
 	break;
       case 19: // up
-	this->m_reg8bit3=0;
+	this->m_reg8bit2=0;
 	break;
       case 20: // down
-	this->m_reg8bit3=4;
+	this->m_reg8bit2=4;
 	break;
       case 21:
-	this->m_reg8bit3=(randi()%4)*2;
+	this->m_reg8bit2=(randi()%4)*2;
 	break;
       case 22:
-	if (thread_pop(this)==0)	this->m_reg8bit3=2;
-	else 	this->m_reg8bit3=6;
+	if (thread_pop(this)==0)	this->m_reg8bit2=2;
+	else 	this->m_reg8bit2=6;
 	break;
       case 23:
-	if (thread_pop(this)==0)	this->m_reg8bit3=4;
-	else 	this->m_reg8bit3=0;
+	if (thread_pop(this)==0)	this->m_reg8bit2=4;
+	else 	this->m_reg8bit2=0;
 	break;
       case 24:
 	flag=thread_pop(this);
@@ -969,13 +974,13 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_pop(this);
 	break;
       case 27:
-	this->m_pc+=biotadir[this->m_reg8bit3%8];
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
       case 28:
 	machine_poke(m,(thread_pop(this))*(thread_pop(this)),thread_pop(this));
 	break;
       case 29:
-	thread_push(this,machine_peek(m,thread_pop(this)&16)*(thread_pop(this)&16));
+	thread_push(this,machine_p88k(m,thread_pop(this)*thread_pop(this)));
 	break;
       case 30:
 #ifndef PCSIM
@@ -984,7 +989,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 
       }
-      wormdir=this->m_reg8bit3%8;
+      wormdir=this->m_reg8bit2%8;
       this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       break;
@@ -995,7 +1000,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // changes state of cell according to stack?
       // turn right/left/flip and move on
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
       switch(instr%14)
 	{
@@ -1014,15 +1019,15 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  thread_push(this,instr);
 	  break;
 	case 12:
-	  this->m_reg8bit3+=2;
+	  this->m_reg8bit2+=2;
 	  machine_poke(m,this->m_pc,instr^thread_pop(this));
 	  break;
 	case 13:
-	  this->m_reg8bit3-=2;
+	  this->m_reg8bit2-=2;
 	  machine_poke(m,this->m_pc,instr^thread_pop(this));
 	  break;
 	}
-      wormdir=this->m_reg8bit3%8;
+      wormdir=this->m_reg8bit2%8;
       this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
       break;
@@ -1032,7 +1037,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // turmites code: turmite has state,direction,position...
       // reg8bit1 is state. reg8bit2 is direction index.
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       machine_poke(m,this->m_pc,instr+this->m_reg8bit1);
       //delta = dmove[(instr - this->reg8bit1) & 0xf];
       flag=instr - this->m_reg8bit1;
@@ -1050,8 +1055,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 13:
       // linear CA/life code. copies to 128 steps ahead new state and keeps going(?)
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      instr=machine_peek(m,this->m_pc);
-      other=(machine_peek(m,this->m_pc-1)&1)+(machine_peek(m,this->m_pc+1)&1)+(machine_peek(m,this->m_pc-32)&1)+(machine_peek(m,this->m_pc+32)&1)+(machine_peek(m,this->m_pc-31)&1)+(machine_peek(m,this->m_pc-33)&1)+(machine_peek(m,this->m_pc+31)&1)+(machine_peek(m,this->m_pc+33)&1);
+      instr=machine_p88k(m,this->m_pc);
+      other=(machine_p88k(m,this->m_pc-1)&1)+(machine_p88k(m,this->m_pc+1)&1)+(machine_p88k(m,this->m_pc-32)&1)+(machine_p88k(m,this->m_pc+32)&1)+(machine_p88k(m,this->m_pc-31)&1)+(machine_p88k(m,this->m_pc-33)&1)+(machine_p88k(m,this->m_pc+31)&1)+(machine_p88k(m,this->m_pc+33)&1);
 
     if ((instr&1)==1 && other<2) flag=0;
     else if ((instr&1)==1 && other>3) flag=0;
@@ -1067,10 +1072,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // ants revisited... how to do multiple ants using stack?
       // read cell//process rule string//change cell//move ant
       // rule string is from cell[0]
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       //      machine_poke(m,this->m_pc,instr+1);
       machine_poke(m,this->m_pc,instr+biotadir[this->m_reg8bit1%8]);
-      this->m_reg8bit1=antrule(this->m_reg8bit1,instr%8,machine_peek(m,0));//last is rule
+      this->m_reg8bit1=antrule(this->m_reg8bit1,instr%8,machine_p88k(m,0));//last is rule
       this->m_pc+=biotadir[this->m_reg8bit1%8];
       //      printf("%c",this->m_pc);
       break;
@@ -1078,12 +1083,12 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 15:
       // second CA from CA.c
       flag = 0;
-      instr=machine_peek(m,this->m_pc);
-      if (machine_peek(m,this->m_pc+1)>128)	flag |= 0x4;
+      instr=machine_p88k(m,this->m_pc);
+      if (machine_p88k(m,this->m_pc+1)>128)	flag |= 0x4;
       if (instr>128) flag |= 0x2;
-      if (machine_peek(m,this->m_pc-1)>128)	flag |= 0x1;
+      if (machine_p88k(m,this->m_pc-1)>128)	flag |= 0x1;
                      
-      if ((machine_peek(m,0) >> flag) & 1)	machine_poke(m,this->m_pc+128,instr+129);
+      if ((machine_p88k(m,0) >> flag) & 1)	machine_poke(m,this->m_pc+128,instr+129);
       else machine_poke(m,this->m_pc+128,instr-129); // or we stay with 255 and 0 as poked
 
       this->m_pc++; 
@@ -1095,29 +1100,29 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
       // numill and numinf
       flag=temp=0;
-      temp=machine_peek(m,this->m_pc)+machine_peek(m,this->m_pc-1)+machine_peek(m,this->m_pc+1)+machine_peek(m,this->m_pc-256)+machine_peek(m,this->m_pc+256)+machine_peek(m,this->m_pc-255)+machine_peek(m,this->m_pc-257)+machine_peek(m,this->m_pc+255)+machine_peek(m,this->m_pc+257);
+      temp=machine_p88k(m,this->m_pc)+machine_p88k(m,this->m_pc-1)+machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc-256)+machine_p88k(m,this->m_pc+256)+machine_p88k(m,this->m_pc-255)+machine_p88k(m,this->m_pc-257)+machine_p88k(m,this->m_pc+255)+machine_p88k(m,this->m_pc+257);
 
-      if (machine_peek(m,this->m_pc-1)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc+1)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc-256)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc+256)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc-255)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc-257)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc+255)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
-      if (machine_peek(m,this->m_pc+257)==machine_peek(m,0)-1) flag++; else if (machine_peek(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc-1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc+1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc-256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc+256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc-255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc-257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc+255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc+257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
 
       y=this->m_pc+32768;
       if (y<4) y=4;
 
-  if(machine_peek(m,this->m_pc) == 0)
-    machine_poke(m,this->m_pc,floor(other / (machine_peek(m,1)+1)) + floor(flag/(machine_peek(m,2)+1)));
-  else if(machine_peek(m,this->m_pc) < machine_peek(m,0)-1)
-    machine_poke(m,y,floor(temp / (other + 1)) + machine_peek(m,3));
+  if(machine_p88k(m,this->m_pc) == 0)
+    machine_poke(m,this->m_pc,floor(other / (machine_p88k(m,1)+1)) + floor(flag/(machine_p88k(m,2)+1)));
+  else if(machine_p88k(m,this->m_pc) < machine_p88k(m,0)-1)
+    machine_poke(m,y,floor(temp / (other + 1)) + machine_p88k(m,3));
   else
     machine_poke(m,y,0);
 
-  if(machine_peek(m,this->m_pc) > machine_peek(m,0)-1)
-    machine_poke(m,y,machine_peek(m,0)-1);
+  if(machine_p88k(m,this->m_pc) > machine_p88k(m,0)-1)
+    machine_poke(m,y,machine_p88k(m,0)-1);
 
   this->m_pc++; 
   if (this->m_pc<4) this->m_pc=4;
@@ -1125,13 +1130,13 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
   break;
     case 17:
       // start generic - add (add/sub/zero/copy/invert/swap)
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       machine_poke(m,this->m_pc,instr+1);
       this->m_pc++; 
       break;
     case 18:
       // generic - sub (add/sub/zero/copy/invert/swap)
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       machine_poke(m,this->m_pc,instr-1);
       this->m_pc++; 
       break;
@@ -1142,30 +1147,30 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       break;
     case 20:
       // generic - copy (add/sub/zero/copy/invert/swap)
-      machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+1));
+      machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+1));
       this->m_pc++; 
       break;
     case 21:
       // generic - copy (add/sub/zero/copy/invert/swap)
-      machine_poke(m,this->m_pc,machine_peek(m,this->m_pc^255));
+      machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc^255));
       this->m_pc++; 
       break;
     case 22:
       // generic - swap (add/sub/zero/copy/invert/swap)
-      instr=machine_peek(m,this->m_pc+1);
-      machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc));
+      instr=machine_p88k(m,this->m_pc+1);
+      machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
       machine_poke(m,this->m_pc,instr);
       this->m_pc++; 
       break;
     case 23:
 #ifndef PCSIM
-      machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_peek(m,this->m_pc)%10]);     
+      machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_p88k(m,this->m_pc)%10]);     
       break;
 #endif
 ///////////////////////////////////////////////////////////////
     case 24:
       // from wormcode.c
-      instr=machine_peek(m,this->m_pc);
+      instr=machine_p88k(m,this->m_pc);
       switch(instr%15)
 	{
 	case 0:
@@ -1184,7 +1189,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  this->m_pc+=wormdir;
 	  break;
 	case 3:
-	  this->m_pc=this->m_start+machine_peek(m,this->m_pc);
+	  this->m_pc=this->m_start+machine_p88k(m,this->m_pc);
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
@@ -1194,32 +1199,32 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  this->m_pc+=wormdir;
 	  break;
 	case 5:
-	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
 	case 6:
-	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
 	case 7:
-	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc-biotadir[randi()%8]));
+	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc-biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
 	case 8:
-	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc<<biotadir[randi()%8]));
+	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc<<biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
 	case 9:
-	  machine_poke(m,this->m_pc,machine_peek(m,this->m_pc>>biotadir[randi()%8]));
+	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc>>biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
 	case 10:
-	  if (machine_peek(m,this->m_pc+(biotadir[randi()%8]*2))==0){
+	  if (machine_p88k(m,this->m_pc+(biotadir[randi()%8]*2))==0){
 	    wormdir=biotadir[randi()%8];
 	    this->m_pc+=wormdir;
 	  }
@@ -1231,7 +1236,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  this->m_pc+=wormdir;
 	  break;
 	case 12:
-	  thread_push(this, machine_peek(m,this->m_pc+biotadir[randi()%8]));
+	  thread_push(this, machine_p88k(m,this->m_pc+biotadir[randi()%8]));
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
@@ -1250,8 +1255,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 25:
       // 16 bit increment
-      instr=machine_peek(m,this->m_pc);
-      y=(instr<<8)+machine_peek(m,this->m_pc+1)+1;
+      instr=machine_p88k(m,this->m_pc);
+      y=(instr<<8)+machine_p88k(m,this->m_pc+1)+1;
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1260,8 +1265,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 26:
       // 16 bit decrement
-      instr=machine_peek(m,this->m_pc);
-      y=(instr<<8)+machine_peek(m,this->m_pc+1)-1;
+      instr=machine_p88k(m,this->m_pc);
+      y=(instr<<8)+machine_p88k(m,this->m_pc+1)-1;
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1270,8 +1275,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 27:
       // 16 bit left
-      instr=machine_peek(m,this->m_pc);
-      y=(instr<<9)+machine_peek(m,this->m_pc+1)<<1;
+      instr=machine_p88k(m,this->m_pc);
+      y=(instr<<9)+machine_p88k(m,this->m_pc+1)<<1;
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1280,8 +1285,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 28:
       // 16 bit right
-      instr=machine_peek(m,this->m_pc);
-      y=(instr<<7)+machine_peek(m,this->m_pc+1)>>1;
+      instr=machine_p88k(m,this->m_pc);
+      y=(instr<<7)+machine_p88k(m,this->m_pc+1)>>1;
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1291,13 +1296,13 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 29:
       // pure leakage - push instr onto stack. when stack is full pull off...
       if (thread_stack_count(this,STACK_SIZE)) machine_poke(m,this->m_pc,thread_pop(this));
-      else thread_push(this,machine_peek(m,this->m_pc));
+      else thread_push(this,machine_p88k(m,this->m_pc));
       this->m_pc++;
       break;
 ///////////////////////////////////////////////////////////////
     case 30:
       // convolution
-      temp=(machine_peek(m,this->m_pc-1)*machine_peek(m,0))+(machine_peek(m,this->m_pc)*machine_peek(m,1))+(machine_peek(m,this->m_pc+1)*machine_peek(m,2));
+      temp=(machine_p88k(m,this->m_pc-1)*machine_p88k(m,0))+(machine_p88k(m,this->m_pc)*machine_p88k(m,1))+(machine_p88k(m,this->m_pc+1)*machine_p88k(m,2));
       y=this->m_pc+32768;
       if (y<3) y=3;
       machine_poke(m,y,temp);
@@ -1349,11 +1354,16 @@ void machine_create(machine *this, uint8_t *buffer) {
     this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 }
 
-u8 machine_peek(const machine* this, uint16_t addr) {
+u16 machine_peek(const machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
-  
+  return (this->m_memory[addr]<<8)+this->m_memory[addr+1];
+}
+
+u8 machine_p88k(const machine* this, uint16_t addr) {
+  //	return this->m_heap[addr%HEAP_SIZE];
   return this->m_memory[addr];
 }
+
 
 void machine_poke(machine* this, uint16_t addr, u8 data) {
   //	this->m_heap[addr%HEAP_SIZE]=data;
@@ -1567,8 +1577,8 @@ int main(void)
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 
-	/*	  while(1) {
+		  while(1) {
           machine_run(m);
-	  }*/
+	  }
 }
 #endif
