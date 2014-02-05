@@ -64,7 +64,12 @@ up to limit
 
 - further non-arch code
 
-- fix cpuint issues below -> CPUintrev2.c FIXED but messy and test all CPUs from 6+
+- fix cpuint issues below -> CPUintrev2.c FIXED but messy and test all
+  CPUs from 6up, move ifndefs
+
+- finish porting all to pureleak.c
+
+- check for randi()%65536
 
 * TUE 4 fEB 2014
 

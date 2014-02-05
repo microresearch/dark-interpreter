@@ -313,11 +313,11 @@ void thread_run(thread* this, machine *m) {
       switch(instr%7)
 	{
 	case 0:
-	  this->m_reg16bit1+=2;
+	  this->m_reg16bit1+=1;
 	  this->m_pc++;
 	  break;
 	case 1:
-	  this->m_reg16bit1-=2;
+	  this->m_reg16bit1-=1;
 	  this->m_pc++;
 	  break;
 	case 2:
@@ -351,7 +351,7 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	}
       //      printf("%c",this->m_pc);
-    
+      break;    
 ///////////////////////////////////////////////////////////////
 
     case 3:
@@ -365,8 +365,8 @@ void thread_run(thread* this, machine *m) {
       switch(instr%7){
       case 0:
 	if (this->m_reg8bit2==12){
-	  machine_poke(m,this->m_pc+1,machine_peek(m,this->m_pc)>>8);
-	  if ((machine_peek(m,this->m_pc)>>8)==255) this->m_reg8bit2=13;
+	  machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
+	  if (machine_p88k(m,this->m_pc)==255) this->m_reg8bit2=13;
 	  this->m_pc++;
 	}
 	else this->m_pc++;
@@ -392,8 +392,8 @@ void thread_run(thread* this, machine *m) {
 	  //	  seven rooms: divide cellspace into 7 - 7 layers with filter each: TODO
 	  break;
 	case 4:
-	  machine_poke(m,this->m_reg16bit1-1,machine_peek(m,this->m_reg8bit1-1)^255);
-	  machine_poke(m,this->m_reg16bit1+1,machine_peek(m,this->m_reg8bit1+1)^255);
+	  machine_poke(m,this->m_reg16bit1-1,machine_p88k(m,this->m_reg8bit1-1)^255);
+	  machine_poke(m,this->m_reg16bit1+1,machine_p88k(m,this->m_reg8bit1+1)^255);
 	  this->m_pc++;
 	  break;
 	case 5:
@@ -407,11 +407,13 @@ void thread_run(thread* this, machine *m) {
 	case 6:
 	  //cells[omem+1]=adcread(3); rEADIN TODO
 #ifndef PCSIM
-	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[this->m_reg16bit1%10]);
+	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[((this->m_reg16bit1)>>8)%10]);
 #endif
 	  this->m_pc++;
 	  break;
-	}
+      }
+      break;    
+
       //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
 
@@ -430,7 +432,7 @@ void thread_run(thread* this, machine *m) {
 	this->m_pc+=2;
 	break;
       case 1:
-	if ((machine_peek(m,this->m_pc)>>8)<128){
+	if (machine_p88k(m,this->m_pc)<128){
 	  machine_poke(m,this->m_pc-1,machine_p88k(m,this->m_pc));
 	  machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
 	}
@@ -448,7 +450,7 @@ void thread_run(thread* this, machine *m) {
 	break;
       case 4:
 #ifndef PCSIM
-	machine_poke(m,this->m_pc+1,adc_buffer[this->m_reg8bit1%10]);
+	machine_poke(m,this->m_pc+1,adc_buffer[(this->m_reg8bit1>>8)%10]);
 #endif
 	  break;
 
@@ -456,6 +458,7 @@ void thread_run(thread* this, machine *m) {
       if (machine_p88k(m,this->m_pc)==255) this->m_reg8bit2+=4;
 	wormdir=this->m_reg8bit2%8;
 	//      printf("%c",this->m_pc);
+      break;    
 	
 ///////////////////////////////////////////////////////////////
 
@@ -524,12 +527,13 @@ void thread_run(thread* this, machine *m) {
 	break;
       case 14:
 #ifndef PCSIM
-	machine_poke(m,this->m_pc,adc_buffer[this->m_reg8bit1%10]);
+	machine_poke(m,this->m_pc,adc_buffer[((this->m_reg8bit1)>>8)%10]);
 #endif
 	break;
       }
       //      printf("%c",this->m_pc);
 ///////////////////////////////////////////////////////////////
+      break;    
 
     case 6:
 /* "real" corewars redcode SPL 
@@ -697,6 +701,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       }
       //      printf("%c",this->m_pc);
+      break;    
+
 ///////////////////////////////////////////////////////////////
 
     case 7:
@@ -737,6 +743,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 
       }
+      break;    
 
 ///////////////////////////////////////////////////////////////
 
@@ -797,6 +804,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       }
 
       //      printf("%c",instr);
+      break;    
 
 ///////////////////////////////////////////////////////////////
 
@@ -887,6 +895,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
       }
       //      printf("%c",this->m_pc);
+      break;    
 
 ///////////////////////////////////////////////////////////////
 
