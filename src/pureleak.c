@@ -83,13 +83,30 @@ u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,
 
 u16 machine_peekkk(u8* buffer, uint16_t addr);
 u8 machine_p88kkk(u8* buffer, uint16_t addr);
-
 void machine_pokeee(u8* buffer, uint16_t addr, u8 data);
+void thread_runnn(u8* buffer, u8 threadcount);
+
+void machine_runnn(u8* buffer){
+  u8 x; 
+  for (x=0;x<(MAX_FRED*2);x+=2){ // TODO** - or how many threads we do have?
+  thread_runnn(buffer,x);
+ }
+}
+
+void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
+  static u16 offset=(MAX_FRED*2); static u16 x=0;
+  buffer[x++]=offset;
+  offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+}
+
 
 u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) { 
   return c<=STACK; // but now we start at 0
 }
 
+u8 antrule(u8 dir,u8 inst, u8 rule);
+
+#ifdef PCSIM
 u8 antrule(u8 dir,u8 inst, u8 rule){
   u8 index,x;
   // process state from rule 
@@ -98,8 +115,8 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
   index=(rule>>inst)&1;
   if (index==0) return dir-1; 
   else return dir+1; 
-
 }
+#endif
 
 void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
 	if (STACK<30)
@@ -128,10 +145,11 @@ u8 thread_toppp(u8 *buffer, u16 offset) {
 }
 
 
-void thread_runnn(u8* buffer, u16 offset) {
+void thread_runnn(u8* buffer, u8 threadnum) {
   u8 instr,temp;
   u16 y,addr;
   u8 flag,other;
+  u16 offset=(buffer[threadnum]<<8)+buffer[threadnum+1];
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
@@ -517,7 +535,7 @@ break;
 	break;
 #ifndef PCSIM
       case 4:
-	machine_pokeee(buffer,addr+1,adc_buffer[(this->m_reg8bit1>>8)%10]);
+	machine_pokeee(buffer,addr+1,adc_buffer[(BIT81>>8)%10]);
 #endif
 	  break;
 
@@ -1560,7 +1578,7 @@ int main(void)
     buffer[x]=randi()%255;
   }
 
-  u16 threads[MAX_FRED];
+  //   u16 threads[MAX_FRED];// or this is also in the buffer! DONE
   u8 flag,other;
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
@@ -1569,19 +1587,15 @@ int main(void)
   // inc threadcount, array of offsets
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
-    threads[x]=offset;
-    offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+    //    offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+  //  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
+    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,randi()%255);
 
     //u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   }
-
-  // run threads
-  
-  
+   
   while(1) {
-        for (x=0;x<MAX_FRED;x++){
-          thread_runnn(buffer,threads[x]);
-    	  }
+    machine_runnn(buffer);
   }
 }
 #endif

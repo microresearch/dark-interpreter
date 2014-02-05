@@ -85,10 +85,10 @@ void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8
   this->m_del=delay; this->m_delc=0;
   this->m_start=address;
   this->m_wrap=wrapaddress;
-  this->m_pc=this->m_start;
+  this->m_pc=address;
   this->m_reg8bit1=randi()%255;
   this->m_reg8bit2=randi()%255;
-  this->m_reg16bit1=randi()%65536;
+  this->m_reg16bit1=address;
   this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
@@ -149,7 +149,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    printf("%c",machine_peek(m,this->m_pc));
+    //    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
     this->m_CPU=5;
@@ -198,8 +198,8 @@ void thread_run(thread* this, machine *m) {
       //      printf("%c",thread_pop(this));
       //      machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
         break;
-	case INP:
 #ifndef PCSIM
+	case INP:
 	  machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[thread_pop(this)%10]);      
 #endif
 	  this->m_pc++;
@@ -342,9 +342,9 @@ void thread_run(thread* this, machine *m) {
 	  this->m_reg8bit2-=2;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
+#ifndef PCSIM
 	case 6:
 	  //  cells[omem] = adcread(3); 
-#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1,adc_buffer[this->m_reg16bit1%10]);
 #endif
 	  this->m_pc++;
@@ -404,9 +404,9 @@ void thread_run(thread* this, machine *m) {
 	  if (flag==3) 	  this->m_reg8bit2-=16;
 	  this->m_pc++;
 	  break;
+#ifndef PCSIM
 	case 6:
 	  //cells[omem+1]=adcread(3); rEADIN TODO
-#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[((this->m_reg16bit1)>>8)%10]);
 #endif
 	  this->m_pc++;
@@ -448,8 +448,8 @@ void thread_run(thread* this, machine *m) {
 	else this->m_reg8bit2*=machine_p88k(m,this->m_pc)>>4;
 	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
-      case 4:
 #ifndef PCSIM
+      case 4:
 	machine_poke(m,this->m_pc+1,adc_buffer[(this->m_reg8bit1>>8)%10]);
 #endif
 	  break;
@@ -525,8 +525,8 @@ void thread_run(thread* this, machine *m) {
       case 13:	  
 	this->m_pc++;
 	break;
-      case 14:
 #ifndef PCSIM
+      case 14:
 	machine_poke(m,this->m_pc,adc_buffer[((this->m_reg8bit1)>>8)%10]);
 #endif
 	break;
@@ -623,7 +623,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 15:
 	// JMZdirect to indirect
-	if (machine_p88k(m,this->m_pc+(unsigned char)machine_peek(m,this->m_pc+2))==0) 	this->m_pc=this->m_start+machine_peek(m,machine_peek(m,this->m_pc+1));
+	if (machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2))==0) 	this->m_pc=this->m_start+machine_p88k(m,machine_peek(m,this->m_pc+1));
 	else 	this->m_pc+=3;
 	break;
       case 16:	
@@ -736,8 +736,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	}
 	this->m_pc++;
 	break;
-      case 4:
 #ifndef PCSIM
+      case 4:
 	machine_poke(m,this->m_pc,randi()%255);
 #endif
 	break;
@@ -796,8 +796,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 11:
 	machine_poke(m,this->m_pc+this->m_reg16bit1,thread_pop(this));
 	break;
-      case 12:
 #ifndef PCSIM
+      case 12:
 	machine_poke(m,this->m_pc+this->m_reg16bit1,adc_buffer[thread_pop(this)%10]);      
 #endif
 	break;
@@ -887,8 +887,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_push(this,machine_p88k(m,this->m_pc+1));
 	this->m_pc++;
 	break;
-      case 15:
 #ifndef PCSIM
+      case 15:
 	machine_poke(m,machine_peek(m,this->m_pc+1),adc_buffer[thread_pop(this)%10]);      
 #endif
 	break;
@@ -991,8 +991,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 29:
 	thread_push(this,machine_p88k(m,thread_pop(this)*thread_pop(this)));
 	break;
-      case 30:
 #ifndef PCSIM
+      case 30:
 	machine_poke(m,(thread_pop(this))*(thread_pop(this)),adc_buffer[thread_pop(this)%10]);      
 #endif
 	break;
@@ -1171,8 +1171,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_poke(m,this->m_pc,instr);
       this->m_pc++; 
       break;
-    case 23:
 #ifndef PCSIM
+    case 23:
       machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_p88k(m,this->m_pc)%10]);     
       break;
 #endif
@@ -1254,8 +1254,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
-      case 14:
 #ifndef PCSIM
+      case 14:
 	machine_poke(m,(this->m_pc+=biotadir[randi()%8]),adc_buffer[thread_pop(this)%10]);      
 #endif
 	break;
@@ -1586,7 +1586,7 @@ int main(void)
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 
-		  while(1) {
+	while(1) {
           machine_run(m);
 	  }
 }

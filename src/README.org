@@ -58,18 +58,38 @@ up to limit
 
 * WED 5 FEB
 
-- break down to arch. specific tests and do these. test lower potis,
-  test Nan, malloc, simple board, all hardware, sampling rates change
-  and so on
+TODO- break down to arch. specific tests and do these:
 
-- further non-arch code
+test lower potis, test Nan, malloc, simple board, sampling rates
+change, hardware flags with simple datagen running, simple buffer
+code...
+
+- further code: knobs, how to reach all settings, buffer processes
+
+- update notes for pureleak, simulationforstack and CPUintrev2(is as before):
+
+:: pureleak:
+
+  cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,randi()%255);
+  machine_runnn(buffer);
+
+:: simulationforstack:
+
+  allocate memory for unit!
+  func_push(stack,runconv,convinit,unit,xxx); // todo maybe as array//u8 as identifier also for malloc
+  func_runall(stack,xxx);
+
+
+////
+
+- re-init for simulationforstack - how- we now have it in funcpush???
 
 - fix cpuint issues below -> CPUintrev2.c FIXED but messy and test all
-  CPUs from 6up, move ifndefs
+  CPUs from 6upDONE, move ifndefsDONE
 
-- finish porting all to pureleak.c
+- finish porting all to pureleak.c DONE
 
-- check for randi()%65536
+- check for randi()%65536 - how is handled??? with ifdef - but all are in mainsDONE
 
 * TUE 4 fEB 2014
 
@@ -79,17 +99,14 @@ up to limit
 - hardware tweaks/output (filter settings) in CPUint.c // now CPUintrev2.c
 
 - problem in simulationforstack as all delay limts are shared (or use
-  as array-DONE) and maybe array for howmuch (movements through stack)
+  as array-DONE) and maybe array for howmuch (movements through
+  stack)-done as part of stack structure
 
-- further problems with access to unit -. now fixed!
+- further problems with access to unit -> now fixed!
 
-- fixed m_pc bug in CPUint.c
+- fixed m_pc bug in CPUint.cDONE
 
-- TODO 8bit bug in CPUint.c with machine poke always to 8 bit address
-
-and in peek return u16 (preferred) or add start - fix also in pureleak
-
-but need >>8 when we want 8 bit result!!!
+- TODO 8bit bug in CPUint.c with machine poke always to 8 bit addressDONE
 
 * WED 29 JAN 2014 +
 
@@ -104,9 +121,7 @@ and add init/re-init with flag to running - or init/re-init in stack push?
 now as simulationforstack.c DONE
 
 - pureleak.c - called by complexity setting - all memory and
-  parameters are in the datagenbuffer (based on CPUint.c)
-
-
+  parameters are in the datagenbuffer (based on CPUint.c)DONE
 
 * TUE 28 JAN 2014 +
 
@@ -123,7 +138,7 @@ now as simulationforstack.c DONE
 
 * MON 27 JAN 2014
 
-- specify potis my way of inside (fine &x) and outside >> bitshift settings
+- specify potis by way of inside (fine &x) and outside >> bitshift settings
 
 - what relations could be between post-filter and input (we can go
   straight out/thru 40106 but still switch in digital filter and mix
@@ -176,7 +191,7 @@ count=runSIR16(count,1,buffer,howmuch,unit);
 
 ////////////////////
 
-*simulation.c:*
+*simulation.c:* - see updates above
 
 specific inits and specific:
 

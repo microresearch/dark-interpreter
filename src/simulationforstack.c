@@ -69,7 +69,8 @@ extern __IO uint16_t adc_buffer[10];
 
 // convolve
 
-void convinit(struct CONV* unit, uint16_t *workingbuffer){
+void convinit(void* unity, uint16_t *workingbuffer){
+  struct CONV* unit=unity;
   unit->del=0;
   unit->c0=(float)workingbuffer[0]/16384.0;
   unit->c1=(float)workingbuffer[1]/16384.0;
@@ -96,7 +97,7 @@ uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 #ifdef PCSIM
     //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[count]);
     //    printf("%f %f %f\n",unit->c0,unit->c1,unit->c2);
-            printf("%c",workingbuffer[count]%255);
+    //            printf("%c",workingbuffer[count]%255);
 
 #endif
   }
@@ -110,7 +111,8 @@ uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // sine
 
-void sineinit(struct siney* unit, uint16_t *workingbuffer){
+void sineinit(void* unity, uint16_t *workingbuffer){
+  struct siney* unit=unity;
   unit->del=unit->cc=0;
   float pi= 3.141592;
   float w;    // ψ
@@ -137,7 +139,7 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     if (count==MAX_SAM) count=0;
     workingbuffer[count]=unit->sin_data[unit->cc%256];
 #ifdef PCSIM
-    printf("%d\n",workingbuffer[count]);
+    //    printf("%d\n",workingbuffer[count]);
 #endif
     unit->cc++;
   }
@@ -151,7 +153,8 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // generic arithmetik datagens 
 
-void geninit(struct generik* unit, uint16_t *workingbuffer){
+void geninit(void* unity, uint16_t *workingbuffer){
+  struct generik* unit=unity;
   unit->del=0;
   unit->cop=workingbuffer[0]; 
 }
@@ -165,7 +168,7 @@ uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
     if (count==MAX_SAM) count=0;
     workingbuffer[count]=unit->cop++;
 #ifdef PCSIM
-    printf("%c",workingbuffer[count]);
+    //    printf("%c",workingbuffer[count]);
 #endif
   }
     unit->del=0;
@@ -421,8 +424,8 @@ void Runge_Kutta(struct simpleSIR* unit)
   return;
 }
 
-void simplesirinit(struct simpleSIR* unit, uint16_t *workingbuffer){
-
+void simplesirinit(void* unity, uint16_t *workingbuffer){
+  struct simpleSIR* unit=unity;
   //  unit->t=0;
 
   //TODO: init with workingbuffer
@@ -461,8 +464,9 @@ uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
 
 // SEIR. SIR
 
-void seirinit(struct SEIR* unit, uint16_t *workingbuffer){
+void seirinit(void* unity, uint16_t *workingbuffer){
   unsigned char i;
+  struct SEIR* unit=unity;
   //unit->beta=17/5;
   //unit->gamm=1.0/13;
   unit->beta=(float)workingbuffer[0]/65536.0;
@@ -580,11 +584,12 @@ uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // SICR. SIR
 
-void sicrinit(struct SICR* unit, uint16_t *workingbuffer){
+void sicrinit(void* unity, uint16_t *workingbuffer){
   //unit->beta=0.2;
   //unit->epsilon=0.1;
 //unit->gamm=1.0/100.0;
 //unit->Gamm=1.0/1000.0;
+  struct SICR* unit=unity;
 unit->beta=(float)workingbuffer[0]/65536.0;
 unit->epsilon=(float)workingbuffer[1]/655360.0;
 unit->gamm=(float)workingbuffer[2]/655360.0;
@@ -678,9 +683,10 @@ uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 // IFS
 
-void ifsinit(struct IFS* unit, uint16_t *workingbuffer){
+void ifsinit(void* unity, uint16_t *workingbuffer){
   u8 i,iter;
   u8 column = 6, row = 4;
+  struct IFS* unit=unity;
   unit->p1.x=0.1;
   unit->p1.y=0.1;         
 
@@ -763,12 +769,12 @@ uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
 
 // ROSSLER
 
-void rosslerinit(struct Rossler* unit, uint16_t *workingbuffer) {
+void rosslerinit(void* unity, uint16_t *workingbuffer) {
   /*  unit->h = 0.1;
   unit->a = 0.3;
   unit->b = 0.2;
   unit->c = 5.8;*/
-
+  struct Rossler* unit=unity;
   unit->h = (float)workingbuffer[0]/120536.0;
   unit->a = (float)workingbuffer[1]/122536.0;
   unit->b = (float)workingbuffer[2]/100536.0;
@@ -819,8 +825,8 @@ uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 
 // 2nd rossler from: MCLDChaosUGens.cpp
 
-void secondrosslerinit(struct secondRossler* unit, uint16_t *workingbuffer){
-  
+void secondrosslerinit(void* unity, uint16_t *workingbuffer){
+  struct secondRossler* unit=unity;
   unit->a = (float)workingbuffer[0]/65536.0;
   unit->b = (float)workingbuffer[1]/65536.0;
   unit->c = (float)workingbuffer[2]/65536.0;
@@ -919,7 +925,9 @@ uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffe
 
 // BRUSSELATOR
 
-void brusselinit(struct Brussel* unit, uint16_t *workingbuffer) {
+void brusselinit(void* unity, uint16_t *workingbuffer) {
+  struct Brussel* unit=unity;   
+
   unit->x = 0.5f; 
   unit->y = 0.5f; 
   unit->delta = (float)workingbuffer[0]/65536.0;
@@ -965,8 +973,8 @@ uint16_t runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 
 // spruceworm
 
-void spruceinit(struct Spruce* unit, uint16_t *workingbuffer) {
-	
+void spruceinit(void *unity, uint16_t *workingbuffer) {
+    struct Spruce* unit=unity;
   unit->x = 0.9f; 
   unit->y = 0.1f; 
   unit->k1 = (float)workingbuffer[0]/65536.0;
@@ -1016,7 +1024,8 @@ uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint
 
 // OREGONATOR
 
-void oregoninit(struct Oregon* unit, uint16_t *workingbuffer) {
+void oregoninit(void *unity, uint16_t *workingbuffer) {
+  struct Oregon* unit=unity;
     unit->x = 0.5f; 
     unit->y = 0.5f; 
     unit->z = 0.5f; 
@@ -1068,7 +1077,8 @@ return count;
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
 
-void fitzinit(struct Fitz* unit, uint16_t *workingbuffer) {
+void fitzinit(void *unity, uint16_t *workingbuffer) {
+  struct Fitz* unit=unity;
 	unit->u=0.0;
 	unit->w=0.0;
 	//	unit->b0= 1.4;
@@ -1107,7 +1117,7 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     workingbuffer[count]=z;//workingbuffer[x+2]=zz;
 #ifdef PCSIM
     //    printf("brussels: x %f y %f\n",x,y); 
-       printf("%c",workingbuffer[count]>>8); 
+    //       printf("%c",workingbuffer[count]>>8); 
 #endif
 
   }
@@ -1163,59 +1173,48 @@ void passingarraytest(uint8_t *buffer) {
 
 char stack_pos;
 
-void func_push(struct stackey stack[STACK_SIZE],u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit), void* unit){
+void func_push(struct stackey stack[STACK_SIZE], u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit), void (*yyy)(void *unity, uint16_t *workingbuffer), void* unit, u16* buffer){
   if (stack_pos<STACK_SIZE-1)
     {
       ++stack_pos;
       stack[stack_pos].functione=xxx;
       stack[stack_pos].unit=unit;
+      stack[stack_pos].inite=yyy;
+      stack[stack_pos].howmuch=randi()%255;
+      stack[stack_pos].delay=randi()%255;
+
+      // init now?
+      yyy(unit,buffer);
     }
 }
 
-/*void func_push(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
-
-  	if (stack_pos<STACK_SIZE-1)
-	{
-	  stack[++stack_pos]=xxx;
-	}
+void func_runall(struct stackey stack[STACK_SIZE], u16* buffer){
+  static u16 count; u8 i;
+  for (i=0;i<(stack_pos+1);i++){
+    count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
+  }
 }
 
-void func_pop(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)) {
-
+void func_pop(void){
  	if (stack_pos>=0)
 	{
 		stack_pos--;
 	}
 }
 
-u16 func_runall(u16 (* stack[STACK_SIZE])(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit) ,uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch) {
-  u8 i;
-  if (stack_pos>0){
-    for (i=0;i<stack_pos+1;i++){
-      count = stack[i](count,delay,workingbuffer,howmuch,unit);
-    }
-  }
-  return count;
-  }*/
-
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   u16 x;
-  u8 howmuch,i,delay[STACK_SIZE];
+  u8 howmuch,i;
   uint16_t xxx[MAX_SAM],result;
   uint16_t count=0;
   srand(time(NULL));
 
-  u16 (*stacky[STACK_SIZE]) (uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit);
   stack_pos=-1;
 
   for (x=0;x<MAX_SAM;x++){
     xxx[x]=randi()%65536;
-  }
-
-  for (x=0;x<STACK_SIZE;x++){
-    delay[x]=randi()%255;
   }
 
   struct stackey stack[STACK_SIZE];
@@ -1239,19 +1238,19 @@ void main(void)
        struct Fitz *unita=malloc(sizeof(struct Fitz));
        struct generik *unitb=malloc(sizeof(struct generik));
        struct CONV *unit=malloc(sizeof(struct CONV));
-       convinit(unit,xxx); 
-       fitzinit(unita,xxx);
-       geninit(unitb,xxx);
+       //       convinit(unit,xxx); // put these into push
+       //       fitzinit(unita,xxx);
+       //       geninit(unitb,xxx);
        // TODO: array stack of function pointers
-       func_push(stack,runinc,unitb);
-       func_push(stack,runconv,unit);
-       func_push(stack,runfitz,unita);
+       //       func_push(stack,runinc,geninit,unitb);
+       func_push(stack,runconv,convinit,unit,xxx);
+       func_push(stack,runinc,geninit,unitb,xxx);
+       func_push(stack,runfitz,fitzinit,unita,xxx);
+
+       //       func_push(stack,runfitz,geninit,unita);
 
        while(1){
-	 for (i=0;i<(stack_pos+1);i++){
-	   count=stack[i].functione(count,1,xxx,1,stack[i].unit);
-	 }
-	 // u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit)
+	 func_runall(stack,xxx);
        }
 }
 #endif

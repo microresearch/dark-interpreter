@@ -260,7 +260,8 @@ RES: feedback on/off - jackin-> - lm358in->
     // **TODO: toggle option to send signal to filter as well + digital/with/without distort
     // pc11, pb9 and distort is on pc10 (1 is no distort)...
     // could also pass through 40106 first but too many options
-
+    // remember to set digitalfilter option
+    
     if (clockhangflag==0) digfilterflag=2;
     break;
   case 4:

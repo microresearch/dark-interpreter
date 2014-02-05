@@ -168,11 +168,10 @@ void main(void)
 	  // and rest as x functions??? no pointers as different structures
 	  // or would void pointer work?
 
-	  u16 (*stacky[16]) (uint16_t count, uint16_t delay, u8 *cells, uint8_t howmuch, void * unit);
-
 #ifndef TEST_STRAIGHT
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
 	  // -micro/macro - adc_buffer[0]
+	  // complexity??? 
 	  // generic speed and samplerate - adc_buffer[4]
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 

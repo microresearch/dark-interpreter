@@ -22,7 +22,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 //extern u16 edger; // REPLACE with direct poti! **TODO
 
-#define edger (adc_buffer[3])
+#define edger (adc_buffer[3]<<3) // 32768
 
 extern u8 digfilterflag;
 extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
