@@ -61,7 +61,7 @@ Based in part on spork factory by Dave Griffiths.
 #define BIT83 buffer[offset+11]
 #define STACK buffer[offset+12]
 
-u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
+u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   u8 n;
   buffer[offset]=which; // cpu
   buffer[offset+1]=delay;
@@ -89,14 +89,14 @@ u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) {
 void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
 	if (STACK<STACK_SIZE)
 	{
-	  buffer[(++STACK)+1]=data;
+	  buffer[(++STACK)+offset]=data;
 	}
 }
 
 u8 thread_poppp(u8* buffer, u16 offset) {
  	if (STACK>=1)
 	{
-		u8 ret=buffer[STACK+1];
+		u8 ret=buffer[offset+STACK];
 		STACK--;
 		return ret;
 	}
@@ -107,7 +107,7 @@ u8 thread_poppp(u8* buffer, u16 offset) {
 u8 thread_toppp(u8 *buffer, u16 offset) {
 	if (STACK>=1)
 	{
-		return buffer[STACK+1];
+		return buffer[offset+STACK];
 	}
 	return 0;
 }
@@ -124,13 +124,12 @@ void thread_runnn(u8* buffer, u16 offset) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-  CPU=0;
+    CPU=0;
   if (++DELC==DELAY){
   switch(CPU%max_cpus)
     {
 
     case 0: // :LEAKY STACK! - working!
-      instr=machine_peekkk(buffer,((PCADDRHI<<8)+PCADDRLO))>>8;
       //       this->m_pc++; PCADDRHI and LO!
 
 #ifdef PCSIM
@@ -139,32 +138,28 @@ void thread_runnn(u8* buffer, u16 offset) {
 #endif
 
       addr=((PCADDRHI<<8)+PCADDRLO);
+      instr=machine_peekkk(buffer,addr)>>8;
       addr++;
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
-      PCADDRHI=addr>>8; // hi/lo
-      PCADDRLO=addr&255;
   switch(instr%25)
     {
     case NOP: break;
 
     case ORG: //this->m_start=this->m_start+this->m_pc-1; this->m_pc=this->m_start+1; break;
-      addr=((ADDRHI<<8)+ADDRLO);
-      if (addr=addr+((PCADDRHI<<8)+PCADDRLO-1))	addr=((PCADDRHI<<8)+PCADDRLO+1);
-      PCADDRHI=addr>>8; // hi/lo
-      PCADDRLO=addr&255;
+      /////
+      addr=((ADDRHI<<8)+ADDRLO)+addr-1;
+      ADDRHI=addr>>8; // hi/lo
+      ADDRLO=addr&255;
+      addr=((ADDRHI<<8)+ADDRLO+1);
       break;
     case EQU: //if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
       if (thread_stack_counttt(buffer,2,offset)) thread_pushhh(buffer,thread_poppp(buffer,offset)==thread_poppp(buffer,offset),offset);
       break;
     case JMP: //this->m_pc=this->machine_peek(m,this->m_pc++); break;
       addr=machine_peekkk(buffer,addr++);
-      PCADDRHI=addr>>8; // hi/lo
-      PCADDRLO=addr&255;
       break;      
     case JMPZ:// if (thread_stack_count(this,1) && thread_pop(this)==0) this->m_pc=machine_peek(m,this->m_pc); else this->m_pc++; break;
       if (thread_stack_counttt(buffer,1,offset) && thread_poppp(buffer,offset)==0) machine_peekkk(buffer,addr); else addr++; 
-      PCADDRHI=addr>>8; // hi/lo
-      PCADDRLO=addr&255;
       break;
     case PSHL: //thread_push(this,machine_peek(m,this->m_pc++)); break;
       thread_pushhh(buffer,machine_peekkk(buffer,addr++)>>8,offset);
@@ -219,13 +214,15 @@ break;
         break;
 	case INP:
 #ifndef PCSIM
-	  machine_pokeee(buffer,((ADDRHI<<8)+ADDRLO)+machine_peekkkk(buffer,buffer->m_pc++),adc_buffer[thread_poppp(buffer)%10],offset);      
+	  machine_pokeee(buffer,machine_peekkk(buffer,addr++),adc_buffer[thread_poppp(buffer,offset)%10]);      
 #endif
 	  addr++;
 	  break;
 
     default : break;
-	}
+    }
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
     }
   }
 }
@@ -264,7 +261,7 @@ int main(void)
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
     threads[x]=offset;
-    offset=thread_create(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+    offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
 
     //u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   }

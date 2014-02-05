@@ -59,11 +59,12 @@ up to limit
 * WED 5 FEB
 
 - break down to arch. specific tests and do these. test lower potis,
-  test Nan, malloc, simple board, hardware
+  test Nan, malloc, simple board, all hardware, sampling rates change
+  and so on
 
 - further non-arch code
 
-- fix cpuint issues below
+- fix cpuint issues below -> CPUintrev2.c
 
 * TUE 4 fEB 2014
 
