@@ -56,6 +56,31 @@ up to limit
   working in CPUint.cDONE 
 
 
+* THU 6 FEB
+
+- CA.c as stack
+- simulationforstack as all array... how all can be indexed by array->arrays!
+- start hardware tests
+
+- all settings as array which can be mapped over datagen array (but
+  differing sizes u16???)
+
+index and setting - what exactly needs indexing (and how much is say
+add/remove from stack)? see 22 JAN -> we need to set for:
+
+: lmer->step=1;lmer->speed=1;lmer->dir=1;lmer->start=1(u16);lmer->end=32767(u16);
+
+so same for 4(total) hardwares (index)+audio+filter+2xeffects+fordatagens(?)
+
+(size issue solutions: all u16 or u8?)
+
+- complexity as bitwise setting flag
+
+- datagen operations as knob?
+
+- functions (where?) to write knob or eeg values into datagen buffer
+  and to swap audio/datagen bit by bit//section by section
+
 * WED 5 FEB
 
 TODO- break down to arch. specific tests and do these:
@@ -79,6 +104,8 @@ code...
   func_push(stack,runconv,convinit,unit,xxx); // todo maybe as array//u8 as identifier also for malloc
   func_runall(stack,xxx);
 
+so we have 1-CA=run specifics(as stackTODO?), 2-CPU stack, 3-pureleak
+stack, 4-simulation stack as time-sharing processes in datagenbuffer!
 
 ////
 
@@ -98,7 +125,7 @@ code...
 
 - hardware tweaks/output (filter settings) in CPUint.c // now CPUintrev2.c
 
-- problem in simulationforstack as all delay limts are shared (or use
+- problem in simulationforstack as all delay limits are shared (or use
   as array-DONE) and maybe array for howmuch (movements through
   stack)-done as part of stack structure
 
@@ -132,7 +159,7 @@ now as simulationforstack.c DONE
 
 - test cpuint, simulation (NaN), malloc on ARM
 
-- datagen stack
+- datagen stackDONE
 
 - generic speed setting
 
@@ -202,7 +229,7 @@ specific inits and specific:
 poti list (top down= 2,0,3,4,1):
 
 *0*-hardware(2) (and for Lachrymarum? - options: repeat up/down of
-4finger-mod, simply leave off this knob, as end of sample in (edger style))
+4finger-mod, simply leave off this knob, or as end of sample in (edger style))
 
 *1*-micro->macro with cross - how? (0) - mods the cross/so for example
 code/sample steering enabled, add/subtract from stack..? also see
