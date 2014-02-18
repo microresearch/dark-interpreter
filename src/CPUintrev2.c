@@ -1357,10 +1357,10 @@ u8 thread_top(thread* this) {
 
 void machine_create(machine *this, uint8_t *buffer) {
   //  int count=0;
-  //    this->m_heap = (u8*)malloc(sizeof(u8)*HEAP_SIZE);
-  this->m_threadcount=0;
-  this->m_memory=buffer;
-    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
+    this->m_threadcount=0;
+   this->m_memory=buffer;
+   this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
+  // causes crash on ARM!
 }
 
 u16 machine_peek(const machine* this, uint16_t addr) {

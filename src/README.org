@@ -56,10 +56,47 @@ up to limit
   working in CPUint.cDONE 
 
 
+* MON 17 FEB
+
+*first test all hardware-specific:*
+
+1-test lower potis(hardware), DONE
+
+problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
+add ccmdata to flash.ld we end up with huge binary???
+
+how to test with pointer straight to memory?
+
+or look at:
+
+http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navigation/stm32f30_flash.ld
+
+2- malloc and free, 
+
+3-test Nan(and datagen) 
+
+4-[simple board]
+
+5-sampling rates change, 
+
+6-test all datagen/hardware flags with simple datagen running 
+
+7-test clocks and unhanging?->needs code to finish it?
+
+8-simple buffer and filter code...
+
+*rest of functions below*
+
+*then datagen stacks/arrays into*
+
+*then controls/code steering*
+
+*complexity*
+
 * THU 6 FEB
 
 - CA.c as stack
-- simulationforstack as all array... how all can be indexed by array->arrays!
+- simulationforstack as all array???... how all can be indexed by array->arrays!
 - start hardware tests
 
 - all settings as array which can be mapped over datagen array (but
@@ -80,6 +117,10 @@ so same for 4(total) hardwares (index)+audio+filter+2xeffects+fordatagens(?)
 
 - functions (where?) to write knob or eeg values into datagen buffer
   and to swap audio/datagen bit by bit//section by section
+
+- complexity for playback: run thru, run thru with no input(no in as
+  bit), follow dir for chunks, follow dir as pointer to chunks,
+  pointers single samples, pointers to pointers
 
 * WED 5 FEB
 

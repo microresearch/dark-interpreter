@@ -150,8 +150,8 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   }
 
 #ifdef TEST_STRAIGHT
-  res=2;
-  res2=0; // test pwm
+  //  res=2;
+  //  res2=0; // testing now!
 #endif // TEST_STRAIGHT
 
   /*
@@ -169,6 +169,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRL = (1<<8); // BSRRL sets BIT!
    GPIOC->BSRRH = (1<<13);
+   clockhangflag=0;
    break;
  case 1:
    /*   GPIOB->BSRRL = (1<<7);
@@ -183,15 +184,16 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
+   clockhangflag=0;
    break;
  case 3:
    GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
-
+   clockhangflag=0;
  }
 
-  //digfilterflag= 8.4.2.1=maxim,lm,40106,digfilter
+  //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
   digfilterflag=0;
   switch(res2){

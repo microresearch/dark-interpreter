@@ -40,7 +40,11 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
 
-int16_t datagenbuffer[32767] __attribute__ ((section (".ccmdata")));;
+//uint16_t datagenbuffer[32] __attribute__ ((section (".ccmdata")))  __attribute__((aligned(4)));
+
+char* datagenbuffer = (char*)0x10000000;
+
+//uint16_t datagenbuffer[32];
 
 extern u8 digfilterflag;
 
@@ -113,6 +117,7 @@ void main(void)
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
+	
 	struct dgenwalker *lmer=malloc(sizeof(struct dgenwalker));
 	struct dgenwalker *maximer=malloc(sizeof(struct dgenwalker));
 	struct dgenwalker *f0106er=malloc(sizeof(struct dgenwalker));
@@ -123,7 +128,7 @@ void main(void)
 	maximer->step=1; maximer->speed=1; maximer->dir=1;maximer->pos=1;maximer->start=1;maximer->end=32767; maximer->del=0;
 	f0106er->step=1; f0106er->speed=1; f0106er->dir=1;f0106er->pos=1;f0106er->start=1;f0106er->end=32767; f0106er->del=0;
 	hdgener->step=1; hdgener->speed=1; hdgener->dir=1;hdgener->pos=1;hdgener->start=1;hdgener->end=65535; hdgener->del=0;
-
+	
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
@@ -157,6 +162,20 @@ void main(void)
 	while(1)
 	{
 
+#ifdef TEST_STRAIGHT
+
+	  // just to test
+	    hardware=adc_buffer[2]>>5;
+	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	    oldhardware=hardware;
+
+	    // test pointer
+	    for (tmp=0;tmp<65535;tmp++){
+	      datagenbuffer[tmp]=0;
+	    }
+
+#else
+
 	  // **TODO: WORM_OVER_RIDE for all directions!!!!
 	  // generic speed modifier
 
@@ -168,14 +187,12 @@ void main(void)
 	  // and rest as x functions??? no pointers as different structures
 	  // or would void pointer work?
 
-#ifndef TEST_STRAIGHT
+
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
 	  // -micro/macro - adc_buffer[0]
 	  // complexity??? 
 	  // generic speed and samplerate - adc_buffer[4]
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
-
-#endif
 
 #ifndef LACH
 	  // 4-hardware operations->
@@ -231,6 +248,7 @@ void main(void)
 	      maximer->del=0;
 	    }
 	  }
+#endif
 #endif
 	}
 }
