@@ -25,7 +25,8 @@ extern __IO uint16_t adc_buffer[10];
 #define edger (adc_buffer[3]<<3) // 32768
 
 extern u8 digfilterflag;
-extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
+//extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
+extern char* datagenbuffer;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 

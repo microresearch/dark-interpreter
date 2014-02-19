@@ -7,6 +7,13 @@
 typedef unsigned char u8;
 typedef uint16_t u16;
 
+struct stackey{
+  u16 (*functione) (uint16_t count, uint16_t delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
+  void (*inite) (void *unity, u8 *workingbuffer);
+  u8 delay,howmuch;
+  void* unit;
+};
+
 struct hodge{
   u8 q,k1,k2,g,celllen;
   u16 x;

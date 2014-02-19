@@ -56,7 +56,20 @@ up to limit
   working in CPUint.cDONE 
 
 
-* MON 17 FEB
+* WED 19 FEB-
+
+- CA.c as stack -> CAforstack.c DONE
+
+- functions (in sim) to write knob or eeg values into datagen buffer - DONE (nearly)
+
+-  and to swap audio/datagen bit by bit//section by section . DONE runswapaudio
+
+////
+
+- look into simulationforstack and others as all array???... how all
+  can be indexed by array->arrays!
+
+* MON 17 FEB+
 
 *first test all hardware-specific:*
 
@@ -65,7 +78,7 @@ up to limit
 problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
 add ccmdata to flash.ld we end up with huge binary???
 
-how to test with pointer straight to memory?
+how to test with pointer straight to memory? write&read datagen->audiobuffer
 
 or look at:
 
@@ -95,8 +108,8 @@ http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navi
 
 * THU 6 FEB
 
-- CA.c as stack
 - simulationforstack as all array???... how all can be indexed by array->arrays!
+
 - start hardware tests
 
 - all settings as array which can be mapped over datagen array (but
@@ -107,7 +120,7 @@ add/remove from stack)? see 22 JAN -> we need to set for:
 
 : lmer->step=1;lmer->speed=1;lmer->dir=1;lmer->start=1(u16);lmer->end=32767(u16);
 
-so same for 4(total) hardwares (index)+audio+filter+2xeffects+fordatagens(?)
+so same for 4(total) hardwares (index)+[plus]+audio+filter+2xeffects+fordatagens(?)
 
 (size issue solutions: all u16 or u8?)
 

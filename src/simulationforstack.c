@@ -59,8 +59,10 @@ Based in part on SLUGens by Nicholas Collins.
 #include "simulation.h"
 #include <malloc.h>
 #include <math.h>
+#include <audio.h>
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
+extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 #endif
 
 #define STACK_SIZE 16
@@ -349,7 +351,84 @@ uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
+uint16_t runfull(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  struct generik* unit=unity;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffer[count]=65535;
+#ifdef PCSIM
+    printf("%d\n",workingbuffer[count]);
+#endif
+  }
+    unit->del=0;
+  }
+  return count;
+}
 
+uint16_t runrand(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  u8 *workingbuffeur=(u8 *)workingbuffer;
+  struct generik* unit=unity;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch*2; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+    workingbuffeur[count]=randi()%255;
+#ifdef PCSIM
+    printf("%d\n",workingbuffer[count]);
+#endif
+  }
+    unit->del=0;
+  }
+  return count;
+}
+
+uint16_t runknob(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  u8 *workingbuffeur=(u8 *)workingbuffer;
+  struct generik* unit=unity;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch*2; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+    //    workingbuffeur[count]=randi()%255; **TODO: which knob????
+#ifdef PCSIM
+    printf("%d\n",workingbuffer[count]);
+#endif
+  }
+    unit->del=0;
+  }
+  return count;
+}
+
+//////////////////////////////////////////////////////////
+// swap datagen 16 bits to and from audio buffer
+
+uint16_t runswapaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0; u16 temp;
+  struct generik* unit=unity;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+#ifndef PCSIM
+    // convert signed to unsigned how? 
+
+    temp=(uint16_t)audio_buffer[count%AUDIO_BUFSZ];
+    audio_buffer[count%AUDIO_BUFSZ]=(int16_t)workingbuffer[count];
+    workingbuffer[count]=temp;
+#endif
+#ifdef PCSIM
+    printf("%d\n",workingbuffer[count]);
+#endif
+  }
+    unit->del=0;
+  }
+  return count;
+}
 
 //////////////////////////////////////////////////////////
 
