@@ -19,6 +19,7 @@ send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be testedDONE
 3-Mater Tenebrarum,—Our Lady of Darkness: all.
 
 3 phase: grains/audio buffers and processing (any mixing of signals?)
+
 4 phase: knobs assigned and all tests/tweak/RELEASE
 
 NOTE-==memory management/areas refresh==
@@ -36,7 +37,6 @@ up to limit
 
 * TODO
 
-- test lower board potis!
 - test simplest hardware
 
 *then start on buffer/grain code, hardware tie-ins*
@@ -45,6 +45,7 @@ up to limit
 
 * DONE
 
+- test lower board potis!DONE
 - simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
 - add ifdefs, includes etc. for PC/arm code compilation
   compile optionsTEST-DONE
@@ -69,11 +70,45 @@ up to limit
 - look into simulationforstack and others as all array???... how all
   can be indexed by array->arrays!
 
+eg. in CAforstack and simulation for stack we push on stack:      
+
+: stack[stack_pos].howmuch=randi()%255;
+: stack[stack_pos].delay=randi()%255;
+
+which need to be set either in push or run through array...
+
+and in CPU and pureleak we have:
+
+: cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay)
+
+maybe add a delay around this for whole cpu????
+
+*/// array could be settings we run through when we push to stack and so on...**
+
+so we could have array of settings (from knob, from other array) which
+is walked through for actual settings - or vice versa (a map) or
+something like this!
+
+all is arrays that can be walked or wormed through (we set step, speed and direction)
+
+-> how this could work???
+
+- knob/index into array, knob/set array value
+
+walk through that array->set settings (how, map?)
+
+where that array is (as knob, as datagen, as audio)...
+
+//TEXT:
+
+The Dark Interpreter returns contagious execution to the skin,
+rewriting the history of technology as the plague which seeks to...
+
 * MON 17 FEB+
 
 *first test all hardware-specific:*
 
-1-test lower potis(hardware), DONE
+1-test lower potis(hardware), DONE - todo- test all of them...
 
 problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
 add ccmdata to flash.ld we end up with huge binary???
@@ -98,13 +133,13 @@ http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navi
 
 8-simple buffer and filter code...
 
-*rest of functions below*
-
 *then datagen stacks/arrays into*
 
-*then controls/code steering*
+*then controls and code steering*
 
 *complexity*
+
+*tweaks and sounds*
 
 * THU 6 FEB
 
@@ -158,7 +193,7 @@ code...
   func_push(stack,runconv,convinit,unit,xxx); // todo maybe as array//u8 as identifier also for malloc
   func_runall(stack,xxx);
 
-so we have 1-CA=run specifics(as stackTODO?), 2-CPU stack, 3-pureleak
+so we have 1-CA=run specifics(as stackTODO?DONE), 2-CPU stack, 3-pureleak
 stack, 4-simulation stack as time-sharing processes in datagenbuffer!
 
 ////
