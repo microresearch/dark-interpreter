@@ -165,7 +165,7 @@ void main(void)
 #ifdef TEST_STRAIGHT
 
 	  // just to test
-	    hardware=adc_buffer[2]>>5;
+	    hardware=adc_buffer[5]>>5;
 	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	    oldhardware=hardware;
 
@@ -190,8 +190,7 @@ void main(void)
 
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
 	  // -micro/macro - adc_buffer[0]
-	  // complexity??? 
-	  // generic speed and samplerate - adc_buffer[4]
+	  // complexity??? 	  // generic speed and samplerate - adc_buffer[4]
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
 #ifndef LACH

@@ -406,7 +406,7 @@ void setup_switches(void)
 {
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
   GPIO_InitTypeDef  GPIO_InitStructure;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  //  GPIO_Init(GPIOB, &GPIO_InitStructure); //????
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ; // this works for pin 4 (should use for all pins?)
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -416,7 +416,8 @@ void setup_switches(void)
 
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  
+  //  GPIO_Init(GPIOC, &GPIO_InitStructure); //????
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -426,9 +427,9 @@ void setup_switches(void)
 
 
   //  GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
-  GPIOC->ODR = 0;
-  GPIOB->ODR = 0;
-
+  //  GPIOC->ODR = 0;
+  //  GPIOB->ODR = 0;
+  
 }
 
 void switchalloff(void)

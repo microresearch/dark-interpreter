@@ -56,6 +56,23 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+* THU 20 FEB
+
+ADC:
+
+top knob layout: 2,0,3,4,1 
+lower knob layout: left: 3,0 right: 2,4,1
+diamond: 
+
+^  ^
+8  5
+VVVV
+6  7
+V  V
+
+testing all ADC - but (8) seems strange/unresponsive - problems with
+GPIOC? FIXED - problem was extra GPIO_Init(GPIOC, &GPIO_InitStructure)
+in hardware.c which cleared structure.
 
 * WED 19 FEB-
 
@@ -98,6 +115,11 @@ all is arrays that can be walked or wormed through (we set step, speed and direc
 walk through that array->set settings (how, map?)
 
 where that array is (as knob, as datagen, as audio)...
+
+//one knob adds.subtracts datagen types to/from stacks
+//speed knob also for how often we update/sample knobs/direction
+//wormdir and dir from pads
+
 
 //TEXT:
 
