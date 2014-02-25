@@ -153,7 +153,7 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
 //////////////////////////////////////////////////////////
 
-// generic arithmetik datagens 
+// generic arithmetik datagens
 
 void geninit(void* unity, uint16_t *workingbuffer){
   struct generik* unit=unity;
@@ -421,14 +421,56 @@ uint16_t runswapaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
     audio_buffer[count%AUDIO_BUFSZ]=(int16_t)workingbuffer[count];
     workingbuffer[count]=temp;
 #endif
-#ifdef PCSIM
-    printf("%d\n",workingbuffer[count]);
+  }
+    unit->del=0;
+  }
+  return count;
+}
+
+//////////////////////////////////////////////////////////
+// OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
+
+uint16_t runORaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0; u16 temp;
+  struct generik* unit=unity;
+  if (++unit->del==delay){
+  for (i=0; i<howmuch; i++) {
+    count++;
+    if (count==MAX_SAM) count=0;
+#ifndef PCSIM
+    // convert signed to unsigned how? 
+
+    temp=(uint16_t)audio_buffer[count%AUDIO_BUFSZ];
+    switch(unit->cop%5){
+    case 0:
+    audio_buffer[count%AUDIO_BUFSZ]|=(int16_t)workingbuffer[count];
+    workingbuffer[count]|=temp;
+    break;
+    case 1:
+    audio_buffer[count%AUDIO_BUFSZ]^=(int16_t)workingbuffer[count];
+    workingbuffer[count]^=temp;
+    break;
+    case 2:
+    audio_buffer[count%AUDIO_BUFSZ]&=(int16_t)workingbuffer[count];
+    workingbuffer[count]&=temp;
+    break;
+    case 3:
+    audio_buffer[count%AUDIO_BUFSZ]-=(int16_t)workingbuffer[count];
+    workingbuffer[count]+=temp;
+    break;
+    case 4:
+    audio_buffer[count%AUDIO_BUFSZ]+=(int16_t)workingbuffer[count];
+    workingbuffer[count]-=temp;
+    break;
+    }
+
 #endif
   }
     unit->del=0;
   }
   return count;
 }
+
 
 //////////////////////////////////////////////////////////
 

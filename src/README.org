@@ -56,9 +56,23 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+* MON 24 FEB
+
+- see 17 feb - all hardware specific tests this week
+
+- new knob scheme:
+
+/hardware/complexity/speed/add-sub stacks/selectsettingforpads-directions
+
+how add+sub works on one knob?
+
+speed also of how often we sample some knobs
+
+stack of various directions
+
 * THU 20 FEB
 
-ADC:
+ADC notes:
 
 top knob layout: 2,0,3,4,1 
 lower knob layout: left: 3,0 right: 2,4,1
@@ -71,7 +85,7 @@ VVVV
 V  V
 
 testing all ADC - but (8) seems strange/unresponsive - problems with
-GPIOC? FIXED - problem was extra GPIO_Init(GPIOC, &GPIO_InitStructure)
+GPIOC? *DONE/FIXED* - problem was extra GPIO_Init(GPIOC, &GPIO_InitStructure)
 in hardware.c which cleared structure.
 
 * WED 19 FEB-
@@ -120,7 +134,6 @@ where that array is (as knob, as datagen, as audio)...
 //speed knob also for how often we update/sample knobs/direction
 //wormdir and dir from pads
 
-
 //TEXT:
 
 The Dark Interpreter returns contagious execution to the skin,
@@ -130,14 +143,14 @@ rewriting the history of technology as the plague which seeks to...
 
 *first test all hardware-specific:*
 
-1-test lower potis(hardware), DONE - todo- test all of them...
+1-test lower potis(hardware), DONE
 
-problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
+1.5- problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
 add ccmdata to flash.ld we end up with huge binary???
 
 how to test with pointer straight to memory? write&read datagen->audiobuffer
 
-or look at:
+also look at:
 
 http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navigation/stm32f30_flash.ld
 
