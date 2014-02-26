@@ -33,9 +33,6 @@ extern __IO uint16_t adc_buffer[10];
 
 #define NUM_FUNCS 9
 
-
-char stack_posy;
-
 //////////////////////////////////////////
 
 // hodge from microbd simplified with circular buffer and init
@@ -602,7 +599,7 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
 //////////////////////////////////////////
 
 
-void ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer){
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy){
   if (stack_posy<STACK_SIZE-1)
     {
       ++stack_posy;
@@ -657,21 +654,24 @@ void ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer){
 	break;
       }
     }
+  return stack_posy;
 }
 
-void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer){
-  static u16 count; u8 i;
-  for (i=0;i<(stack_posy+1);i++){
+void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, signed char stack_posy){
+  static u16 count; char i,x;
+  x=stack_posy+1;
+  for (i=0;i<x;i++){
     count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
   }
 }
 
-void ca_pop(struct stackey stack[STACK_SIZE]){
+signed char ca_pop(struct stackey stack[STACK_SIZE], signed char stack_posy){
  	if (stack_posy>=0)
 	{
 	  free(stack[stack_posy].unit);
 	  stack_posy--;
 	}
+  return stack_posy;
 }
 
 
@@ -685,7 +685,7 @@ int main(void)
   uint16_t count=0;
   srandom(time(0));
 
-  stack_posy=-1;
+  signed char stack_posy=-1;
   struct stackey stack[STACK_SIZE];
 
   for (x=0;x<65535;x++){
@@ -695,12 +695,12 @@ int main(void)
   inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
   for (x=0;x<STACK_SIZE;x++){
-        ca_pushn(stack,randi()%NUM_FUNCS,buffer);
+    ca_pushn(stack,randi()%NUM_FUNCS,buffer, stack_posy);
     //    ca_pushn(stack,1,buffer);
   }
 
        while(1){
-	 ca_runall(stack,buffer);
+	 ca_runall(stack,buffer,stack_posy);
        }
 }
 #endif

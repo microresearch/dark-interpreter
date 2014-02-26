@@ -92,7 +92,7 @@ void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8
   this->m_stack_pos=-1;
     //this->m_stack=(u8*)malloc(STACK_SIZE);
 
-    for (int n=0; n<STACK_SIZE; n++)
+    for (u8 n=0; n<STACK_SIZE; n++)
       {
 	this->m_stack[n]=0;
       }

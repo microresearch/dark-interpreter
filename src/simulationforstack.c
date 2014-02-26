@@ -156,7 +156,7 @@ void sineinit(void* unity, uint16_t *workingbuffer){
   w= w/256;
     for (i = 0; i <= 256; i++)
     {
-      yi= 2047*sinf(phase);
+      yi= 2047*sinf(phase); // was 2047
       phase=phase+w;
       sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
       unit->sin_data[i]=sign_samp; // write value into array
@@ -172,7 +172,7 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     if (count==MAX_SAM) count=0;
     workingbuffer[count]=unit->sin_data[unit->cc%256];
 #ifdef PCSIM
-    printf("%c\n",workingbuffer[count]);
+    printf("%c",workingbuffer[count]);
 #endif
     unit->cc++;
   }
@@ -1325,14 +1325,15 @@ void passingarraytest(uint8_t *buffer) {
 
 #endif
 
-char stack_pos;
 
-void func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer){
-  if (stack_pos<STACK_SIZE-1)
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos){
+  if (stack_pos<STACK_SIZE)
     {
-      ++stack_pos;
+      stack_pos++;
       stack[stack_pos].howmuch=randi()%255;
       stack[stack_pos].delay=randi()%255;
+      if (stack[stack_pos].howmuch==0) stack[stack_pos].howmuch=1;
+      if (stack[stack_pos].delay==0) stack[stack_pos].delay=1;
 
       switch(typerr){
       case CONVY:
@@ -1476,22 +1477,25 @@ void func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer){
 	stack[stack_pos].functione=runfitz;
       }
     }
+  return stack_pos;
 }
 
 
-void func_runall(struct stackey stack[STACK_SIZE], u16* buffer){
-  static u16 count; u8 i;
-  for (i=0;i<(stack_pos+1);i++){
-    count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
-  }
+void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, signed char stack_pos){
+  static u16 count; char i; signed char x;
+  x=stack_pos+1;
+      for (i=0;i<x;i++){
+      count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
+        }
 }
 
-void func_pop(struct stackey stack[STACK_SIZE]){
+signed char func_pop(struct stackey stack[STACK_SIZE], signed char stack_pos){
  	if (stack_pos>=0)
 	{
 	  free(stack[stack_pos].unit);
 	  stack_pos--;
 	}
+	return stack_pos;
 }
 
 #ifdef PCSIM
@@ -1501,11 +1505,11 @@ void main(void)
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   u16 x;
   u8 howmuch,i;
-  uint16_t xxx[MAX_SAM],result;
-  uint16_t count=0;
+  //   uint16_t xxx[MAX_SAM];
+     u8 xxx[MAX_SAM*2];
   srand(time(NULL));
 
-  stack_pos=-1;
+  char stack_pos=-1;
 
   for (x=0;x<MAX_SAM;x++){
     xxx[x]=randi()%65536;
@@ -1513,13 +1517,14 @@ void main(void)
 
   struct stackey stack[STACK_SIZE];
 
-  for (x=0;x<STACK_SIZE;x++){
-    //    func_pushn(stack,randi()%NUM_FUNCS,xxx);
-    func_pushn(stack,1,xxx);
-  }
+    for (x=0;x<STACK_SIZE;x++){
+      //  func_pushn(stack,randi()%NUM_FUNCS,xxx);
+            stack_pos=func_pushn(stack,1,xxx, stack_pos);
+	    printf("%d\n", stack_pos);
+      }
   
        while(1){
-	 func_runall(stack,xxx);
+	 func_runall(stack,xxx,stack_pos);
        }
 }
 #endif

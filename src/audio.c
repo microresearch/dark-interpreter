@@ -26,7 +26,7 @@ extern __IO uint16_t adc_buffer[10];
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
-extern char* datagenbuffer;
+extern u16 *datagenbuffer;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
@@ -99,10 +99,20 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	int32_t i,wcount,rcount; int16_t x;
+	static u16 counter; int16_t x;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
+
+	// datagenbuffer test
+
+	for (x=0;x<sz/2;x++){
+	  right_buffer[x]=(u16)datagenbuffer[(x+counter)%32768];
+	  //	  right_buffer[x]=(counter+x)*128;
+	}
+
+	counter+=x;
+
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else

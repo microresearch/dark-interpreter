@@ -62,6 +62,11 @@ up to limit
   case/array) so that multiple instances don't share same delay and so
   on DONE/TESTED for stack CA and simulations
 
+- SINE datagen works in main.c/audio.c but not as STACK runner- NOW
+  DONE (signed char)
+
+- now stack run works so chances are malloc, 
+
 * MON 24 FEB+
 
 - see 17 feb - all hardware specific tests this week
@@ -118,7 +123,7 @@ and in CPU and pureleak we have:
 
 : cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay)
 
-maybe add a delay around this for whole cpu????
+TODO:maybe add a delay around this//machine_run// for whole cpu????
 
 */// array could be settings we run through when we push to stack and so on...**
 
@@ -160,13 +165,15 @@ also look at:
 
 http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navigation/stm32f30_flash.ld
 
-2- malloc and free, 
+2- malloc and free: SEEMS okay, but only lite tests
 
 3-test Nan(and datagen) 
 
 4-[simple board]
 
 5-sampling rates change, 
+
+/////
 
 6-test all datagen/hardware flags with simple datagen running 
 

@@ -42,9 +42,7 @@ __IO uint16_t adc_buffer[10];
 
 //uint16_t datagenbuffer[32] __attribute__ ((section (".ccmdata")))  __attribute__((aligned(4)));
 
-char* datagenbuffer = (char*)0x10000000;
-
-//uint16_t datagenbuffer[32];
+u8* datagenbuffer = (u8*)0x10000000;
 
 extern u8 digfilterflag;
 
@@ -158,6 +156,11 @@ void main(void)
 	machine *m=(machine *)malloc(sizeof(machine));
 	machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
 
+	// CA and simulation - TESTING
+	signed char stack_pos=-1;
+	struct stackey stackyy[STACK_SIZE];
+	stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos);
+	dohardwareswitch(0,0);
 
 	while(1)
 	{
@@ -165,14 +168,12 @@ void main(void)
 #ifdef TEST_STRAIGHT
 
 	  // just to test
-	    hardware=adc_buffer[5]>>5;
+	    hardware=adc_buffer[2]>>5;
 	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	    oldhardware=hardware;
-
-	    // test pointer
-	    for (tmp=0;tmp<65535;tmp++){
-	      datagenbuffer[tmp]=0;
-	    }
+	    //	    tmp=runsine(tmp,10,datagenbuffer,10,unit);
+	    // test simulations
+	    func_runall(stackyy,datagenbuffer,stack_pos);
 
 #else
 
