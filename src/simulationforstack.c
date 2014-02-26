@@ -96,6 +96,8 @@ extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 #define OREGONY 26
 #define FITZY 27
 
+#define NUM_FUNCS 28
+
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -170,7 +172,7 @@ uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
     if (count==MAX_SAM) count=0;
     workingbuffer[count]=unit->sin_data[unit->cc%256];
 #ifdef PCSIM
-    //    printf("%d\n",workingbuffer[count]);
+    printf("%c\n",workingbuffer[count]);
 #endif
     unit->cc++;
   }
@@ -1333,15 +1335,146 @@ void func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer){
       stack[stack_pos].delay=randi()%255;
 
       switch(typerr){
-      case 0:
+      case CONVY:
 	stack[stack_pos].unit=malloc(sizeof(struct CONV));
 	convinit(stack[stack_pos].unit,buffer);
 	stack[stack_pos].functione=runconv;
 	break;
+      case SINEY:
+	stack[stack_pos].unit=malloc(sizeof(struct siney));
+	sineinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runsine;
+	break;
+      case INCY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runinc;
+	break;
+      case DECY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=rundec;
+	break;
+      case LEFTY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runleft;
+	break;
+      case RIGHTY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runright;
+	break;
+      case SWAPPY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runswap;
+	break;
+      case NEXTINCY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runnextinc;
+	break;
+      case NEXTDECY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runnextdec;
+	break;
+      case NEXTMULTY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runnextmult;
+	break;
+      case NEXTDIVY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runnextdiv;
+	break;
+      case COPYY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runcopy;
+	break;
+      case ZEROY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runzero;
+	break;
+      case FULLY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runfull;
+	break;
+      case RANDY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runrand;
+	break;
+      case KNOBY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runknob;
+	break;
+      case SWAPAUDIOY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runswapaudio;
+	break;
+      case ORAUDIOY:
+	stack[stack_pos].unit=malloc(sizeof(struct generik));
+	geninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runORaudio;
+	break;
+      case SIMPLESIRY:
+	stack[stack_pos].unit=malloc(sizeof(struct simpleSIR));
+	simplesirinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runsimplesir;
+	break;
+      case SEIRY:
+	stack[stack_pos].unit=malloc(sizeof(struct SEIR));
+	seirinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runseir;
+	break;
+      case SICRY:
+	stack[stack_pos].unit=malloc(sizeof(struct SICR));
+	sicrinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runsicr;
+	break;
+      case IFSY:
+	stack[stack_pos].unit=malloc(sizeof(struct IFS));
+	ifsinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runifs;
+	break;
+      case ROSSLERY:
+	stack[stack_pos].unit=malloc(sizeof(struct Rossler));
+	rosslerinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runrossler;
+	break;
+      case SECONDROSSLERY:
+	stack[stack_pos].unit=malloc(sizeof(struct secondRossler));
+	secondrosslerinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runsecondrossler;
+	break;
+      case BRUSSELY:
+	stack[stack_pos].unit=malloc(sizeof(struct Brussel));
+	brusselinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runconv;
+	break;
+      case SPRUCEY:
+	stack[stack_pos].unit=malloc(sizeof(struct Spruce));
+	spruceinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runconv;
+	break;
+      case OREGONY:
+	stack[stack_pos].unit=malloc(sizeof(struct Oregon));
+	oregoninit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runoregon;
+	break;
+      case FITZY:
+	stack[stack_pos].unit=malloc(sizeof(struct Fitz));
+	fitzinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runfitz;
       }
-      // switch for malloc, inits and//...
-      //      stack[stack_pos].functione=xxx;
-
     }
 }
 
@@ -1380,40 +1513,11 @@ void main(void)
 
   struct stackey stack[STACK_SIZE];
 
-   /*   struct Oregon *unit=malloc(sizeof(struct Oregon)); */
-   /*   struct Spruce *unit=malloc(sizeof(struct Spruce)); */
-   /*   struct Brussel *unit=malloc(sizeof(struct Brussel)); */
-   /* struct Rossler *unit=malloc(sizeof(struct Rossler)); */
-   /* struct secondRossler *unit=malloc(sizeof(struct secondRossler)); */
-   /* struct IFS *unit=malloc(sizeof(struct IFS)); */
-   /* struct simpleSIR *unit=malloc(sizeof(struct simpleSIR)); */
-   /*   struct SEIR *unit=malloc(sizeof(struct SEIR)); */
-   /*     struct SICR *unit=malloc(sizeof(struct SICR)); */
-   /* struct siney *unit=malloc(sizeof(struct siney)); */
-   /* spruceinit(unit,xxx);  */
-   /*     fitzinit(unit,xxx);  */
-   /*   brusselinit(unit,xxx);  */
-
-
-  // for Fitz? de-alloc?
-  //       struct Fitz *unita=malloc(sizeof(struct Fitz));
-  //   struct generik *unitb=malloc(sizeof(struct generik));
-  //   struct CONV *unit=malloc(sizeof(struct CONV));
-       //       convinit(unit,xxx); // put these into push
-       //       fitzinit(unita,xxx);
-       //       geninit(unitb,xxx);
-       // TODO: array stack of function pointers
-       //       func_push(stack,runinc,geninit,unitb);
-
-       // TODO: push with type indicator and do init malloc in  push
-
-       // func_pushn(stack,FITZ,xxx);
-       //       func_push(stack,runinc,geninit,unitb,xxx);
-       //       func_push(stack,runfitz,fitzinit,unita,xxx);
-
-       //       func_push(stack,runfitz,geninit,unita);
-
-  func_pushn(stack,CONVY,xxx);
+  for (x=0;x<STACK_SIZE;x++){
+    //    func_pushn(stack,randi()%NUM_FUNCS,xxx);
+    func_pushn(stack,1,xxx);
+  }
+  
        while(1){
 	 func_runall(stack,xxx);
        }

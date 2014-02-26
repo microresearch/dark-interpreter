@@ -17,46 +17,24 @@
 extern __IO uint16_t adc_buffer[10];
 #endif
 
-
-/* TODO:
-
-*/
-
 //////////////////////////////////////////
 
 #define STACK_SIZE 16
 
+#define HODGEY 0
+#define HODGENETY 1
+#define LIFEY 2
+#define CELY 3
+#define CEL1DY 4
+#define FIREY 5
+#define WIREY 6
+#define SIRY 7
+#define SIR16Y 8
+
+#define NUM_FUNCS 9
+
+
 char stack_posy;
-/*
-void ca_push(struct stackey stack[STACK_SIZE], u16 (*xxx)(uint16_t count, uint16_t delay, u8 *workingbuffer, uint8_t howmuch, void * unit), void (*yyy)(void *unity, u8 *workingbuffer), void* unit, u8* buffer){
-  if (stack_pos<STACK_SIZE-1)
-    {
-      ++stack_pos;
-      stack[stack_pos].functione=xxx;
-      stack[stack_pos].unit=unit;
-      stack[stack_pos].inite=yyy;
-      stack[stack_pos].howmuch=randi()%255;
-      stack[stack_pos].delay=randi()%255;
-
-      // init now?
-      yyy(unit,buffer);
-    }
-}
-
-void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer){
-  static u16 count; u8 i;
-  for (i=0;i<(stack_pos+1);i++){
-    count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
-  }
-}
-
-void ca_pop(void){
- 	if (stack_pos>=0)
-	{
-		stack_pos--;
-	}
-}
-*/
 
 //////////////////////////////////////////
 
@@ -206,9 +184,10 @@ uint16_t runlife(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* u
 
 //one dimensional - working line by line through buffer
 
-uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 state,i=0;
+  struct CA* unit=unity;
   if (++unit->del==delay){
   for (i=1;i<howmuch;i++){
       state = 0;
@@ -264,10 +243,11 @@ void inittable(u8 r, u8 k, int rule){
 
 // 1d with rules
 
-uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, struct CA* unit){
+uint16_t runcel1d(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 cell,sum; signed int z,zz;
   u8 radius=3, k=4, i;//k=states
+  struct CA* unit=unity;
 
   for (i=1;i<howmuch;i++){
     sum=0;
@@ -612,6 +592,82 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
 
 //////////////////////////////////////////
 
+
+void ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer){
+  if (stack_posy<STACK_SIZE-1)
+    {
+      ++stack_posy;
+      stack[stack_posy].howmuch=randi()%255;
+      stack[stack_posy].delay=randi()%255;
+
+      switch(typerr){
+      case HODGEY:
+	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	hodgeinit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runhodge;
+	break;
+      case HODGENETY:
+	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	hodgeinit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runhodgenet;
+	break;
+      case LIFEY:
+	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	cainit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runhodge;
+	break;
+      case CELY:
+	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	cainit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runcel;
+	break;
+      case CEL1DY:
+	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	cainit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runcel1d;
+	break;
+      case FIREY:
+	stack[stack_posy].unit=malloc(sizeof(struct fire));
+	fireinit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runfire;
+	break;
+      case WIREY:
+	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	cainit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runwire;
+	break;
+      case SIRY:
+	stack[stack_posy].unit=malloc(sizeof(struct SIR));
+	SIRinit(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runSIR;
+	break;
+      case SIR16Y:
+	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
+	SIR16init(stack[stack_posy].unit,buffer);
+	stack[stack_posy].functione=runSIR16;
+	break;
+      }
+    }
+}
+
+void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer){
+  static u16 count; u8 i;
+  for (i=0;i<(stack_posy+1);i++){
+    count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
+  }
+}
+
+void ca_pop(struct stackey stack[STACK_SIZE]){
+ 	if (stack_posy>=0)
+	{
+	  free(stack[stack_posy].unit);
+	  stack_posy--;
+	}
+}
+
+
+//////////////////////////////////////////
+
 #ifdef PCSIM
 int main(void)
 {
@@ -620,24 +676,14 @@ int main(void)
   uint16_t count=0;
   srandom(time(0));
 
-  stack_pos=-1;
+  stack_posy=-1;
   struct stackey stack[STACK_SIZE];
 
   for (x=0;x<65535;x++){
     buffer[x]=randi()%255;
   }
-  //  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
-  //  struct hodge *unit=malloc(sizeof(struct hodge));
-  //    struct CA *unit=malloc(sizeof(struct CA));
-    struct SIR16 *unit=malloc(sizeof(struct SIR16));
-  //struct fire *unit=malloc(sizeof(struct fire));
-  //  hodgeinit(unit,buffer);
-    //    cainit(unit,buffer);
-    //        SIR16init(unit,buffer);
-  //  fireinit(unit,buffer);
-
-       ca_push(stack,runSIR16,SIR16init,unit,buffer);
+  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
        while(1){
 	 ca_runall(stack,buffer);

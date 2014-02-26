@@ -56,6 +56,12 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+* WED 26 FEB
+
+- for stacks need to manage malloc/free of structures (with
+  case/array) so that multiple instances don't share same delay and so
+  on DONE/TESTED for stack CA and simulations
+
 * MON 24 FEB+
 
 - see 17 feb - all hardware specific tests this week
@@ -69,10 +75,6 @@ how add+sub works on one knob?
 - speed also of how often we sample some knobs
 
 - stack of various directions
-
-- for stacks need to manage malloc/free of structures (with
-  case/array) so that multiple instances don't share same delay and so
-  on
 
 * THU 20 FEB
 
