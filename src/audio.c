@@ -104,10 +104,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 
-	// datagenbuffer test
+	// datagenbuffer test (note that is an INT though +-32768)
 
 	for (x=0;x<sz/2;x++){
-	  right_buffer[x]=(u16)datagenbuffer[(x+counter)%32768];
+	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
 	  //	  right_buffer[x]=(counter+x)*128;
 	}
 

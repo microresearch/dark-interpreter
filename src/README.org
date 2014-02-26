@@ -65,11 +65,31 @@ up to limit
 - SINE datagen works in main.c/audio.c but not as STACK runner- NOW
   DONE (signed char)
 
-- now stack run works so chances are malloc, 
+- now stack run works so chances are malloc, free work but test with
+  thorough WORKOUT!
+
+further - from 17 feb:
+
+3-test Nan (which datagens - brussely and co.)
+
+brussels OK, others no sound, FITZ - crashs and on PCSIM 0.0000 FIXEDwith fmodf
+
+4-sampling rate change = see WAN0117.pdf
+
+is NOT in Codec_Init but register 08 in init_data: codec.c bits 1->6
+
+http://www.wolfsonmicro.com/products/audio_hubs/WM8731/
+
+/////
+
+5-test all datagen/hardware flags with simple datagen running 
+
+6-test clocks and unhanging?->needs code to finish it?
+
+7-[construct/test simple board]
+
 
 * MON 24 FEB+
-
-- see 17 feb - all hardware specific tests this week
 
 - new knob scheme:
 
@@ -79,7 +99,7 @@ how add+sub works on one knob?
 
 - speed also of how often we sample some knobs
 
-- stack of various directions
+- stack of various directions, array of all settings which map into real settings
 
 * THU 20 FEB
 
@@ -103,7 +123,8 @@ in hardware.c which cleared structure.
 
 - CA.c as stack -> CAforstack.c DONE
 
-- functions (in sim) to write knob or eeg values into datagen buffer - DONE (nearly)
+- functions (in sim) to write knob or eeg values into datagen buffer -
+  DONE (nearly- find the knob!)
 
 -  and to swap audio/datagen bit by bit//section by section . DONE runswapaudio
 
@@ -125,7 +146,8 @@ and in CPU and pureleak we have:
 
 TODO:maybe add a delay around this//machine_run// for whole cpu????
 
-*/// array could be settings we run through when we push to stack and so on...**
+*/// array could be settings we run through when we push to stack and
+so on... or not*
 
 so we could have array of settings (from knob, from other array) which
 is walked through for actual settings - or vice versa (a map) or
@@ -159,13 +181,13 @@ rewriting the history of technology as the plague which seeks to...
 1.5- problems with ccmdata as wasn't in flash.ld but if we use 407.ld or
 add ccmdata to flash.ld we end up with huge binary???
 
-how to test with pointer straight to memory? write&read datagen->audiobuffer
+how to test with pointer straight to memory? write&read datagen->audiobufferDONE
 
 also look at:
 
 http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navigation/stm32f30_flash.ld
 
-2- malloc and free: SEEMS okay, but only lite tests
+2- malloc and free: SEEMS okay, but only lite tests//test FREE!!!
 
 3-test Nan(and datagen) 
 
@@ -187,7 +209,7 @@ http://andrei-development.googlecode.com/svn/branches/dev/stm32f3-discovery/Navi
 
 *complexity*
 
-*tweaks and sounds*
+*tweaks and sounds/samples/images/publicity/manufacture*
 
 * THU 6 FEB
 

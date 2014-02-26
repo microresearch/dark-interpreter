@@ -159,7 +159,8 @@ void main(void)
 	// CA and simulation - TESTING
 	signed char stack_pos=-1;
 	struct stackey stackyy[STACK_SIZE];
-	stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos);
+
+	stack_pos=func_pushn(stackyy,FITZY,datagenbuffer,stack_pos);
 	dohardwareswitch(0,0);
 
 	while(1)

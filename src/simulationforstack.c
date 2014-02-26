@@ -65,39 +65,6 @@ extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 #endif
 
-#define STACK_SIZE 16
-
-#define CONVY 0
-#define SINEY 1
-#define INCY 2
-#define DECY 3
-#define LEFTY 4
-#define RIGHTY 5
-#define SWAPPY 6
-#define NEXTINCY 7
-#define NEXTDECY 8
-#define NEXTMULTY 9
-#define NEXTDIVY 10
-#define COPYY 11
-#define ZEROY 12
-#define FULLY 13
-#define RANDY 14
-#define KNOBY 15
-#define SWAPAUDIOY 16
-#define ORAUDIOY 17
-#define SIMPLESIRY 18
-#define SEIRY 19
-#define SICRY 20
-#define IFSY 21
-#define ROSSLERY 22
-#define SECONDROSSLERY 23
-#define BRUSSELY 24
-#define SPRUCEY 25
-#define OREGONY 26
-#define FITZY 27
-
-#define NUM_FUNCS 28
-
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -1231,12 +1198,12 @@ return count;
 
 void fitzinit(void *unity, uint16_t *workingbuffer) {
   struct Fitz* unit=unity;
-	unit->u=0.0;
-	unit->w=0.0;
-	//	unit->b0= 1.4;
-	//	unit->b1= 1.1;
-	unit->b0=(float)workingbuffer[0]/32768.0;
-	unit->b1=(float)workingbuffer[1]/32768.0;
+  unit->u=0.0;
+  unit->w=0.0;
+  		unit->b0= 1.4;
+  		unit->b1= 1.1;
+  //    unit->b0=(float)workingbuffer[0]/32768.0;
+  //    unit->b1=(float)workingbuffer[1]/32768.0;
 }
 
 uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
@@ -1246,7 +1213,7 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   float urate= 0.7;
   float wrate= 1.7;
   float u,w;
-  u8 x=0;
+  u8 x;
   struct Fitz* unit=unity;
   if (++unit->del==delay){
 
@@ -1255,56 +1222,28 @@ uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 
   for (x=0;x<howmuch;x++){
     count++;
-    if (count==MAX_SAM) count=0;
+    if (count>=MAX_SAM) count=0;
     float dudt= urate*(u-(0.33333*u*u*u)-w);
     float dwdt= wrate*(unit->b0+unit->b1*u-w);
 	  
     u+=dudt;
     w+=dwdt;
     //assumes fmod works correctly for negative values
-    if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
+        if ((u>1.0) || (u<-1.0)) u=fabs(fmodf(u-1.0,4.0)-2.0)-1.0;
+    //    if ((u>1.0) || (u<-1.0)) u=fabs(u-2.0)-1.0;
 
-    int z=((float)(u)*1500);
+
+
+	    int z=((float)(u)*3600);
     //    int zz=((float)(w)*1500);
-    workingbuffer[count]=z;//workingbuffer[x+2]=zz;
+	    workingbuffer[count]=(u16)z;//workingbuffer[x+2]=zz;
+
 #ifdef PCSIM
-    //    printf("brussels: x %f y %f\n",x,y); 
-    //       printf("%c",workingbuffer[count]>>8); 
+	//        printf("fitz: %c",u); 
+       printf("%c",workingbuffer[count]>>8); 
 #endif
 
-  }
-  //  count+=x;
 
-  for (x=0;x<howmuch;x++){
-    count++;
-    if (count==MAX_SAM) count=0;
-    float dudt= urate*(u-(0.33333*u*u*u)-w);
-    float dwdt= wrate*(unit->b0+unit->b1*u-w);
-
-    u+=dudt;
-    w+=dwdt;
-    //assumes fmod works correctly for negative values
-        if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
-
-    int z=((float)(u)*700);
-    int zz=((float)(w)*700);
-    workingbuffer[count]=z;//deltay[x]=zz;
-  }
-  //  count+=x;
-  for (x=0;x<howmuch;x++){
-    count++;
-    if (count==MAX_SAM) count=0;
-    float dudt= urate*(u-(0.33333*u*u*u)-w);
-    float dwdt= wrate*(unit->b0+unit->b1*u-w);
-
-    u+=dudt;
-    w+=dwdt;
-    //assumes fmod works correctly for negative values
-        if ((u>1.0) || (u<-1.0)) u=fabs(fmod((u-1.0),4.0)-2.0)-1.0;
-
-    int z=((float)(u)*3600);
-    //		workingbuffer[x+(howmuch*2)]=z;
-    workingbuffer[count]=z;
   }
   unit->u=u;
   unit->w=w;
@@ -1517,9 +1456,15 @@ void main(void)
 
   struct stackey stack[STACK_SIZE];
 
+	/*#define BRUSSELY 24
+	  #define SPRUCEY 25
+	  #define OREGONY 26
+	  #define FITZY 27*/
+
+
     for (x=0;x<STACK_SIZE;x++){
       //  func_pushn(stack,randi()%NUM_FUNCS,xxx);
-            stack_pos=func_pushn(stack,1,xxx, stack_pos);
+            stack_pos=func_pushn(stack,FITZY,xxx, stack_pos);
 	    printf("%d\n", stack_pos);
       }
   
