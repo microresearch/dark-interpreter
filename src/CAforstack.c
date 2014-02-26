@@ -26,8 +26,8 @@ extern __IO uint16_t adc_buffer[10];
 
 #define STACK_SIZE 16
 
-char stack_pos;
-
+char stack_posy;
+/*
 void ca_push(struct stackey stack[STACK_SIZE], u16 (*xxx)(uint16_t count, uint16_t delay, u8 *workingbuffer, uint8_t howmuch, void * unit), void (*yyy)(void *unity, u8 *workingbuffer), void* unit, u8* buffer){
   if (stack_pos<STACK_SIZE-1)
     {
@@ -56,7 +56,7 @@ void ca_pop(void){
 		stack_pos--;
 	}
 }
-
+*/
 
 //////////////////////////////////////////
 

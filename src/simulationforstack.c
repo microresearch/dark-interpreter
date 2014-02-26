@@ -67,6 +67,35 @@ extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 
 #define STACK_SIZE 16
 
+#define CONVY 0
+#define SINEY 1
+#define INCY 2
+#define DECY 3
+#define LEFTY 4
+#define RIGHTY 5
+#define SWAPPY 6
+#define NEXTINCY 7
+#define NEXTDECY 8
+#define NEXTMULTY 9
+#define NEXTDIVY 10
+#define COPYY 11
+#define ZEROY 12
+#define FULLY 13
+#define RANDY 14
+#define KNOBY 15
+#define SWAPAUDIOY 16
+#define ORAUDIOY 17
+#define SIMPLESIRY 18
+#define SEIRY 19
+#define SICRY 20
+#define IFSY 21
+#define ROSSLERY 22
+#define SECONDROSSLERY 23
+#define BRUSSELY 24
+#define SPRUCEY 25
+#define OREGONY 26
+#define FITZY 27
+
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -99,7 +128,7 @@ uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 #ifdef PCSIM
     //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[count]);
     //    printf("%f %f %f\n",unit->c0,unit->c1,unit->c2);
-    //            printf("%c",workingbuffer[count]%255);
+                printf("%c",workingbuffer[count]%255);
 
 #endif
   }
@@ -1292,22 +1321,30 @@ void passingarraytest(uint8_t *buffer) {
   }
 }
 
+#endif
+
 char stack_pos;
 
-void func_push(struct stackey stack[STACK_SIZE], u16 (*xxx)(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void * unit), void (*yyy)(void *unity, uint16_t *workingbuffer), void* unit, u16* buffer){
+void func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer){
   if (stack_pos<STACK_SIZE-1)
     {
       ++stack_pos;
-      stack[stack_pos].functione=xxx;
-      stack[stack_pos].unit=unit;
-      stack[stack_pos].inite=yyy;
       stack[stack_pos].howmuch=randi()%255;
       stack[stack_pos].delay=randi()%255;
 
-      // init now?
-      yyy(unit,buffer);
+      switch(typerr){
+      case 0:
+	stack[stack_pos].unit=malloc(sizeof(struct CONV));
+	convinit(stack[stack_pos].unit,buffer);
+	stack[stack_pos].functione=runconv;
+	break;
+      }
+      // switch for malloc, inits and//...
+      //      stack[stack_pos].functione=xxx;
+
     }
 }
+
 
 void func_runall(struct stackey stack[STACK_SIZE], u16* buffer){
   static u16 count; u8 i;
@@ -1316,12 +1353,15 @@ void func_runall(struct stackey stack[STACK_SIZE], u16* buffer){
   }
 }
 
-void func_pop(void){
+void func_pop(struct stackey stack[STACK_SIZE]){
  	if (stack_pos>=0)
 	{
-		stack_pos--;
+	  free(stack[stack_pos].unit);
+	  stack_pos--;
 	}
 }
+
+#ifdef PCSIM
 
 void main(void)
 {
@@ -1356,20 +1396,24 @@ void main(void)
 
 
   // for Fitz? de-alloc?
-       struct Fitz *unita=malloc(sizeof(struct Fitz));
-       struct generik *unitb=malloc(sizeof(struct generik));
-       struct CONV *unit=malloc(sizeof(struct CONV));
+  //       struct Fitz *unita=malloc(sizeof(struct Fitz));
+  //   struct generik *unitb=malloc(sizeof(struct generik));
+  //   struct CONV *unit=malloc(sizeof(struct CONV));
        //       convinit(unit,xxx); // put these into push
        //       fitzinit(unita,xxx);
        //       geninit(unitb,xxx);
        // TODO: array stack of function pointers
        //       func_push(stack,runinc,geninit,unitb);
-       func_push(stack,runconv,convinit,unit,xxx);
-       func_push(stack,runinc,geninit,unitb,xxx);
-       func_push(stack,runfitz,fitzinit,unita,xxx);
+
+       // TODO: push with type indicator and do init malloc in  push
+
+       // func_pushn(stack,FITZ,xxx);
+       //       func_push(stack,runinc,geninit,unitb,xxx);
+       //       func_push(stack,runfitz,fitzinit,unita,xxx);
 
        //       func_push(stack,runfitz,geninit,unita);
 
+  func_pushn(stack,CONVY,xxx);
        while(1){
 	 func_runall(stack,xxx);
        }
