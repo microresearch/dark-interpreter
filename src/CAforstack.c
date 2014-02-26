@@ -81,7 +81,9 @@ uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
     cells[y] = unit->q - 1;
 
   x++;
-  //  printf("%c",cells[x]);
+#ifdef PCSIM  
+  printf("%c",cells[x]);
+#endif
   }
   unit->del=0;
   }
@@ -137,7 +139,9 @@ uint16_t runhodgenet(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, voi
     cells[y] = unit->q;
 
   x++;
-  //  printf("%c",cells[y]);
+#ifdef PCSIM  
+  printf("%c",cells[x]);
+#endif
   }
   unit->del=0;
   }
@@ -171,6 +175,10 @@ uint16_t runlife(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* u
   else if ((cells[x]&1)==1 && sum>3) cells[y]=0;
   else if ((cells[x]&1)==0 && sum==3) cells[y]=255;
   else cells[y]=cells[x];
+
+#ifdef PCSIM  
+  printf("%c",cells[x]);
+#endif
 
   //  printf("%c",cells[x]);
   x++;
@@ -206,6 +214,7 @@ uint16_t runcel(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* un
 	cells[x+i+unit->celllen] = 0;
       } 
       //      printf("%c",cells[x+i+unit->celllen]);
+
   }
   unit->del=0;
   }
@@ -614,7 +623,7 @@ void ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer){
       case LIFEY:
 	stack[stack_posy].unit=malloc(sizeof(struct CA));
 	cainit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runhodge;
+	stack[stack_posy].functione=runlife;
 	break;
       case CELY:
 	stack[stack_posy].unit=malloc(sizeof(struct CA));
@@ -684,6 +693,11 @@ int main(void)
   }
 
   inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
+
+  for (x=0;x<STACK_SIZE;x++){
+        ca_pushn(stack,randi()%NUM_FUNCS,buffer);
+    //    ca_pushn(stack,1,buffer);
+  }
 
        while(1){
 	 ca_runall(stack,buffer);
