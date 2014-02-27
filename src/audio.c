@@ -106,12 +106,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// datagenbuffer test (note that is an INT though +-32768)
 
-	for (x=0;x<sz/2;x++){
+	/*	for (x=0;x<sz/2;x++){
 	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
 	  //	  right_buffer[x]=(counter+x)*128;
 	}
 
-	counter+=x;
+	counter+=x;*/
 
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 

@@ -74,7 +74,7 @@ further - from 17 feb:
 
 brussels OK, others no sound, FITZ - crashs and on PCSIM 0.0000 FIXEDwith fmodf
 
-4-sampling rate change = see WAN0117.pdf
+4-sampling rate change = see WAN0117.pdf NO DIFFERENCE TO SOUND! change rates in software
 
 is NOT in Codec_Init but register 08 in init_data: codec.c bits 1->6
 
@@ -88,6 +88,7 @@ http://www.wolfsonmicro.com/products/audio_hubs/WM8731/
 
 7-[construct/test simple board]
 
+8-hard tests on all hard-specific
 
 * MON 24 FEB+
 

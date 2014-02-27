@@ -169,12 +169,15 @@ void main(void)
 #ifdef TEST_STRAIGHT
 
 	  // just to test
-	    hardware=adc_buffer[2]>>5;
-	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	    oldhardware=hardware;
+	  //	    hardware=adc_buffer[2]>>5;
+	    //	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	  //	    oldhardware=hardware;
 	    //	    tmp=runsine(tmp,10,datagenbuffer,10,unit);
 	    // test simulations
-	    func_runall(stackyy,datagenbuffer,stack_pos);
+	    //	    func_runall(stackyy,datagenbuffer,stack_pos);
+
+	    // test sample rate changes:
+	  //	  Codec_WriteRegister(8,(adc_buffer[2]>>6)&38);  // 5 bits as 1/0011=19
 
 #else
 
