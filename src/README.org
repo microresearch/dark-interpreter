@@ -59,12 +59,15 @@ up to limit
 
 * WED 5 MAR
 
-TODO: test CA, leaky, cpu all + bulk malloc/frees/allocations,
-sampling rate changers as array
+TODO: 
 
-0,1,10,11, 110,111,1000,1001,1010,1011,1111 <<2
+- test CA, pureleak, cpu == all datagens
 
-0,4,8,12, 24,28,32,36,40,44,60
+- test  bulk malloc/frees/allocations,DONE
+
+////
+
+- sampling rate changers as array DONE but bit flakey and is in i2s.c!
 
 - speed knob: wrap whole main in speed loop, what other speeds?
 
@@ -77,8 +80,6 @@ stacks?)
 
 stacks are: CA, leaky, cpu, simulations
 
-
-
 * WED 26 FEB
 
 - for stacks need to manage malloc/free of structures (with
@@ -89,7 +90,7 @@ stacks are: CA, leaky, cpu, simulations
   DONE (signed char)
 
 - now stack run works so chances are malloc, free work but test with
-  thorough WORKOUT!
+  thorough WORKOUT!DONE
 
 further - from 17 feb:
 

@@ -34,7 +34,7 @@ make stlink_flash
 #include "simulation.h"
 #include "CPUint.h"
 
-#define I2S_ENABLE_MASK                 0x0400
+#define randi() (adc_buffer[9])
 
 
 /* DMA buffers for I2S */
@@ -115,7 +115,7 @@ void main(void)
   //	uint32_t state;
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
-  u16 tmp,oldhardware,hardware,oldsampel; 
+  u16 x,addr,tmp,oldhardware,hardware; 
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -160,25 +160,54 @@ void main(void)
 	machine *m=(machine *)malloc(sizeof(machine));
 	machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
 
+  m->m_leakiness=randi()%255;
+  m->m_infectprob=randi()%255;
+  m->m_mutateprob=randi()%255;
+
+    for (x=0;x<65535;x++){
+        datagenbuffer[x]=randi()%255;
+    }
+
 	// CA and simulation - TESTING
 	signed char stack_pos=-1;
 	struct stackey stackyy[STACK_SIZE];
 
-	stack_pos=func_pushn(stackyy,FITZY,datagenbuffer,stack_pos);
+	//simulation:	
+	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
 	dohardwareswitch(0,0);
 
-	while(1)
-	{
+	 for (x=0; x<100; x++)
+	 {
+	   addr=randi()<<4;
+	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	 }
 
-#ifdef TEST_STRAIGHT
-	  //(top down= 2,0,3,4,1):
-	  // just to test
-	  	  hardware=adc_buffer[0]>>5;
-		  //	  	  if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	  //	  oldhardware=hardware;
-	    //	    tmp=runsine(tmp,10,datagenbuffer,10,unit);
-	    // test simulations
-	    //	    func_runall(stackyy,datagenbuffer,stack_pos);
+
+	 while(1)
+	 {
+
+ #ifdef TEST_STRAIGHT
+	   // TESTINGTESTINGALL!
+	   //(top down= 2,0,3,4,1):
+	   // just to test
+	   hardware=adc_buffer[2]>>5;
+	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	   oldhardware=hardware;
+	   // -->TODO: test simulations DONE
+	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
+
+	   // -->TODO: test push/pop of functions repeatingsDONE
+	   /*	  for (x=0;x<100;x++){
+	   stack_pos=func_pushn(stackyy,FITZY,datagenbuffer,stack_pos);
+	   }
+	   //	  signed char func_pop(struct stackey stack[STACK_SIZE], signed char stack_pos){
+	   for (x=0;x<100;x++){
+	   stack_pos=func_pop(stackyy,stack_pos);
+	   }*/
+
+	   // test cpuintrev2.c
+	   machine_run(m);
+
 
 
 #else

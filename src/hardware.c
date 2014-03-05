@@ -164,7 +164,7 @@ RES: feedback on/off - jackin-> - lm358in->
   */
 
 
-   res=2; // test
+  //   res=2; // test
 
     //    res=3;
   switch(res){
@@ -197,7 +197,7 @@ RES: feedback on/off - jackin-> - lm358in->
  }
 
 
-      res2=0;
+  //    res2=0;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 

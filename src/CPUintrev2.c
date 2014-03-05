@@ -149,10 +149,10 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    //    printf("%c",machine_peek(m,this->m_pc));
+        printf("%c",machine_peek(m,this->m_pc));
 
 #endif
-    this->m_CPU=5;
+    //    this->m_CPU=5;
     switch(this->m_CPU)
       {
       case 0: // :LEAKY STACK! - working!
@@ -1357,10 +1357,9 @@ u8 thread_top(thread* this) {
 
 void machine_create(machine *this, uint8_t *buffer) {
   //  int count=0;
-    this->m_threadcount=0;
+  this->m_threadcount=0;
    this->m_memory=buffer;
    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
-  // causes crash on ARM!
 }
 
 u16 machine_peek(const machine* this, uint16_t addr) {
@@ -1380,30 +1379,29 @@ void machine_poke(machine* this, uint16_t addr, u8 data) {
 }
 
 void machine_run(machine* this) {
-	for (unsigned char n=0; n<this->m_threadcount; n++) {
-		thread_run(&this->m_threads[n],this);
-	}
-	
-	
-	if ((randi()%this->m_leakiness)==0) {
+
+  //  static u8 threadcount=0;
+  //  threadcount++;
+  //  if (threadcount>this->m_threadcount) {
+  //    threadcount=0;
+
+    // slowing all down these 3????
+    /*	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
   	}
 	
-	// do infection/mutation
-	
 	if ((randi()%this->m_infectprob)==0) {
 	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
-	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
 	}
 	
 	if ((randi()%this->m_mutateprob)==0) {
-
-	  //void mutate(machine *m, u8 which, u8 identifier){
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
+	  }*/
+  //	}
 
-	  //	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
-	  //void infectcpu(machine *m, u8 probI, u8 probD, u8 infected){
-	  }
+  	for (unsigned char n=0; n<this->m_threadcount; n++) {
+  	  thread_run(&this->m_threads[n],this);
+	}
 }
 
 void write_mem(machine *m, int *a, uint16_t len) {
@@ -1553,36 +1551,13 @@ int main(void)
   // what about swapping????
 
   u8 flag,other;
-  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
-			6, 11, 5, 13};	/* change in state indexed by color */
-  //  printf("running: %d ",this->m_start);
-  //  sleep(1);
-  u16 biotadir[8]={65280,65281,1,257,256,255,65535,65279}; //65536
-
-  //  dircalc(biotadir,65536,256);
 
 	for (unsigned char n=0; n<100; n++)
 	{
-	  // 	  cpustackpush(m,randi()%65536,randi()%CPU_TOTAL);
-
-// void cpustackpush(machine *this, u16 address, u16 wrapaddress, u8 cputype, u8 delay)
-
-/*
-#ifdef PCSIM
-    this->m_wrap=this->m_start+randi()%65536;
-#else
-    this->m_wrap=this->m_start+randi();
-#endif
-*/
-	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-
-
-  // SWITCH for m_CPU!
-
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
-	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
-		  //	  	  cpustackpush(m,addr,addr+randi()%65536,30,randi()%255);
+	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
+	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
 	}
 

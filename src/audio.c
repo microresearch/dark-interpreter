@@ -99,19 +99,19 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	static u16 counter; int16_t x;
+	static u16 counter=0; int16_t x;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 
 	// datagenbuffer test (note that is an INT though +-32768)
 
-	/*	for (x=0;x<sz/2;x++){
+		for (x=0;x<sz/2;x++){
 	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
 	  //	  right_buffer[x]=(counter+x)*128;
 	}
 
-	counter+=x;*/
+		counter+=x;
 
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
