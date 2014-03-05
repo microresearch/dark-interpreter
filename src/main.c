@@ -34,6 +34,9 @@ make stlink_flash
 #include "simulation.h"
 #include "CPUint.h"
 
+#define I2S_ENABLE_MASK                 0x0400
+
+
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
@@ -102,6 +105,7 @@ char * stack = (char*) __get_MSP();
 
     }
 
+u16 sampel;
 
 void main(void)
 {
@@ -111,7 +115,7 @@ void main(void)
   //	uint32_t state;
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
-	u16 tmp,oldhardware,hardware;
+  u16 tmp,oldhardware,hardware,oldsampel; 
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -129,6 +133,7 @@ void main(void)
 	
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
+
 
 	//	ADC1_Initonce();
 	ADC1_Init((uint16_t *)adc_buffer);
@@ -148,7 +153,6 @@ void main(void)
 #endif		
 
 	I2S_Block_Init();
-	
 	I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 	//	x=rcount=i=wcount=highest=lowest=0;
 
@@ -167,17 +171,15 @@ void main(void)
 	{
 
 #ifdef TEST_STRAIGHT
-
+	  //(top down= 2,0,3,4,1):
 	  // just to test
-	  //	    hardware=adc_buffer[2]>>5;
-	    //	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	  //	    oldhardware=hardware;
+	  	  hardware=adc_buffer[0]>>5;
+		  //	  	  if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	  //	  oldhardware=hardware;
 	    //	    tmp=runsine(tmp,10,datagenbuffer,10,unit);
 	    // test simulations
 	    //	    func_runall(stackyy,datagenbuffer,stack_pos);
 
-	    // test sample rate changes:
-	  //	  Codec_WriteRegister(8,(adc_buffer[2]>>6)&38);  // 5 bits as 1/0011=19
 
 #else
 

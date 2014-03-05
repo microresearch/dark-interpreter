@@ -127,14 +127,25 @@ void I2S_Block_PlayRec(uint32_t txAddr, uint32_t rxAddr, uint32_t Size)
   * @param  None
   * @retval none
   */
+
+extern __IO uint16_t adc_buffer[10];
+
 void DMA1_Stream3_IRQHandler(void)
 { 
-	int16_t *src, *dst, sz;
+  int16_t *src, *dst, sz;
 	
+
+  u16 sampleflags[16]={0,64,4,68,8,72,12,76,24,88,28,92,32,96,36,100};//,40,104,60,124};//;;32,36,40,44,60}; // also with 2nd bit as BOSR=NON, 7th as divider to test +64
+  //  u16 sampleflags[12]={0,2,4,6,8,10,12,14,24,26,28,30}; // not working
+
 	/* Raise activity flag */
 	//	GPIOB->BSRRL = FLAG_RX;
-
 	/* Transfer complete interrupt */
+
+  Codec_WriteRegister(8,sampleflags[(adc_buffer[2]>>8)]);
+
+ // ONLy works with %6???
+
 	if (DMA_GetFlagStatus(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_TC) != RESET)
 	{
 		/* Point to 2nd half of buffers */
@@ -148,6 +159,7 @@ void DMA1_Stream3_IRQHandler(void)
 		/* Clear the Interrupt flag */
 		DMA_ClearFlag(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_TC);
 	}
+
 
 	/* Half Transfer complete interrupt */
 	if (DMA_GetFlagStatus(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_HT) != RESET)

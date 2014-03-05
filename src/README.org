@@ -56,6 +56,29 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+
+* WED 5 MAR
+
+TODO: test CA, leaky, cpu all + bulk malloc/frees/allocations,
+sampling rate changers as array
+
+0,1,10,11, 110,111,1000,1001,1010,1011,1111 <<2
+
+0,4,8,12, 24,28,32,36,40,44,60
+
+- speed knob: wrap whole main in speed loop, what other speeds?
+
+- complexity knob: which stacks we run?
+
+(how remove from stack works ? 
+
+if knob not changed add/remove (add which one/ remove top of 4
+stacks?)
+
+stacks are: CA, leaky, cpu, simulations
+
+
+
 * WED 26 FEB
 
 - for stacks need to manage malloc/free of structures (with
@@ -72,9 +95,12 @@ further - from 17 feb:
 
 3-test Nan (which datagens - brussely and co.)
 
-brussels OK, others no sound, FITZ - crashs and on PCSIM 0.0000 FIXEDwith fmodf
+brussels OK, others no sound, FITZ - crashs and on PCSIM 0.0000
+FIXEDwith fmodf
 
-4-sampling rate change = see WAN0117.pdf NO DIFFERENCE TO SOUND! change rates in software
+4-sampling rate change = see WAN0117.pdf - keep to prescribed table
+(RETEST for audio length, not resampling as doesn't sound changed at
+all???)
 
 is NOT in Codec_Init but register 08 in init_data: codec.c bits 1->6
 

@@ -149,10 +149,10 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
     reset_switches();
   }
 
-#ifdef TEST_STRAIGHT
+  //#ifdef TEST_STRAIGHT
   //  res=2;
   //  res2=0; // testing now!
-#endif // TEST_STRAIGHT
+  //#endif // TEST_STRAIGHT
 
   /*
 RES: feedback on/off - jackin-> - lm358in->
@@ -164,12 +164,14 @@ RES: feedback on/off - jackin-> - lm358in->
   */
 
 
-  res=2; // test
+   res=2; // test
+
+    //    res=3;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRL = (1<<8); // BSRRL sets BIT!
-   GPIOC->BSRRH = (1<<13);
+   GPIOC->BSRRH = (1<<13); //
    clockhangflag=0;
    break;
  case 1:
@@ -178,7 +180,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRH = (1<<13); // irrelevant */ 
 
    // **TODO! 
-   // add unhang for clocks?
+   // add unhang for clocks? 
    clockhangflag=1;
    break;
  case 2:
@@ -195,7 +197,7 @@ RES: feedback on/off - jackin-> - lm358in->
  }
 
 
-  res2=0;
+      res2=0;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
