@@ -79,7 +79,7 @@ void convinit(void* unity, uint16_t *workingbuffer){
 
 
 // **TODO: altered for stack with cast of void
-uint16_t runconv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runconv(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 y,tmp;
   struct CONV *unit=unity;
 
@@ -130,7 +130,7 @@ void sineinit(void* unity, uint16_t *workingbuffer){
     }
 }
 
-uint16_t runsine(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runsine(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct siney *unit=unity;
   if (++unit->del==delay){
@@ -159,7 +159,7 @@ void geninit(void* unity, uint16_t *workingbuffer){
   unit->cop=workingbuffer[0]; 
 }
 
-uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runinc(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -176,7 +176,7 @@ uint16_t runinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   return count;
 }
 
-uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t rundec(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -193,7 +193,7 @@ uint16_t rundec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t
   return count;
 }
 
-uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runleft(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -210,7 +210,7 @@ uint16_t runleft(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runright(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -227,7 +227,7 @@ uint16_t runright(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8
   return count;
 }
 
-uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runswap(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -246,7 +246,7 @@ uint16_t runswap(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runnextinc(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -263,7 +263,7 @@ uint16_t runnextinc(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   return count;
 }
 
-uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runnextdec(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -280,7 +280,7 @@ uint16_t runnextdec(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
   return count;
 }
 
-uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runnextmult(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -297,7 +297,7 @@ uint16_t runnextmult(uint16_t count, uint16_t delay, uint16_t *workingbuffer, ui
   return count;
 }
 
-uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runnextdiv(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -315,7 +315,7 @@ uint16_t runnextdiv(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uin
 }
 
 
-uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runcopy(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -332,7 +332,7 @@ uint16_t runcopy(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runzero(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -349,7 +349,7 @@ uint16_t runzero(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runfull(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runfull(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -366,7 +366,7 @@ uint16_t runfull(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runrand(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runrand(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
@@ -384,7 +384,7 @@ uint16_t runrand(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
   return count;
 }
 
-uint16_t runknob(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runknob(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
@@ -405,7 +405,7 @@ uint16_t runknob(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_
 //////////////////////////////////////////////////////////
 // swap datagen 16 bits to and from audio buffer
 
-uint16_t runswapaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runswapaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -428,7 +428,7 @@ uint16_t runswapaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, u
 //////////////////////////////////////////////////////////
 // OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
 
-uint16_t runORaudio(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runORaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
   if (++unit->del==delay){
@@ -560,7 +560,7 @@ void simplesirinit(void* unity, uint16_t *workingbuffer){
   // what else in init?
 }
 
-uint16_t runsimplesir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runsimplesir(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct simpleSIR* unit=unity;
@@ -682,7 +682,7 @@ void seir_Runge_Kutta(struct SEIR* unit)
 }
 
 
-uint16_t runseir(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch,void* unity){
+uint16_t runseir(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch,void* unity){
 
   u8 i=0;
   struct SEIR* unit=unity;
@@ -778,7 +778,7 @@ void sicr_Runge_Kutta(struct SICR* unit)
   return;
 }
 
-uint16_t runsicr(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runsicr(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct SICR* unit=unity;
@@ -833,7 +833,7 @@ void ifsinit(void* unity, uint16_t *workingbuffer){
   }
 }
 
-uint16_t runifs(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runifs(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   float randiom_num;
   u8 iter,i,it,x;
@@ -902,7 +902,7 @@ void rosslerinit(void* unity, uint16_t *workingbuffer) {
   unit->lz0 = 0;
 }
 
-uint16_t runrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runrossler(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   float lx0,ly0,lz0,lx1,ly1,lz1;
   //  float h,a,b,c;
   u8 i=0;
@@ -956,7 +956,7 @@ void secondrosslerinit(void* unity, uint16_t *workingbuffer){
 
   }
 
-uint16_t runsecondrossler(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runsecondrossler(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct secondRossler* unit=unity;
@@ -1055,7 +1055,7 @@ void brusselinit(void* unity, uint16_t *workingbuffer) {
   unit->del=0;
 }
 
-uint16_t runbrussel(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runbrussel(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     
   float dx, dy; 
   
@@ -1105,7 +1105,7 @@ void spruceinit(void *unity, uint16_t *workingbuffer) {
   unit->delta = (float)workingbuffer[6]/65536.0;
 }
 
-uint16_t runspruce(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runspruce(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   float dx, dy; 
   u8 i=0;
@@ -1155,7 +1155,7 @@ void oregoninit(void *unity, uint16_t *workingbuffer) {
 
 }
 
-uint16_t runoregon(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runoregon(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   
   float dx, dy, dz; 
   u8 i=0;
@@ -1206,7 +1206,7 @@ void fitzinit(void *unity, uint16_t *workingbuffer) {
   //    unit->b1=(float)workingbuffer[1]/32768.0;
 }
 
-uint16_t runfitz(uint16_t count, uint16_t delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+uint16_t runfitz(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   /* SETTINGS */
 
@@ -1266,7 +1266,7 @@ void passingarraytest(uint8_t *buffer) {
 
 
 signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos){
-  if (stack_pos<STACK_SIZE)
+  if (stack_pos<(STACK_SIZE-1))
     {
       stack_pos++;
       stack[stack_pos].howmuch=randi()%255;

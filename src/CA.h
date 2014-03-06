@@ -13,8 +13,7 @@ typedef uint16_t u16;
 #define STACK_SIZE 16
 
 struct stackey{
-  u16 (*functione) (uint16_t count, uint16_t delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
-  void (*inite) (void *unity, u8 *workingbuffer);
+  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
   u8 delay,howmuch;
   void* unit;
   };

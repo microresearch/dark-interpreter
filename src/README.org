@@ -65,15 +65,13 @@ USE FLOORF - no doubles ever...
 
 see: http://www.triplespark.net/elec/pdev/arm/stm32.html
 
-- test CAforstack.cDONE and FIXED
+- test CAforstack.c - all delays in this + simulation changed to u8
+
+problem is all +/- in array read/write! DONE?FIXED-check others
 
 NOW: 
 
 - why datagens sound like noise, is adc9 working and how to test?
-
-- is question of delays?
-
-- all stack adds should set delay and howmuch (also accessible)
 
 TODO:
 
