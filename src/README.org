@@ -67,11 +67,11 @@ see: http://www.triplespark.net/elec/pdev/arm/stm32.html
 
 - test CAforstack.c - all delays in this + simulation changed to u8
 
-problem is all +/- in array read/write! DONE?FIXED-check others:
+problem is all +/- in array read/write! DONE?FIXED-check others for code:
 
 cpuintrev2-Xchecked, pureleak-Xchecked, simulationforstack-Xchecked
 
-RE_TEST!
+RE_TESTING: sim-DONE, pureleak-DONE, cpuint-DONE,CA-
 
 NOW: 
 

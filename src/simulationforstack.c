@@ -233,7 +233,7 @@ uint16_t runswap(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+    if (count==(MAX_SAM-1)) count=0;
     temp=workingbuffer[count];
     yy=count+1;
     workingbuffer[count]=workingbuffer[yy];
@@ -252,9 +252,9 @@ uint16_t runnextinc(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t h
   struct generik* unit=unity;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    count++; yy=count+1;
-    if (yy==MAX_SAM) count=0;
-    workingbuffer[count]=workingbuffer[yy]+1;
+    count++; 
+    if ((count+1)==MAX_SAM) count=0;
+    workingbuffer[count]=workingbuffer[count+1]+1;
 #ifdef PCSIM
     printf("%d\n",workingbuffer[count]);
 #endif
@@ -1266,12 +1266,12 @@ void passingarraytest(uint8_t *buffer) {
 #endif
 
 
-signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos){
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos, u8 delay, u8 howmuch){
   if (stack_pos<(STACK_SIZE-1))
     {
       stack_pos++;
-      stack[stack_pos].howmuch=randi()%255;
-      stack[stack_pos].delay=randi()%255;
+      stack[stack_pos].howmuch=howmuch;
+      stack[stack_pos].delay=delay;
       if (stack[stack_pos].howmuch==0) stack[stack_pos].howmuch=1;
       if (stack[stack_pos].delay==0) stack[stack_pos].delay=1;
 

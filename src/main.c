@@ -175,11 +175,15 @@ void main(void)
 	struct stackey stackyyy[STACK_SIZE];
 
 	//simulationforstack:	
-	//	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
+	/*	for (x=0;x<STACK_SIZE;x++){
+	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
+	  }*/
+	
+
 	dohardwareswitch(0,0);
 
 	// CPUintrev2:
-	/*       	 for (x=0; x<100; x++)
+	/*	       	 for (x=0; x<100; x++)
 	   	 {
 	   addr=randi()<<4;
 	   //	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
@@ -188,19 +192,19 @@ void main(void)
 
 	// pureleak:
 
-	/*		for (x=0;x<MAX_FRED;x++){
+	/*for (x=0;x<MAX_FRED;x++){
 	  addr=randi()<<4;
-	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),16,1);
-	  }
-	*/
+	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
+	  }*/
+	
 
 	// CA:
 
-	/*		inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
+	inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
 
-		for (x=0;x<STACK_SIZE;x++){
-		  stack_posy=ca_pushn(stackyyy,8,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		  }*/
+	for (x=0;x<STACK_SIZE;x++){
+	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+	}
 
 
 	 while(1)
@@ -216,25 +220,16 @@ void main(void)
 	   // -->TODO: test simulations DONE
 	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
 
-	   // -->TODO: test push/pop of functions repeatingsDONE
-	   /*	  for (x=0;x<100;x++){
-	   stack_pos=func_pushn(stackyy,FITZY,datagenbuffer,stack_pos);
-	   }
-	   //	  signed char func_pop(struct stackey stack[STACK_SIZE], signed char stack_pos){
-	   for (x=0;x<100;x++){
-	   stack_pos=func_pop(stackyy,stack_pos);
-	   }*/
-
 	   // test cpuintrev2.cDONE
 	   //	   	   machine_run(m);
 
 	   // TODO: test pureleak.c, DONE
 
-	   //machine_runnn(datagenbuffer);DONE
+	   //   machine_runnn(datagenbuffer);
 
 	   // TODO: test CAforstack.c
 
-	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
+	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
 
 
 #else
