@@ -59,11 +59,23 @@ up to limit
 
 * THU 6 MAR+THIS WEEK
 
+- why floor/division crashes in pureleak and cpuintrev - cpu 16/hodgeFIXED
+
+USE FLOORF - no doubles ever...
+
+see: http://www.triplespark.net/elec/pdev/arm/stm32.html
+
+NOW: 
+
+- why datagens sound like noise, is adc9 working and how to test?
+
+- test CAforstack.c
+
 TODO:
 
 5-test all datagen/hardware flags with simple datagen running 
 
-6-test clocks and unhanging?->needs code to finish it?
+6-test clocks and unhanging?->needs code to finish it//all TODO code
 
 7-[construct/test simple board]
 
@@ -80,9 +92,8 @@ TODO:
 CPU: slowed down by leak, mutate etc. to check. otherwise WORKING I
 think once we init datagenbuffer
 
-PURELEAK: fixing number of threads as buffer0, crashes! 
-
-CA:
+PURELEAK: fixing number of threads as buffer0, crashes in
+cpu==16-floor-hardtofixDONEfloorf!
 
 ////
 

@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 #include "CPUint.h"
 #define randi() rand()
 #else
@@ -136,7 +136,7 @@ void dircalc(u16 *mmm, u16 wrapper,u16 liner){
 void thread_run(thread* this, machine *m) {
   u8 instr,temp;
   u16 y;
-  u8 flag,other;
+  u8 flag,other=0;// float other=0.0f;
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
@@ -149,7 +149,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-        printf("%c",machine_peek(m,this->m_pc));
+    //       printf("%c",machine_peek(m,this->m_pc));
 
 #endif
     //    this->m_CPU=5;
@@ -1111,22 +1111,32 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       flag=temp=0;
       temp=machine_p88k(m,this->m_pc)+machine_p88k(m,this->m_pc-1)+machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc-256)+machine_p88k(m,this->m_pc+256)+machine_p88k(m,this->m_pc-255)+machine_p88k(m,this->m_pc-257)+machine_p88k(m,this->m_pc+255)+machine_p88k(m,this->m_pc+257);
 
-      if (machine_p88k(m,this->m_pc-1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc+1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc-256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc+256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc-255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc-257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc+255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
-      if (machine_p88k(m,this->m_pc+257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other++;
+      if (machine_p88k(m,this->m_pc-1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-1)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc+1)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc+1)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc-256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-256)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc+256)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc+256)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc-255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-255)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc-257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc-257)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc+255)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc+255)>0) other+=1.0;
+      if (machine_p88k(m,this->m_pc+257)==machine_p88k(m,0)-1) flag++; else if (machine_p88k(m,this->m_pc+257)>0) other+=1.0;
 
       y=this->m_pc+32768;
       if (y<4) y=4;
 
-  if(machine_p88k(m,this->m_pc) == 0)
-    machine_poke(m,this->m_pc,floor(other / (machine_p88k(m,1)+1)) + floor(flag/(machine_p88k(m,2)+1)));
-  else if(machine_p88k(m,this->m_pc) < machine_p88k(m,0)-1)
-    machine_poke(m,y,floor(temp / (other + 1)) + machine_p88k(m,3));
+      //      y=floor((double)other / (double)(machine_p88k(m,1)>>4));
+      //      printf("floor: %d other: %d peek: %d\n",y,other,machine_p88k(m,2));
+
+      //      printf("peek: %d\n",machine_p88k(m,2));
+
+
+      if(machine_p88k(m,this->m_pc) == 0){
+	u8 zx=floorf(other / ((machine_p88k(m,1)>>4)+1)) + floorf(flag/((machine_p88k(m,2)>>4)+1));
+	    machine_poke(m,this->m_pc,zx);
+      }
+      else if(machine_p88k(m,this->m_pc) < machine_p88k(m,0)-1){
+	u8 zx=floorf(temp / (other + 1)) + machine_p88k(m,3);
+	machine_poke(m,this->m_pc,zx);
+      }
   else
     machine_poke(m,y,0);
 
@@ -1528,8 +1538,9 @@ int main(void)
   int x; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
-  for (x=0;x<65536;x++){
+  for (x=0;x<65535;x++){
     buffer[x]=randi()%255;
+    //    printf("%d\n",buffer[x]);
   }
 
 
@@ -1557,8 +1568,8 @@ int main(void)
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
-	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  //	  cpustackpush(m,addr,addr+randi()%65536,26,randi()%255);
+	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
+	  	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
 	}
 
 	while(1) {

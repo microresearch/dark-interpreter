@@ -1317,11 +1317,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       y=addr+32768;
       if (y<4) y=4;
 
-      if(machine_p88kkk(buffer,addr) == 0 && (machine_p88kkk(buffer,1)+1)!=0) 
-	//machine_pokeee(buffer,addr,floor(other / (machine_p88kkk(buffer,1)+1)) + floor(flag/(machine_p88kkk(buffer,2)+1)));
-	y=0;
+      if(machine_p88kkk(buffer,addr) == 0)// && (machine_p88kkk(buffer,1)+1)!=0) 
+	machine_pokeee(buffer,addr,floorf(other / (machine_p88kkk(buffer,1)>>4)) + floorf(flag/(machine_p88kkk(buffer,2)>>4)));
       else if(machine_p88kkk(buffer,addr) < machine_p88kkk(buffer,0)-1){
-	//	machine_pokeee(buffer,y,floor(temprr / (other + 1)) + machine_p88kkk(buffer,3));
+	machine_pokeee(buffer,y,floorf(temprr / (other + 1)) + machine_p88kkk(buffer,3));
 	//	printf("hell: %d %d %d %d %d\n", y,temprr, other, temprr / (other + 1), machine_p88kkk(buffer,3));
 
       }

@@ -176,16 +176,17 @@ void main(void)
 	//	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
 	dohardwareswitch(0,0);
 
-	/*	 for (x=0; x<100; x++)
-	 {
+	/*       	 for (x=0; x<100; x++)
+	   	 {
 	   addr=randi()<<4;
-	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	   //	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	   cpustackpush(m,addr,addr+(randi()<<4),16,1);//randi()%255);
 	   }*/
 
-	for (x=0;x<MAX_FRED;x++){
+		for (x=0;x<MAX_FRED;x++){
 	  addr=randi()<<4;
-	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
-	}
+	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),16,1);
+	  }
 
 
 
@@ -212,11 +213,11 @@ void main(void)
 	   }*/
 
 	   // test cpuintrev2.cDONE
-	   //	   machine_run(m);
+	   //	   	   machine_run(m);
 
 	   // TODO: test pureleak.c, 
 
-	      	   machine_runnn(datagenbuffer);
+	   //machine_runnn(datagenbuffer);
 
 	   // TODO: test CAforstack.c
 
