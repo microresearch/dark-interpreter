@@ -65,11 +65,15 @@ USE FLOORF - no doubles ever...
 
 see: http://www.triplespark.net/elec/pdev/arm/stm32.html
 
+- test CAforstack.cDONE and FIXED
+
 NOW: 
 
 - why datagens sound like noise, is adc9 working and how to test?
 
-- test CAforstack.c
+- is question of delays?
+
+- all stack adds should set delay and howmuch (also accessible)
 
 TODO:
 

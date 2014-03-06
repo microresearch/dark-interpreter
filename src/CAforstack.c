@@ -48,7 +48,6 @@ void hodgeinit(void* unity, u8* cells){
 
 uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void*  unity){
 
-
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i=0;
   struct hodge *unit=unity;
@@ -68,9 +67,9 @@ uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
 
     y=x+32768;
   if(cells[x] == 0)
-    cells[y] = floor(numinf / unit->k1) + floor(numill / unit->k2);
+    cells[y] = floorf(numinf / unit->k1) + floorf(numill / unit->k2);
   else if(cells[x] < unit->q - 1)
-    cells[y] = floor(sum / (numinf + 1)) + unit->g;
+    cells[y] = floorf(sum / (numinf + 1)) + unit->g;
   else
     cells[y] = 0;
 
@@ -79,7 +78,7 @@ uint16_t runhodge(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
 
   x++;
 #ifdef PCSIM  
-  printf("%c",cells[x]);
+  printf("%c",cells[y]);
 #endif
   }
   unit->del=0;
@@ -126,9 +125,9 @@ uint16_t runhodgenet(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, voi
   sum+=cells[place];
     y=x+32768;
   if(cells[x] == 0)
-    cells[y] = floor(numinf / unit->k1) + floor(numill / unit->k2);
+    cells[y] = floorf(numinf / unit->k1) + floorf(numill / unit->k2);
   else if(cells[x] < unit->q)
-    cells[y] = floor(sum / (numinf + 1)) + unit->g;
+    cells[y] = floorf(sum / (numinf + 1)) + unit->g;
   else
     cells[y] = 0;
 
@@ -233,9 +232,9 @@ void inittable(u8 r, u8 k, int rule){
   table= (u8 *)malloc(max+1);
   for (z=max;z>=0;z--){
     summ=0;
-    while ((rule-pow(k,z))>=0) {
+    while ((rule-powf(k,z))>=0) {
       summ++;
-      rule=rule-pow(k,z);
+      rule=rule-powf(k,z);
     }
     if (summ>=1) {
       table[z]=summ;
@@ -599,12 +598,12 @@ uint16_t runSIR16(uint16_t x, uint16_t delay, u8 *cells, uint8_t howmuch, void* 
 //////////////////////////////////////////
 
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy){
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy, u8 delay, u8 howmuch){
   if (stack_posy<STACK_SIZE-1)
     {
       ++stack_posy;
-      stack[stack_posy].howmuch=randi()%255;
-      stack[stack_posy].delay=randi()%255;
+      stack[stack_posy].howmuch=howmuch;
+      stack[stack_posy].delay=delay;
 
       switch(typerr){
       case HODGEY:
@@ -695,7 +694,7 @@ int main(void)
   inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
   for (x=0;x<STACK_SIZE;x++){
-    ca_pushn(stack,randi()%NUM_FUNCS,buffer, stack_posy);
+    ca_pushn(stack,1,buffer, stack_posy,1,10); // last as delay,howmany
     //    ca_pushn(stack,1,buffer);
   }
 

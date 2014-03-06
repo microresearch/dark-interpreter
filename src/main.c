@@ -116,6 +116,7 @@ void main(void)
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
   u16 x,addr,tmp,oldhardware,hardware; 
+  signed char stack_posy=-1;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -164,18 +165,20 @@ void main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  /*    for (x=0;x<65535;x++){
-        datagenbuffer[x]=randi()%255;
+  /*      for (x=0;x<65535;x++){
+        datagenbuffer[x]=x;
 	}*/
 
 	// CA and simulation - TESTING
 	signed char stack_pos=-1;
 	struct stackey stackyy[STACK_SIZE];
+	struct stackey stack[STACK_SIZE];
 
-	//simulation:	
+	//simulationforstack:	
 	//	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
 	dohardwareswitch(0,0);
 
+	// CPUintrev2:
 	/*       	 for (x=0; x<100; x++)
 	   	 {
 	   addr=randi()<<4;
@@ -183,11 +186,21 @@ void main(void)
 	   cpustackpush(m,addr,addr+(randi()<<4),16,1);//randi()%255);
 	   }*/
 
-		for (x=0;x<MAX_FRED;x++){
+	// pureleak:
+
+	/*		for (x=0;x<MAX_FRED;x++){
 	  addr=randi()<<4;
 	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),16,1);
 	  }
+	*/
 
+	// CA:
+
+		inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
+
+		for (x=0;x<STACK_SIZE;x++){
+		  ca_pushn(stack,0,datagenbuffer, stack_posy,1,10); // delay,howmany);
+		}
 
 
 	 while(1)
@@ -221,6 +234,7 @@ void main(void)
 
 	   // TODO: test CAforstack.c
 
+	   ca_runall(stack,datagenbuffer,stack_posy);
 
 
 #else

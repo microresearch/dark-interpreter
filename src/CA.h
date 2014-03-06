@@ -4,8 +4,11 @@
 #include "stdlib.h"
 #endif
 
+//#include "simulation.h"
+
 typedef unsigned char u8;
 typedef uint16_t u16;
+
 
 #define STACK_SIZE 16
 
@@ -14,7 +17,7 @@ struct stackey{
   void (*inite) (void *unity, u8 *workingbuffer);
   u8 delay,howmuch;
   void* unit;
-};
+  };
 
 struct hodge{
   u8 q,k1,k2,g,celllen;
@@ -42,6 +45,6 @@ struct SIR16{
   u8 probM,probR,probC,probV;
 };
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy);
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy,u8 delay, u8 howmuch);
 void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, signed char stack_posy);
 signed char ca_pop(struct stackey stack[STACK_SIZE], signed char stack_posy);
