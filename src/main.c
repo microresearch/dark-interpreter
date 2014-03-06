@@ -164,23 +164,29 @@ void main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-    for (x=0;x<65535;x++){
+  /*    for (x=0;x<65535;x++){
         datagenbuffer[x]=randi()%255;
-    }
+	}*/
 
 	// CA and simulation - TESTING
 	signed char stack_pos=-1;
 	struct stackey stackyy[STACK_SIZE];
 
 	//simulation:	
-	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
+	//	stack_pos=func_pushn(stackyy,SINEY,datagenbuffer,stack_pos);
 	dohardwareswitch(0,0);
 
-	 for (x=0; x<100; x++)
+	/*	 for (x=0; x<100; x++)
 	 {
 	   addr=randi()<<4;
 	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-	 }
+	   }*/
+
+	for (x=0;x<MAX_FRED;x++){
+	  addr=randi()<<4;
+	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
+	}
+
 
 
 	 while(1)
@@ -205,8 +211,14 @@ void main(void)
 	   stack_pos=func_pop(stackyy,stack_pos);
 	   }*/
 
-	   // test cpuintrev2.c
-	   machine_run(m);
+	   // test cpuintrev2.cDONE
+	   //	   machine_run(m);
+
+	   // TODO: test pureleak.c, 
+
+	      	   machine_runnn(datagenbuffer);
+
+	   // TODO: test CAforstack.c
 
 
 

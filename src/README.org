@@ -57,17 +57,40 @@ up to limit
   working in CPUint.cDONE 
 
 
+* THU 6 MAR+THIS WEEK
+
+TODO:
+
+5-test all datagen/hardware flags with simple datagen running 
+
+6-test clocks and unhanging?->needs code to finish it?
+
+7-[construct/test simple board]
+
+8-hard tests on all hard-specific
+
+9-wrap all code/cleanup
+
 * WED 5 MAR
 
 TODO: 
 
-- test CA, pureleak, cpu == all datagens
+- test cpu, pureleak, CA == all datagens
+
+CPU: slowed down by leak, mutate etc. to check. otherwise WORKING I
+think once we init datagenbuffer
+
+PURELEAK: fixing number of threads as buffer0, crashes! 
+
+CA:
+
+////
 
 - test  bulk malloc/frees/allocations,DONE
 
 ////
 
-- sampling rate changers as array DONE but bit flakey and is in i2s.c!
+- sampling rate changers as array DONE but bit flakey and is in i2s.c! RETEST
 
 - speed knob: wrap whole main in speed loop, what other speeds?
 

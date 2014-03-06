@@ -21,9 +21,6 @@ u8 wormdir; // worm direction
 extern u8 wormdir;
 #endif
 
-#define MAX_FRED 60
-#define max_cpus 31
-
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -45,22 +42,20 @@ Based in part on spork factory by Dave Griffiths.
 
 */
 
-#define CPU_TOTAL 31
-
 #define CPU buffer[offset]
-#define DELAY buffer[offset+1]
-#define DELC buffer[offset+2]
-#define ADDRHI buffer[offset+3]
-#define ADDRLO buffer[offset+4]
-#define WRAPADDRHI buffer[offset+5]
-#define WRAPADDRLO buffer[offset+6]
-#define PCADDRHI buffer[offset+7]
-#define PCADDRLO buffer[offset+8]
-#define BITADDRHI buffer[offset+9]
-#define BITADDRLO buffer[offset+10]
-#define BIT81 buffer[offset+11]
-#define BIT82 buffer[offset+12]
-#define STACK buffer[offset+13]
+#define DELAY buffer[delay]
+#define DELC buffer[delc]
+#define ADDRHI buffer[addrhi]
+#define ADDRLO buffer[addrlo]
+#define WRAPADDRHI buffer[wrapaddrhi]
+#define WRAPADDRLO buffer[wrapaddrlo]
+#define PCADDRHI buffer[pcaddrhi]
+#define PCADDRLO buffer[pcaddrlo]
+#define BITADDRHI buffer[bitaddrhi]
+#define BITADDRLO buffer[bitaddrlo]
+#define BIT81 buffer[bit81]
+#define BIT82 buffer[bit82]
+#define STACK buffer[stack]
 
 u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   u8 n;
@@ -88,20 +83,28 @@ void thread_runnn(u8* buffer, u8 threadcount);
 
 void machine_runnn(u8* buffer){
   u8 x; 
-  for (x=0;x<(MAX_FRED*2);x+=2){ // TODO** - or how many threads we do have?
+  for (x=0;x<buffer[0];x+=2){ // TODO** - or how many threads we do have? = buffer[0]???
   thread_runnn(buffer,x);
  }
 }
 
 void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
-  static u16 offset=(MAX_FRED*2); static u16 x=0;
-  buffer[x++]=offset;
-  offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
+  static u16 offset=MAX_FRED+1; static u8 x=0;
+  buffer[0]=x;
+  buffer[x++]=offset>>8; // but offset can be over 255 - so top bit
+  buffer[x++]=offset&255; // lower bit
+  offset=thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
 }
 
 
+void cpustackpoppp(u8 *buffer){
+  buffer[0]--;
+  }
+
+
 u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) { 
-  return c<=STACK; // but now we start at 0
+  offset+=13;
+  return c<=buffer[offset]; // but now we start at 0
 }
 
 u8 antrule(u8 dir,u8 inst, u8 rule);
@@ -119,17 +122,21 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
 #endif
 
 void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
-	if (STACK<30)
+  u16 offsetty=offset+13;
+	if (buffer[offsetty]<30)
 	{
-	  buffer[(++STACK)+offset]=data;
+	  u16 orf=(++buffer[offsetty])+offset;
+	  buffer[orf]=data;
 	}
 }
 
 u8 thread_poppp(u8* buffer, u16 offset) {
- 	if (STACK>=1)
+  u16 offsetty=offset+13;
+ 	if (buffer[offsetty]>=1)
 	{
-		u8 ret=buffer[offset+STACK];
-		STACK--;
+	  u16 orf=offset+buffer[offsetty];
+		u8 ret=buffer[orf];
+		buffer[offsetty]--;
 		return ret;
 	}
 	//    printf("errorr\n");
@@ -137,9 +144,11 @@ u8 thread_poppp(u8* buffer, u16 offset) {
 }
 
 u8 thread_toppp(u8 *buffer, u16 offset) {
-	if (STACK>=1)
+  u16 offsetty=offset+13;
+	if (buffer[offsetty]>=1)
 	{
-		return buffer[offset+STACK];
+	  u16 orf=offset+buffer[offsetty];
+	  return buffer[orf];
 	}
 	return 0;
 }
@@ -147,21 +156,36 @@ u8 thread_toppp(u8 *buffer, u16 offset) {
 
 void thread_runnn(u8* buffer, u8 threadnum) {
   u8 instr,temp;
-  u16 y,addr;
-  u8 flag,other;
-  u16 offset=(buffer[threadnum]<<8)+buffer[threadnum+1];
-  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
+  u16 y,addr,temprr;
+  u8 flag; u16 other=0;
+  u16 offset=(buffer[threadnum]<<8)+buffer[threadnum+1]; 
+  u16 delay=offset+1;
+  u16 delc=offset+2;
+  u16 addrhi=offset+3;
+  u16 addrlo=offset+4;
+  u16 wrapaddrhi=offset+5;
+  u16 wrapaddrlo=offset+6;
+  u16 pcaddrhi=offset+7;
+  u16 pcaddrlo=offset+8;
+  u16 bitaddrhi=offset+9;
+  u16 bitaddrlo=offset+10;
+  u16 bit81=offset+11;
+  u16 bit82=offset+12;
+  u16 stack=offset+13;
+
+
+  const u8 deltastate[16] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
   //  printf("running: %d ",this->m_start);
   //  sleep(1);
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-  //    CPU=0;
+    CPU=16; //16=crash
   if (++DELC==DELAY){
 #ifdef PCSIM
     //          printf("CPU: %d\n",CPU);
-        printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
+    //        printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
 #endif
 
   switch(CPU%max_cpus)
@@ -403,14 +427,21 @@ break;
 	  BIT81+=2;
 	  if (BIT81>=14) BIT81=0;
 	  //buffer[offset+STACK]
-	  buffer[offset+STACK+BIT81]= addr>>8;
-	  buffer[offset+STACK+BIT81+1]= addr&255;
+	  offset+=STACK+BIT81;
+	  buffer[offset]= addr>>8;
+	  offset+=1;
+	  buffer[offset]= addr&255;
 	  addr++;
 	  break;
 	case 5:
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  if (BIT81>=14) BIT81=0;
-	  if (machine_p88kkk(buffer,y)!=0) addr=buffer[offset+STACK+BIT81]<<8+buffer[offset+STACK+BIT81+1];
+	  if (machine_p88kkk(buffer,y)!=0) {
+	    offset+=STACK+BIT81;
+	    addr=buffer[offset]<<8;
+	    offset+=1;
+	    addr+=buffer[offset];
+	  }
 	  BIT81-=2;
 	  if (BIT81==0) BIT81=14;
 	  break;
@@ -1271,8 +1302,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // numill and numinf
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
-      flag=temp=0;
-      temp=machine_p88kkk(buffer,addr)+machine_p88kkk(buffer,addr-1)+machine_p88kkk(buffer,addr+1)+machine_p88kkk(buffer,addr-256)+machine_p88kkk(buffer,addr+256)+machine_p88kkk(buffer,addr-255)+machine_p88kkk(buffer,addr-257)+machine_p88kkk(buffer,addr+255)+machine_p88kkk(buffer,addr+257);
+      flag=0;
+      temprr=machine_p88kkk(buffer,addr)+machine_p88kkk(buffer,addr-1)+machine_p88kkk(buffer,addr+1)+machine_p88kkk(buffer,addr-256)+machine_p88kkk(buffer,addr+256)+machine_p88kkk(buffer,addr-255)+machine_p88kkk(buffer,addr-257)+machine_p88kkk(buffer,addr+255)+machine_p88kkk(buffer,addr+257);
 
       if (machine_p88kkk(buffer,addr-1)==machine_p88kkk(buffer,0)-1) flag++; else if (machine_p88kkk(buffer,addr-1)>0) other++;
       if (machine_p88kkk(buffer,addr+1)==machine_p88kkk(buffer,0)-1) flag++; else if (machine_p88kkk(buffer,addr-1)>0) other++;
@@ -1286,12 +1317,16 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       y=addr+32768;
       if (y<4) y=4;
 
-  if(machine_p88kkk(buffer,addr) == 0)
-    machine_pokeee(buffer,addr,floor(other / (machine_p88kkk(buffer,1)+1)) + floor(flag/(machine_p88kkk(buffer,2)+1)));
-  else if(machine_p88kkk(buffer,addr) < machine_p88kkk(buffer,0)-1)
-    machine_pokeee(buffer,y,floor(temp / (other + 1)) + machine_p88kkk(buffer,3));
+      if(machine_p88kkk(buffer,addr) == 0 && (machine_p88kkk(buffer,1)+1)!=0) 
+	//machine_pokeee(buffer,addr,floor(other / (machine_p88kkk(buffer,1)+1)) + floor(flag/(machine_p88kkk(buffer,2)+1)));
+	y=0;
+      else if(machine_p88kkk(buffer,addr) < machine_p88kkk(buffer,0)-1){
+	//	machine_pokeee(buffer,y,floor(temprr / (other + 1)) + machine_p88kkk(buffer,3));
+	//	printf("hell: %d %d %d %d %d\n", y,temprr, other, temprr / (other + 1), machine_p88kkk(buffer,3));
+
+      }
   else
-    machine_pokeee(buffer,y,0);
+  machine_pokeee(buffer,y,0);
 
   if(machine_p88kkk(buffer,addr) > machine_p88kkk(buffer,0)-1)
     machine_pokeee(buffer,y,machine_p88kkk(buffer,0)-1);
@@ -1550,7 +1585,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
 u16 machine_peekkk(u8* buffer, uint16_t addr) {
   //	return buffer->m_heap[addr%HEAP_SIZE];
-  return (buffer[addr]<<8)+buffer[addr+1];
+  u16 addr2=addr+1;
+  return (buffer[addr]<<8)+buffer[addr2];
 }
 
 u8 machine_p88kkk(u8* buffer, uint16_t addr) {
@@ -1579,19 +1615,11 @@ int main(void)
   }
 
   //   u16 threads[MAX_FRED];// or this is also in the buffer! DONE
-  u8 flag,other;
-  u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
-			6, 11, 5, 13};	/* change in state indexed by color */
-  u16 biotadir[8]={65280,65281,1,257,256,255,65535,65279}; //65536
 
   // inc threadcount, array of offsets
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
-    //    offset=thread_createee(buffer, addr, addr+randi()%65536,randi()%31,randi()%255,offset);
-  //  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
-    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,randi()%255);
-
-    //u16 thread_create(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
+    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,(randi()%10)+1);
   }
    
   while(1) {

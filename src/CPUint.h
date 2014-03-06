@@ -8,6 +8,9 @@ typedef unsigned char u8;
 typedef uint16_t u16;
 
 #define DATA_BUFSZ 65535
+
+#define MAX_FRED 60
+#define max_cpus 31
     
 #define STACK_SIZE 16
 #define MAX_THREADS 120
@@ -83,5 +86,12 @@ void machine_run(machine *t);
 void infectcpu(machine *m, u8 probI, u8 probD, u8 infected);    
 void mutate(machine *m, u8 which, u8 identifier);
 void write_mem(machine *m, int *a, u16 len);
+
+void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay);
+void cpustackpop(machine *this);
+
+void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy);
+void machine_runnn(u8* buffer);
+void cpustackpoppp(u8 *buffer);
 
 const char *byte_to_binary(int x);
