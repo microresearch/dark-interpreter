@@ -332,13 +332,13 @@ void thread_run(thread* this, machine *m) {
 	case 4:
 	  this->m_reg8bit2+=2;
 	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
-	  this->m_stack[this->m_reg8bit2]= this->m_pc>>8;
-	  this->m_stack[this->m_reg8bit2+1]= this->m_pc&255;
+	  this->m_stack[this->m_reg8bit2%STACK_SIZE]= this->m_pc>>8;
+	  this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]= this->m_pc&255;
 	  this->m_pc++;
 	  break;
 	case 5:
 	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
-	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=(this->m_stack[this->m_reg8bit2])<<8+((this->m_stack[this->m_reg8bit2+1]));
+	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=(this->m_stack[this->m_reg8bit2%STACK_SIZE])<<8+((this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]));
 	  this->m_reg8bit2-=2;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
@@ -684,7 +684,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,(u16)m->m_memory[this->m_pc+1],(u16)m->m_memory[this->m_pc+2],6,this->m_del);
+	cpustackpush(m,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
 	break;
       case 27:
 	this->m_pc+=3;
@@ -1374,7 +1374,9 @@ void machine_create(machine *this, uint8_t *buffer) {
 
 u16 machine_peek(const machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
-  return (this->m_memory[addr]<<8)+this->m_memory[addr+1];
+  u16 y;
+  y=addr+1;
+  return (this->m_memory[addr]<<8)+this->m_memory[y];
 }
 
 u8 machine_p88k(const machine* this, uint16_t addr) {
@@ -1524,10 +1526,11 @@ void killcpu(machine *m, u8 killed){
   //  cpustackpop(m);
   //  thread *this=&m->m_threads[which];
   //this->m_threads[this->m_threadcount]
+  if (killed<m->m_threadcount){
   for (x=killed;x<m->m_threadcount-1;x++){
     m->m_threads[x]=m->m_threads[x+1];
   }
-  m->m_threadcount--;
+  m->m_threadcount--;}
 }
 
 

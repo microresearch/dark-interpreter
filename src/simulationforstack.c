@@ -200,7 +200,7 @@ uint16_t runleft(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
-    workingbuffer[count+(u16)i]=workingbuffer[count]<<=1;
+    workingbuffer[count]=workingbuffer[count]<<=1;
 #ifdef PCSIM
     printf("%d %d\n",count,workingbuffer[count]);
 #endif
@@ -228,15 +228,16 @@ uint16_t runright(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t how
 }
 
 uint16_t runswap(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
-  u8 i=0; u16 temp;
+  u8 i=0; u16 temp,yy;
   struct generik* unit=unity;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
     temp=workingbuffer[count];
-    workingbuffer[count]=workingbuffer[count+1];
-    workingbuffer[count+1]=temp;
+    yy=count+1;
+    workingbuffer[count]=workingbuffer[yy];
+    workingbuffer[yy]=temp;
 #ifdef PCSIM
     printf("%d\n",workingbuffer[count]);
 #endif
@@ -247,13 +248,13 @@ uint16_t runswap(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
 }
 
 uint16_t runnextinc(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
-  u8 i=0;
+  u8 i=0; u16 yy;
   struct generik* unit=unity;
   if (++unit->del==delay){
   for (i=0; i<howmuch; i++) {
-    count++;
-    if ((count+1)==MAX_SAM) count=0;
-    workingbuffer[count]=workingbuffer[count+1]+1;
+    count++; yy=count+1;
+    if (yy==MAX_SAM) count=0;
+    workingbuffer[count]=workingbuffer[yy]+1;
 #ifdef PCSIM
     printf("%d\n",workingbuffer[count]);
 #endif
