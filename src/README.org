@@ -67,19 +67,30 @@ TODO: FRI:
 - re-test datagens: cpu (pc, ARM) -> cpuint we put in wrap
   (could also be as a flag so that wrap/unwrap for whole buffer)...
 
-and pureleak: lots of fixes,
+and pureleak: lots of fixesDONE
 
-- what was slowdown in mutate etc/cpurev?
+- what was slowdown in mutate etc/cpurev? in leak FIXED but still
+  cpuint doesn't sound as good as on PC
 
-5-test all datagen/hardware flags with datagen running
+[- question again of randi() as adc???]
 
-6-test clocks and unhanging?->needs code to finish it
+6-test clocks and unhanging?->needs code to finish it - coded but
+needs TESTING (whether re-hang is working with just re-attach...
 
-SAT:
+reset_clocks function in hardware.c
+
+///
+
+5-test all datagen/hardware flags with datagen running _ NEXT WEEK,,,
+seems OKAY so far!
+
+MON:
 
 7-[construct/test simple board]
 
-[8-hard tests on all hard-specific????9-wrap all code/cleanup]
+[8-hard tests on all hard-specific????]
+
+9-cleanups/all TODOs in each file
 
 -> into buffer/complexity/speed code/knobs
 

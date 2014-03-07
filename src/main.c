@@ -184,20 +184,22 @@ void main(void)
 	dohardwareswitch(0,0);
 
 	// CPUintrev2:
-	/*	for (x=0; x<100; x++)
+		for (x=0; x<10; x++)
 	   	 {
+		   //		   addr=rand()%65536;
 		   addr=randi()<<4;
-		   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-		   }*/
+		   //		   addr=x*655;
+		   cpustackpush(m,addr,addr+randi()<<4,randi()%31,1);//randi()%255);
+		   }
 
 	// pureleak:
 
-	for (x=0;x<MAX_FRED;x++){
+	/*	for (x=0;x<MAX_FRED;x++){
 	  addr=randi()<<4;
 	  //	  addr=x*1000;
 	  //	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
 	  cpustackpushhh(datagenbuffer,addr,addr+1000,randi()%31,1);
-	  }
+	  }*/
 	// CA:
 
 	/*	inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
@@ -221,11 +223,11 @@ void main(void)
 	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
-	   //	   machine_run(m);
+	   	   machine_run(m);
 
 	   // TODO: test pureleak.c, DONE
 
-	      machine_runnn(datagenbuffer);
+	   //	      machine_runnn(datagenbuffer);
 
 	   // TODO: test CAforstack.c
 
@@ -253,10 +255,16 @@ void main(void)
 	  // complexity??? 	  // generic speed and samplerate - adc_buffer[4]
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
+	   // -->TODO: test simulations DONE
+	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
+
+	   // test cpuintrev2.cDONE
+	   	   machine_run(m);
+		  
 #ifndef LACH
-	  // 4-hardware operations->
+		   // 4-hardware operations->
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
-	  if (digfilterflag&16){ // if we use hdgen at all
+		   if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
@@ -270,10 +278,10 @@ void main(void)
 	  else
 	    {
 	    hardware=adc_buffer[2]>>5;
-	    if (hardware!=oldhardware) dohardwareswitch(hardware>>5,0);
+	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	    oldhardware=hardware;
 	    }
-
+		   
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
 	  if (digfilterflag&2){
 	    if (++f0106er->del==f0106er->speed){
@@ -285,7 +293,7 @@ void main(void)
 	      f0106er->del=0;
 	    }
 	  }
-
+	  
 	  if (digfilterflag&4){
 	    if (++lmer->del==lmer->speed){
 	    //lmer - set lmpwm
@@ -299,7 +307,7 @@ void main(void)
 	    }
 
 	  }
-
+	  
 	  if (digfilterflag&8){
 	    //maximer - setmaximpwm - just one
 	    if (++maximer->del==maximer->speed){
@@ -311,7 +319,7 @@ void main(void)
 
 	      maximer->del=0;
 	    }
-	  }
+	    }
 #endif
 #endif
 	}

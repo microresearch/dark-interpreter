@@ -119,6 +119,7 @@ all clocks set in datagens/elsewhere
 */
 
 void reset_switches(void);
+void reset_clocks(void);
 
 void dohardwareswitch(uint16_t modder, u8 hdgen){
   uint16_t res,res2;
@@ -149,6 +150,11 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
     reset_switches();
   }
 
+  if (res!=1 && clockhangflag==1){
+    clockhangflag=0;
+    reset_clocks();
+  }
+
   //#ifdef TEST_STRAIGHT
   //  res=2;
   //  res2=0; // testing now!
@@ -164,7 +170,7 @@ RES: feedback on/off - jackin-> - lm358in->
   */
 
 
-  //   res=2; // test
+  //     res=2; // test
 
     //    res=3;
   switch(res){
@@ -172,32 +178,38 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRL = (1<<8); // BSRRL sets BIT!
    GPIOC->BSRRH = (1<<13); //
-   clockhangflag=0;
    break;
  case 1:
    /*   GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRL = (1<<8); 
    GPIOC->BSRRH = (1<<13); // irrelevant */ 
 
-   // **TODO! 
+   // **TODO - TEST
    // add unhang for clocks? 
+   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+   GPIO_InitStructure.GPIO_Mode = 0x04;
+   GPIO_Init(GPIOA, &GPIO_InitStructure);
+   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+   GPIO_Init(GPIOB, &GPIO_InitStructure);
+   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+   GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+   GPIO_Init(GPIOC, &GPIO_InitStructure);
    clockhangflag=1;
    break;
  case 2:
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
-   clockhangflag=0;
    break;
  case 3:
    GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
-   clockhangflag=0;
  }
 
 
-  //    res2=0;
+  //  res2=0;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -386,6 +398,12 @@ void switch_jack(void)
   GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
   //  GPIOC->ODR |= (1<<10);
 
+
+}
+
+void reset_clocks(void)
+{
+  GPIO_InitTypeDef  GPIO_InitStructure;
 
 }
 

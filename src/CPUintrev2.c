@@ -1416,18 +1416,18 @@ void machine_run(machine* this) {
   //  if (threadcount>this->m_threadcount) {
   //    threadcount=0;
 
-    // slowing all down these 3????
-    /*	if ((randi()%this->m_leakiness)==0) {
+    // slowing all down these 3????not so bad could run less frequenctly!TODO***
+        	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
-  	}
+		}
 	
-	if ((randi()%this->m_infectprob)==0) {
+		if ((randi()%this->m_infectprob)==0) {
 	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
 	}
-	
+		
 	if ((randi()%this->m_mutateprob)==0) {
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
-	  }*/
+	  }
   //	}
 
   	for (unsigned char n=0; n<this->m_threadcount; n++) {
@@ -1444,10 +1444,8 @@ void write_mem(machine *m, int *a, uint16_t len) {
 void leak(machine *m){
   // leak bottom of stack x into top y
   unsigned char x=1, y=1, count;
-    while (x==y){ 
   x=randi()%m->m_threadcount;
-  y=randi()%m->m_threadcount;
-    }
+  y=(x-1)%m->m_threadcount;
 
   thread *xx=&m->m_threads[x];
   thread *yy=&m->m_threads[y];
@@ -1591,7 +1589,7 @@ int main(void)
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  cpustackpush(m,addr,addr+randi()%65536,6,1);
+	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
 	}
 	x=0;
 	while(1) {
