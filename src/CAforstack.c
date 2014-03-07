@@ -30,7 +30,7 @@ extern __IO uint16_t adc_buffer[10];
 #define SIRY 7
 #define SIR16Y 8
 
-#define NUM_FUNCS 9
+#define NUM_CA 9
 
 //////////////////////////////////////////
 
@@ -826,8 +826,6 @@ int main(void)
   /*       while(1){
 	 ca_runall(stack,buffer,stack_posy);
 	 }*/
-  x=0;
-  printf("test %d %d", x-10,buffer[x-10]);
 
 }
 #endif

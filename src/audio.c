@@ -22,7 +22,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 //extern u16 edger; // REPLACE with direct poti! **TODO
 
-#define edger (adc_buffer[3]<<3) // 32768
+//#define edger (adc_buffer[3]<<3) // 32768
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
@@ -119,7 +119,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// TODO- processing here:
 	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
-	di_split_stereo(sz, src, left_buffer, right_buffer, edger);
+	//	di_split_stereo(sz, src, left_buffer, right_buffer, edger);
 
 	// 2- databuffer or wormdir or complexities/combination of these
 	// databuffer[x] as index into audiobuf & 32767 

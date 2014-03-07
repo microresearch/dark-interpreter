@@ -58,7 +58,6 @@ Based in part on spork factory by Dave Griffiths.
 #define STACK buffer[stack]
 
 u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
-  u8 n;
   buffer[offset]=which; // cpu
   buffer[offset+1]=delay;
   buffer[offset+2]=0;
@@ -73,6 +72,7 @@ u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,
   buffer[offset+11]=randi()%255;
   buffer[offset+12]=randi()%255;
   buffer[offset+13]=14; // stack_pos -1????
+  //  printf("createe: offset%d which%d\n",offset,buffer[offset]);
   return offset+30;
 }
 
@@ -83,16 +83,18 @@ void thread_runnn(u8* buffer, u8 threadcount);
 
 void machine_runnn(u8* buffer){
   u8 x; 
+  if (buffer[0]==0) buffer[0]=MAX_FRED*2;
   for (x=0;x<buffer[0];x+=2){ // TODO** - or how many threads we do have? = buffer[0]???
   thread_runnn(buffer,x);
  }
 }
 
 void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
-  static u16 offset=MAX_FRED+1; static u8 x=0;
+  static u16 offset=(MAX_FRED*2)+1; static u8 x;
   buffer[0]=x;
-  buffer[x++]=offset>>8; // but offset can be over 255 - so top bit
-  buffer[x++]=offset&255; // lower bit
+  buffer[++x]=offset>>8; // but offset can be over 255 - so top bit
+  buffer[++x]=offset&255; // lower bit
+  //  printf("offset: %d\n",offset);
   offset=thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
 }
 
@@ -104,7 +106,7 @@ void cpustackpoppp(u8 *buffer){
 
 u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) { 
   offset+=13;
-  return c<=buffer[offset]; // but now we start at 0
+  return c<=(buffer[offset]-14); // but now we start at 0
 }
 
 u8 antrule(u8 dir,u8 inst, u8 rule);
@@ -122,17 +124,17 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
 #endif
 
 void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
-  u16 offsetty=offset+13;
+  u16 offsetty=offset+13; u16 orf;
 	if (buffer[offsetty]<30)
 	{
-	  u16 orf=(++buffer[offsetty])+offset;
+	  orf=(++buffer[offsetty])+offset;
 	  buffer[orf]=data;
 	}
 }
 
 u8 thread_poppp(u8* buffer, u16 offset) {
   u16 offsetty=offset+13;
- 	if (buffer[offsetty]>=1)
+ 	if (buffer[offsetty]>14)
 	{
 	  u16 orf=offset+buffer[offsetty];
 		u8 ret=buffer[orf];
@@ -145,7 +147,7 @@ u8 thread_poppp(u8* buffer, u16 offset) {
 
 u8 thread_toppp(u8 *buffer, u16 offset) {
   u16 offsetty=offset+13;
-	if (buffer[offsetty]>=1)
+	if (buffer[offsetty]>14)
 	{
 	  u16 orf=offset+buffer[offsetty];
 	  return buffer[orf];
@@ -158,7 +160,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
   u8 instr,temp;
   u16 y,addr,temprr;
   u8 flag; u16 other=0;
-  u16 offset=(buffer[threadnum]<<8)+buffer[threadnum+1]; 
+  u16 offset=(buffer[threadnum+1]<<8)+buffer[threadnum+2]; 
   u16 delay=offset+1;
   u16 delc=offset+2;
   u16 addrhi=offset+3;
@@ -173,6 +175,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
   u16 bit82=offset+12;
   u16 stack=offset+13;
 
+  //  printf("num: %d readoffset: %d cpu: %d\n",threadnum,offset,buffer[offset]);
 
   const u8 deltastate[16] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};	/* change in state indexed by color */
@@ -181,10 +184,10 @@ void thread_runnn(u8* buffer, u8 threadnum) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-    CPU=16; //16=crash
+  //    CPU=16; //16=crash
   if (++DELC==DELAY){
 #ifdef PCSIM
-    //          printf("CPU: %d\n",CPU);
+    //            printf("CPU: %d\n",CPU);
     //        printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
 #endif
 
@@ -428,9 +431,11 @@ break;
 	  if (BIT81>=14) BIT81=0;
 	  //buffer[offset+STACK]
 	  offset+=STACK+BIT81;
-	  buffer[offset]= addr>>8;
+	  //	  buffer[offset]= addr>>8;
+	  machine_pokeee(buffer,offset,addr>>8);
 	  offset+=1;
-	  buffer[offset]= addr&255;
+	  //	  buffer[offset]= addr&255;
+	  machine_pokeee(buffer,offset,addr&255);
 	  addr++;
 	  break;
 	case 5:
@@ -1315,10 +1320,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (machine_p88kkk(buffer,addr+257)==machine_p88kkk(buffer,0)-1) flag++; else if (machine_p88kkk(buffer,addr-1)>0) other++;
 
       y=addr+32768;
-      if (y<4) y=4;
+      //      if (y<4) y=4;
 
       if(machine_p88kkk(buffer,addr) == 0)// && (machine_p88kkk(buffer,1)+1)!=0) 
-	machine_pokeee(buffer,addr,floorf(other / (machine_p88kkk(buffer,1)>>4)) + floorf(flag/(machine_p88kkk(buffer,2)>>4)));
+	machine_pokeee(buffer,addr,floorf(other / ((machine_p88kkk(buffer,1)>>4)+1)) + floorf(flag/((machine_p88kkk(buffer,2)>>4)+1)));
       else if(machine_p88kkk(buffer,addr) < machine_p88kkk(buffer,0)-1){
 	machine_pokeee(buffer,y,floorf(temprr / (other + 1)) + machine_p88kkk(buffer,3));
 	//	printf("hell: %d %d %d %d %d\n", y,temprr, other, temprr / (other + 1), machine_p88kkk(buffer,3));
@@ -1331,7 +1336,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     machine_pokeee(buffer,y,machine_p88kkk(buffer,0)-1);
 
   addr++; 
-  if (addr<4) addr=4;
+  //  if (addr<4) addr=4;
   PCADDRHI=addr>>8; // hi/lo
   PCADDRLO=addr&255;
   break;
@@ -1570,10 +1575,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       temp=(machine_p88kkk(buffer,addr-1)*machine_p88kkk(buffer,0))+(machine_p88kkk(buffer,addr)*machine_p88kkk(buffer,1))+(machine_p88kkk(buffer,addr+1)*machine_p88kkk(buffer,2));
       y=addr+32768;
-      if (y<3) y=3;
+      //      if (y<3) y=3;
       machine_pokeee(buffer,y,temp);
       addr++; 
-      if (addr<3) addr=3;
+      //      if (addr<3) addr=3;
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
 
@@ -1596,7 +1601,7 @@ u8 machine_p88kkk(u8* buffer, uint16_t addr) {
 
 void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
   //	buffer->m_heap[addr%HEAP_SIZE]=data;
-  buffer[addr]=data;
+  buffer[addr]=data; // protecting 0 as number of threads???
 }
 
 
@@ -1618,11 +1623,12 @@ int main(void)
   // inc threadcount, array of offsets
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
-    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,(randi()%10)+1);
+    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
   }
-   
+  x=0;
   while(1) {
     machine_runnn(buffer);
+    printf("%c",buffer[x++]);
   }
 }
 #endif

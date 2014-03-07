@@ -149,7 +149,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    //       printf("%c",machine_peek(m,this->m_pc));
+    //           printf("%c",machine_peek(m,this->m_pc));
 
 #endif
     //    this->m_CPU=5;
@@ -1081,6 +1081,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // ants revisited... how to do multiple ants using stack?
       // read cell//process rule string//change cell//move ant
       // rule string is from cell[0]
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       //      machine_poke(m,this->m_pc,instr+1);
       machine_poke(m,this->m_pc,instr+biotadir[this->m_reg8bit1%8]);
@@ -1092,6 +1093,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 15:
       // second CA from CA.c
       flag = 0;
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       if (machine_p88k(m,this->m_pc+1)>128)	flag |= 0x4;
       if (instr>128) flag |= 0x2;
@@ -1108,6 +1110,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 16:
       // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
       // numill and numinf
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       flag=temp=0;
       temp=machine_p88k(m,this->m_pc)+machine_p88k(m,this->m_pc-1)+machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc-256)+machine_p88k(m,this->m_pc+256)+machine_p88k(m,this->m_pc-255)+machine_p88k(m,this->m_pc-257)+machine_p88k(m,this->m_pc+255)+machine_p88k(m,this->m_pc+257);
 
@@ -1149,33 +1152,41 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
   break;
     case 17:
       // start generic - add (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
+      this->m_pc++;
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
+
       machine_poke(m,this->m_pc,instr+1);
-      this->m_pc++; 
       break;
     case 18:
       // generic - sub (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       machine_poke(m,this->m_pc,instr-1);
       this->m_pc++; 
       break;
     case 19:
       // generic - zero (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       machine_poke(m,this->m_pc,0);
       this->m_pc++; 
       break;
     case 20:
       // generic - copy (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+1));
       this->m_pc++; 
       break;
     case 21:
       // generic - copy (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc^255));
       this->m_pc++; 
       break;
     case 22:
       // generic - swap (add/sub/zero/copy/invert/swap)
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc+1);
       machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
       machine_poke(m,this->m_pc,instr);
@@ -1183,12 +1194,14 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       break;
 #ifndef PCSIM
     case 23:
-      machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_p88k(m,this->m_pc)%10]);     
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
+      machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_p88k(m,this->m_pc)%10]);    
       break;
 #endif
 ///////////////////////////////////////////////////////////////
     case 24:
       // from wormcode.c
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       switch(instr%15)
 	{
@@ -1274,6 +1287,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 25:
       // 16 bit increment
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       y=(instr<<8)+machine_p88k(m,this->m_pc+1)+1;
       machine_poke(m,this->m_pc,y>>8);      
@@ -1284,6 +1298,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 26:
       // 16 bit decrement
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       y=(instr<<8)+machine_p88k(m,this->m_pc+1)-1;
       machine_poke(m,this->m_pc,y>>8);      
@@ -1294,6 +1309,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 27:
       // 16 bit left
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       y=(instr<<9)+machine_p88k(m,this->m_pc+1)<<1;
       machine_poke(m,this->m_pc,y>>8);      
@@ -1304,6 +1320,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 28:
       // 16 bit right
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       y=(instr<<7)+machine_p88k(m,this->m_pc+1)>>1;
       machine_poke(m,this->m_pc,y>>8);      
@@ -1314,6 +1331,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 29:
       // pure leakage - push instr onto stack. when stack is full pull off...
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       if (thread_stack_count(this,STACK_SIZE)) machine_poke(m,this->m_pc,thread_pop(this));
       else thread_push(this,machine_p88k(m,this->m_pc));
       this->m_pc++;
@@ -1321,6 +1339,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
     case 30:
       // convolution
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       temp=(machine_p88k(m,this->m_pc-1)*machine_p88k(m,0))+(machine_p88k(m,this->m_pc)*machine_p88k(m,1))+(machine_p88k(m,this->m_pc+1)*machine_p88k(m,2));
       y=this->m_pc+32768;
       if (y<3) y=3;
@@ -1538,7 +1557,7 @@ void killcpu(machine *m, u8 killed){
 #ifdef PCSIM
 int main(void)
 {
-  int x; u16 addr;
+  u16 x; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
   for (x=0;x<65535;x++){
@@ -1572,11 +1591,12 @@ int main(void)
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  	  cpustackpush(m,addr,addr+randi()%65536,16,randi()%255);
+	  cpustackpush(m,addr,addr+randi()%65536,6,1);
 	}
-
+	x=0;
 	while(1) {
-          machine_run(m);
+	  machine_run(m);
+	  printf("%c",buffer[x++]);
 	  }
 }
 #endif

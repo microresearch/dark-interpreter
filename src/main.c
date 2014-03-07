@@ -126,6 +126,7 @@ void main(void)
 	struct dgenwalker *hdgener=malloc(sizeof(struct dgenwalker));
 
 	//  u8 step,dir,speed;  u16 pos,start,end; 
+	//
 	lmer->step=1; lmer->speed=1; lmer->dir=1;lmer->pos=1;lmer->start=1;lmer->end=32767; lmer->del=0;
 	maximer->step=1; maximer->speed=1; maximer->dir=1;maximer->pos=1;maximer->start=1;maximer->end=32767; maximer->del=0;
 	f0106er->step=1; f0106er->speed=1; f0106er->dir=1;f0106er->pos=1;f0106er->start=1;f0106er->end=32767; f0106er->del=0;
@@ -164,7 +165,7 @@ void main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  /*        for (x=0;x<65535;x++){
+  /*            for (x=0;x<65535;x++){
 	  datagenbuffer[x]=randi()%255;
 	  }*/
 
@@ -183,28 +184,27 @@ void main(void)
 	dohardwareswitch(0,0);
 
 	// CPUintrev2:
-	/*	       	 for (x=0; x<100; x++)
+	/*	for (x=0; x<100; x++)
 	   	 {
-	   addr=randi()<<4;
-	   //	   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-	   cpustackpush(m,addr,addr+(randi()<<4),16,1);//randi()%255);
-	   }*/
+		   addr=randi()<<4;
+		   cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+		   }*/
 
 	// pureleak:
 
-	/*for (x=0;x<MAX_FRED;x++){
+	for (x=0;x<MAX_FRED;x++){
 	  addr=randi()<<4;
-	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
-	  }*/
-	
-
+	  //	  addr=x*1000;
+	  //	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
+	  cpustackpushhh(datagenbuffer,addr,addr+1000,randi()%31,1);
+	  }
 	// CA:
 
-	inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
+	/*	inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
 
 	for (x=0;x<STACK_SIZE;x++){
 	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-	}
+	  }*/
 
 
 	 while(1)
@@ -221,15 +221,17 @@ void main(void)
 	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
-	   //	   	   machine_run(m);
+	   //	   machine_run(m);
 
 	   // TODO: test pureleak.c, DONE
 
-	   //   machine_runnn(datagenbuffer);
+	      machine_runnn(datagenbuffer);
 
 	   // TODO: test CAforstack.c
 
-	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
+	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
+	   //	   testing ADC9/ad620
+	   //	   datagenbuffer[x++]=randi()%255;
 
 
 #else
@@ -255,12 +257,13 @@ void main(void)
 	  // 4-hardware operations->
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	  if (digfilterflag&16){ // if we use hdgen at all
-	    if (++hdgener->del==lmer->speed){
+	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
 	    if ((hdgener->start+hdgener->pos+tmp)>=hdgener->end) hdgener->pos=(hdgener->pos+tmp)%(hdgener->end-hdgener->start);
 	    else hdgener->pos+=tmp;
-	    dohardwareswitch(adc_buffer[2]>>5,((u8 *)(datagenbuffer))[hdgener->start+hdgener->pos]);
+	    tmp=hdgener->start+hdgener->pos;
+	    dohardwareswitch(adc_buffer[2]>>5,((u8 *)(datagenbuffer))[tmp]);
 	    hdgener->del=0;
 	    }
 	  }
@@ -277,7 +280,8 @@ void main(void)
     	    tmp=f0106er->step*direction[f0106er->dir];
 	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
 	    else f0106er->pos+=tmp;
-	    set40106pwm(datagenbuffer[(f0106er->start+f0106er->pos)]); 
+	    tmp=f0106er->start+f0106er->pos;
+	    set40106pwm(datagenbuffer[tmp]); 
 	      f0106er->del=0;
 	    }
 	  }
@@ -288,7 +292,9 @@ void main(void)
 	    tmp=lmer->step*direction[lmer->dir];
 	    if ((lmer->start+lmer->pos+tmp)>=lmer->end) lmer->pos=(lmer->pos+tmp)%(lmer->end-lmer->start);
 	    else lmer->pos+=tmp;
-	    setlmpwm(datagenbuffer[(lmer->start+lmer->pos)],datagenbuffer[(lmer->start+lmer->pos+1)%32768]); 
+	    x=(lmer->start+lmer->pos)%32768;
+	    tmp=(lmer->start+lmer->pos+1)%32768;
+	    setlmpwm(datagenbuffer[x],datagenbuffer[tmp]); 
 	    lmer->del=0;
 	    }
 
@@ -300,7 +306,8 @@ void main(void)
 	    tmp=maximer->step*direction[maximer->dir];
 	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
 	    else maximer->pos+=tmp;
-	    setmaximpwm(datagenbuffer[(maximer->start+maximer->pos)]); 
+	    tmp=maximer->start+maximer->pos;
+	    setmaximpwm(datagenbuffer[tmp]); 
 
 	      maximer->del=0;
 	    }

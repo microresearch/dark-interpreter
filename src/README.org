@@ -56,8 +56,39 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+* FRI 7 MAR
 
-* THU 6 MAR+THIS WEEK
+- is adc9 working and how to test(live sample in)DONE
+
+(adc is on pin 9 - connected to 17 on top conn(9 bottom across from left)WORKS
+
+TODO: FRI:
+
+- re-test datagens: cpu (pc, ARM) -> cpuint we put in wrap
+  (could also be as a flag so that wrap/unwrap for whole buffer)...
+
+and pureleak: lots of fixes,
+
+- what was slowdown in mutate etc/cpurev?
+
+5-test all datagen/hardware flags with datagen running
+
+6-test clocks and unhanging?->needs code to finish it
+
+SAT:
+
+7-[construct/test simple board]
+
+[8-hard tests on all hard-specific????9-wrap all code/cleanup]
+
+-> into buffer/complexity/speed code/knobs
+
+- buffer/audio code-complexity/edge(is now just one setting)
+- add/remove stacks run complexity
+- effects
+- speed
+
+* THU 6 MAR
 
 - why floor/division crashes in pureleak and cpuintrev - cpu 16/hodgeFIXED
 
@@ -71,29 +102,13 @@ problem is all +/- in array read/write! DONE?FIXED-check others for code:
 
 cpuintrev2-Xchecked, pureleak-Xchecked, simulationforstack-Xchecked
 
-RE_TESTING: sim-DONE, pureleak-DONE, cpuint-DONE,CA-
+RE_TESTING: sim-DONE, pureleak-DONE, cpuint-DONE,CA-DONE
 
-NOW: 
-
-- why datagens sound like noise, is adc9 working and how to test?
-
-TODO:
-
-5-test all datagen/hardware flags with simple datagen running 
-
-6-test clocks and unhanging?->needs code to finish it//all TODO code
-
-7-[construct/test simple board]
-
-8-hard tests on all hard-specific
-
-9-wrap all code/cleanup
+so all datagens should be working...
 
 * WED 5 MAR
 
-TODO: 
-
-- test cpu, pureleak, CA == all datagens
+tests:
 
 CPU: slowed down by leak, mutate etc. to check. otherwise WORKING I
 think once we init datagenbuffer
@@ -418,7 +433,7 @@ all mallocs should be TESTED
 
 * SAT 25 JAN 2014
 
-notes on datagens:
+notes on datagens/olde:
 
 *CPUint.c:*
 
