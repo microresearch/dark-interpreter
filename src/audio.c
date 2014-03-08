@@ -99,25 +99,30 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	static u16 counter=0; int16_t x;
+	static u16 counter=0; u8 x;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 
 	// datagenbuffer test (note that is an INT though +-32768)
 
-	/*	for (x=0;x<sz/2;x++){
-	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
-	  //	  right_buffer[x]=(counter+x)*128;
-	  }*/
+	int16_t *buf16 = (int16_t*) datagenbuffer;
 
-		counter+=x;
+	for (x=0;x<sz/2;x++){
+
+	  right_buffer[x]=buf16[(x+counter)%32768];
+			  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
+	    //	  right_buffer[x]=(counter+x)*128;
+	  }
+
+	  counter+=x;
 
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
 
-	audio_split_stereo(sz, src, left_buffer, right_buffer);
+	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
 
 	// TODO- processing here:
 	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
@@ -140,7 +145,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 
 	// 4-out
-	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+	//	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif
 
 }

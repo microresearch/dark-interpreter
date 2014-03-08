@@ -35,7 +35,8 @@ make stlink_flash
 #include "CPUint.h"
 
 #define randi() (adc_buffer[9])
-
+ //#define randi() rand()
+ //define randi() (datagenbuffer[adc_buffer[9]<<4])
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -165,7 +166,7 @@ void main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  /*            for (x=0;x<65535;x++){
+  /*              for (x=0;x<65535;x++){
 	  datagenbuffer[x]=randi()%255;
 	  }*/
 
@@ -176,30 +177,30 @@ void main(void)
 	struct stackey stackyyy[STACK_SIZE];
 
 	//simulationforstack:	
-	/*	for (x=0;x<STACK_SIZE;x++){
+			for (x=0;x<STACK_SIZE;x++){
 	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
-	  }*/
+	  }
 	
 
 	dohardwareswitch(0,0);
 
 	// CPUintrev2:
-		for (x=0; x<10; x++)
+	/*			for (x=0; x<100; x++)
 	   	 {
-		   //		   addr=rand()%65536;
-		   addr=randi()<<4;
+		   addr=rand()%65536;
+		   //		   addr=randi()<<4;
 		   //		   addr=x*655;
-		   cpustackpush(m,addr,addr+randi()<<4,randi()%31,1);//randi()%255);
-		   }
+		   cpustackpush(m,addr,addr+rand()%65536,randi()%31,1);//randi()%255);
+		   }*/
 
 	// pureleak:
 
-	/*	for (x=0;x<MAX_FRED;x++){
-	  addr=randi()<<4;
+	/*		for (x=0;x<MAX_FRED;x++){
+		  //  addr=randi()<<4;
 	  //	  addr=x*1000;
-	  //	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
-	  cpustackpushhh(datagenbuffer,addr,addr+1000,randi()%31,1);
-	  }*/
+	  	  cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
+		  //	  cpustackpushhh(datagenbuffer,addr,addr+1000,randi()%31,1);
+		  }*/
 	// CA:
 
 	/*	inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
@@ -216,14 +217,14 @@ void main(void)
 	   // TESTINGTESTINGALL!
 	   //(top down= 2,0,3,4,1):
 	   // just to test
-	   hardware=adc_buffer[2]>>5;
-	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	   oldhardware=hardware;
+	   //	   hardware=adc_buffer[2]>>5;
+	   //	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	   //	   oldhardware=hardware;
 	   // -->TODO: test simulations DONE
-	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
+	   	   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
-	   	   machine_run(m);
+	   //machine_run(m);
 
 	   // TODO: test pureleak.c, DONE
 
@@ -256,22 +257,23 @@ void main(void)
 	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
 	   // -->TODO: test simulations DONE
-	   //	   func_runall(stackyy,datagenbuffer,stack_pos);
+		   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
-	   	   machine_run(m);
+		   
+	   	   //machine_run(m);
 		  
 #ifndef LACH
 		   // 4-hardware operations->
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
-		   if (digfilterflag&16){ // if we use hdgen at all
+		   		   if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
 	    if ((hdgener->start+hdgener->pos+tmp)>=hdgener->end) hdgener->pos=(hdgener->pos+tmp)%(hdgener->end-hdgener->start);
 	    else hdgener->pos+=tmp;
 	    tmp=hdgener->start+hdgener->pos;
-	    dohardwareswitch(adc_buffer[2]>>5,((u8 *)(datagenbuffer))[tmp]);
+	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
 	    hdgener->del=0;
 	    }
 	  }
@@ -289,7 +291,8 @@ void main(void)
 	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
 	    else f0106er->pos+=tmp;
 	    tmp=f0106er->start+f0106er->pos;
-	    set40106pwm(datagenbuffer[tmp]); 
+	    u16 *buf16 = (u16*) datagenbuffer;
+	    set40106pwm(buf16[tmp]); 
 	      f0106er->del=0;
 	    }
 	  }
@@ -302,7 +305,8 @@ void main(void)
 	    else lmer->pos+=tmp;
 	    x=(lmer->start+lmer->pos)%32768;
 	    tmp=(lmer->start+lmer->pos+1)%32768;
-	    setlmpwm(datagenbuffer[x],datagenbuffer[tmp]); 
+	    u16 *buf16 = (u16*) datagenbuffer;
+	    setlmpwm(buf16[x],buf16[tmp]); 
 	    lmer->del=0;
 	    }
 
@@ -315,7 +319,8 @@ void main(void)
 	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
 	    else maximer->pos+=tmp;
 	    tmp=maximer->start+maximer->pos;
-	    setmaximpwm(datagenbuffer[tmp]); 
+	    u16 *buf16 = (u16*) datagenbuffer;
+	    setmaximpwm(buf16[tmp]); 
 
 	      maximer->del=0;
 	    }

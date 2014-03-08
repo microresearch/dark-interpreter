@@ -142,7 +142,7 @@ void DMA1_Stream3_IRQHandler(void)
 	//	GPIOB->BSRRL = FLAG_RX;
 	/* Transfer complete interrupt */
 
-  //  Codec_WriteRegister(8,sampleflags[(adc_buffer[2]>>8)]); TODO*** process speed/add in...
+  //  Codec_WriteRegister(8,sampleflags[(adc_buffer[2]>>8)]);// TODO*** process speed/add in...
 
 
 	if (DMA_GetFlagStatus(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_TC) != RESET)

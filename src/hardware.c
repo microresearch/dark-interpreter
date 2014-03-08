@@ -153,7 +153,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   if (res!=1 && clockhangflag==1){
     clockhangflag=0;
     reset_clocks();
-  }
+    }
 
   //#ifdef TEST_STRAIGHT
   //  res=2;
@@ -170,7 +170,7 @@ RES: feedback on/off - jackin-> - lm358in->
   */
 
 
-  //     res=2; // test
+  //       res=2; // test
 
     //    res=3;
   switch(res){
@@ -209,7 +209,7 @@ RES: feedback on/off - jackin-> - lm358in->
  }
 
 
-  //  res2=0;
+  //  res2=1;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -404,6 +404,40 @@ void switch_jack(void)
 void reset_clocks(void)
 {
   GPIO_InitTypeDef  GPIO_InitStructure;
+  /* GPIOB Configuration:  TIM1 CH2 (PA9) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOA, &GPIO_InitStructure); 
+
+  /* Connect TIM1 pins to PA9 */  
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_TIM1);
+
+  /* GPIOB Configuration:  TIM3 CH4 (PB1) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+  GPIO_Init(GPIOB, &GPIO_InitStructure); 
+
+  /* Connect TIM3 pins to PB1 */  
+  GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);
+
+  /* TIM8 pins to PC9 */  
+
+  /* GPIOC Configuration: TIM8_CH4 (PC9) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ; //was UP
+  GPIO_Init(GPIOC, &GPIO_InitStructure); 
+
+  /* Connect TIM8 pins to PC9 */  
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
 
 }
 

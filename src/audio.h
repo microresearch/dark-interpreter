@@ -14,8 +14,8 @@
 #define AUDIO_BUFSZ 32768
 
 extern int16_t audio_buffer[AUDIO_BUFSZ];
-extern int16_t writeloc[BUFF_LEN/2];
-extern int16_t readloc[BUFF_LEN/2];
+//extern int16_t writeloc[BUFF_LEN/2];
+//extern int16_t readloc[BUFF_LEN/2];
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht);

@@ -56,6 +56,24 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
+
+* SAT 8 MAR
+
+- for our audio tests with datagens we need cast datagenbuffer
+
+  int16_t *buf16 = (int16_t*) datagenbuffer;
+
++pureleak still not so good!
+
+- also check if same/u16 cast should be done for hardware/clock
+  settings (which is u8 which u16)FIXED/DONE
+
+- re-test hardware/datagen - seems to work!
+
+- test clocks and unhanging?->needs code to finish it - coded but
+needs TESTING (whether re-hang is working with just re-attach - seems
+so!)
+
 * FRI 7 MAR
 
 - is adc9 working and how to test(live sample in)DONE
@@ -70,14 +88,14 @@ TODO: FRI:
 and pureleak: lots of fixesDONE
 
 - what was slowdown in mutate etc/cpurev? in leak FIXED but still
-  cpuint doesn't sound as good as on PC
+  cpuint doesn't sound as good as on PC (WHY? speed of execution but
+  buffer is played back?, randi()-does make change
 
 [- question again of randi() as adc???]
 
-6-test clocks and unhanging?->needs code to finish it - coded but
-needs TESTING (whether re-hang is working with just re-attach...
+////
 
-reset_clocks function in hardware.c
+reset_clocks function in hardware.c - WRAP in ifdef - no leave as is!
 
 ///
 
@@ -93,6 +111,8 @@ MON:
 9-cleanups/all TODOs in each file
 
 -> into buffer/complexity/speed code/knobs
+
+10-audiobuffer->grainstart/end
 
 - buffer/audio code-complexity/edge(is now just one setting)
 - add/remove stacks run complexity

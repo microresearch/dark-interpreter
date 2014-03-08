@@ -1553,25 +1553,16 @@ void killcpu(machine *m, u8 killed){
 
 
 #ifdef PCSIM
+
 int main(void)
 {
-  u16 x; u16 addr;
+  u16 xx; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
   srandom(time(0));
-  for (x=0;x<65535;x++){
-    buffer[x]=randi()%255;
+  for (xx=0;xx<65535;xx++){
+    buffer[xx]=randi()%255;
     //    printf("%d\n",buffer[x]);
   }
-
-
-  /*
-  testo=(u8 *)buffer+1;
-  testi=(u16 *)buffer+1;
-  //  (u8 *)buffer+=1;
-  //  (u16 *)testi;
-  printf("buffer %p\n",(long *)testi);
-  printf("buffer %p\n",(long *)testo); // 
-  */
 
   machine *m=(machine *)malloc(sizeof(machine));
   machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
@@ -1579,9 +1570,10 @@ int main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  // what about swapping????
 
   u8 flag,other;
+  static u16 counter=0; u8 x;
+  int16_t right_buffer[64]; u8 sz=128;
 
 	for (unsigned char n=0; n<100; n++)
 	{
@@ -1591,10 +1583,10 @@ int main(void)
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
 	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
 	}
-	x=0;
+	xx=0;
 	while(1) {
-	  machine_run(m);
-	  printf("%c",buffer[x++]);
+	  //  machine_run(m);
+	  //	  printf("%c",buffer[xx++]);
 	  }
 }
 #endif
