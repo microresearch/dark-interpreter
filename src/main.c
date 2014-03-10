@@ -34,6 +34,7 @@ make stlink_flash
 #include "simulation.h"
 #include "CPUint.h"
 
+
 #define randi() (adc_buffer[9])
  //#define randi() rand()
  //define randi() (datagenbuffer[adc_buffer[9]<<4])
@@ -178,11 +179,13 @@ void main(void)
 
 	//simulationforstack:	
 			for (x=0;x<STACK_SIZE;x++){
-	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
+			  //	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
+	  stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos,1,10);
 	  }
 	
-
+#ifndef LACH
 	dohardwareswitch(0,0);
+#endif
 
 	// CPUintrev2:
 	/*			for (x=0; x<100; x++)
@@ -214,14 +217,13 @@ void main(void)
 	 {
 
  #ifdef TEST_STRAIGHT
-	   // TESTINGTESTINGALL!
 	   //(top down= 2,0,3,4,1):
 	   // just to test
 	   //	   hardware=adc_buffer[2]>>5;
 	   //	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	   //	   oldhardware=hardware;
 	   // -->TODO: test simulations DONE
-	   	   func_runall(stackyy,datagenbuffer,stack_pos);
+	   //   	   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
 	   //machine_run(m);
@@ -234,7 +236,9 @@ void main(void)
 
 	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
 	   //	   testing ADC9/ad620
-	   //	   datagenbuffer[x++]=randi()%255;
+	   int16_t *buf16 = (int16_t*) datagenbuffer;
+	   x++;
+	   buf16[x%32768]=(adc_buffer[9]<<4);//-32768;
 
 
 #else
@@ -254,17 +258,18 @@ void main(void)
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
 	  // -micro/macro - adc_buffer[0]
 	  // complexity??? 	  // generic speed and samplerate - adc_buffer[4]
-	  //	Codec_Init(48000); [1-44.1, 2-16, 3-48, 4-96, 5-8, 6-88.2 KHz]
 
 	   // -->TODO: test simulations DONE
 		   func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
 		   
-	   	   //machine_run(m);
+	   //machine_run(m);
+
+	   // 4-hardware operations->
+	   //TODO!- specific slowdown/speed setting for hardware settings
 		  
 #ifndef LACH
-		   // 4-hardware operations->
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 		   		   if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){

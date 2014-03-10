@@ -106,9 +106,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// datagenbuffer test (note that is an INT though +-32768)
 
-	int16_t *buf16 = (int16_t*) datagenbuffer;
+	
+	  int16_t *buf16 = (int16_t*) datagenbuffer;
 
-	for (x=0;x<sz/2;x++){
+		for (x=0;x<sz/2;x++){
 
 	  right_buffer[x]=buf16[(x+counter)%32768];
 			  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
@@ -120,9 +121,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
+	int16_t *buf16 = (int16_t*) datagenbuffer;
+	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
+
+		for (x=0;x<sz/2;x++){
+	  
+	  left_buffer[x]=0;
+			  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
+	    //	  right_buffer[x]=(counter+x)*128;
+	    }
 
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
 
 	// TODO- processing here:
 	// 1- right buffer goes into audio_buffer according to edge (counter to return to)
