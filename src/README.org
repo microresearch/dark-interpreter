@@ -62,17 +62,21 @@ up to limit
 - order for tests...SEGOR-DONE/MOUSER-TODO
 
 - samplerate changes crash when we don't do STRAIGHT/ie. use hardware
-  changes/sethardware or pwms???? narrow down
+  changes/sethardware or pwms???? for whatever reason floating PB9
+  causes this carsh with the samplerate changing???? - so decide on
+  either - samplerate is a bit crappy!!!DITCH for new samplerate change on startup
 
 - cleanups/check all TODOs in each file//plan
 
-quick knobs: 1hardware=ADC2, 2speed/samplerate(16*16)=ADC0, 3complexity,
-4settingforup/down(inc add/remove stacks?), 5/edge(edge set as datagen or as
-straight set)-or 5/add/remove stacks (with edge in up/down)
+top knob layout: 2,0,3,4,1 
+
+quick knobs: 1hardware=ADC2, 2speed/samplerate(16*16)=ADC0, 3complexity+ADC3,
+4settingforup/down(inc add/remove stacks?)=ADC5, 5/edge(edge set as datagen or as
+straight set)-or 5/add/remove stacks (with edge in up/down)=ADC1
 
 ////
 
-10-audiobuffer->grainstart/end
+10-audiobuffer->grainstart/endSTARTED
 
 11-knobs assignment/direction code
 

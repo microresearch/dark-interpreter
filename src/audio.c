@@ -20,9 +20,9 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 		mono_buffer[MONO_BUFSZ];
 
 extern __IO uint16_t adc_buffer[10];
-//extern u16 edger; // REPLACE with direct poti! **TODO
+//extern u16 edger; // REPLACE with direct poti!
 
-//#define edger (adc_buffer[3]<<3) // 32768
+#define edger (adc_buffer[1]<<3) // 32768
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
@@ -99,7 +99,12 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	static u16 counter=0; u8 x;
+	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+	u16 tmp;
+	u8 sampledir,samplestep;
+	static u16 samplepos,counter=0; u8 x;
+
+	sampledir=2;samplestep=1;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
@@ -122,25 +127,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #else
 
-	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
+	u16 *buf16 = (u16*) datagenbuffer;
 
-	for (x=0;x<sz/2;x++){
-	  
-	  left_buffer[x]=0;
-	  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
-	  //	  right_buffer[x]=(counter+x)*128;
-	    }
 
-	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+	//	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
+
+	//	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 	// TODO- processing here:
 
+	//[[[
 	// 1- right buffer goes into audio_buffer according to edger (counter to return to)
 	//edger can also be datagen walker variations!
-	//	di_split_stereo(sz, src, left_buffer, right_buffer, edger);
-
-	// 2- databuffer or wormdir or complexities/combination of these
-	// databuffer[x] as index into audiobuf & 32767 
+	di_split_stereo(sz, src, left_buffer, right_buffer, edger); // last is edger
 
 	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
 
@@ -148,10 +147,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// mono is result... right_buffer there just for possible processing
 	//   granular style (start->end%maxgrainsize) - as option
 	// - reads back samples into right_buffer with any processing
+	//]]]*
 
-	// complexity->1/straight,2/straight walk,3/walk datagen dir as grains
+	// TRY-walk through (2 below)
+
+	for (x=0;x<sz/2;x++){
+	  tmp=samplestep*direction[sampledir];
+	  samplepos+=tmp;
+	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	}
+
+	// complexity->1/straight,2/straight walk,2.5/wormcode walk,2.6/datagenasdirwalk,3/walk datagen dir as grains
 	/// 4/walk datagen dir as samples, 5/walk datagen with wormdir as grains
-	//// 6/walk datagen with wormdir as samples
+	//// 6/walk datagen with wormdir as samples more?
 
 	// complexity->effects???
 
@@ -162,11 +170,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 	  //
 
+	for (x=0;x<sz/2;x++){
+	  
+	  left_buffer[x]=0;
+	  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
+	  //	  right_buffer[x]=(counter+x)*128;
+	    }
+
 	}
 
 
 	// 4-out
-	//	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+		audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif
 
 }

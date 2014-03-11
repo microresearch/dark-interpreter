@@ -1552,7 +1552,13 @@ void killcpu(machine *m, u8 killed){
 
 
 
+
 #ifdef PCSIM
+
+#define HSE_VALUE    ((uint32_t)8000000) 
+#define  RCC_PLLI2SCFGR_PLLI2SN              ((uint32_t)0x00007FC0)
+#define  RCC_PLLI2SCFGR_PLLI2SR              ((uint32_t)0x70000000)
+#define  RCC_PLLCFGR_PLLM                    ((uint32_t)0x0000003F)
 
 int main(void)
 {
@@ -1570,6 +1576,8 @@ int main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
+  uint32_t tmp = 0, i2sclk=0; //TESTING
+  uint32_t pllm = 0, plln = 0, pllr = 0;
 
   u8 flag,other;
   static u16 counter=0; u8 x;
@@ -1583,10 +1591,33 @@ int main(void)
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
 	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
 	}
-	xx=0;
-	while(1) {
+
+    /* Get the PLLI2SN value */
+ 
+#define PLLI2SN   258
+#define PLLI2SR   3
+
+
+    plln = (uint32_t)((((PLLI2SN << 6) | (PLLI2SR << 28) & RCC_PLLI2SCFGR_PLLI2SN) >> 6) & \
+                      (RCC_PLLI2SCFGR_PLLI2SN >> 6));
+    
+    /* Get the PLLI2SR value */
+    pllr = (uint32_t)((((PLLI2SN << 6) | (PLLI2SR << 28) & RCC_PLLI2SCFGR_PLLI2SR) >> 28) & \
+                      (RCC_PLLI2SCFGR_PLLI2SR >> 28));
+    
+    /* Get the PLLM value */
+    pllm = (uint32_t)(0x24003010 & RCC_PLLCFGR_PLLM);      
+
+
+	i2sclk = (uint32_t)(((HSE_VALUE / pllm) * plln) / pllr);
+
+	tmp = (uint16_t)(((((i2sclk / 256) * 10) / ((uint32_t)48000))) + 5);
+
+	printf("TEMP %d %d\n",i2sclk,tmp);
+
+	//	while(1) {
 	  //  machine_run(m);
 	  //	  printf("%c",buffer[xx++]);
-	  }
+	//	  }
 }
 #endif

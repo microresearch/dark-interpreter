@@ -171,7 +171,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
 
   // res=2; // test
-  //    res=2;
+      res=2;
     //    res=3;
   switch(res){
  case 0:
@@ -186,7 +186,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
    // **TODO - TEST
    // add unhang for clocks? 
-   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
    GPIO_Init(GPIOA, &GPIO_InitStructure);
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
@@ -208,8 +208,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRL = (1<<13);
  }
 
-
-  //  res2=0;
+  res2=0;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -230,14 +229,14 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
   case 2:
     // GPIOB->0,3,4,5,6,8,9...
-    GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
-    GPIOB->ODR |= ~((hdgen&2) | ((hdgen&4)<<3) | ((hdgen&8)<<4) | ((hdgen&16)<<5) | ((hdgen&32)<<6) | ((hdgen&64)<<8) | ((hdgen&128)<<9));		    
+        GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
+        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
     
     // CPIOC->10 (8 bits total) - bottom bit
     // set PC11 always...
     GPIOC->BSRRL=(1<<11);
     GPIOC->BSRRH=(1<<10);
-    GPIOC->ODR|=((hdgen&1)<<10);
+    GPIOC->ODR|=((hdgen&1)<<10); // bit 10??
     if (clockhangflag==0) digfilterflag=31; // flags to use hdgen
     else digfilterflag=17;
     /*
@@ -259,15 +258,15 @@ RES: feedback on/off - jackin-> - lm358in->
   case 3:
         //2-unhang all except input [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     // input is pb7
-    hangflag=1;
+       hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
-          GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 ;
-    GPIO_InitStructure.GPIO_Mode = 0x04;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8;// | GPIO_Pin_9 ; //pin 9 floats crashes samplerate changeover
+       GPIO_InitStructure.GPIO_Mode = 0x04;
+      GPIO_Init(GPIOB, &GPIO_InitStructure);
   //  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
-  GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+       //  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
+       //  GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+       //    GPIO_Init(GPIOC, &GPIO_InitStructure);
     if (clockhangflag==0) digfilterflag=15;
     else digfilterflag=1;
     break;

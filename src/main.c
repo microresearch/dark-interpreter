@@ -149,7 +149,7 @@ void main(void)
 	// maintain order
 
 	Audio_Init();
-	Codec_Init(48000);
+	Codec_Init(48000); // was 48000
 	delay();
 
 #ifndef LACH
@@ -304,7 +304,7 @@ void main(void)
 	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
 	    else f0106er->pos+=tmp;
 	    tmp=f0106er->start+f0106er->pos;
-	    set40106pwm(buf16[tmp]); 
+	    	    set40106pwm(buf16[tmp]); 
 	      f0106er->del=0;
 	    }
 	  }
@@ -317,7 +317,7 @@ void main(void)
 	    else lmer->pos+=tmp;
 	    x=(lmer->start+lmer->pos)%32768;
 	    tmp=(lmer->start+lmer->pos+1)%32768;
-	    setlmpwm(buf16[x],buf16[tmp]); 
+	    	    setlmpwm(buf16[x],buf16[tmp]); 
 	    lmer->del=0;
 	    }
 
@@ -330,7 +330,7 @@ void main(void)
 	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
 	    else maximer->pos+=tmp;
 	    tmp=maximer->start+maximer->pos;
-	    setmaximpwm(buf16[tmp]); 
+	    	    setmaximpwm(buf16[tmp]); 
 
 	      maximer->del=0;
 	    }
