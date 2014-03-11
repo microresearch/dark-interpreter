@@ -57,22 +57,18 @@ up to limit
   working in CPUint.cDONE 
 
 
-* MON 10 MAR +TODO
+* TUE 11 MAR
 
-[- build/test minimal LACH -DONE
-- maybe increase db on wm8731 (codec.c) DONE]
+- order for tests...SEGOR-DONE/MOUSER-TODO
 
-[[NOTES]
-- perhaps on LACH 5th/extra knob as samplerate
-TODO!- specific slowdown/speed setting for hardware settings
+- samplerate changes crash when we don't do STRAIGHT/ie. use hardware
+  changes/sethardware or pwms???? narrow down
 
-]
+- cleanups/check all TODOs in each file//plan
 
-- test hardware/datagens/all code so far/clocks unhanging/hang
-
-how to test hang/re-hang???with fixed filter/TESTED!
-
-- cleanups/all TODOs in each file
+quick knobs: 1hardware=ADC2, 2speed/samplerate(16*16)=ADC0, 3complexity,
+4settingforup/down(inc add/remove stacks?), 5/edge(edge set as datagen or as
+straight set)-or 5/add/remove stacks (with edge in up/down)
 
 ////
 
@@ -85,11 +81,21 @@ how to test hang/re-hang???with fixed filter/TESTED!
 - effects
 - speed
 
+
+* MON 10 MAR
+
+[- build/test minimal LACH -DONE
+- maybe increase db on wm8731 (codec.c) DONE]
+[- test hardware/datagens/all code so far/clocks unhanging/hang
+how to test hang/re-hang???with fixed filter/TESTED!]
+
+[[NOTES]
+- perhaps on LACH 5th/extra knob as samplerate
+
 ** ad620/ina129 problems/EEG
 
 - desolder lower potis/DONE/re-test ad620 circuit - test with BATTERY
   SUPPLY.
-
 
 adc input is definitely working but even testing just last op07
 response of eeg circuit is flat...
@@ -98,8 +104,7 @@ replaced ina129 - still no good??? op27s??? rebuild/breadboard
 
 - ina129 cannot work with 3.3v - try with ad620 AGAIN! (do we have?)
 
-op27 also is problem - op07 should be okay for reference (test), but
-need rail-to-rail 3.3v opamp or need 5v pull through
+op27 also is problem - need rail-to-rail 3.3v opamp
 
 op295 is dual so NO, ca3140(rail to rail, but 3.3v?), lt6230
 
@@ -107,7 +112,7 @@ tlv271:
 
 http://de.mouser.com/ProductDetail/Texas-Instruments/TLV271ID/?qs=sGAEpiMZZMutXGli8Ay4kDZAgHiRY67V%2fRSA941NXqs%3d
 
-opa337:
+opa337(CHOSEN):
 
 http://de.mouser.com/ProductDetail/Texas-Instruments/OPA337UAG4/?qs=sGAEpiMZZMtCHixnSjNA6Mrdwin7F8A2TZGxYLtT858%3d
 

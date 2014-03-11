@@ -57,7 +57,7 @@ test leave all hanging= GPIO_Mode_IN_FLOATING
 #include "stm32f4xx_tim.h"
 #include "stm32f4xx_pwr.h"
 
-extern __IO uint16_t adc_buffer[10];
+//extern __IO uint16_t adc_buffer[10];
 
 u8 digfilterflag;
 
@@ -170,8 +170,8 @@ RES: feedback on/off - jackin-> - lm358in->
   */
 
 
-  //       res=2; // test
-    res=2;
+  // res=2; // test
+  //    res=2;
     //    res=3;
   switch(res){
  case 0:
@@ -209,7 +209,7 @@ RES: feedback on/off - jackin-> - lm358in->
  }
 
 
-  res2=0;
+  //  res2=0;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 

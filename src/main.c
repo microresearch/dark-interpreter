@@ -118,6 +118,7 @@ void main(void)
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
   u16 x,addr,tmp,oldhardware,hardware; 
+  u8 speedwrapper=0;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -176,12 +177,13 @@ void main(void)
 	signed char stack_posy=-1;
 	struct stackey stackyy[STACK_SIZE];
 	struct stackey stackyyy[STACK_SIZE];
-
+	u16 *buf16 = (u16*) datagenbuffer;
+	    
 	//simulationforstack:	
-			for (x=0;x<STACK_SIZE;x++){
-			  //	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
-	  stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos,1,10);
-	  }
+	for (x=0;x<STACK_SIZE;x++){
+	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
+			  //			  stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos,1,10);
+	}
 	
 #ifndef LACH
 	dohardwareswitch(0,0);
@@ -236,12 +238,17 @@ void main(void)
 
 	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
 	   //	   testing ADC9/ad620
-	   int16_t *buf16 = (int16_t*) datagenbuffer;
-	   x++;
-	   buf16[x%32768]=(adc_buffer[9]<<4);//-32768;
+	   //	   int16_t *buf16 = (int16_t*) datagenbuffer;
+	   //	   x++;
+	   //	   buf16[x%32768]=(adc_buffer[2]<<4);//-32768;
 
 
 #else
+
+	   // 0- GENERIK SPEED WRAPPER
+	   
+	   //	   if (++speedwrapper>=(adc_buffer[0]>>4)%16){
+	     speedwrapper=0;
 
 	  // **TODO: WORM_OVER_RIDE for all directions!!!!
 	  // generic speed modifier
@@ -260,17 +267,18 @@ void main(void)
 	  // complexity??? 	  // generic speed and samplerate - adc_buffer[4]
 
 	   // -->TODO: test simulations DONE
-		   func_runall(stackyy,datagenbuffer,stack_pos);
+	     func_runall(stackyy,datagenbuffer,stack_pos);
 
 	   // test cpuintrev2.cDONE
 		   
 	   //machine_run(m);
 
 	   // 4-hardware operations->
-	   //TODO!- specific slowdown/speed setting for hardware settings
 		  
 #ifndef LACH
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
+
+
 		   		   if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
 
@@ -296,7 +304,6 @@ void main(void)
 	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
 	    else f0106er->pos+=tmp;
 	    tmp=f0106er->start+f0106er->pos;
-	    u16 *buf16 = (u16*) datagenbuffer;
 	    set40106pwm(buf16[tmp]); 
 	      f0106er->del=0;
 	    }
@@ -310,7 +317,6 @@ void main(void)
 	    else lmer->pos+=tmp;
 	    x=(lmer->start+lmer->pos)%32768;
 	    tmp=(lmer->start+lmer->pos+1)%32768;
-	    u16 *buf16 = (u16*) datagenbuffer;
 	    setlmpwm(buf16[x],buf16[tmp]); 
 	    lmer->del=0;
 	    }
@@ -324,12 +330,12 @@ void main(void)
 	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
 	    else maximer->pos+=tmp;
 	    tmp=maximer->start+maximer->pos;
-	    u16 *buf16 = (u16*) datagenbuffer;
 	    setmaximpwm(buf16[tmp]); 
 
 	      maximer->del=0;
 	    }
-	    }
+	  }
+	  //	   }
 #endif
 #endif
 	}
