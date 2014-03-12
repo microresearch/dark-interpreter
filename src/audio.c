@@ -22,7 +22,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 //extern u16 edger; // REPLACE with direct poti!
 
-#define edger (adc_buffer[1]*31) // 32768
+#define edger (adc_buffer[1]) // 4096!*8///32768 ?? TODO: as walker
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
@@ -58,7 +58,7 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 
 void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge, u8 step)
 {
-  static u16 count;
+  static u16 count; 
   //  edge=0;
 	while(sz)
 	{
@@ -101,7 +101,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp;
+	u16 tmp,edge=0; static u16 oldedge=1;
 	u8 sampledir,samplestep;
 	static u16 samplepos,counter=0; u8 x;
 
@@ -139,9 +139,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	//[[[
 	// 1- right buffer goes into audio_buffer according to edger (counter to return to)
-	//edger can also be datagen walker variations!
-	di_split_stereo(sz, src, left_buffer, right_buffer, edger,1); // edger, then step
+	//edger can also be datagen walker variations! complexity-based?
+	//	if (edger!=oldedge){
+	//	  edge=(edger*8);
+	  //	  if (edge>=32768) edge=32767;
+	  //	}
+	  //	oldedge=edger;  
 
+	di_split_stereo(sz, src, left_buffer, right_buffer,0, 1); // last is step
+	
 	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
 
 	// set via walk-through for effects
@@ -162,12 +168,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	/// 4/walk datagen dir as samples, 5/walk datagen with wormdir as grains
 	//// 6/walk datagen with wormdir as samples more?
 
-	// complexity->effects???
-
 	
 	if (digfilterflag&1){
 	  // 3- any processing of left buffer
-	  // set via walker for effects//complexity?
+	  // set via walker for effects//complexity????
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 	  //
 

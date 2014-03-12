@@ -9,11 +9,6 @@
 
 /* TODO:
 
-- clean ups for inits/each functionDONE and re-test all
-
-- does NaN cause problems or not on the ARM?
-- check memory use! also use of free and how we will do all inits
-
 /////resolved/////
 
 [- fix misunderstanding (as we want 64k with buffer so buffer is 32768
@@ -78,7 +73,6 @@ void convinit(void* unity, uint16_t *workingbuffer){
 }
 
 
-// **TODO: altered for stack with cast of void
 uint16_t runconv(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 y,tmp;
   struct CONV *unit=unity;
@@ -547,8 +541,6 @@ void Runge_Kutta(struct simpleSIR* unit)
 void simplesirinit(void* unity, uint16_t *workingbuffer){
   struct simpleSIR* unit=unity;
   //  unit->t=0;
-
-  //TODO: init with workingbuffer
 
   //  unit->beta=520.0/365.0;
   //  unit->gamm=1.0/7.0;

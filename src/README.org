@@ -134,8 +134,14 @@ safety reasons) or battery clip (default) on the back.
 
 ** Hardware and software
 
+The Dark Interpreter is licensed as open hardware and free software
+with all schematics, software and layouts/notes available at:
+
+https://github.com/microresearch/dark-interpreter
+
 ** Contact/mailing list
 
+** References
 
 ** random quotes
 
@@ -205,28 +211,73 @@ outside, and in open daylight.
 
 * WED 12 MAR
 
-- re-test floating/hardware
+- re-test floating/hardwareDONE
+- mind the sample gap(how fix?)-edger also no longer as adcDONE
+- re-test clock unhang/hangDONE
 
-- mind the sample gap(how fix?)
-- check TODOs and test all stacking/unstackings 
+[so far so good but strange that speedwrapper is now fast - also maybe
+seperate wrapper for hardware and datagens!]
+
+- check TODOs 
+- test all stacking/unstackings 
+- check extent of ADCs
+
+/////
 
 - further with grain code/knob code-have array of settings(and walk
   also thru to set - also with wormdir)
 
 - samplerate confusion??? do all now in read-in decimation!DONE - to
-  still keep samplerate change on boot?
+  still keep samplerate change on boot?TODOorNOT
 
 /////
 
 - knobs redux: 1hard,2speed,3complex,4,5X/Y or set to use
-  directions(if 5 zeroed say?), edger as _setting in x/y_
+  directions(if 5 zeroed say?), edger as _setting in x/y_, or 5 as
+  add/remove stacks
 
 - complexity also as bitwise for datagen buffer pointer swappage?
 
+** settingsarray (replace these with direct DEFINES/aliases) - aim for 64::
+
+*main.c:*
+
+  m->m_leakiness=randi()%255;
+  m->m_infectprob=randi()%255;
+  m->m_mutateprob=randi()%255;
+
+*WALKERS:*
+
+  lmer->step=1; lmer->speed=1; lmer->dir=1;lmer->start=1;lmer->end=32767;
+  maximer->step=1; maximer->speed=1; maximer->dir=1;maximer->start=1;maximer->end=32767; 
+  f0106er->step=1; f0106er->speed=1; f0106er->dir=1;f0106er->start=1;f0106er->end=32767;
+  hdgener->step=1; hdgener->speed=1; hdgener->dir=1;hdgener->start=1;hdgener->end=65535;
+
+that dir can also be wormdir, normaldir(from fingers) - set thus by complexity?
+
+// what of 4 sets of stack add/remove (they have their settings too
+// which can still be in settingsarray):
+
+simulation: function%NUM_FUNCS,delay,howmany
+cpu: addr, wrap,CPU%31,delay
+leak: addr, wrap,CPU%31,delay
+CA: CA%NUM_CA,delay,howmany
+
+*audio.c*
+
+- walker for edger
+- step for incoming samples/walker?
+- walker for datagen
+- 2 walkers for effects, filter effects: step,speed,dir, start, end x2
+
+that dir can also be wormdir, normaldir(from fingers) - set thus by complexity?
+
+
+*///* some kind of foldback where walker also sets settingsarray
 
 * TUE 11 MAR
 
-- order for tests...SEGOR-DONE/MOUSER-TODO
+- order for tests...SEGOR-DONE/MOUSER-DONE
 
 - samplerate changes crash when we don't do STRAIGHT/ie. use hardware
   changes/sethardware or pwms???? for whatever reason floating PB9

@@ -118,7 +118,7 @@ void main(void)
   //	int32_t idx, rcount,wcount;
   //	uint16_t data,x,y,i,highest,lowest;
   u16 x,addr,tmp,oldhardware,hardware; 
-  u8 speedwrapper=0;
+  u16 speedwrapper=0;
 	
 	//	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -130,10 +130,10 @@ void main(void)
 
 	//  u8 step,dir,speed;  u16 pos,start,end; 
 	//
-	lmer->step=1; lmer->speed=1; lmer->dir=1;lmer->pos=1;lmer->start=1;lmer->end=32767; lmer->del=0;
-	maximer->step=1; maximer->speed=1; maximer->dir=1;maximer->pos=1;maximer->start=1;maximer->end=32767; maximer->del=0;
-	f0106er->step=1; f0106er->speed=1; f0106er->dir=1;f0106er->pos=1;f0106er->start=1;f0106er->end=32767; f0106er->del=0;
-	hdgener->step=1; hdgener->speed=1; hdgener->dir=1;hdgener->pos=1;hdgener->start=1;hdgener->end=65535; hdgener->del=0;
+	lmer->step=1; lmer->speed=1; lmer->dir=2;lmer->pos=0;lmer->start=1;lmer->end=32767; lmer->del=0;
+	maximer->step=1; maximer->speed=1; maximer->dir=2;maximer->pos=0;maximer->start=1;maximer->end=32767; maximer->del=0;
+	f0106er->step=1; f0106er->speed=1; f0106er->dir=2;f0106er->pos=0;f0106er->start=1;f0106er->end=32767; f0106er->del=0;
+	hdgener->step=1; hdgener->speed=1; hdgener->dir=2;hdgener->pos=0;hdgener->start=1;hdgener->end=65535; hdgener->del=0;
 	
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
@@ -181,12 +181,12 @@ void main(void)
 	    
 	//simulationforstack:	
 	for (x=0;x<STACK_SIZE;x++){
-	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,datagenbuffer,stack_pos,1,10);
-			  //			  stack_pos=func_pushn(stackyy,1,datagenbuffer,stack_pos,1,10);
+	  	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+	  //	  stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
 	}
 	
 #ifndef LACH
-	dohardwareswitch(0,0);
+	dohardwareswitch(2,0);
 #endif
 
 	// CPUintrev2:
@@ -218,7 +218,7 @@ void main(void)
 	 while(1)
 	 {
 
- #ifdef TEST_STRAIGHT
+#ifdef TEST_STRAIGHT
 	   //(top down= 2,0,3,4,1):
 	   // just to test
 	   //	   hardware=adc_buffer[2]>>5;
@@ -234,28 +234,34 @@ void main(void)
 
 	   // 0- GENERIK SPEED WRAPPER
 	   
-	   if (++speedwrapper>=(adc_buffer[0]>>4)%16){
+	   speedwrapper++;
+	   tmp=(adc_buffer[0]);
+	   if (speedwrapper>=tmp){
 	     speedwrapper=0;
 
+
+	    
 	  // **TODO: WORM_OVER_RIDE for all directions!!!!
 	  // generic speed modifier
 
 	  // top down knobs: 2,0,3,4,1 
 
-	  // 1-run machine/datagen code (how to select?)
+	  // 1-run machine/datagen code - based on complexity?
 
-	     func_runall(stackyy,datagenbuffer,stack_pos); // simulations
+	     func_runall(stackyy,buf16,stack_pos); // simulations
 		   
-	   // machine_run(m); //cpu
-	   // ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-	   // machine_runnn(datagenbuffer); // pureleak
+	     // machine_run(m); //cpu - WRAP own speedTODO
+	     // ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+	     // machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
 
-	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
+	     // 3-deal with setting knob + up/down/dir 
+	     // walk into settings array
 
 #ifndef LACH
 
 	   // 4-hardware operations
 
+	     //TODO: simplify calculations here...
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	     if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
@@ -281,8 +287,8 @@ void main(void)
     	    tmp=f0106er->step*direction[f0106er->dir];
 	    if ((f0106er->start+f0106er->pos+tmp)>=f0106er->end) f0106er->pos=(f0106er->pos+tmp)%(f0106er->end-f0106er->start);
 	    else f0106er->pos+=tmp;
-	    tmp=f0106er->start+f0106er->pos;
-	    	    set40106pwm(buf16[tmp]); 
+	    tmp=(f0106er->start+f0106er->pos)%32768;
+	    set40106pwm(buf16[tmp]); 
 	      f0106er->del=0;
 	    }
 	  }
@@ -307,16 +313,15 @@ void main(void)
 	    tmp=maximer->step*direction[maximer->dir];
 	    if ((maximer->start+maximer->pos+tmp)>=maximer->end) maximer->pos=(maximer->pos+tmp)%(maximer->end-maximer->start);
 	    else maximer->pos+=tmp;
-	    tmp=maximer->start+maximer->pos;
-	    	    setmaximpwm(buf16[tmp]); 
-
-	      maximer->del=0;
+	    tmp=(maximer->start+maximer->pos)%32768;
+	    setmaximpwm(buf16[tmp]); 
+	    maximer->del=0;
 	    }
 	  }
-	   } // speedwrapper
 #endif
+	  	   } // speedwrapper
 #endif
-	}
+	 }
 }
 
 #ifdef  USE_FULL_ASSERT
