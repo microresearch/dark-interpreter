@@ -260,7 +260,7 @@ RES: feedback on/off - jackin-> - lm358in->
     // input is pb7
        hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8;// | GPIO_Pin_9 ; //pin 9 floats crashes samplerate changeover
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
        GPIO_InitStructure.GPIO_Mode = 0x04;
       GPIO_Init(GPIOB, &GPIO_InitStructure);
   //  GPIO_Init(GPIOC, &GPIO_InitStructure);

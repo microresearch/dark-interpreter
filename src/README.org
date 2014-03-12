@@ -57,6 +57,23 @@ up to limit
   working in CPUint.cDONE 
 
 
+* WED 12 MAR
+
+- re-test floating/hardware
+- mind the sample gap(how fix?) 
+- further with grain code
+
+- samplerate confusion??? do all now in read-in decimation!DONE - to
+  still keep samplerate change on boot?
+
+/////
+
+- knobs redux: 1hard,2speed,3complex,4,5X/Y or set to use
+  directions(if 5 zeroed say?), edger as _setting in x/y_
+
+- complexity also as bitwise for datagen buffer pointer swappage?
+
+
 * TUE 11 MAR
 
 - order for tests...SEGOR-DONE/MOUSER-TODO
@@ -64,7 +81,8 @@ up to limit
 - samplerate changes crash when we don't do STRAIGHT/ie. use hardware
   changes/sethardware or pwms???? for whatever reason floating PB9
   causes this carsh with the samplerate changing???? - so decide on
-  either - samplerate is a bit crappy!!!DITCH for new samplerate change on startup
+  either - samplerate is a bit crappy!!!DITCH for new samplerate
+  change on startupTODO
 
 - cleanups/check all TODOs in each file//plan
 

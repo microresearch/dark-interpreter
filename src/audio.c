@@ -22,7 +22,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 //extern u16 edger; // REPLACE with direct poti!
 
-#define edger (adc_buffer[1]<<3) // 32768
+#define edger (adc_buffer[1]*31) // 32768
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
@@ -56,14 +56,15 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 	}
 }
 
-void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge)
+void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge, u8 step)
 {
   static u16 count;
+  //  edge=0;
 	while(sz)
 	{
 		*ldst++ = *src++;
 		sz--;
-		count++;
+		count+=step;
 		if (count>=AUDIO_BUFSZ) count=edge;
 		*rdst++ = *src;
 		audio_buffer[count] = *src++;
@@ -139,7 +140,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	//[[[
 	// 1- right buffer goes into audio_buffer according to edger (counter to return to)
 	//edger can also be datagen walker variations!
-	di_split_stereo(sz, src, left_buffer, right_buffer, edger); // last is edger
+	di_split_stereo(sz, src, left_buffer, right_buffer, edger,1); // edger, then step
 
 	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
 
@@ -154,7 +155,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	for (x=0;x<sz/2;x++){
 	  tmp=samplestep*direction[sampledir];
 	  samplepos+=tmp;
-	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	  mono_buffer[x]=audio_buffer[samplepos%AUDIO_BUFSZ];
 	}
 
 	// complexity->1/straight,2/straight walk,2.5/wormcode walk,2.6/datagenasdirwalk,3/walk datagen dir as grains

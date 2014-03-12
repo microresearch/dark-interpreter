@@ -143,13 +143,13 @@ void DMA1_Stream3_IRQHandler(void)
 	//	GPIOB->BSRRL = FLAG_RX;
 	/* Transfer complete interrupt */
 
-    x=(adc_buffer[0]>>8);
+  /*    x=(adc_buffer[0]>>8);
   if (x!=oldx){
     Codec_WriteRegister(9,0);
   Codec_WriteRegister(8,sampleflags[x]); //- still crashes???
     Codec_WriteRegister(9,1);
   }
-  oldx=x;
+  oldx=x;*/
 
 
 	if (DMA_GetFlagStatus(AUDIO_I2S_EXT_DMA_STREAM, AUDIO_I2S_EXT_DMA_FLAG_TC) != RESET)
