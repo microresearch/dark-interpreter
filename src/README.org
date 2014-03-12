@@ -209,6 +209,21 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* THU 13 MAR
+
+olderTODO:
+
+- what relations could be between post-filter and input (we can go
+  straight out/thru 40106 but still switch in digital filter and mix
+  left INTO right)... but where to spec. - in complexity (as hardware
+  settings are full)
+
+TODO: add as extra 2 options in hardware.c with control by complexity (marked as **TODO)
+
+* THU 13 MAR
+
+- finish/test grain code
+
 * WED 12 MAR
 
 - re-test floating/hardwareDONE
@@ -218,17 +233,20 @@ outside, and in open daylight.
 [so far so good but strange that speedwrapper is now fast - also maybe
 seperate wrapper for hardware and datagens!]
 
-- check TODOs 
+- check TODOs
+
 - test all stacking/unstackings 
 - check extent of ADCs
 
 /////
 
-- further with grain code/knob code-have array of settings(and walk
-  also thru to set - also with wormdir)
+- further with grain code/
+
+- knob code-have array of settings(and walk also thru to set - also
+  with wormdir)
 
 - samplerate confusion??? do all now in read-in decimation!DONE - to
-  still keep samplerate change on boot?TODOorNOT
+  still keep samplerate change on boot?TODOorNOT???
 
 /////
 
@@ -236,7 +254,23 @@ seperate wrapper for hardware and datagens!]
   directions(if 5 zeroed say?), edger as _setting in x/y_, or 5 as
   add/remove stacks
 
-- complexity also as bitwise for datagen buffer pointer swappage?
+** complexity:
+
+*audio.c:*
+
+complexity->0/straight,1/straight walk,2/wormcode walk,3/datagenasdirwalk,4/walk datagen dir as grains
+5/walk datagen dir as samples, 6/walk datagen with wormdir as grains
+7/walk datagen with wormdir as samples ///more?
+
+????set via walker for effects//complexity????-multiplies above
+
+*main.c:*
+
+running of 4 datagens - bitwise
+
+that dir can also be wormdir, normaldir(from fingers) - set thus by complexity?
+
+- complexity also as bitwise for datagen buffer pointer swappage/reference
 
 ** settingsarray (replace these with direct DEFINES/aliases) - aim for 64::
 
@@ -265,8 +299,9 @@ CA: CA%NUM_CA,delay,howmany
 
 *audio.c*
 
-- walker for edger
-- step for incoming samples/walker?
+- walker for edger- replace with step/dir/start/end
+- step for incoming samples/walker? - replace with step/dir/start/end
+- samplestep/walker? - replace with step/dir/start/end
 - walker for datagen
 - 2 walkers for effects, filter effects: step,speed,dir, start, end x2
 
@@ -681,7 +716,7 @@ and add init/re-init with flag to running - or init/re-init in stack push?
 
 now as simulationforstack.c DONE
 
-- pureleak.c - called by complexity setting - all memory and
+- pureleak.c - called by complexity setting??? - all memory and
   parameters are in the datagenbuffer (based on CPUint.c)DONE
 
 * TUE 28 JAN 2014 +

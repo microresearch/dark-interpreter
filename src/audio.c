@@ -20,13 +20,15 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 		mono_buffer[MONO_BUFSZ];
 
 extern __IO uint16_t adc_buffer[10];
+extern u8 wormdir; 
+
 //extern u16 edger; // REPLACE with direct poti!
 
-#define edger (adc_buffer[1]) // 4096!*8///32768 ?? TODO: as walker
+//#define edger (adc_buffer[1]) // 4096!*8///32768 ?? TODO: as walker
 
 extern u8 digfilterflag;
 //extern int16_t datagenbuffer[DATA_BUFSZ] __attribute__ ((section (".ccmdata")));;
-extern u16 *datagenbuffer;
+extern u8 *datagenbuffer;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
@@ -101,73 +103,109 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp,edge=0; static u16 oldedge=1;
-	u8 sampledir,samplestep;
-	static u16 samplepos,counter=0; u8 x;
+	u16 tmp,any,edge=0; static u16 oldedge=1;
+	u8 sampledir,samplestep,complexity;
+	u8 anydir, anyspeed, anystep,anydel;
+	u16 anyend,anystart;
+	static u8 inproc;
+	static u16 samplepos,anypos=0; u8 x;
 
 	sampledir=2;samplestep=1;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
-
-	// datagenbuffer test (note that is an INT though +-32768)
-
-	int16_t *buf16 = (int16_t*) datagenbuffer;
-	
-	/*
-		for (x=0;x<sz/2;x++){
-
-	  right_buffer[x]=buf16[(x+counter)%32768];
-			  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
-	    //	  right_buffer[x]=(counter+x)*128;
-	  }
-	*/
-	  counter+=x;
-
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
 
 	u16 *buf16 = (u16*) datagenbuffer;
 
-
-	//	audio_split_stereo(sz, src, left_buffer, right_buffer); // TEST!!!
-
-	//	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-
 	// TODO- processing here:
+	// TODO or walker for each except 0;;;
 
-	//[[[
-	// 1- right buffer goes into audio_buffer according to edger (counter to return to)
-	//edger can also be datagen walker variations! complexity-based?
-	//	if (edger!=oldedge){
-	//	  edge=(edger*8);
-	  //	  if (edge>=32768) edge=32767;
-	  //	}
-	  //	oldedge=edger;  
+	di_split_stereo(sz, src, left_buffer, right_buffer,0, 1); // edger, step
 
-	di_split_stereo(sz, src, left_buffer, right_buffer,0, 1); // last is step
-	
-	//	di_process_buffer(sz,mono_buffer,right_buffer,complexity, dir, step)
-
-	// set via walk-through for effects
-	// mono is result... right_buffer there just for possible processing
-	//   granular style (start->end%maxgrainsize) - as option
-	// - reads back samples into right_buffer with any processing
-	//]]]*
-
-	// TRY-walk through (2 below)
-
+	// do any effects on each sample here?
+	complexity=0;
+	switch(complexity){
+	case 0:
+	for (x=0;x<sz/2;x++){
+	  samplepos+=1;
+	  if (samplepos>=32768) samplepos=0;
+	  mono_buffer[x]=audio_buffer[samplepos];
+	}
+	break;
+	/////////
+	case 1:
 	for (x=0;x<sz/2;x++){
 	  tmp=samplestep*direction[sampledir];
 	  samplepos+=tmp;
-	  mono_buffer[x]=audio_buffer[samplepos%AUDIO_BUFSZ];
+	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
+	break;
+	case 2:
+ 	for (x=0;x<sz/2;x++){
+	  tmp=samplestep*direction[wormdir];
+	  samplepos+=tmp;
+	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	}
+	break;
+	case 3:
+	  //3/walkdatagenasdirwalk 
+ 	for (x=0;x<sz/2;x++){
+	  //walk any 
+	    if (++anydel==anyspeed){
+    	    any=anystep*direction[anydir];
+	    if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    else anypos+=any;
+	    any=(anystart+anypos)%32768;
+	    }
+	  tmp=samplestep*direction[datagenbuffer[any]%8];
+	  samplepos+=tmp;
+	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	}
+	  break;
+	case 4:
+	  //4/walk datagen dir as grains-TODO!!!!
+ 	for (x=0;x<sz/2;x++){
+	  //walk any 
+	  if (inproc!=0){ // get next datagen
+	    if (++anydel==anyspeed){
+	      any=anystep*direction[anydir];
+	      if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	      else anypos+=any;
+	      any=(anystart+anypos)%32768;
+	      inproc=0;
+	      samplepos=buf16[any];
+	    }
+	  }	 
+	  // so we have start=tmp
+	  
+	    
 
-	// complexity->1/straight,2/straight walk,2.5/wormcode walk,2.6/datagenasdirwalk,3/walk datagen dir as grains
-	/// 4/walk datagen dir as samples, 5/walk datagen with wormdir as grains
-	//// 6/walk datagen with wormdir as samples more?
+	    //	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	  }
 
+	case 5:
+	  //5/walk datagen dir as samples
+ 	for (x=0;x<sz/2;x++){
+	  //walk any 
+	  if (++anydel==anyspeed){ //do we need speed?
+    	    any=anystep*direction[anydir];
+	    if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    else anypos+=any;
+	    any=(anystart+anypos)%32768;
+	    }
+	  mono_buffer[x]=buf16[any];
+	}
+	  
+	  break;
+
+	} // end case
+
+	// complexity->0/straight,1/straight walk,2/wormcode walk,3/datagenasdirwalk,4/walk datagen dir as grains
+	/// 5/walk datagen dir as samples, 6/walk datagen with wormdir as grains
+	//// 7/walk datagen with wormdir as samples ///more?
 	
 	if (digfilterflag&1){
 	  // 3- any processing of left buffer
@@ -186,6 +224,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 
 	// 4-out
+	//	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 		audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif
 
