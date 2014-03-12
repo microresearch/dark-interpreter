@@ -224,30 +224,17 @@ void main(void)
 	   //	   hardware=adc_buffer[2]>>5;
 	   //	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	   //	   oldhardware=hardware;
-	   // -->TODO: test simulations DONE
-	   //   	   func_runall(stackyy,datagenbuffer,stack_pos);
-
-	   // test cpuintrev2.cDONE
-	   //machine_run(m);
-
-	   // TODO: test pureleak.c, DONE
-
-	   //	      machine_runnn(datagenbuffer);
-
-	   // TODO: test CAforstack.c
-
 	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
 	   //	   testing ADC9/ad620
 	   //	   int16_t *buf16 = (int16_t*) datagenbuffer;
 	   //	   x++;
 	   //	   buf16[x%32768]=(adc_buffer[2]<<4);//-32768;
 
-
 #else
 
 	   // 0- GENERIK SPEED WRAPPER
 	   
-	   //	   if (++speedwrapper>=(adc_buffer[0]>>4)%16){
+	   if (++speedwrapper>=(adc_buffer[0]>>4)%16){
 	     speedwrapper=0;
 
 	  // **TODO: WORM_OVER_RIDE for all directions!!!!
@@ -256,30 +243,21 @@ void main(void)
 	  // top down knobs: 2,0,3,4,1 
 
 	  // 1-run machine/datagen code (how to select?)
-	  // machine_run(m); with delay wrapper - also complexity bitwise
 
-	  // and rest as x functions??? no pointers as different structures
-	  // or would void pointer work?
-
+	     func_runall(stackyy,datagenbuffer,stack_pos); // simulations
+		   
+	   // machine_run(m); //cpu
+	   // ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+	   // machine_runnn(datagenbuffer); // pureleak
 
 	  // 3-deal with knobs (esp. with micro-macro ops) - as many as direct
-	  // -micro/macro - adc_buffer[0]
-	  // complexity??? 	  // generic speed and samplerate - adc_buffer[4]
 
-	   // -->TODO: test simulations DONE
-	     func_runall(stackyy,datagenbuffer,stack_pos);
-
-	   // test cpuintrev2.cDONE
-		   
-	   //machine_run(m);
-
-	   // 4-hardware operations->
-		  
 #ifndef LACH
+
+	   // 4-hardware operations
+
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
-
-
-		   		   if (digfilterflag&16){ // if we use hdgen at all
+	     if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
@@ -335,7 +313,7 @@ void main(void)
 	      maximer->del=0;
 	    }
 	  }
-	  //	   }
+	   } // speedwrapper
 #endif
 #endif
 	}

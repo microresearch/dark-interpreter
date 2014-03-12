@@ -2,48 +2,49 @@
 
 ** Resistors
 
-330Rx1
-1Kx3
-4.7Kx2
-5.6Kx4
+330Rx1bulk
+1Kx3bulk
+4.7Kx2bulk
+5.6Kx4->have
 10K xmany
-33Kx1
-100K x1
-200K x2
-390K x1
-470Kx4
-1Mx1
-10Mx2
+33Kx1->have
+100K x1-bulk
+200K x2->have
+390K x1->have
+470Kx4-have
+1Mx1bulk
+10Mx2->have
 
 ** Caps
 
-18pF/22pF x2
-220pFx1
-1nFx3
-10nF x2
+18pF/22pF x2bulk
+220pFx1->have
+1nFx3bulk
+10nF x2bulk
 100nF xMANY
-470nF x1
-1uFx2
+470nF x1->havefew(SEGOR)!
+1uFx2bulk
 2.2uFx2
 4.7uFx1
-10uFx7
+10uFx7SEGORalltantals
 
 ** Active
 
 LEDx1 
-AD620/INA129x1 -top
+AD620 -top (have)RODER
 DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R)
-OP27x3 -top
-HCT40106x1
+OP27x3 -top (reichelt)
+HCT40106x1 (have hcf)-works
 CD74HCT4053M96x1
-HCT4066x3
-LM13700MX/NOPB (mouser)
+HCT4066x3 (have)
+LM13700MX/NOPB (mouser/reichelt) have
 LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser)
 LM1117-5Vx1  DT-5(mouser)
-LM358x1
-MAX7400x1
+LM358x1 (reichelt)
+MAX7400x1 (mouser/reichelt) have
 STM32F405RGT6x1 (mouser)
-8 MHz XTAL (SMD HC49)x1
+8 MHz XTAL (SMD HC49)x1 (reichelt)
+WM8731 audio codec
 
 ** other
 
@@ -51,9 +52,9 @@ inductorx1: 81-BLM18BD252SN1D (mouser)
 JACKSx2 (Banzai)
 switchx1 (ebay supplier)
 connectorx2 (REICHELT: BL 2X25G8 2,54)
-connectorx1 (REICHELT: BSL 2X25G 2,54)
+connectorx1 (REICHELT: SL 2X25G 2,54)
 2.1mm DC socketx1 (SEGOR)
-(offsets DI 20mm,screws??)
-potisx1
+(offsets DA 20mm, screws?, bolts?)
+potis
 battery holder 9vx1 534-1294 (mouser)
 
