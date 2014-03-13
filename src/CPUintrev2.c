@@ -1108,8 +1108,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       break;
 
     case 16:
-      // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
-      // numill and numinf
+      // port of hodge - larger 256*128 (32768) cellspace in two halves
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       flag=temp=0;
       temp=machine_p88k(m,this->m_pc)+machine_p88k(m,this->m_pc-1)+machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc-256)+machine_p88k(m,this->m_pc+256)+machine_p88k(m,this->m_pc-255)+machine_p88k(m,this->m_pc-257)+machine_p88k(m,this->m_pc+255)+machine_p88k(m,this->m_pc+257);
@@ -1576,11 +1575,7 @@ int main(void)
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  uint32_t tmp = 0, i2sclk=0; //TESTING
-  uint32_t pllm = 0, plln = 0, pllr = 0;
-
   u8 flag,other;
-  static u16 counter=0; u8 x;
   int16_t right_buffer[64]; u8 sz=128;
 
 	for (unsigned char n=0; n<100; n++)
@@ -1592,32 +1587,64 @@ int main(void)
 	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
 	}
 
-    /* Get the PLLI2SN value */
- 
-#define PLLI2SN   258
-#define PLLI2SR   3
+
+	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+	u16 tmp,any,counter,edge=0;
+	u8 sampledir,samplestep,complexity;
+
+	u8 sampdir=2,sampstep=1;
+	u16 samp=0, samppos=0;
+	u8 anydir, anyspeed, anystep;
+	u16 anywrap,anystart,start,wrap;
+	static u8 inproc=1, anydel=0;
+	static u16 samplepos,anypos=0; u8 x;
+
+	u16 *buf16 = (u16*) buffer;
+
+	anyspeed=1;anydir=2;anystart=0;anywrap=32; anystep=1;
+
+	while(1) {
+
+ 	for (x=0;x<sz/2;x++){
+	  //walk datagen 
+	  if (inproc!=0){ // get next datagen
+	    if (++anydel==anyspeed){
+	      any=anystep*direction[anydir];
+	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
+	      else anypos+=any;
+	      any=(anystart+anypos);
+	      start=buf16[any];
+	      any=anystep*direction[anydir];
+	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
+	      else anypos+=any;
+	      any=(anystart+anypos);
+	      wrap=buf16[any];
+	      anydel=0;
+	      if (wrap>start) wrap=wrap-start;
+	      else wrap=start-wrap;
+	      if (wrap==0) wrap=1;
+	      start=start%32768;wrap=wrap%1024;  //maybe constrain sample wrap size
+
+	      printf("position: %d start: %d wrap: %d \n",any, start, wrap);
+	    }
+	  }// inproc
+	    // walk sample until we reach end - then set inproc=1, pos=0
+		inproc=0;
+		samp=sampstep*direction[sampdir];
+		if ((samppos+samp)<=wrap)
+		  {
+		    samppos=(samppos+samp)%32768;
+		    printf("    >>>position %d\n",(start+samppos)%32768);
+		    //	  mono_buffer[x]=audio_buffer[samplepos%32768];
+		  }
+		else {
+		  inproc=1;
+		  samppos=0;
+		}
+
+	}
 
 
-    plln = (uint32_t)((((PLLI2SN << 6) | (PLLI2SR << 28) & RCC_PLLI2SCFGR_PLLI2SN) >> 6) & \
-                      (RCC_PLLI2SCFGR_PLLI2SN >> 6));
-    
-    /* Get the PLLI2SR value */
-    pllr = (uint32_t)((((PLLI2SN << 6) | (PLLI2SR << 28) & RCC_PLLI2SCFGR_PLLI2SR) >> 28) & \
-                      (RCC_PLLI2SCFGR_PLLI2SR >> 28));
-    
-    /* Get the PLLM value */
-    pllm = (uint32_t)(0x24003010 & RCC_PLLCFGR_PLLM);      
-
-
-	i2sclk = (uint32_t)(((HSE_VALUE / pllm) * plln) / pllr);
-
-	tmp = (uint16_t)(((((i2sclk / 256) * 10) / ((uint32_t)48000))) + 5);
-
-	printf("TEMP %d %d\n",i2sclk,tmp);
-
-	//	while(1) {
-	  //  machine_run(m);
-	  //	  printf("%c",buffer[xx++]);
-	//	  }
+		  }
 }
 #endif

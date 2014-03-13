@@ -105,9 +105,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 tmp,any,counter,edge=0;
 	u8 sampledir,samplestep,complexity;
-	u8 anydir, anyspeed, anystep,anydel;
-	u16 anyend,anystart;
-	static u8 inproc;
+	u8 anydir, anyspeed, anystep; 
+	u16 anywrap,anystart;
+	static u8 inproc,anydel;
 	static u16 samplepos,anypos=0; u8 x;
 
 	sampledir=2;samplestep=1;
@@ -169,7 +169,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //walk any 
 	    if (++anydel==anyspeed){
     	    any=anystep*direction[anydir];
-	    if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
 	    else anypos+=any;
 	    any=(anystart+anypos)%32768;
 	    }
@@ -181,23 +181,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	case 4:
 	  //4/walk datagen dir as grains-TODO!!!!
  	for (x=0;x<sz/2;x++){
-	  //walk any 
+	  //walk datagen 
 	  if (inproc!=0){ // get next datagen
 	    if (++anydel==anyspeed){
 	      any=anystep*direction[anydir];
-	      if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
 	      else anypos+=any;
 	      any=(anystart+anypos)%32768;
+	      start=buf16[any];
+	      any=anystep*direction[anydir];
+	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
+	      else anypos+=any;
+	      any=(anystart+anypos)%32768;
+	      end=buf16[any];
+	      anydel=0;
 	      inproc=0;
-	      samplepos=buf16[any];
 	    }
-	  }	 
-	  // so we have start=tmp
+	    // walk sample until we reach end - then set inproc=1, pos=0
+	    
+	    
+	  } // inproc	 
 	  
 	    
 
 	    //	  mono_buffer[x]=audio_buffer[samplepos%32768];
-	  }
+	}
 
 	case 5:
 	  //5/walk datagen dir as samples
@@ -205,7 +213,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //walk any 
 	  if (++anydel==anyspeed){ //do we need speed?
     	    any=anystep*direction[anydir];
-	    if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
 	    else anypos+=any;
 	    any=(anystart+anypos)%32768;
 	    }
