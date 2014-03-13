@@ -211,7 +211,18 @@ outside, and in open daylight.
 
 * THU 13 MAR
 
-olderTODO:
+- re-test with AD620-TESTED, working
+
+- finish/test grain code
+
+- simplify all walkers - anyend replaced by wrap...
+
+  if ((anypos+any)>=anywrap) anypos=(anypos+any)%anywrap;
+  else anypos+=any;
+  any=(anystart+anypos)%32768;
+
+
+fromolderTODO:
 
 - what relations could be between post-filter and input (we can go
   straight out/thru 40106 but still switch in digital filter and mix
@@ -219,10 +230,6 @@ olderTODO:
   settings are full)
 
 TODO: add as extra 2 options in hardware.c with control by complexity (marked as **TODO)
-
-* THU 13 MAR
-
-- finish/test grain code
 
 * WED 12 MAR
 

@@ -227,8 +227,8 @@ void main(void)
 	   //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
 	   //	   testing ADC9/ad620
 	   //	   int16_t *buf16 = (int16_t*) datagenbuffer;
-	   //	   x++;
-	   //	   buf16[x%32768]=(adc_buffer[2]<<4);//-32768;
+	   //	   	   x++;
+	   //	   	   buf16[x%32768]=(adc_buffer[9]<<4)-32768;
 
 #else
 

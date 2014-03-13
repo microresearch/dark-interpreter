@@ -103,7 +103,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp,any,edge=0; static u16 oldedge=1;
+	u16 tmp,any,counter,edge=0;
 	u8 sampledir,samplestep,complexity;
 	u8 anydir, anyspeed, anystep,anydel;
 	u16 anyend,anystart;
@@ -114,6 +114,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
+	/*
+	int16_t *buf16 = (int16_t*) datagenbuffer;
+	
+	for (x=0;x<sz/2;x++){
+
+	  right_buffer[x]=buf16[(x+counter)%32768];
+	  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
+	    //	  right_buffer[x]=(counter+x)*128;
+	  }
+	
+	  counter+=x;
+
+	*/
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
@@ -156,7 +169,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //walk any 
 	    if (++anydel==anyspeed){
     	    any=anystep*direction[anydir];
-	    if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
 	    else anypos+=any;
 	    any=(anystart+anypos)%32768;
 	    }
@@ -172,7 +185,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (inproc!=0){ // get next datagen
 	    if (++anydel==anyspeed){
 	      any=anystep*direction[anydir];
-	      if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	      if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
 	      else anypos+=any;
 	      any=(anystart+anypos)%32768;
 	      inproc=0;
@@ -192,7 +205,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //walk any 
 	  if (++anydel==anyspeed){ //do we need speed?
     	    any=anystep*direction[anydir];
-	    if ((anystart+anypos+tmp)>=anyend) anypos=(anypos+any)%(anyend-anystart);
+	    if ((anystart+anypos+any)>=anyend) anypos=(anypos+any)%(anyend-anystart);
 	    else anypos+=any;
 	    any=(anystart+anypos)%32768;
 	    }
@@ -206,7 +219,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// complexity->0/straight,1/straight walk,2/wormcode walk,3/datagenasdirwalk,4/walk datagen dir as grains
 	/// 5/walk datagen dir as samples, 6/walk datagen with wormdir as grains
 	//// 7/walk datagen with wormdir as samples ///more?
-	
+
+#ifndef LACH	
 	if (digfilterflag&1){
 	  // 3- any processing of left buffer
 	  // set via walker for effects//complexity????
@@ -221,7 +235,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    }
 
 	}
-
+#endif
 
 	// 4-out
 	//	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
