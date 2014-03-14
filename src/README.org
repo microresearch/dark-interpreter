@@ -209,20 +209,31 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* THU 13 MAR
+* FRI-SAT 13 MAR
 
-- finish/test grain code
+  wrap... DONE.TEST(simthenreal)REALTOTEST
 
-- simplify all walkers - anyend replaced by wrap... TEST
+- finish/test grain code - also normaldir TODO!
+
+///
+
+- test that datagens _do_run - listen
+
+RETEST all - simu_CRASH!
+
+- test ADC limits - HOW?
 
 fromolderTODO:
 
 - what relations could be between post-filter and input (we can go
   straight out/thru 40106 but still switch in digital filter and mix
-  left INTO right)... but where to spec. - in complexity (as hardware
-  settings are full)
+  left INTO right)... but where to spec- as hardware settings are
+  full
 
-TODO: add as extra 2 options in hardware.c with control by complexity (marked as **TODO)
+TODO: add as extra 2 options in hardware.c with control by what????
+
+bitwise addition somewhere???
+
 
 ////
 

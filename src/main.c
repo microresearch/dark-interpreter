@@ -181,8 +181,8 @@ void main(void)
 	    
 	//simulationforstack:	
 	for (x=0;x<STACK_SIZE;x++){
-	  	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-	  //	  stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
+	  //	  	  stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+	  	  stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
 	}
 	
 #ifndef LACH
@@ -229,6 +229,21 @@ void main(void)
 	   //	   int16_t *buf16 = (int16_t*) datagenbuffer;
 	   //	   	   x++;
 	   //	   	   buf16[x%32768]=(adc_buffer[9]<<4)-32768;
+	   speedwrapper++;
+	   tmp=(adc_buffer[0]<<2);
+	   if (speedwrapper>=tmp){
+	     speedwrapper=0;
+	     func_runall(stackyy,buf16,stack_pos); // simulations
+	   }
+
+	   if (adc_buffer[2]>1024) {
+	     stack_pos=func_pop(stackyy,stack_pos);
+//signed char func_pop(struct stackey stack[STACK_SIZE], signed char stack_pos){
+
+	     stack_pos=func_pushn(stackyy,11,buf16,stack_pos,1,10);
+	   }
+
+	   //	    dohardwareswitch(adc_buffer[3]>>5,0);
 
 #else
 
@@ -266,7 +281,7 @@ void main(void)
 	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
-	    if ((hdgener->pos+tmp)>=hdgener->wrap) hdgener->pos=(hdgener->pos+tmp)%(hdgener->wrap);
+	    if ((hdgener->pos+tmp)>=hdgener->wrap) hdgener->pos=(hdgener->pos+tmp)%(hdgener->wrap+1);
 	    else hdgener->pos+=tmp;
 	    tmp=hdgener->start+hdgener->pos;
 	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
@@ -284,7 +299,7 @@ void main(void)
 	  if (digfilterflag&2){
 	    if (++f0106er->del==f0106er->speed){
     	    tmp=f0106er->step*direction[f0106er->dir];
-	    if ((f0106er->pos+tmp)>=f0106er->wrap) f0106er->pos=(f0106er->pos+tmp)%(f0106er->wrap);
+	    if ((f0106er->pos+tmp)>=f0106er->wrap) f0106er->pos=(f0106er->pos+tmp)%(f0106er->wrap+1);
 	    else f0106er->pos+=tmp;
 	    tmp=(f0106er->start+f0106er->pos)%32768;
 	    set40106pwm(buf16[tmp]); 
@@ -296,7 +311,7 @@ void main(void)
 	    if (++lmer->del==lmer->speed){
 	    //lmer - set lmpwm
 	    tmp=lmer->step*direction[lmer->dir];
-	    if ((lmer->pos+tmp)>=lmer->wrap) lmer->pos=(lmer->pos+tmp)%(lmer->wrap);
+	    if ((lmer->pos+tmp)>=lmer->wrap) lmer->pos=(lmer->pos+tmp)%(lmer->wrap+1);
 	    else lmer->pos+=tmp;
 	    x=(lmer->start+lmer->pos)%32768;
 	    tmp=(lmer->start+lmer->pos+1)%32768;
@@ -310,7 +325,7 @@ void main(void)
 	    //maximer - setmaximpwm - just one
 	    if (++maximer->del==maximer->speed){
 	    tmp=maximer->step*direction[maximer->dir];
-	    if ((maximer->pos+tmp)>=maximer->wrap) maximer->pos=(maximer->pos+tmp)%(maximer->wrap);
+	    if ((maximer->pos+tmp)>=maximer->wrap) maximer->pos=(maximer->pos+tmp)%(maximer->wrap+1);
 	    else maximer->pos+=tmp;
 	    tmp=(maximer->start+maximer->pos)%32768;
 	    setmaximpwm(buf16[tmp]); 

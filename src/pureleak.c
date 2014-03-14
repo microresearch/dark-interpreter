@@ -84,7 +84,7 @@ void thread_runnn(u8* buffer, u8 threadcount);
 void machine_runnn(u8* buffer){
   u8 x; 
   if (buffer[0]==0) buffer[0]=MAX_FRED*2;
-  for (x=0;x<buffer[0];x+=2){ // TODO** - or how many threads we do have? = buffer[0]???
+  for (x=0;x<buffer[0];x+=2){ 
   thread_runnn(buffer,x);
  }
 }
@@ -1303,8 +1303,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       break;
 
     case 16:
-      // **TODO** port of hodge - but we need larger 256*128 (32768) cellspace in two halves
-      // numill and numinf
+      // port of hodge -// larger 256*128 (32768) cellspace in two halves
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       flag=0;

@@ -333,7 +333,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
     GPIOC->BSRRH= (1<<11) | (1<<10);
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
-    if (clockhangflag==0) digfilterflag=14;
+    if (clockhangflag==0) digfilterflag=11;
     else digfilterflag=1;
     break;
   case 12:

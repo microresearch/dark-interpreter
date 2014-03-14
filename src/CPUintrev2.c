@@ -1619,18 +1619,18 @@ int main(void)
 	      else anypos+=any;
 	      any=(anystart+anypos);
 	      wrap=buf16[any];
-	      anydel=0;
-	      if (wrap>start) wrap=wrap-start;
+	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
-	      start=start%32768;wrap=wrap%1024;  //maybe constrain sample wrap size
-
+	      start=start%32768;wrap=wrap%1024;  //constrain sample wrap size//TODO complex/speed?
+	      anydel=0;
 	      printf("position: %d start: %d wrap: %d \n",any, start, wrap);
 	    }
 	  }// inproc
 	    // walk sample until we reach end - then set inproc=1, pos=0
 		inproc=0;
-		samp=sampstep*direction[sampdir];
+		samp=sampstep*direction[sampdir]; // and if goes backwards in dir? wrap?
+		// that wrap could just be generic len???
 		if ((samppos+samp)<=wrap)
 		  {
 		    samppos=(samppos+samp)%32768;
