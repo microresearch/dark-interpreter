@@ -124,7 +124,9 @@ safety reasons) or battery clip (default) on the back.
 
 290 euros
 
-** Samples
+** Samples/recordings
+
+419 and 420: no input, early dev tests with just hardware
 
 ** Video
 
@@ -209,35 +211,47 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* FRI-SAT 13 MAR
+* MON 16 MAR
 
-  wrap... DONE.TEST(simthenreal)REALTOTEST
+- make/document SUSP board...
+
+* FRI-SAT 14/15 MAR
+
+- test bulk all 4 datagensDONE, push/pop etc.CAandSIM=CRASH_TOFIX
+
+redid stack, new syscall.c for _sbrk_r - still crash even just with CA
+
+cpuint: OK
+pureleak: crashs frequently-FIXED
+
+- test ADC limits - HOW/trigger when reach 1024/1023>>>>
 
 - finish/test grain code - also normaldir TODO!
-
-///
-
-- test that datagens _do_run - listen
-
-RETEST all - simu_CRASH!
-
-- test ADC limits - HOW?
-
-fromolderTODO:
-
-- what relations could be between post-filter and input (we can go
-  straight out/thru 40106 but still switch in digital filter and mix
-  left INTO right)... but where to spec- as hardware settings are
-  full
-
-TODO: add as extra 2 options in hardware.c with control by what????
-
-bitwise addition somewhere???
-
+- complexity setting
+- settingarray code 
+- all effects
+- further tweaks/TODOs each file
 
 ////
 
 - re-test with AD620-TESTED, working
+
+- in hardware.c maybe enlarge range res2 to 32 (combinations of
+  hangs/unhangs, filter feeds and so on)
+
+- add flag for filtermix back in to audio (digfilterflag=32) and test
+
+** DONE
+
+- hardware wrap... DONE.TEST(simthenreal)REALTOTEST-DONE
+
+RETEST all datagens:DONE 
+
+-SIM-tested one by one and all worksDONE, tested full-DONE
+-CA-DONE
+-CPUint _and_ pureleak -DONE
+
+- hardware wrap... DONE.TEST(simthenreal)REALTOTEST
 
 * WED 12 MAR
 

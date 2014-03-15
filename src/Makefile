@@ -12,6 +12,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
+			syscalls.c \
 			pureleak.o audio.o hardware.o simulationforstack.o CPUintrev2.o CAforstack.o
 
 # Linker script
@@ -22,7 +23,7 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1' #-DTEST_STRAIGHT #-DPCSIM
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 
-CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 -DTEST_STRAIGHT \
+CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
 	-DARM_MATH_CM4 -D'__FPU_PRESENT=1'\
 	-mthumb \
 	-c -lm -lc -fno-common -O2 -g \

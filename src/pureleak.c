@@ -10,6 +10,7 @@
 #include <malloc.h>
 #include "CPUint.h"
 #define randi() (adc_buffer[9])
+//#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
 #endif
 
@@ -57,7 +58,7 @@ Based in part on spork factory by Dave Griffiths.
 #define BIT82 buffer[bit82]
 #define STACK buffer[stack]
 
-u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
+void thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   buffer[offset]=which; // cpu
   buffer[offset+1]=delay;
   buffer[offset+2]=0;
@@ -73,7 +74,6 @@ u16 thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay,
   buffer[offset+12]=randi()%255;
   buffer[offset+13]=14; // stack_pos -1????
   //  printf("createe: offset%d which%d\n",offset,buffer[offset]);
-  return offset+30;
 }
 
 u16 machine_peekkk(u8* buffer, uint16_t addr);
@@ -90,12 +90,13 @@ void machine_runnn(u8* buffer){
 }
 
 void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
-  static u16 offset=(MAX_FRED*2)+1; static u8 x;
-  buffer[0]=x;
-  buffer[++x]=offset>>8; // but offset can be over 255 - so top bit
-  buffer[++x]=offset&255; // lower bit
+  u16 offset;
+  buffer[buffer[0]]=offset>>8; // but offset can be over 255 - so top bit
+  buffer[buffer[0]+1]=offset&255; // lower bit
   //  printf("offset: %d\n",offset);
-  offset=thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
+  offset=buffer[0]*30;
+  thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
+  buffer[0]+=2;
 }
 
 
@@ -185,7 +186,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
 
   //  dircalc(biotadir,65536,256);
   //    CPU=16; //16=crash
-  if (++DELC==DELAY){
+    if (++DELC==DELAY){
 #ifdef PCSIM
     //            printf("CPU: %d\n",CPU);
     //        printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
@@ -1583,7 +1584,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
     }
 
-  }
+     }
 }
 
 u16 machine_peekkk(u8* buffer, uint16_t addr) {
@@ -1624,10 +1625,20 @@ int main(void)
     addr=randi()%65536;
     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
   }
-  x=0;
-  while(1) {
-    machine_runnn(buffer);
-    printf("%c",buffer[x++]);
-  }
+
+  x=0; 
+    while(1) {
+          machine_runnn(buffer);
+      //    printf("%c",buffer[x++]);
+      //      x++;
+	  addr=randi()%65536;
+	  if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
+
+	  else  			cpustackpoppp(buffer);
+		 //  printf("stackposy: %d\n", stack_posy);
+
+
+    }
+
 }
 #endif

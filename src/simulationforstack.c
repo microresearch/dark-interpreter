@@ -1284,7 +1284,6 @@ void passingarraytest(uint8_t *buffer) {
 signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos, u8 delay, u8 howmuch){
   if (stack_pos<(STACK_SIZE-1))
     {
-      stack_pos++;
       stack[stack_pos].howmuch=howmuch;
       stack[stack_pos].delay=delay;
       if (stack[stack_pos].howmuch==0) stack[stack_pos].howmuch=1;
@@ -1431,6 +1430,7 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 	fitzinit(stack[stack_pos].unit,buffer);
 	stack[stack_pos].functione=runfitz;
       }
+      stack_pos++;
     }
   return stack_pos;
 }
@@ -1438,8 +1438,7 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 
 void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, signed char stack_pos){
   static u16 count; char i; signed char x;
-  x=stack_pos+1;
-      for (i=0;i<x;i++){
+      for (i=0;i<stack_pos;i++){
       count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
         }
 }

@@ -108,10 +108,6 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   static uint8_t hangflag=0, clockhangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
-  // mod is 12 bits 0-4096 - bitshift >>5 by time we get here
-
-  // last 2 bits toggle input
-
   //#define JACKOUT (1 << 2) /* port B, pin 2 */
   //#define FILTIN (1 << 4) /* port B, pin 4 */
   //#define LINEINN (1 << 7) /* port B, pin 7 */
@@ -119,13 +115,18 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
   //PC8 is feedback switch
   //jitter???
-  //    res=(modder>>4)&3;
-  //  res=modder/1024;
 
-  //    res = (uint16_t)(((float)modder) / 512.f)%4;
+  res= modder&3; // 12 bits now lose 5 = 7 bits=128 2 bottom bits =5 bits=32!
+  res2=modder>>3; // //
+  // **TODO: maybe res2 as >>2 so we have 32 options
+  // as res=0-4 * 32 = 128 which is modder>>5 which comes in 
 
-  res= modder&3; // 12 bits now lose 5 = 7 bits = 0->25 - already >>5
-  res2=modder>>3; // so now we have 4 bits left = 0->4 options
+  // **TODO: option to send signal to filter as well -> digital/with/without distort
+  // 2 options x2 straight/with 40106/*2(40106)=8
+  // pc11, pb9 and distort is on pc10 (1 is no distort)...
+  // could also pass through 40106 first but too many options
+  // remember to set digitalfilter option
+
 
   if (res2!=2 && hangflag==1){
     hangflag=0;
@@ -153,7 +154,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
 
   //   res=2; // test
-  //          res=2;
+  //  res=1;
     //    res=3;
   switch(res){
  case 0:
@@ -190,7 +191,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRL = (1<<13);
  }
 
-  //    res2=1;
+  //      res2=1;
 
   //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -203,12 +204,16 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL = (1<<2);//
     GPIOC->BSRRL= (1<<10);
-
-    // **TODO: toggle option to send signal to filter as well + digital/with/without distort
-    // pc11, pb9 and distort is on pc10 (1 is no distort)...
-    // could also pass through 40106 first but too many options
-
    break;
+  case 1:
+    //3-just40106
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL=(1<<0) | (1<<6);
+
+    if (clockhangflag==0) digfilterflag=2;
+    else digfilterflag=0;
+    break;
   case 2:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
         GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
@@ -238,7 +243,7 @@ RES: feedback on/off - jackin-> - lm358in->
     */
     break;
   case 3:
-        //2-unhang all except input [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+        //2-unhang all except input 
     // input is pb7
        hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -251,20 +256,6 @@ RES: feedback on/off - jackin-> - lm358in->
            GPIO_Init(GPIOC, &GPIO_InitStructure);
     if (clockhangflag==0) digfilterflag=15;
     else digfilterflag=1;
-    break;
-  case 1:
-    //3-just40106
-    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
-    GPIOC->BSRRH= (1<<11);
-    GPIOB->BSRRL=(1<<0) | (1<<6);
-
-    // **TODO: toggle option to send signal to filter as well + digital/with/without distort
-    // pc11, pb9 and distort is on pc10 (1 is no distort)...
-    // could also pass through 40106 first but too many options
-    // remember to set digitalfilter option
-    
-    if (clockhangflag==0) digfilterflag=2;
-    else digfilterflag=0;
     break;
   case 4:
     //4-filterthen40106-->|filterpath=1lm/2digital-distort on/off in each case

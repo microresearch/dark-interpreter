@@ -103,7 +103,7 @@ uint16_t runhodge(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 
   x++;
 #ifdef PCSIM  
-  printf("%c",cells[y]);
+  //  printf("%c",cells[y]);
 #endif
   }
   unit->del=0;
@@ -174,7 +174,7 @@ uint16_t runhodgenet(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* uni
 
   x++;
 #ifdef PCSIM  
-  printf("%c",cells[x]);
+  //  printf("%c",cells[x]);
 #endif
   }
   unit->del=0;
@@ -239,7 +239,7 @@ uint16_t runlife(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
   else cells[y]=cells[x];
 
 #ifdef PCSIM  
-  printf("%c",cells[x]);
+  //  printf("%c",cells[x]);
 #endif
 
   //  printf("%c",cells[x]);
@@ -588,14 +588,14 @@ void SIR16init(void* unity, u8* cells){
   unit->probC=cells[2];
   unit->probV=cells[3];
   // distribute totals and SIR - total must be sum of S.I.R in other bits
-  for (i=0;i<65534;i+=2){
+  /*  for (i=0;i<65534;i+=2){
     total=(cells[i]>>4)|1;
     suscept=cells[i]%total;
     infected=total-suscept;
     cells[i]=(total<<4)+suscept;
     y=i+1;
     cells[y]=(infected<<4);
-  }
+    }*/
 }
 
 
@@ -706,7 +706,7 @@ uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
     cells[yy]=(futureinfected<<4)+futurerecovered;
     x+=2;
 #ifdef PCSIM
-    printf("%c%c",cells[y],cells[yy]);
+    //    printf("%c%c",cells[y],cells[yy]);
 #endif
 
   }
@@ -720,10 +720,9 @@ uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 
 //stack_posy=ca_pushn(stack,0,datagenbuffer,stack_posy,1,10); // delay,howmany);
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, signed char stack_posy, u8 delay, u8 howmuch){
-  if (stack_posy<(STACK_SIZE-1))// why works with -3???
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 delay, u8 howmuch){
+  if (stack_posy<STACK_SIZE)
     {
-      stack_posy++;
       //   printf("%d\n",stack_posy);
       stack[stack_posy].howmuch=howmuch;
       stack[stack_posy].delay=delay;
@@ -775,26 +774,33 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, si
 	stack[stack_posy].functione=runSIR16;
 	break;
       }
-    }
+      stack_posy++;
+    }  
   return stack_posy;
 }
 
-void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, signed char stack_posy){
+void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy){
   static u16 count; u8 i;
   if (stack_posy>0){
   for (i=0;i<stack_posy;i++){
+    //    if (stack[stack_posy].unit!=NULL){
     count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);
+    //    }
   }
   }
   //  printf("%d\n",x);
 
 }
 
-signed char ca_pop(struct stackey stack[STACK_SIZE], signed char stack_posy){
- 	if (stack_posy>=0)
+signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
+ 	if (stack_posy>0)
 	{
-	  free(stack[stack_posy].unit);
 	  stack_posy--;
+	  //	  	  if (stack[stack_posy].unit!=NULL){
+	  free(stack[stack_posy].unit);
+	  //	  stack[stack_posy].unit=NULL;
+	  //	  }
+	  	  stack_posy--;
 	}
   return stack_posy;
 }
@@ -810,7 +816,7 @@ int main(void)
   uint16_t count=0;
   srandom(time(0));
 
-  signed char stack_posy=-1;
+  u8 stack_posy=0;
   struct stackey stack[STACK_SIZE];
 
   for (x=0;x<65535;x++){
@@ -822,10 +828,16 @@ int main(void)
   for (x=0;x<STACK_SIZE;x++){
     stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
   }
+  printf("stackposy: %d\n", stack_posy);
 
-  /*       while(1){
-	 ca_runall(stack,buffer,stack_posy);
-	 }*/
+           while(1){
+  	 ca_runall(stack,buffer,stack_posy);     
+
+	 	 if ((rand()%6)==1) stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
+	 	 else stack_posy=ca_pop(stack,stack_posy);
+  printf("stackposy: %d\n", stack_posy);
+
+  	 }
 
 }
 #endif

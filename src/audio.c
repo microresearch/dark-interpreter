@@ -103,12 +103,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp,any,counter,edge=0;
+	u16 tmp,any,edge=0;
 	u8 sampledir,samplestep,complexity;
 	u8 anydir, anyspeed, anystep; 
 	u16 anywrap,anystart;
 	static u8 inproc=1,anydel;
-	static u16 start,wrap,samplepos,anypos=0; u8 x;
+	static u16 counter,start,wrap,samplepos,anypos=0; u8 x; // keep counter STATIc for tests
 
 	sampledir=2;samplestep=1;
 
@@ -118,7 +118,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	int16_t *buf16 = (int16_t*) datagenbuffer;
 	
 	for (x=0;x<sz/2;x++){
-
 	  right_buffer[x]=buf16[(x+counter)%32768];
 	  }
 	
@@ -318,27 +317,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=buf16[any];
 	}
 	break;
-	case 9:
-	  //5/walk datagen dir as samples
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==anyspeed){ //do we need speed?
-    	    any=anystep*direction[wormdir];
-	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap+1);
-	    else anypos+=any;
-	    any=(anystart+anypos)%32768;
-	    }
-	  mono_buffer[x]=buf16[any];
-	}
-	break;
 
 	} // end case
 
-	// complexity->0/straight,1/straight walk,2/wormcode walk,3/datagenasdirwalk,4/walk datagen dir as grains
-	/// 5/walk datagen dir as samples, 6/walk datagen with wormdir as grains
-	//// 7/walk datagen with wormdir as samples ///more?
-// re-directions
-// TODO:normaldir also????
+	// TODO:re-directions
+	// TODO:normaldir also????
 
 #ifndef LACH	
 	if (digfilterflag&1){

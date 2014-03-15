@@ -99,7 +99,7 @@ void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8
 }
 
 void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
-  if (this->m_threadcount==MAX_THREADS) return;
+  if (this->m_threadcount>=MAX_THREADS) return;
   else {
     thread_create(&this->m_threads[this->m_threadcount], address, wrapaddress,cputype,delay);// last is CPU type!
   this->m_threadcount++;
@@ -1410,13 +1410,13 @@ void machine_poke(machine* this, uint16_t addr, u8 data) {
 
 void machine_run(machine* this) {
 
-  //  static u8 threadcount=0;
-  //  threadcount++;
+  //    static u8 threadcount=0;
+  //    threadcount++;
   //  if (threadcount>this->m_threadcount) {
   //    threadcount=0;
 
     // slowing all down these 3????not so bad could run less frequenctly!TODO***
-        	if ((randi()%this->m_leakiness)==0) {
+    /*      	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
 		}
 	
@@ -1426,7 +1426,7 @@ void machine_run(machine* this) {
 		
 	if ((randi()%this->m_mutateprob)==0) {
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
-	  }
+	  }*/
   //	}
 
   	for (unsigned char n=0; n<this->m_threadcount; n++) {
@@ -1604,46 +1604,6 @@ int main(void)
 	anyspeed=1;anydir=2;anystart=0;anywrap=32; anystep=1;
 
 	while(1) {
-
- 	for (x=0;x<sz/2;x++){
-	  //walk datagen 
-	  if (inproc!=0){ // get next datagen
-	    if (++anydel==anyspeed){
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      start=buf16[any];
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      wrap=buf16[any];
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
-	      else wrap=start-wrap;
-	      if (wrap==0) wrap=1;
-	      start=start%32768;wrap=wrap%1024;  //constrain sample wrap size//TODO complex/speed?
-	      anydel=0;
-	      printf("position: %d start: %d wrap: %d \n",any, start, wrap);
-	    }
-	  }// inproc
-	    // walk sample until we reach end - then set inproc=1, pos=0
-		inproc=0;
-		samp=sampstep*direction[sampdir]; // and if goes backwards in dir? wrap?
-		// that wrap could just be generic len???
-		if ((samppos+samp)<=wrap)
-		  {
-		    samppos=(samppos+samp)%32768;
-		    printf("    >>>position %d\n",(start+samppos)%32768);
-		    //	  mono_buffer[x]=audio_buffer[samplepos%32768];
-		  }
-		else {
-		  inproc=1;
-		  samppos=0;
-		}
-
-	}
-
 
 		  }
 }
