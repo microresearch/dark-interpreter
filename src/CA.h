@@ -29,7 +29,6 @@ struct hodge{
 struct CA{
   u8 celllen,rule;
   u8 del;
-  u8* table;
 };
 
 struct fire{

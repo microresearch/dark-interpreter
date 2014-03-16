@@ -197,7 +197,8 @@ u16 sin_data[256];  // sine LUT Array
 
 
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+	   //	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+	   stack_posy=ca_pushn(stackyyy,4,datagenbuffer,stack_posy,1,10); // delay,howmany);
 	   }
 
 
@@ -241,7 +242,7 @@ u16 sin_data[256];  // sine LUT Array
 
 	      	      func_runall(stackyy,buf16,stack_pos); // simulations
 	      	      //	      machine_run(m); //cpu - WRAP own speedTODO
-	      //	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+	      	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
 	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
 
 
@@ -250,7 +251,7 @@ u16 sin_data[256];  // sine LUT Array
 
 	      if (rand()%2==1) {
 		stack_pos=func_pop(stackyy,stack_pos);
-		//stack_posy=ca_pop(stackyyy,stack_posy);
+		stack_posy=ca_pop(stackyyy,stack_posy);
 			//cpustackpop(m);
 			//			cpustackpoppp(datagenbuffer);
 						
@@ -260,9 +261,11 @@ u16 sin_data[256];  // sine LUT Array
 		//		    cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
 		//			addr=randi()<<4;
 		//			cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
-				stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-		//		stack_pos=func_pushn(stackyy,,buf16,stack_pos,1,10);
+		//				stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+		stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
 		//		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+		//stack_posy=ca_pushn(stackyyy,4,datagenbuffer,stack_posy,1,10); // delay,howmany);
+		//CRASH on 4-cel1d table
 	     }
 
 

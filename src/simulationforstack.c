@@ -60,7 +60,7 @@ extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 #endif
 
-extern u16* sin_data;
+extern u16 sin_data[256];
 
 //////////////////////////////////////////////////////////
 
@@ -119,7 +119,7 @@ uint16_t runsine(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
-    //    workingbuffer[count]=sin_data[unit->cc%256];
+    workingbuffer[count]=sin_data[(unit->cc)%256];//**TODO-crash???OKAY!!
 #ifdef PCSIM
     printf("%c",workingbuffer[count]);
 #endif

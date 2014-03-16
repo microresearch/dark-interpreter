@@ -11,12 +11,12 @@
 #include <sys/time.h>
 #include "CA.h"
 #define randi() rand()
-u8* table;
+u8 table[21];
 #else
 #include "CA.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern u8* table;
+extern u8 table[21];
 #endif
 
 //////////////////////////////////////////
@@ -330,12 +330,13 @@ uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
       zz=x+i+z;
       if (zz>=unit->celllen) zz=zz-unit->celllen;
       if (zz<0) zz=unit->celllen+zz;
-            sum+=(cells[zz]>>4)%k;
+            sum+=(cells[zz]>>4)%4;
     }
 
     y=x+i+unit->celllen;
-    //cells[y]= table[sum]<<4;  // crash
-    //    printf("%c",table[sum]<<4);
+    cells[y]= table[sum]<<4;  // TODO**crash
+    
+	//	if (sum>21)      printf("%d\n",sum);
   }
 
   //  if (sum>18)    printf("ttt %d\n",sum);
@@ -826,7 +827,7 @@ int main(void)
     buffer[x]=randi()%255;
   }
 
-  //  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
+  inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
 
   for (x=0;x<STACK_SIZE;x++){
     stack_posy=ca_pushn(stack,0,buffer, stack_posy,1,100); // last as delay,howmany
@@ -837,9 +838,9 @@ int main(void)
                while(1){
 		 ca_runall(stack,buffer,stack_posy);     
 
-	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
+	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
 	 	 else stack_posy=ca_pop(stack,stack_posy);
-		 printf("stackposy: %d\n", stack_posy);
+		 //		 printf("stackposy: %d\n", stack_posy);
 
     	 }
 
