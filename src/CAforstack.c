@@ -11,26 +11,25 @@
 #include <sys/time.h>
 #include "CA.h"
 #define randi() rand()
+u8* table;
 #else
 #include "CA.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
+extern u8* table;
 #endif
 
 //////////////////////////////////////////
 
 
-#define HODGEY 0
-#define HODGENETY 1
-#define LIFEY 2
-#define CELY 3
-#define CEL1DY 4
-#define FIREY 5
-#define WIREY 6
-#define SIRY 7
-#define SIR16Y 8
 
-#define NUM_CA 9
+#define STACK_SIZE 16
+
+struct stackey{
+  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
+  u8 delay,howmuch;
+  void* unit;
+  };
 
 //////////////////////////////////////////
 
@@ -186,6 +185,8 @@ uint16_t runhodgenet(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* uni
 
 //life - 2d CA - these all now use CA struct
 
+void inittable(u8 r, u8 k, int rule, u8 *table);
+
 void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
   unit->celllen=cells[0];
@@ -288,16 +289,14 @@ uint16_t runcel(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
 
 ///////////////
 
-u8 *table;
-
-///how much memory does table take?
-
-void inittable(u8 r, u8 k, int rule){
+void inittable(u8 r, u8 k, int rule, u8 *table){
   u8 max; int z; u8 summ;
 
-  free(table);
+  //    free(table);
   max = (k-1)*((r*2)+1);
-  table= (u8 *)malloc(max+1);
+  //  printf("ttt %d\n",max);
+
+  //  table= malloc(max+1);
   for (z=max;z>=0;z--){
     summ=0;
     while ((rule-powf(k,z))>=0) {
@@ -318,8 +317,8 @@ void inittable(u8 r, u8 k, int rule){
 
 uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
 
-  u8 cell,sum; signed int z,zz;
-  u8 radius=3, k=4, i;//k=states
+  u8 cell,sum; signed int z,zz, radius=3;
+  u8 k=4, i;//k=states
   struct CA* unit=unity;
   u16 y;
 
@@ -331,14 +330,15 @@ uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
       zz=x+i+z;
       if (zz>=unit->celllen) zz=zz-unit->celllen;
       if (zz<0) zz=unit->celllen+zz;
-      sum+=(cells[zz]>>4)%k;
+            sum+=(cells[zz]>>4)%k;
     }
 
     y=x+i+unit->celllen;
-    cells[y]= table[sum]<<4; 
-
+    //cells[y]= table[sum]<<4;  // crash
     //    printf("%c",table[sum]<<4);
   }
+
+  //  if (sum>18)    printf("ttt %d\n",sum);
 
   return x+i;
 }
@@ -587,6 +587,7 @@ void SIR16init(void* unity, u8* cells){
   unit->probR=cells[1];
   unit->probC=cells[2];
   unit->probV=cells[3];
+  // TODO** fix this constraint!
   // distribute totals and SIR - total must be sum of S.I.R in other bits
   /*  for (i=0;i<65534;i+=2){
     total=(cells[i]>>4)|1;
@@ -720,7 +721,7 @@ uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 
 //stack_posy=ca_pushn(stack,0,datagenbuffer,stack_posy,1,10); // delay,howmany);
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 delay, u8 howmuch){
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy,u8 delay, u8 howmuch){
   if (stack_posy<STACK_SIZE)
     {
       //   printf("%d\n",stack_posy);
@@ -783,9 +784,9 @@ void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy){
   static u16 count; u8 i;
   if (stack_posy>0){
   for (i=0;i<stack_posy;i++){
-    //    if (stack[stack_posy].unit!=NULL){
+    if (stack[stack_posy].unit!=NULL){
     count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);
-    //    }
+        }
   }
   }
   //  printf("%d\n",x);
@@ -797,10 +798,10 @@ signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
 	{
 	  stack_posy--;
 	  //	  	  if (stack[stack_posy].unit!=NULL){
-	  free(stack[stack_posy].unit);
+	  	  free(stack[stack_posy].unit);
 	  //	  stack[stack_posy].unit=NULL;
 	  //	  }
-	  	  stack_posy--;
+	  //	  stack_posy--;
 	}
   return stack_posy;
 }
@@ -818,26 +819,29 @@ int main(void)
 
   u8 stack_posy=0;
   struct stackey stack[STACK_SIZE];
+  void *malloced[NUM_CA];
+
 
   for (x=0;x<65535;x++){
     buffer[x]=randi()%255;
   }
 
-  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
+  //  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
   for (x=0;x<STACK_SIZE;x++){
-    stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
+    stack_posy=ca_pushn(stack,0,buffer, stack_posy,1,100); // last as delay,howmany
   }
-  printf("stackposy: %d\n", stack_posy);
+    printf("stackposy: %d\n", stack_posy);
 
-           while(1){
-  	 ca_runall(stack,buffer,stack_posy);     
 
-	 	 if ((rand()%6)==1) stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
+               while(1){
+		 ca_runall(stack,buffer,stack_posy);     
+
+	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,0,buffer, stack_posy,2,100); // last as delay,howmany
 	 	 else stack_posy=ca_pop(stack,stack_posy);
-  printf("stackposy: %d\n", stack_posy);
+		 printf("stackposy: %d\n", stack_posy);
 
-  	 }
+    	 }
 
 }
 #endif

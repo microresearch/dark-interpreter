@@ -219,12 +219,19 @@ outside, and in open daylight.
 
 - test bulk all 4 datagensDONE, push/pop etc.CAandSIM=CRASH_TOFIX
 
-redid stack, new syscall.c for _sbrk_r - still crash even just with CA
+re-did stack, new syscall.c with brk thing....
+
+CA: problem in cel1d/table(shift to main). not in malloc/free -still
+there in cel1d/4TODO/FIX(table access)
+
+SIM: shifted sin_data to main, still runsine (both cases are external arrays)
 
 cpuint: OK
-pureleak: crashs frequently-FIXED
+pureleak: crashs frequently-FIXED 
 
-- test ADC limits - HOW/trigger when reach 1024/1023>>>>
+- test ALLTOGETHER
+
+///
 
 - finish/test grain code - also normaldir TODO!
 - complexity setting
@@ -233,6 +240,8 @@ pureleak: crashs frequently-FIXED
 - further tweaks/TODOs each file
 
 ////
+
+- test ADC limits - HOW/trigger when reach 4095DONE
 
 - re-test with AD620-TESTED, working
 

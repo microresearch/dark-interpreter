@@ -9,14 +9,16 @@
 typedef unsigned char u8;
 typedef uint16_t u16;
 
-
-#define STACK_SIZE 16
-
-struct stackey{
-  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
-  u8 delay,howmuch;
-  void* unit;
-  };
+#define HODGEY 0
+#define HODGENETY 1
+#define LIFEY 2
+#define CELY 3
+#define CEL1DY 4
+#define FIREY 5
+#define WIREY 6
+#define SIRY 7
+#define SIR16Y 8
+#define NUM_CA 9
 
 struct hodge{
   u8 q,k1,k2,g,celllen;
@@ -27,6 +29,7 @@ struct hodge{
 struct CA{
   u8 celllen,rule;
   u8 del;
+  u8* table;
 };
 
 struct fire{
@@ -44,6 +47,3 @@ struct SIR16{
   u8 probM,probR,probC,probV;
 };
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy,u8 delay, u8 howmuch);
-void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy);
-signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy);

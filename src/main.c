@@ -33,6 +33,8 @@
  #include "hardware.h"
  #include "simulation.h"
  #include "CPUint.h"
+ #include "CA.h"
+
 
  #define randi() (adc_buffer[9])
   //#define randi() rand()
@@ -50,7 +52,9 @@
 
  extern u8 digfilterflag;
 
- u8 wormdir; // worm direction
+u8 wormdir; // worm direction
+u8 table[21]; 
+u16 sin_data[256];  // sine LUT Array
 
  struct dgenwalker{
    // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
@@ -104,6 +108,23 @@
 	 u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	 u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
+	 inittable(3,4,randi()<<4,table);
+
+  float pi= 3.141592;
+  float w;
+  float yi;
+  float phase;
+  int sign_samp,i;
+  w= 2*pi;
+  w= w/256;
+    for (i = 0; i <= 256; i++)
+    {
+      yi= 2047*sinf(phase); // was 2047
+      phase=phase+w;
+      sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
+      sin_data[i]=sign_samp; // write value into array
+    }
+
 
 	 //	ADC1_Initonce();
 	 ADC1_Init((uint16_t *)adc_buffer);
@@ -146,10 +167,10 @@
 	 u16 *buf16 = (u16*) datagenbuffer;
 
 	 //simulationforstack:	
-	 /*		 for (x=0;x<STACK_SIZE;x++){
-		   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-	   //	  stack_pos=func_pushn(stackyy,6,buf16,stack_pos,1,10);
-	   }*/
+	 for (x=0;x<STACK_SIZE;x++){
+	   	   stack_pos=func_pushn(stackyy,3,buf16,stack_pos,1,10);
+	   //	   stack_pos=func_pushn(stackyy,2,buf16,stack_pos,1,10);
+	 	   }
 
  #ifndef LACH
 	 dohardwareswitch(2,0);
@@ -163,21 +184,21 @@
 		    }*/
 
 	 // pureleak:
-
+	 /*
 		 for (x=0;x<MAX_FRED;x++){//define MAX_FRED 60
 		   //			  addr=randi()<<4;
 		   // addr=x*1000;
 		   addr=randi()<<4;
 		   //	  	  cpustackpushhh(datagenbuffer,addr,addr+100,x%31,1);
 		   cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
-		   }
+		   }*/
 	 // CA:
-		 /*
-		 inittable(3,4,randi()<<4); //radius,states(k),rule - init with cell starter
+		 
+
 
 	 for (x=0;x<STACK_SIZE;x++){
 	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-	   }*/
+	   }
 
 
 	  while(1)
@@ -218,29 +239,30 @@
 
 	   // 1-run machine/datagen code - based on complexity?
 
-	      //		      func_runall(stackyy,buf16,stack_pos); // simulations
-	      //	      machine_run(m); //cpu - WRAP own speedTODO
+	      	      func_runall(stackyy,buf16,stack_pos); // simulations
+	      	      //	      machine_run(m); //cpu - WRAP own speedTODO
 	      //	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
+	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
 
 
 	      // memory TEST push/pop
 	      // sims/ca/machine
 
-		      if (adc_buffer[3]>512) {
-			//			stack_pos=func_pop(stackyy,stack_pos);
-			//	stack_posy=ca_pop(stackyyy,stack_posy);
+	      if (rand()%2==1) {
+		stack_pos=func_pop(stackyy,stack_pos);
+		//stack_posy=ca_pop(stackyyy,stack_posy);
 			//cpustackpop(m);
-			cpustackpoppp(datagenbuffer);
+			//			cpustackpoppp(datagenbuffer);
 						
 	      }
-		      else {
-			//			addr=randi()<<4;
-			//		    cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-			addr=randi()<<4;
-			cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
-			//			stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-			//			stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+	      else {
+		//			addr=randi()<<4;
+		//		    cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+		//			addr=randi()<<4;
+		//			cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
+				stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+		//		stack_pos=func_pushn(stackyy,,buf16,stack_pos,1,10);
+		//		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
 	     }
 
 
@@ -252,7 +274,6 @@
 	   // 4-hardware operations
 
 	     // **TODO: WORM_OVER_RIDE for all directions!!!!
-
 
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	     if (digfilterflag&16){ // if we use hdgen at all

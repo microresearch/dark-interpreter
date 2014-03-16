@@ -60,6 +60,8 @@ extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 #endif
 
+extern u16* sin_data;
+
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -83,7 +85,7 @@ uint16_t runconv(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
     if (count==MAX_SAM) count=0;
     y=count+16384;
     y=y%32768;
-    if (count==0) tmp=32767;
+    if (count==0) tmp=32766;
     else tmp=count-1;
 			
     workingbuffer[y]=((float)workingbuffer[tmp]*unit->c0)+((float)workingbuffer[count]*unit->c1)+((float)workingbuffer[(count+1)%32768]*unit->c2);
@@ -108,20 +110,6 @@ uint16_t runconv(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
 void sineinit(void* unity, uint16_t *workingbuffer){
   struct siney* unit=unity;
   unit->del=unit->cc=0;
-  float pi= 3.141592;
-  float w;    // ψ
-  float yi;
-  float phase;
-  int sign_samp,i;
-  w= 2*pi;
-  w= w/256;
-    for (i = 0; i <= 256; i++)
-    {
-      yi= 2047*sinf(phase); // was 2047
-      phase=phase+w;
-      sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
-      unit->sin_data[i]=sign_samp; // write value into array
-    }
 }
 
 uint16_t runsine(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
@@ -131,7 +119,7 @@ uint16_t runsine(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
-    workingbuffer[count]=unit->sin_data[unit->cc%256];
+    //    workingbuffer[count]=sin_data[unit->cc%256];
 #ifdef PCSIM
     printf("%c",workingbuffer[count]);
 #endif
@@ -1281,8 +1269,8 @@ void passingarraytest(uint8_t *buffer) {
 #endif
 
 
-signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, signed char stack_pos, u8 delay, u8 howmuch){
-  if (stack_pos<(STACK_SIZE-1))
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 delay, u8 howmuch){
+  if (stack_pos<STACK_SIZE)
     {
       stack[stack_pos].howmuch=howmuch;
       stack[stack_pos].delay=delay;
@@ -1436,18 +1424,18 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 }
 
 
-void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, signed char stack_pos){
+void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_pos){
   static u16 count; char i; signed char x;
       for (i=0;i<stack_pos;i++){
       count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);// set delay and howmuch in struct!
         }
 }
 
-signed char func_pop(struct stackey stack[STACK_SIZE], signed char stack_pos){
- 	if (stack_pos>=0)
+signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
+ 	if (stack_pos>0)
 	{
-	  free(stack[stack_pos].unit);
 	  stack_pos--;
+	  free(stack[stack_pos].unit);
 	}
 	return stack_pos;
 }
