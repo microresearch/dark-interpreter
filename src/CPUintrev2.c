@@ -108,7 +108,7 @@ void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 del
 
 void cpustackpop(machine *this){
   this->m_threadcount--;
-  if (this->m_threadcount==0) this->m_threadcount=1;
+  if (this->m_threadcount<0) this->m_threadcount=0;
 }
 
 u8 antrule(u8 dir,u8 inst, u8 rule){
@@ -1356,18 +1356,19 @@ u8 thread_stack_count(thread* this, u8 c) {
 }
 
 void thread_push(thread* this, u8 data) {
-	if (this->m_stack_pos<STACK_SIZE-1)
+  if (this->m_stack_pos<14) // STACK_SIZE-2
 	{
-		this->m_stack[++this->m_stack_pos]=data;
+	  //		this->m_stack[++this->m_stack_pos]=data;
 	}
 }
 
 u8 thread_pop(thread* this) {
  	if (this->m_stack_pos>=0)
 	{
-		u8 ret=this->m_stack[this->m_stack_pos];
-		this->m_stack_pos--;
-		return ret;
+	  u8 ret=this->m_stack[this->m_stack_pos];
+	  this->m_stack_pos--;
+				return ret;
+		//		return 0;
 	}
 	//    printf("errorr\n");
 	return 0;   
@@ -1376,7 +1377,7 @@ u8 thread_pop(thread* this) {
 u8 thread_top(thread* this) {
 	if (this->m_stack_pos>=0)
 	{
-		return this->m_stack[this->m_stack_pos];
+	  return this->m_stack[this->m_stack_pos];
 	}
 	return 0;
 }
@@ -1390,14 +1391,14 @@ void machine_create(machine *this, uint8_t *buffer) {
    this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 }
 
-u16 machine_peek(const machine* this, uint16_t addr) {
+u16 machine_peek(machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
   u16 y;
   y=addr+1;
   return (this->m_memory[addr]<<8)+this->m_memory[y];
 }
 
-u8 machine_p88k(const machine* this, uint16_t addr) {
+u8 machine_p88k(machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
   return this->m_memory[addr];
 }
@@ -1432,12 +1433,6 @@ void machine_run(machine* this) {
   	for (unsigned char n=0; n<this->m_threadcount; n++) {
   	  thread_run(&this->m_threads[n],this);
 	}
-}
-
-void write_mem(machine *m, int *a, uint16_t len) {
-    for (uint16_t i=0; i<len; i++) {
-        machine_poke(m,i,a[i]);
-    }
 }
 
 void leak(machine *m){

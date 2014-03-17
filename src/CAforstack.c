@@ -189,7 +189,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table);
 
 void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
-  unit->celllen=cells[0];
+  unit->celllen=cells[0]+1;
   unit->del=0;
   unit->rule=cells[1];
 }
@@ -317,7 +317,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
 
-  u8 cell,sum; int16_t z,zz, radius=3;
+  u8 cell,sum; int16_t z,zz;
   u8 k=4, i;//k=states
   struct CA* unit=unity;
   u16 y;
@@ -326,15 +326,15 @@ uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
     sum=0;
     
     // sum of cells in radius - not looping!
-    for (z=-radius;z<radius;z++){
+    for (z=-3;z<3;z++){ // hardcode sans radius...
       zz=x+i+z;
       if (zz>=unit->celllen) zz=zz-unit->celllen;
       if (zz<0) zz=unit->celllen+zz;
-            sum+=(cells[zz]>>4)%4;
+            sum+=(cells[(u16)zz]>>4)%4; // crash here?
     }
 
     y=x+i+unit->celllen;
-       cells[y]= table[sum]<<4;  // TODO**crash
+        cells[y]= table[sum]<<4;  
     
 	//	if (sum>21)      printf("%d\n",sum);
   }
@@ -783,15 +783,11 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
 
 void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy){
   static u16 count; u8 i;
-  if (stack_posy>0){
   for (i=0;i<stack_posy;i++){
     if (stack[stack_posy].unit!=NULL){
     count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);
         }
   }
-  }
-  //  printf("%d\n",x);
-
 }
 
 signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
@@ -829,17 +825,17 @@ int main(void)
 
   inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
 
-  for (x=0;x<STACK_SIZE;x++){
+  /*  for (x=0;x<STACK_SIZE;x++){
     stack_posy=ca_pushn(stack,0,buffer, stack_posy,1,100); // last as delay,howmany
-  }
+    }*/
     printf("stackposy: %d\n", stack_posy);
 
 
                while(1){
 		 ca_runall(stack,buffer,stack_posy);     
 
-	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
-	 	 else stack_posy=ca_pop(stack,stack_posy);
+		 //	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
+		 //	 	 else stack_posy=ca_pop(stack,stack_posy);
 		 //		 printf("stackposy: %d\n", stack_posy);
 
     	 }

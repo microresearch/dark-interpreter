@@ -213,7 +213,32 @@ outside, and in open daylight.
 
 * MON 16 MAR
 
-- make/document SUSP board...
+[- make/document SUSP board]
+
+- check inits: still crash sans inits (even if init CA)
+
+- move commented code to audio-discard
+
+
+- finish/test grain code - also normaldir TODO!
+- complexity setting
+- settingarray code 
+- all effects
+- further tweaks/TODOs each file
+
+///////
+
+- fix CA - cel1d issue - appears FIXED
+
+- *- REtest ALL datagens TOGETHER*  APPEARS FIXED but init question
+
+// crashes in combinations with machine_run (not on its own)
+
+checking CPUintrev2: is not stack, all not initialised (but then
+shouldn't run?) CHECK OUT what needs to be inited/running here...
+
+///
+
 
 * FRI-SAT 14/15 MAR
 
@@ -229,7 +254,7 @@ SIM: seems OK,fixes to runsine DONE
 cpuint: OK
 pureleak: crashs frequently-FIXED 
 
-- test ALLTOGETHER
+*- REtest ALLTOGETHER*
 
 ///
 

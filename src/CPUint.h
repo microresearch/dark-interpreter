@@ -56,7 +56,7 @@ typedef uint16_t u16;
     typedef struct {
       thread *m_threads;
       u8 *m_memory; u8 m_infectprob, m_mutateprob;
-      u8 m_threadcount;
+      signed char m_threadcount;
       u8 m_leakiness;
     } machine;
     
@@ -79,13 +79,12 @@ typedef uint16_t u16;
 /////////////////////////////////////////////////////////
     
 void machine_create(machine *this, uint8_t *buffer);
-u16 machine_peek(const machine *t, u16 addr); // changed for CPUintrev2.h
-u8 machine_p88k(const machine* this, uint16_t addr); // ditto added
+u16 machine_peek(machine *t, u16 addr); // changed for CPUintrev2.h
+u8 machine_p88k(machine* this, uint16_t addr); // ditto added
 void machine_poke(machine *t, u16 addr, u8 data);	
 void machine_run(machine *t);
 void infectcpu(machine *m, u8 probI, u8 probD, u8 infected);    
 void mutate(machine *m, u8 which, u8 identifier);
-void write_mem(machine *m, int *a, u16 len);
 
 void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay);
 void cpustackpop(machine *this);

@@ -166,68 +166,19 @@ u16 sin_data[256];  // sine LUT Array
 	 struct stackey stackyyy[STACK_SIZE];
 	 u16 *buf16 = (u16*) datagenbuffer;
 
-	 //simulationforstack:	
-	 for (x=0;x<STACK_SIZE;x++){
-	   	   stack_pos=func_pushn(stackyy,3,buf16,stack_pos,1,10);
-	   //	   stack_pos=func_pushn(stackyy,2,buf16,stack_pos,1,10);
-	 	   }
-
  #ifndef LACH
 	 dohardwareswitch(2,0);
  #endif
 
-	 // CPUintrev2:
-	 /*	 for (x=0; x<100; x++)
-		  {
-		    addr=randi()<<4;
-		    cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-		    }*/
 
-	 // pureleak:
-	 /*
-		 for (x=0;x<MAX_FRED;x++){//define MAX_FRED 60
-		   //			  addr=randi()<<4;
-		   // addr=x*1000;
-		   addr=randi()<<4;
-		   //	  	  cpustackpushhh(datagenbuffer,addr,addr+100,x%31,1);
-		   cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);
-		   }*/
-	 // CA:
-		 
-
-
-	 for (x=0;x<STACK_SIZE;x++){
-	   //	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-	   stack_posy=ca_pushn(stackyyy,4,datagenbuffer,stack_posy,1,10); // delay,howmany);
-	   }
-
+///////////////////////////
 
 	  while(1)
 	  {
 
  #ifdef TEST_STRAIGHT
-	    //(top down= 2,0,3,4,1):
-	    // just to test
-	    //	   hardware=adc_buffer[2]>>5;
-	    //	   if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	    //	   oldhardware=hardware;
-	    //	   ca_runall(stackyyy,datagenbuffer,stack_posy); // some crash
-	    //	   testing ADC9/ad620
-	    //	   	   int16_t *buf16 = (int16_t*) datagenbuffer;
-	    //	   x++;
-	    //	   buf16[x%32768]=(adc_buffer[9]<<4)-32768;
-	    //	   speedwrapper++;
-		    tmp=(adc_buffer[0]<<2);
-		    if (speedwrapper>=tmp){
-		      speedwrapper=0;
-	      //	     func_runall(stackyy,buf16,stack_pos); // simulations
-	      //	     ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-			    machine_run(m); //cpu - WRAP own speedTODO
-		      //	     	     machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
 
-			    }
-
-		     dohardwareswitch(adc_buffer[3]>>5,0);
+	    // nothing???
 
  #else
 
@@ -240,11 +191,10 @@ u16 sin_data[256];  // sine LUT Array
 
 	   // 1-run machine/datagen code - based on complexity?
 
-	      	      func_runall(stackyy,buf16,stack_pos); // simulations
-	      	      //	      machine_run(m); //cpu - WRAP own speedTODO
-	      	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO
-
+	      func_runall(stackyy,buf16,stack_pos); // simulations
+	      machine_run(m); //cpu - WRAP own speedTODO
+	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 
 	      // memory TEST push/pop
 	      // sims/ca/machine
@@ -252,20 +202,17 @@ u16 sin_data[256];  // sine LUT Array
 	      if (rand()%2==1) {
 		stack_pos=func_pop(stackyy,stack_pos);
 		stack_posy=ca_pop(stackyyy,stack_posy);
-			//cpustackpop(m);
-			//			cpustackpoppp(datagenbuffer);
+		cpustackpop(m);
+		cpustackpoppp(datagenbuffer);
 						
 	      }
 	      else {
-		//			addr=randi()<<4;
-		//		    cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-		//			addr=randi()<<4;
-		//			cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
-		//				stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-		stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
-		//		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		//stack_posy=ca_pushn(stackyyy,4,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		//CRASH on 4-cel1d table????
+		addr=randi()<<4;
+		cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+		addr=randi()<<4;
+		cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
+		stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
 	     }
 
 
