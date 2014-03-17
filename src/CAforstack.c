@@ -317,7 +317,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
 
-  u8 cell,sum; signed int z,zz, radius=3;
+  u8 cell,sum; int16_t z,zz, radius=3;
   u8 k=4, i;//k=states
   struct CA* unit=unity;
   u16 y;
@@ -334,7 +334,7 @@ uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
     }
 
     y=x+i+unit->celllen;
-    cells[y]= table[sum]<<4;  // TODO**crash
+       cells[y]= table[sum]<<4;  // TODO**crash
     
 	//	if (sum>21)      printf("%d\n",sum);
   }

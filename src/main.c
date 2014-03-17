@@ -265,7 +265,7 @@ u16 sin_data[256];  // sine LUT Array
 		stack_pos=func_pushn(stackyy,1,buf16,stack_pos,1,10);
 		//		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
 		//stack_posy=ca_pushn(stackyyy,4,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		//CRASH on 4-cel1d table
+		//CRASH on 4-cel1d table????
 	     }
 
 

@@ -222,9 +222,9 @@ outside, and in open daylight.
 re-did stack, new syscall.c with brk thing....
 
 CA: problem in cel1d/table(shift to main). not in malloc/free -still
-there in cel1d/4TODO/FIX(table access)
+there in cel1d/4TODO/FIX(table access)TODO?????
 
-SIM: shifted sin_data to main, still runsine (both cases are external arrays)
+SIM: seems OK,fixes to runsine DONE
 
 cpuint: OK
 pureleak: crashs frequently-FIXED 
