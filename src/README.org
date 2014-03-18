@@ -117,8 +117,9 @@ custom filters, distortion, and switchable feedback paths. Order with
 *** 3-But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of Darkness.
 
 This two-tiered Interpreter extends the Mater Suspiriorum with a skin
-breakout board and skin/EEG amplifier (strap it to the head). All
-signal paths and settings are accessible to the skin for complex hand
+breakout board and skin/EEG amplifier (strap it to the head, stick it
+in the earth, pull it across the skin, into the body). All signal
+paths and settings are accessible to the skin for complex hand
 re-routing, and feedback. Order with 9v socket (not recommended for
 safety reasons) or battery clip (default) on the back.
 
@@ -211,31 +212,30 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* MON 16 MAR
+* MON/TUE 16/17 MAR
 
-[- make/document SUSP board]
-
-- check inits: still crash sans inits (even if init CA)
-
-- move commented code to audio-discard
-
-
-- finish/test grain code - also normaldir TODO!
+- finish/test grain codeDONE 
 - complexity setting
 - settingarray code 
+
 - all effects
+- new hardware settings
 - further tweaks/TODOs each file
 
 ///////
 
-- fix CA - cel1d issue - appears FIXED
+** DONE:- 
 
-- *- REtest ALL datagens TOGETHER*  APPEARS FIXED but init question
+*- REtest ALL datagens TOGETHER* APPEARS FIXED but init questionDONE
 
 // crashes in combinations with machine_run (not on its own)
 
 checking CPUintrev2: is not stack, all not initialised (but then
 shouldn't run?) CHECK OUT what needs to be inited/running here...
+
+- move commented code to audio-discard
+
+- check inits: still crash sans inits (even if init CA)
 
 ///
 

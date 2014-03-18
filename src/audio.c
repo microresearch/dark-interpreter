@@ -103,48 +103,51 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp,any,edge=0;
-	u8 sampledir,samplestep,complexity;
-	u8 anydir, anyspeed, anystep; 
-	u16 anywrap,anystart;
+	u16 tmp,edge=0;
+	u8 sampledir=3,samplestep=1,complexity;
+	u8 anydir=3, anyspeed=1, anystep=1; 
+	u16 anywrap=32768,anystart=0;
 	static u8 inproc=1,anydel;
-	static u16 counter,start,wrap,samplepos,anypos=0; u8 x; // keep counter STATIc for tests
+	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0;
+	u16 samplestart=0,samplewrap=32768;
+	u8 x; 
 
 	sampledir=2;samplestep=1;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	
-	int16_t *buf16 = (int16_t*) datagenbuffer;
+	/*	int16_t *buf16 = (int16_t*) datagenbuffer;
 	
 	for (x=0;x<sz/2;x++){
 	  right_buffer[x]=buf16[(x+counter)%32768];
 	  }
-	
-	  counter+=x;
-
-	
+	  counter+=x;*/
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
 
 	u16 *buf16 = (u16*) datagenbuffer;
 
-	// TODO- processing here:
-	// TODO or walker for each except 0;;;
-
 	di_split_stereo(sz, src, left_buffer, right_buffer,0, 1); // edger, step
 
-	// do any effects on each sample here?
-	// do dir/wormdir switch as main
+	// TODO: any effects on each sample here?
 	//
-	complexity=0;// TEST!
+	/* settings: 
+	   NORMAL: samplestep,sampledir,direction,samplewrap,samplestart
+	   DATAGENWALK: anyspeed, anydir, anystep, anywrap,anystart 
+	*/
+	
+	complexity=0;//TEST
+	samplestep=((adc_buffer[2]>>7)+1); // 5 bits=32 and still jitter///average???
+	//	sampledir=2;
 	switch(complexity){
 	case 0:
 	for (x=0;x<sz/2;x++){
-	  samplepos+=1;
-	  if (samplepos>=32768) samplepos=0; /// TODO** or set lImit?
-	  mono_buffer[x]=audio_buffer[samplepos];
+	  samplepos+=samplestep;// TODO samplestep as also fractional! - only in this case or?
+	  // or if we throw in speed will fraction it? TEST
+	  if (samplepos>=samplewrap) samplepos=0;
+	  mono_buffer[x]=audio_buffer[(samplestart+samplepos)%32768];
 	}
 	break;
 	/////////
@@ -152,7 +155,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	for (x=0;x<sz/2;x++){
 	  tmp=samplestep*direction[sampledir];
 	  samplepos+=tmp;
-	  mono_buffer[x]=audio_buffer[samplepos%32768];
+	  mono_buffer[x]=audio_buffer[samplepos%32768]; // TODO: whether also start/wrap here?
 	}
 	break;
 	/////////
@@ -168,12 +171,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  //walk any 
 	    if (++anydel==anyspeed){
-    	    any=anystep*direction[anydir];
-	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap+1);
-	    else anypos+=any;
-	    any=(anystart+anypos)%32768;
+    	    tmp=anystep*direction[anydir];
+	    if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap+1);
+	    else anypos+=tmp;
+	    tmp=(anystart+anypos)%32768;
 	    }
-	  tmp=samplestep*direction[datagenbuffer[any]%8];
+	  tmp=samplestep*direction[datagenbuffer[tmp]%8];
 	  samplepos+=tmp;
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
@@ -183,16 +186,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  if (inproc!=0){ // get next datagen
 	    if (++anydel==anyspeed){
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      start=buf16[any];
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      wrap=buf16[any];
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      start=buf16[tmp];
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      wrap=buf16[tmp];
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
@@ -220,12 +223,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  //walk any 
 	  if (++anydel==anyspeed){ //do we need speed?
-    	    any=anystep*direction[anydir];
-	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap+1);
-	    else anypos+=any;
-	    any=(anystart+anypos)%32768;
+    	    tmp=anystep*direction[anydir];
+	    if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap+1);
+	    else anypos+=tmp;
+	    tmp=(anystart+anypos)%32768;
+	    anydel=0;
 	    }
-	  mono_buffer[x]=buf16[any];
+	  mono_buffer[x]=buf16[tmp];
 	}
 	break;
 	/////////
@@ -234,16 +238,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  if (inproc!=0){ // get next datagen
 	    if (++anydel==anyspeed){
-	      any=anystep*direction[wormdir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      start=buf16[any];
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      wrap=buf16[any];
+	      tmp=anystep*direction[wormdir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      start=buf16[tmp];
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      wrap=buf16[tmp];
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
@@ -271,16 +275,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  if (inproc!=0){ // get next datagen
 	    if (++anydel==anyspeed){
-	      any=anystep*direction[wormdir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      start=buf16[any];
-	      any=anystep*direction[anydir];
-	      if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap);
-	      else anypos+=any;
-	      any=(anystart+anypos);
-	      wrap=buf16[any];
+	      tmp=anystep*direction[wormdir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      start=buf16[tmp];
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      wrap=buf16[tmp];
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
@@ -309,19 +313,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  //walk any 
 	  if (++anydel==anyspeed){ //do we need speed?
-    	    any=anystep*direction[wormdir];
-	    if ((anypos+any)>=anywrap) anypos=(anypos+any)%(anywrap+1);
-	    else anypos+=any;
-	    any=(anystart+anypos)%32768;
+    	    tmp=anystep*direction[wormdir];
+	    if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap+1);
+	    else anypos+=tmp;
+	    tmp=(anystart+anypos)%32768;
+	    anydel=0;
 	    }
-	  mono_buffer[x]=buf16[any];
+	  mono_buffer[x]=buf16[tmp];
 	}
 	break;
 
 	} // end case
 
-	// TODO:re-directions
-	// TODO:normaldir also????
+	// TODO:re-directions???
 
 #ifndef LACH	
 	if (digfilterflag&1){
