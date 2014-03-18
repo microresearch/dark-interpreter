@@ -50,11 +50,12 @@
 
  u8* datagenbuffer = (u8*)0x10000000;
 
- extern u8 digfilterflag;
+extern u8 digfilterflag;
 
 u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
+//u8 steppy; // TODO_ testing
 
  struct dgenwalker{
    // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
@@ -88,7 +89,7 @@ u16 sin_data[256];  // sine LUT Array
    //	int32_t idx, rcount,wcount;
    //	uint16_t data,x,y,i,highest,lowest;
    u16 x,addr,tmp,oldhardware,hardware; 
-   u16 speedwrapper=0;
+   u16 ave,speedwrapper=0;
 
 	 //	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -200,8 +201,8 @@ u16 sin_data[256];  // sine LUT Array
 	      // sims/ca/machine
 
 	      if (rand()%2==1) {
-		stack_pos=func_pop(stackyy,stack_pos);
-		stack_posy=ca_pop(stackyyy,stack_posy);
+		//stack_pos=func_pop(stackyy,stack_pos);
+  		stack_posy=ca_pop(stackyyy,stack_posy);
 		cpustackpop(m);
 		cpustackpoppp(datagenbuffer);
 						
@@ -213,11 +214,20 @@ u16 sin_data[256];  // sine LUT Array
 		cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
 		stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
 		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-	     }
+		}
 
+	      // complexity?
+	      
+	      //    ave=0;
+	      //	      for (x=0;x<16;x++){
+	      //	      steppy=adc_buffer[3]>>8;
+	      //	      steppy=(u16)ave/16; // but if is called in middle?
+	      //	      }
 
-	     // 3-deal with setting knob + up/down/dir 
-	     // walk into settings array
+	     // 3-deal with settingsarray
+
+	      
+
 
 #ifndef LACH
 

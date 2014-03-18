@@ -218,10 +218,10 @@ uint16_t runswap(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=32766) count=0;
-    //    temp=workingbuffer[count];
+    temp=workingbuffer[count];
     yy=count+1;
-    //    workingbuffer[count]=workingbuffer[yy];
-    //    workingbuffer[yy]=temp;
+    workingbuffer[count]=workingbuffer[yy];
+    workingbuffer[yy]=temp;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
@@ -386,7 +386,7 @@ uint16_t runknob(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t howm
   for (i=0; i<howmuch*2; i++) {
     count++;
     if (count==MAX_SAM) count=0;
-    //    workingbuffeur[count]=randi()%255; **TODO: which knob????
+    workingbuffeur[count]=randi()%255;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
@@ -404,7 +404,7 @@ uint16_t runswapaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t
   u8 i=0; u16 temp;
   struct generik* unit=unity;
   if (++unit->del==delay){
-  for (i=0; i<howmuch; i++) {
+      for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
 #ifndef PCSIM
@@ -414,7 +414,7 @@ uint16_t runswapaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t
     audio_buffer[count%AUDIO_BUFSZ]=(int16_t)workingbuffer[count];
     workingbuffer[count]=temp;
 #endif
-  }
+}
     unit->del=0;
   }
   return count;
@@ -427,7 +427,7 @@ uint16_t runORaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t h
   u8 i=0; u16 temp;
   struct generik* unit=unity;
   if (++unit->del==delay){
-  for (i=0; i<howmuch; i++) {
+      for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
 #ifndef PCSIM
@@ -458,7 +458,7 @@ uint16_t runORaudio(uint16_t count, u8 delay, uint16_t *workingbuffer, uint8_t h
     }
 
 #endif
-  }
+}
     unit->del=0;
   }
   return count;

@@ -214,17 +214,31 @@ outside, and in open daylight.
 
 * MON/TUE 16/17 MAR
 
-- finish/test grain codeDONE 
-- complexity setting
+- complexity and settingsarray (what needs to be covered)
 - settingarray code 
-
 - all effects
-- new hardware settings
-- further tweaks/TODOs each file
+- new hardware settings:
+
+in hardware.c maybe enlarge range res2 to 32 (combinations of
+  hangs/unhangs, filter feeds and so on)
+
+add flag for filtermix back in to audio (digfilterflag=32) and test
+
+- edge can be own knob on LACH
+
+////
+
+- further tweaks/TODOs each file - WED/THU
 
 ///////
 
 ** DONE:- 
+
+- fractions in audio steps!-DONE with speed wrapper
+
+- no jitter in ADC// leakage or swapaudio. and fix runswap/DONE-it was swaps!...
+
+- finish/test grain codeDONE - re-test!DONE
 
 *- REtest ALL datagens TOGETHER* APPEARS FIXED but init questionDONE
 
@@ -269,11 +283,6 @@ pureleak: crashs frequently-FIXED
 - test ADC limits - HOW/trigger when reach 4095DONE
 
 - re-test with AD620-TESTED, working
-
-- in hardware.c maybe enlarge range res2 to 32 (combinations of
-  hangs/unhangs, filter feeds and so on)
-
-- add flag for filtermix back in to audio (digfilterflag=32) and test
 
 ** DONE
 

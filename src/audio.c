@@ -32,6 +32,8 @@ extern u8 *datagenbuffer;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
+
+
 void Audio_Init(void)
 {
 	uint32_t i;
@@ -104,13 +106,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 tmp,edge=0;
-	u8 sampledir=3,samplestep=1,complexity;
-	u8 anydir=3, anyspeed=1, anystep=1; 
+	u8 sampledir=3,samplestep=1,complexity=0;
+	u8 anydir=3, anyspeed=1, anystep=1, speed=1; 
 	u16 anywrap=32768,anystart=0;
-	static u8 inproc=1,anydel;
+	static u8 inproc=1,anydel=0,del=0;
 	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0;
 	u16 samplestart=0,samplewrap=32768;
-	u8 x; 
+	u8 x,steppy; 
 
 	sampledir=2;samplestep=1;
 
@@ -133,21 +135,29 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// TODO: any effects on each sample here?
 	//
-	/* settings: 
-	   NORMAL: samplestep,sampledir,direction,samplewrap,samplestart
-	   DATAGENWALK: anyspeed, anydir, anystep, anywrap,anystart 
+	/* AUDIO settings: 
+	   NORMAL: samplestep,sampledir,direction,samplewrap,samplestart,speed
+	   DATAGENWALK: anyspeed,anydir,anystep,anywrap,anystart 
 	*/
-	
-	complexity=0;//TEST
-	samplestep=((adc_buffer[2]>>7)+1); // 5 bits=32 and still jitter///average???
+
+	steppy=adc_buffer[3]>>5;
+	speed=(adc_buffer[2]>>5)+1;
+	samplestep=steppy+1; // 5 bits=32 and still jitter///average???
+		//		samplestep=1;
 	//	sampledir=2;
+	complexity=0;//TEST
+
 	switch(complexity){
 	case 0:
 	for (x=0;x<sz/2;x++){
+	  if (++del==speed){
 	  samplepos+=samplestep;// TODO samplestep as also fractional! - only in this case or?
 	  // or if we throw in speed will fraction it? TEST
 	  if (samplepos>=samplewrap) samplepos=0;
+	  del=0;
+	  }
 	  mono_buffer[x]=audio_buffer[(samplestart+samplepos)%32768];
+	  //	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
 	break;
 	/////////
@@ -175,6 +185,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap+1);
 	    else anypos+=tmp;
 	    tmp=(anystart+anypos)%32768;
+	    anydel=0;
 	    }
 	  tmp=samplestep*direction[datagenbuffer[tmp]%8];
 	  samplepos+=tmp;
