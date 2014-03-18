@@ -212,23 +212,31 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* WED 18 MAR
+
+- where we do stack push/pulls?
+- settingarray code
+
 * MON/TUE 16/17 MAR
 
 test 8,9,10 in audio, then
 
-- option for dictated direction of playback (complexity setting)DONE-TEST!->5
+- double up audio switches with playback all of datagen DONE. TEST upto 21
 
 - re-try leakage etc. code in cpuint
 
-- double up audio switches with playback all of datagen
+///
 
 - how we handle edger? via complexity? as set of options
 
-- audio.c sample wrap size/constraint=grainsize as part of speed setting perhaps
+- audio.c sample wrap size/constraint=grainsize as part of speed
+  setting or complexity
+
+////
 
 - new hardware settings:
 
-- that main.c hardware dir can also be wormdir>hardware option?
+that main.c hardware dir can also be wormdir>hardware option? as flag?
 
 in hardware.c maybe enlarge range res2 to 32 (combinations of
   hangs/unhangs, filter feeds and so on)
@@ -239,12 +247,10 @@ add flag for filtermix back in to audio (digfilterflag=32) and TEST
 
 *complexity*:
 
-audio: 0-> for granulation +[ effects, digfiltereffects=settings]
+audio: 0-> for granulation +[ effects, digfiltereffects=settings], edger cases?
 
-edger cases?
-
-main: [running of 4 datagens(order of running_STACK?)]still question
-of stack/push/pull as knob
+[main: [running of 4 datagens(order of running_STACK?)]still question
+of stack/push/pull as knob] -> somewhere else
 
 //////
 
@@ -261,10 +267,10 @@ main.c:
   f0106er->step=1; f0106er->speed=1; 
   hdgener->step=1; hdgener->speed=1; 
 
-simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
+[simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
 cpu: addr, wrap,CPU%31,delay
 leak: addr, wrap,CPU%31,delay
-CA: CA%NUM_CA,delay,howmany
+CA: CA%NUM_CA,delay,howmany]
 
 but we should have speedwrappers for cpu and leak?
 
@@ -273,7 +279,7 @@ audio.c:
 NORMAL: samplestep,samplewrap,samplestart,speed
 DATAGENWALK: anyspeed,anystep 
 
-incoming: edger, instep
+incoming sample: edger, instep
 
 + 2 walkers for effects, filter effects: step,speed
 how these work?
@@ -295,6 +301,8 @@ X/Y if Y is 0 then use fingerboard
 ///////
 
 ** DONE:- 
+
+- option for dictated direction of playback (complexity setting)DONE-TEST!->5
 
 - question of wrap and backwards directions in audio.cTESTED: get rid of
   wrap. also in main.c. DONE- TEST DONE

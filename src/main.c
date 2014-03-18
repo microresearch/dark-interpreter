@@ -220,7 +220,9 @@ u16 sin_data[256];  // sine LUT Array
 
 	      // 3-deal with settingsarray
 
-	      //+++///* some kind of foldback where walker also sets settingsarray
+
+
+	      //+++///* some kind of foldback where walkers also set settingsarray
 	      
 
 
