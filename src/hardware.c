@@ -139,8 +139,8 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
     }
 
   //#ifdef TEST_STRAIGHT
-    res=2;
-    res2=0; // testing now!
+  //    res=2;
+  //    res2=0; // testing now!
   //#endif // TEST_STRAIGHT
 
   /*

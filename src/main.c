@@ -60,7 +60,7 @@ u16 sin_data[256];  // sine LUT Array
  struct dgenwalker{
    // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
    u8 step,dir,speed,del;
-   u16 pos,start,wrap;
+   u16 pos;
  };
 
 
@@ -101,10 +101,10 @@ u16 sin_data[256];  // sine LUT Array
 
 	 //  u8 step,dir,speed;  u16 pos,start,end; 
 	 //
-	 lmer->step=1; lmer->speed=1; lmer->dir=2;lmer->pos=0;lmer->start=1;lmer->wrap=32767; lmer->del=0;
-	 maximer->step=1; maximer->speed=1; maximer->dir=2;maximer->pos=0;maximer->start=1;maximer->wrap=32767; maximer->del=0;
-	 f0106er->step=1; f0106er->speed=1; f0106er->dir=2;f0106er->pos=0;f0106er->start=1;f0106er->wrap=32767; f0106er->del=0;
-	 hdgener->step=1; hdgener->speed=1; hdgener->dir=2;hdgener->pos=0;hdgener->start=1;hdgener->wrap=65535; hdgener->del=0;
+	 lmer->step=1; lmer->speed=1; lmer->dir=2;lmer->pos=0; lmer->del=0;
+	 maximer->step=1; maximer->speed=1; maximer->dir=2;maximer->pos=0;maximer->del=0;
+	 f0106er->step=1; f0106er->speed=1; f0106er->dir=2;f0106er->pos=0;f0106er->del=0;
+	 hdgener->step=1; hdgener->speed=1; hdgener->dir=2;hdgener->pos=0;hdgener->del=0;
 
 	 u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	 u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
@@ -190,7 +190,8 @@ u16 sin_data[256];  // sine LUT Array
 	    if (speedwrapper>=tmp){
 	      speedwrapper=0;
 
-	   // 1-run machine/datagen code - based on complexity?
+	      // 1-run machine/datagen code - based on complexity - and
+	      // what of ordering?
 
 	      func_runall(stackyy,buf16,stack_pos); // simulations
 	      machine_run(m); //cpu - WRAP own speedTODO
@@ -198,7 +199,7 @@ u16 sin_data[256];  // sine LUT Array
 	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 
 	      // memory TEST push/pop
-	      // sims/ca/machine
+	      // sims/ca/machine/pureleak
 
 	      if (rand()%2==1) {
 		//stack_pos=func_pop(stackyy,stack_pos);
@@ -216,16 +217,10 @@ u16 sin_data[256];  // sine LUT Array
 		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
 		}
 
-	      // complexity?
-	      
-	      //    ave=0;
-	      //	      for (x=0;x<16;x++){
-	      //	      steppy=adc_buffer[3]>>8;
-	      //	      steppy=(u16)ave/16; // but if is called in middle?
-	      //	      }
 
-	     // 3-deal with settingsarray
+	      // 3-deal with settingsarray
 
+	      //+++///* some kind of foldback where walker also sets settingsarray
 	      
 
 
@@ -240,9 +235,8 @@ u16 sin_data[256];  // sine LUT Array
 	    if (++hdgener->del==hdgener->speed){
 
     	    tmp=hdgener->step*direction8bit[hdgener->dir];
-	    if ((hdgener->pos+tmp)>=hdgener->wrap) hdgener->pos=(hdgener->pos+tmp)%(hdgener->wrap+1);
-	    else hdgener->pos+=tmp;
-	    tmp=hdgener->start+hdgener->pos;
+	    hdgener->pos+=tmp;
+	    tmp=hdgener->pos;
 	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
 	    hdgener->del=0;
 	    }
@@ -258,11 +252,10 @@ u16 sin_data[256];  // sine LUT Array
 	  if (digfilterflag&2){
 	    if (++f0106er->del==f0106er->speed){
     	    tmp=f0106er->step*direction[f0106er->dir];
-	    if ((f0106er->pos+tmp)>=f0106er->wrap) f0106er->pos=(f0106er->pos+tmp)%(f0106er->wrap+1);
-	    else f0106er->pos+=tmp;
-	    tmp=(f0106er->start+f0106er->pos)%32768;
+	    f0106er->pos+=tmp;
+	    tmp=f0106er->pos%32768;
 	    set40106pwm(buf16[tmp]); 
-	      f0106er->del=0;
+	    f0106er->del=0;
 	    }
 	  }
 	  
@@ -270,11 +263,10 @@ u16 sin_data[256];  // sine LUT Array
 	    if (++lmer->del==lmer->speed){
 	    //lmer - set lmpwm
 	    tmp=lmer->step*direction[lmer->dir];
-	    if ((lmer->pos+tmp)>=lmer->wrap) lmer->pos=(lmer->pos+tmp)%(lmer->wrap+1);
-	    else lmer->pos+=tmp;
-	    x=(lmer->start+lmer->pos)%32768;
-	    tmp=(lmer->start+lmer->pos+1)%32768;
-	    	    setlmpwm(buf16[x],buf16[tmp]); 
+	    lmer->pos+=tmp;
+	    x=lmer->pos%32768;
+	    tmp=(lmer->pos+1)%32768;
+	    setlmpwm(buf16[x],buf16[tmp]); 
 	    lmer->del=0;
 	    }
 
@@ -284,9 +276,8 @@ u16 sin_data[256];  // sine LUT Array
 	    //maximer - setmaximpwm - just one
 	    if (++maximer->del==maximer->speed){
 	    tmp=maximer->step*direction[maximer->dir];
-	    if ((maximer->pos+tmp)>=maximer->wrap) maximer->pos=(maximer->pos+tmp)%(maximer->wrap+1);
-	    else maximer->pos+=tmp;
-	    tmp=(maximer->start+maximer->pos)%32768;
+	    maximer->pos+=tmp;
+	    tmp=maximer->pos%32768;
 	    setmaximpwm(buf16[tmp]); 
 	    maximer->del=0;
 	    }

@@ -214,17 +214,79 @@ outside, and in open daylight.
 
 * MON/TUE 16/17 MAR
 
-- complexity and settingsarray (what needs to be covered)
-- settingarray code 
-- all effects
+test 8,9,10 in audio, then
+
+- option for dictated direction of playback (complexity setting)DONE-TEST!->5
+
+- re-try leakage etc. code in cpuint
+
+- double up audio switches with playback all of datagen
+
+- how we handle edger? via complexity? as set of options
+
+- audio.c sample wrap size/constraint=grainsize as part of speed setting perhaps
+
 - new hardware settings:
+
+- that main.c hardware dir can also be wormdir>hardware option?
 
 in hardware.c maybe enlarge range res2 to 32 (combinations of
   hangs/unhangs, filter feeds and so on)
 
-add flag for filtermix back in to audio (digfilterflag=32) and test
+add flag for filtermix back in to audio (digfilterflag=32) and TEST
 
-- edge can be own knob on LACH
+///////////
+
+*complexity*:
+
+audio: 0-> for granulation +[ effects, digfiltereffects=settings]
+
+edger cases?
+
+main: [running of 4 datagens(order of running_STACK?)]still question
+of stack/push/pull as knob
+
+//////
+
+*settingsarray* (replace these with direct DEFINES/aliases) - aim for 32::
+
+main.c:
+
+  m->m_leakiness=randi()%255;
+  m->m_infectprob=randi()%255;
+  m->m_mutateprob=randi()%255;
+
+  lmer->step=1; lmer->speed=1; 
+  maximer->step=1; maximer->speed=1; 
+  f0106er->step=1; f0106er->speed=1; 
+  hdgener->step=1; hdgener->speed=1; 
+
+simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
+cpu: addr, wrap,CPU%31,delay
+leak: addr, wrap,CPU%31,delay
+CA: CA%NUM_CA,delay,howmany
+
+but we should have speedwrappers for cpu and leak?
+
+audio.c:
+
+NORMAL: samplestep,samplewrap,samplestart,speed
+DATAGENWALK: anyspeed,anystep 
+
+incoming: edger, instep
+
++ 2 walkers for effects, filter effects: step,speed
+how these work?
+
+////
+
+- settingarray code 
+
+X/Y if Y is 0 then use fingerboard
+
+- setting of directions? sampledir,anydir, hardware dirs, other walkers for effects?
+
+- all effects
 
 ////
 
@@ -234,7 +296,14 @@ add flag for filtermix back in to audio (digfilterflag=32) and test
 
 ** DONE:- 
 
-- fractions in audio steps!-DONE with speed wrapper
+- question of wrap and backwards directions in audio.cTESTED: get rid of
+  wrap. also in main.c. DONE- TEST DONE
+
+- grain start and end wrap still to solve (with forwards and backwards only)DONE-TEST ALL!DONE
+
+- TODO:!edge can be own knob on LACH!DONE
+
+- fractions in audio steps!-DONE with speed wrapper, fixed granulation
 
 - no jitter in ADC// leakage or swapaudio. and fix runswap/DONE-it was swaps!...
 
@@ -329,15 +398,15 @@ seperate wrapper for hardware and datagens!]
 
 complexity->0/straight,1/straight walk,2/wormcode walk,3/datagenasdirwalk,4/walk datagen dir as grains
 5/walk datagen dir as samples, 6/walk datagen with wormdir as grains
-7/walk datagen with wormdir as samples ///more?
+7/walk datagen with wormdir as samples 
 
-????set via walker for effects//complexity????-multiplies above
+????set via walker for effects//complexity????-multiplies above??what does this mean?
 
 *main.c:*
 
 running of 4 datagens - bitwise
 
-that dir can also be wormdir, normaldir(from fingers) - set thus by complexity?
+that dir can also be wormdir, sampledir(from fingers) - set thus by complexity?
 
 - complexity also as bitwise for datagen buffer pointer swappage/reference
 
@@ -374,9 +443,6 @@ CA: CA%NUM_CA,delay,howmany
 - walker for datagen
 - 2 walkers for effects, filter effects: step,speed,dir, start, end x2
 
-that dir can also be wormdir, normaldir(from fingers) - set thus by complexity?
-
-
 *///* some kind of foldback where walker also sets settingsarray
 
 * TUE 11 MAR
@@ -411,9 +477,6 @@ straight set)-or 5/add/remove stacks (with edge in up/down)=ADC1
 - maybe increase db on wm8731 (codec.c) DONE]
 [- test hardware/datagens/all code so far/clocks unhanging/hang
 how to test hang/re-hang???with fixed filter/TESTED!]
-
-[[NOTES]
-- perhaps on LACH 5th/extra knob as samplerate
 
 ** ad620/ina129 problems/EEG
 
