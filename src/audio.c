@@ -112,7 +112,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static u8 inproc=1,anydel=0,del=0;
 	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0;
 	u16 samplestart=0,samplewrap=32768;
-	u8 x,steppy; 
+	u8 x,steppy=0; 
 
 	sampledir=2;samplestep=1;
 
@@ -140,12 +140,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	   DATAGENWALK: anyspeed,anydir,anystep,anywrap,anystart 
 	*/
 
-	steppy=adc_buffer[3]>>5;
+	steppy=adc_buffer[3]>>5;// TESTS!!!
 	speed=(adc_buffer[2]>>5)+1;
 	samplestep=steppy+1; // 5 bits=32 and still jitter///average???
 		//		samplestep=1;
 	//	sampledir=2;
-	complexity=0;//TEST
+	complexity=4;//TEST
 
 	switch(complexity){
 	case 0:
@@ -163,16 +163,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	/////////
 	case 1:
 	for (x=0;x<sz/2;x++){
+	  if (++del==speed){
 	  tmp=samplestep*direction[sampledir];
 	  samplepos+=tmp;
+	  del=0;
+	  }
 	  mono_buffer[x]=audio_buffer[samplepos%32768]; // TODO: whether also start/wrap here?
 	}
 	break;
 	/////////
 	case 2:
  	for (x=0;x<sz/2;x++){
+	  if (++del==speed){
 	  tmp=samplestep*direction[wormdir];
 	  samplepos+=tmp;
+	  del=0;
+	  }
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
 	break;
@@ -187,16 +193,25 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    tmp=(anystart+anypos)%32768;
 	    anydel=0;
 	    }
+	    if (++del==speed){
 	  tmp=samplestep*direction[datagenbuffer[tmp]%8];
 	  samplepos+=tmp;
+	  del=0;
+	    }
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
 	  break;
 	case 4:
 	  //4/walk datagen dir as grains
  	for (x=0;x<sz/2;x++){
-	  if (inproc!=0){ // get next datagen
-	    if (++anydel==anyspeed){
+	  if (++del==speed){
+	  tmp=samplestep*direction[sampledir]; // and if goes backwards in dir? wrap?
+	  if ((samplepos+tmp)<=wrap)
+		  {
+		    samplepos+=tmp;//)%32768;
+		  }
+		else {
+		  //	    if (++anydel==anyspeed){
 	      tmp=anystep*direction[anydir];
 	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
 	      else anypos+=tmp;
@@ -210,23 +225,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
-	      start=start%32768;wrap=wrap%1024;  //constrain sample wrap size//TODO complex/speed?
-	      anydel=0;
-	    }
-	  }// inproc
-	    // walk sample until we reach end - then set inproc=1, pos=0
-		inproc=0;
-		tmp=samplestep*direction[sampledir]; // and if goes backwards in dir? wrap?
-		// that wrap could just be generic len???
-		if ((samplepos+tmp)<=wrap)
-		  {
-		    samplepos=(samplepos+tmp)%32768;
-		    mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-		  }
-		else {
-		  inproc=1;
-		  samplepos=0;
+	      start=start%32768;wrap=wrap>>8;  //constrain sample wrap size//TODO complex/speed?
+	      samplepos=0;
 		}
+	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
+	  del=0;
+	  }
 	}
 	  break;
 	case 5:
@@ -247,14 +251,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	case 6:
 	  //walk datagen with wormdir as grains1
  	for (x=0;x<sz/2;x++){
-	  if (inproc!=0){ // get next datagen
-	    if (++anydel==anyspeed){
+	  if (++del==speed){
+	  tmp=samplestep*direction[sampledir]; // and if goes backwards in dir? wrap?
+	  if ((samplepos+tmp)<=wrap)
+		  {
+		    samplepos+=tmp;//)%32768;
+		  }
+		else {
+		  //	    if (++anydel==anyspeed){
 	      tmp=anystep*direction[wormdir];
 	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
 	      else anypos+=tmp;
 	      tmp=(anystart+anypos);
 	      start=buf16[tmp];
-	      tmp=anystep*direction[anydir];
+	      tmp=anystep*direction[wormdir];
 	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
 	      else anypos+=tmp;
 	      tmp=(anystart+anypos);
@@ -262,36 +272,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
-	      start=start%32768;wrap=wrap%1024;  //constrain sample wrap size//TODO complex/speed?
-	      anydel=0;
-	    }
-	  }// inproc
-	    // walk sample until we reach end - then set inproc=1, pos=0
-		inproc=0;
-		tmp=samplestep*direction[sampledir]; // and if goes backwards in dir? wrap?
-		// that wrap could just be generic len???
-		if ((samplepos+tmp)<=wrap)
-		  {
-		    samplepos=(samplepos+tmp)%32768;
-		    mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-		  }
-		else {
-		  inproc=1;
-		  samplepos=0;
+	      start=start%32768;wrap=wrap>>8;  //constrain sample wrap size//TODO complex/speed?
+	      samplepos=0;
 		}
+	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
+	  del=0;
+	  }
 	}
 	  break;
 	case 7:
 	  //walk datagen with wormdir as grains2 (sampledir as wormdir)
  	for (x=0;x<sz/2;x++){
-	  if (inproc!=0){ // get next datagen
-	    if (++anydel==anyspeed){
+	  if (++del==speed){
+	  tmp=samplestep*direction[wormdir]; // and if goes backwards in dir? wrap?
+	  if ((samplepos+tmp)<=wrap)
+		  {
+		    samplepos+=tmp;//)%32768;
+		  }
+		else {
+		  //	    if (++anydel==anyspeed){
 	      tmp=anystep*direction[wormdir];
 	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
 	      else anypos+=tmp;
 	      tmp=(anystart+anypos);
 	      start=buf16[tmp];
-	      tmp=anystep*direction[anydir];
+	      tmp=anystep*direction[wormdir];
 	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
 	      else anypos+=tmp;
 	      tmp=(anystart+anypos);
@@ -299,23 +304,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
 	      if (wrap==0) wrap=1;
-	      start=start%32768;wrap=wrap%1024;  //constrain sample wrap size//TODO complex/speed?
-	      anydel=0;
-	    }
-	  }// inproc
-	    // walk sample until we reach end - then set inproc=1, pos=0
-		inproc=0;
-		tmp=samplestep*direction[wormdir]; // and if goes backwards in dir? wrap?
-		// that wrap could just be generic len???
-		if ((samplepos+tmp)<=wrap)
-		  {
-		    samplepos=(samplepos+tmp)%32768;
-		    mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-		  }
-		else {
-		  inproc=1;
-		  samplepos=0;
+	      start=start%32768;wrap=wrap>>8;  //constrain sample wrap size//TODO complex/speed?
+	      samplepos=0;
 		}
+	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
+	  del=0;
+	  }
 	}
 	  break;
 	  /////

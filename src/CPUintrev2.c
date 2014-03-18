@@ -1591,15 +1591,49 @@ int main(void)
 	u16 samp=0, samppos=0;
 	u8 anydir, anyspeed, anystep;
 	u16 anywrap,anystart,start,wrap;
-	static u8 inproc=1, anydel=0;
-	static u16 samplepos,anypos=0; u8 x;
-
+	u8 inproc=1, anydel=0;
+	u16 samplepos,anypos=0; u8 x;
+	u8 del=0,speed=1;
+	
 	u16 *buf16 = (u16*) buffer;
 
 	anyspeed=1;anydir=2;anystart=0;anywrap=32; anystep=1;
+	samplestep=1;sampledir=2;
 
 	while(1) {
 
+ 	for (x=0;x<sz/2;x++){
+	  if (++del==speed){
+	  tmp=samplestep*direction[sampledir]; // and if goes backwards in dir? wrap?
+	  if ((samplepos+tmp)<=wrap)
+		  {
+		    samplepos+=tmp;//)%32768;
 		  }
+		else {
+		  //	    if (++anydel==anyspeed){
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      start=buf16[tmp];
+	      tmp=anystep*direction[anydir];
+	      if ((anypos+tmp)>=anywrap) anypos=(anypos+tmp)%(anywrap);
+	      else anypos+=tmp;
+	      tmp=(anystart+anypos);
+	      wrap=buf16[tmp];
+	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
+	      else wrap=start-wrap;
+	      if (wrap==0) wrap=1;
+	      start=start%32768;wrap=wrap>>8;  //constrain sample wrap size//TODO complex/speed?
+	      samplepos=0;
+		}
+	  //	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
+	  printf("samplepos %d wrap %d start %d\n",samplepos,wrap,start);
+
+	  del=0;
+	}
+
+		  }
+	}
 }
 #endif
