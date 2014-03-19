@@ -1417,7 +1417,7 @@ void machine_run(machine* this) {
   //    threadcount=0;
 
     // slowing all down these 3????not so bad could run less frequenctly!TODO***
-    /*      	if ((randi()%this->m_leakiness)==0) {
+    /*     	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
 		}
 	
@@ -1427,12 +1427,12 @@ void machine_run(machine* this) {
 		
 	if ((randi()%this->m_mutateprob)==0) {
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
-	  }*/
-  //	}
+	  }
+	  //	}*/
 
   	for (unsigned char n=0; n<this->m_threadcount; n++) {
   	  thread_run(&this->m_threads[n],this);
-	}
+	  }
 }
 
 void leak(machine *m){

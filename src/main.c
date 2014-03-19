@@ -160,7 +160,6 @@ u16 sin_data[256];  // sine LUT Array
      datagenbuffer[x]=x;
      }*/
 
-	 // CA and simulation - TESTING
 	 u8 stack_pos=0;
 	 u8 stack_posy=0;
 	 struct stackey stackyy[STACK_SIZE];
@@ -171,6 +170,18 @@ u16 sin_data[256];  // sine LUT Array
 	 dohardwareswitch(2,0);
  #endif
 
+	 // CPUintrev2:
+	 for (x=0; x<100; x++)
+	   {
+	     addr=randi()<<4;
+	     cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	   }
+
+	 	 //simulationforstack:	
+	 for (x=0;x<STACK_SIZE;x++){
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+	   //	   stack_pos=func_pushn(stackyy,2,buf16,stack_pos,1,10);
+	 	   }
 
 ///////////////////////////
 
@@ -193,15 +204,15 @@ u16 sin_data[256];  // sine LUT Array
 	      // 1-run machine/datagen code - based on complexity - and
 	      // what of ordering?
 
-	      func_runall(stackyy,buf16,stack_pos); // simulations
-	      machine_run(m); //cpu - WRAP own speedTODO
-	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
+	      	      func_runall(stackyy,buf16,stack_pos); // simulations
+	      //	      machine_run(m); //cpu - WRAP own speedTODO
+	      //	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 
 	      // memory TEST push/pop
 	      // sims/ca/machine/pureleak
 
-	      if (rand()%2==1) {
+	      /*	      if (rand()%2==1) {
 		//stack_pos=func_pop(stackyy,stack_pos);
   		stack_posy=ca_pop(stackyyy,stack_posy);
 		cpustackpop(m);
@@ -215,7 +226,7 @@ u16 sin_data[256];  // sine LUT Array
 		cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
 		stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
 		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		}
+		}*/
 
 
 	      // 3-deal with settingsarray
@@ -285,7 +296,7 @@ u16 sin_data[256];  // sine LUT Array
 	    }
 	  }
 #endif
-	  	   } // speedwrapper
+	    } // speedwrapper
 #endif
 	 }
 }

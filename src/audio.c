@@ -142,11 +142,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	di_split_stereo(sz, src, left_buffer, right_buffer,edger, instep);
 
 	steppy=adc_buffer[3]>>5;// TESTS!!!
-	speed=(adc_buffer[2]>>5)+1;
+	speed=(adc_buffer[4]>>5)+1;
 	anystep=steppy+1; // 5 bits=32 and still jitter///average???
 		//		samplestep=1;
 	//	sampledir=2;
-	complexity=19;//TEST
+	complexity=11;//TEST
 
 	// COMPLEXITY TOTAL is: 21 so far
 

@@ -219,10 +219,6 @@ outside, and in open daylight.
 
 * MON/TUE 16/17 MAR
 
-test 8,9,10 in audio, then
-
-- double up audio switches with playback all of datagen DONE. TEST upto 21
-
 - re-try leakage etc. code in cpuint
 
 ///
@@ -301,6 +297,8 @@ X/Y if Y is 0 then use fingerboard
 ///////
 
 ** DONE:- 
+
+- double up audio switches with playback all of datagen DONE. TEST upto 21
 
 - option for dictated direction of playback (complexity setting)DONE-TEST!->5
 
