@@ -1,3 +1,19 @@
+    /*
+    //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    //question is if really makes sense to unhang _all_
+    hangflag=1;
+    //  GPIO_Init(GPIOB, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ;
+      GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+      GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  // and what to hang on c=8,10,11,13
+    //  GPIO_Init(GPIOC, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13;
+      GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+      GPIO_Init(GPIOC, &GPIO_InitStructure);
+    */
+
 	 /*
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){

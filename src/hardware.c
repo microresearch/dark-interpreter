@@ -117,18 +117,11 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   //jitter???
 
   res= modder&3; // 12 bits now lose 5 = 7 bits=128 2 bottom bits =5 bits=32!
-  res2=modder>>3; // //
-  // **TODO: maybe res2 as >>2 so we have 32 options
+  res2=modder>>2; // //
+  // **TODO/DONE: maybe res2 as >>2 so we have 32 options
   // as res=0-4 * 32 = 128 which is modder>>5 which comes in 
 
-  // **TODO: option to send signal to filter as well -> digital/with/without distort
-  // 2 options x2 straight/with 40106/*2(40106)=8
-  // pc11, pb9 and distort is on pc10 (1 is no distort)...
-  // could also pass through 40106 first but too many options
-  // remember to set digitalfilter option
-
-
-  if (res2!=2 && hangflag==1){
+  if ((res2>16 || res2<9) && hangflag==1){ // new hangers=9->16
     hangflag=0;
     reset_switches();
   }
@@ -193,11 +186,15 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //      res2=1;
 
-  //digfilterflag= 16.8.4.2.1=switch_hardware,maxim,lm,40106,digfilter_process
+  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
   digfilterflag=0;
+
+  // now as 32 options with digfilterflag as 32 for filterfeed
+
   switch(res2){
   case 0:
+  case 1:
    //1-straightout
     // clear other options up here:
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
@@ -205,28 +202,137 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<2);//
     GPIOC->BSRRL= (1<<10);
    break;
-  case 1:
+  case 2:
+   //1-straightout with filtermix-straight
+    // clear other options up here:
+    GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8);
+    GPIOB->BSRRL = (1<<2) | (1<<9);//
+    GPIOC->BSRRL= (1<<10) | (1<<11);
+    digfilterflag=32;
+   break;
+  case 3:
+   //1-straightout with filtermix-distort
+    // clear other options up here:
+    GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8);
+    GPIOB->BSRRL = (1<<2) | (1<<9);//
+    GPIOC->BSRRH= (1<<10);
+    GPIOC->BSRRL= (1<<11);
+    if (clockhangflag==0) digfilterflag=34;
+    else digfilterflag=32;
+   break;
+  case 4:
+   //1-40106 with filtermix-no distort
+    // clear other options up here:
+    GPIOB->BSRRH= (1<<3) | (1<<4) | (1<<6) | (1<<8);
+    GPIOB->BSRRL = (1<<0) |(1<<2) | (1<<5) | (1<<9);//
+    GPIOC->BSRRH= (1<<11);
+    GPIOC->BSRRL= (1<<10);
+    if (clockhangflag==0) digfilterflag=34;
+    else digfilterflag=32;
+   break;
+  case 5:
+   //1-40106 with filtermix - distort
+    // clear other options up here:
+    GPIOB->BSRRH= (1<<3) | (1<<4) | (1<<6) | (1<<8);
+    GPIOB->BSRRL = (1<<0) | (1<<2) | (1<<5) | (1<<9);//
+    GPIOC->BSRRH= (1<<11) | (1<<10);
+    if (clockhangflag==0) digfilterflag=34;
+    else digfilterflag=32;
+   break;
+  case 6:
     //3-just40106
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
-    GPIOC->BSRRH= (1<<11);
+    GPIOC->BSRRH= (1<<10) | (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6);
-
     if (clockhangflag==0) digfilterflag=2;
     else digfilterflag=0;
     break;
-  case 2:
+  case 7:
+    //3-just40106 - filtermix no distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<10) | (1<<11);
+    GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<9);
+    if (clockhangflag==0) digfilterflag=34;
+    else digfilterflag=32;
+    break;
+  case 8:
+    //3-just40106 - filtermix distort
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<9);
+    GPIOC->BSRRL= (1<<1);
+    if (clockhangflag==0) digfilterflag=34;
+    else digfilterflag=32;
+    break;
+    //////////////additions DONE
+  case 9:
+    // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
+        GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
+        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
+    
+    // CPIOC->10 (8 bits total) - bottom bit
+    // set PC11 always... WHY?
+    GPIOC->BSRRL=(1<<11);
+    GPIOC->BSRRH=(1<<10);
+    GPIOC->ODR|=((hdgen&1)<<10); // bit 10
+    if (clockhangflag==0) digfilterflag=31; // flags to use hdgen
+    else digfilterflag=17;
+    break;
+  case 10:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
         GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
         GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
     
     // CPIOC->10 (8 bits total) - bottom bit
     // set PC11 always...
-    GPIOC->BSRRL=(1<<11);
-    GPIOC->BSRRH=(1<<10);
-    GPIOC->ODR|=((hdgen&1)<<10); // bit 10??
+	GPIOC->BSRRL=(1<<10);
+	GPIOC->BSRRH=(1<<11);
+    GPIOC->ODR|=((hdgen&1)<<11); // bit 11
     if (clockhangflag==0) digfilterflag=31; // flags to use hdgen
     else digfilterflag=17;
-    /*
+    break;
+  case 11:
+    // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so//feedin
+        GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
+        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
+    
+    // CPIOC->10 (8 bits total) - bottom bit
+    // set PC11 always... WHY?
+    GPIOC->BSRRL=(1<<11);
+    GPIOC->BSRRH=(1<<10);
+    GPIOC->ODR|=((hdgen&1)<<10); // bit 10
+    if (clockhangflag==0) digfilterflag=63; // flags to use hdgen
+    else digfilterflag=49;
+    break;
+  case 12:
+    // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so//feedin
+        GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
+        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
+    
+    // CPIOC->10 (8 bits total) - bottom bit
+    // set PC11 always...
+	GPIOC->BSRRL=(1<<10);
+	GPIOC->BSRRH=(1<<11);
+    GPIOC->ODR|=((hdgen&1)<<11); // bit 11
+    if (clockhangflag==0) digfilterflag=63; // flags to use hdgen
+    else digfilterflag=49;//17+32
+    break;
+    ///////
+
+  case 13:
+        //2-unhang all except input 
+    // input is pb7
+       hangflag=1;
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Mode = 0x04;
+      GPIO_Init(GPIOB, &GPIO_InitStructure);
+         GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
+         GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+           GPIO_Init(GPIOC, &GPIO_InitStructure);
+    if (clockhangflag==0) digfilterflag=15;
+    else digfilterflag=1;
+    break;
+  case 14:
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     //question is if really makes sense to unhang _all_
     hangflag=1;
@@ -240,10 +346,11 @@ RES: feedback on/off - jackin-> - lm358in->
       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13;
       GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
       GPIO_Init(GPIOC, &GPIO_InitStructure);
-    */
+    if (clockhangflag==0) digfilterflag=15;
+    else digfilterflag=1;
     break;
-  case 3:
-        //2-unhang all except input 
+  case 15:
+        //2-unhang all except input - feedin
     // input is pb7
        hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -254,10 +361,78 @@ RES: feedback on/off - jackin-> - lm358in->
          GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
          GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
            GPIO_Init(GPIOC, &GPIO_InitStructure);
+    if (clockhangflag==0) digfilterflag=47;
+    else digfilterflag=33;
+    break;
+  case 16:
+    //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
+    //question is if really makes sense to unhang _all_ - feedin
+    hangflag=1;
+    //  GPIO_Init(GPIOB, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 ;
+      GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+      GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  // and what to hang on c=8,10,11,13
+    //  GPIO_Init(GPIOC, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13;
+      GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+      GPIO_Init(GPIOC, &GPIO_InitStructure);
+      if (clockhangflag==0) digfilterflag=47;
+      else digfilterflag=33;
+      break;
+
+    //////
+
+  case 17:
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
+    GPIOB->BSRRL= (1<<4);
+    GPIOC->BSRRL= (1<<11);
+    // straight to filter and unhang filter options
+    hangflag=1;
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Mode = 0x04;
+       GPIO_Init(GPIOB, &GPIO_InitStructure);
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+       GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+       GPIO_Init(GPIOC, &GPIO_InitStructure);
     if (clockhangflag==0) digfilterflag=15;
     else digfilterflag=1;
     break;
-  case 4:
+  case 18:
+    GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
+    GPIOC->BSRRH= (1<<11);
+    GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
+    // straight to 40106->filter and unhang filter options
+       hangflag=1;
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Mode = 0x04;
+       GPIO_Init(GPIOB, &GPIO_InitStructure);
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+       GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+       GPIO_Init(GPIOC, &GPIO_InitStructure);
+       if (clockhangflag==0) digfilterflag=15;
+       else digfilterflag=1;
+       break;
+  case 19:
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
+    GPIOB->BSRRL=(1<<3) | (1<<6);
+    GPIOC->BSRRL=(1<<11);
+    // straight to filter->40106 and unhang filter options
+       hangflag=1;
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Mode = 0x04;
+       GPIO_Init(GPIOB, &GPIO_InitStructure);
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+       GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
+       GPIO_Init(GPIOC, &GPIO_InitStructure);
+       if (clockhangflag==0) digfilterflag=15;
+       else digfilterflag=1;
+       break;
+
+    ////////////
+
+  case 20:
     //4-filterthen40106-->|filterpath=1lm/2digital-distort on/off in each case
     //filterpath->lm no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
@@ -266,7 +441,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=14;
     else digfilterflag=0;
     break;
-  case 5: // 
+  case 21: // 
     //filterpath->lm distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<10);
@@ -275,7 +450,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=14;
     else digfilterflag=0;
     break;
-  case 6:
+  case 22:
     //filterpath->digital no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
     GPIOB->BSRRL=(1<<3) | (1<<6) |(1<<8) |(1<<9);
@@ -283,7 +458,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=11;
     else digfilterflag=1;
     break;
-  case 7: //
+  case 23: //
     //filterpath->digital distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<5);
     GPIOC->BSRRH= (1<<10);
@@ -292,7 +467,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=11;
     else digfilterflag=1;
     break;
-  case 8:
+  case 24:
     //5-40106thenfilter-->|
     //filterpath->lm no distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6) | (1<<8) | (1<<9);
@@ -302,7 +477,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=14;
     else digfilterflag=0;
     break;
-  case 9:
+  case 25:
     //filterpath->lm distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11) | (1<<10);
@@ -310,7 +485,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=14;
     else digfilterflag=0;
     break;
-  case 10:
+  case 26:
     //filter->digital no distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
     GPIOC->BSRRH= (1<<11);
@@ -319,7 +494,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=11;
     else digfilterflag=1;
     break;
-  case 11:
+  case 27:
     //filter->digital distort
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
     GPIOC->BSRRH= (1<<11) | (1<<10);
@@ -327,7 +502,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=11;
     else digfilterflag=1;
     break;
-  case 12:
+  case 28:
     //6-justfilter------->|
     //filterpath->lm no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
@@ -336,7 +511,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=12;
     else digfilterflag=0;
     break;
-  case 13:
+  case 29:
     //filterpath->lm distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<10);
@@ -345,7 +520,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=14;
     else digfilterflag=0;
     break;
-  case 14:
+  case 30:
     //filterpath->digital no distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
     GPIOB->BSRRL= (1<<4) | (1<<8) | (1<<9);
@@ -353,7 +528,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=9;
     else digfilterflag=1;
     break;
-  case 15:
+  case 31:
     //filterpath->digital distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
     GPIOC->BSRRH= (1<<10) | (1<<8) | (1<<9);

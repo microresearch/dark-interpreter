@@ -138,6 +138,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	edger=adc_buffer[0]<<3;
 #else
 	edger=0;
+	//edger as setting, edger as walk through? keep simple
+
 #endif
 	di_split_stereo(sz, src, left_buffer, right_buffer,edger, instep);
 

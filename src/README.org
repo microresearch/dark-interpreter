@@ -214,32 +214,30 @@ outside, and in open daylight.
 
 * WED 18 MAR
 
-- where we do stack push/pulls?
-- settingarray code
-
-* MON/TUE 16/17 MAR
-
-- re-try leakage etc. code in cpuint
-
-///
+- execution stack for datagens
 
 - how we handle edger? via complexity? as set of options
 
 - audio.c sample wrap size/constraint=grainsize as part of speed
   setting or complexity
 
-////
-
 - new hardware settings:
-
-that main.c hardware dir can also be wormdir>hardware option? as flag?
 
 in hardware.c maybe enlarge range res2 to 32 (combinations of
   hangs/unhangs, filter feeds and so on)
 
-add flag for filtermix back in to audio (digfilterflag=32) and TEST
+add flag for filtermix back in to audio (digfilterflag=32) and *TEST* simple code there!
 
-///////////
+
+*key questions*:
+
+- where we do stack push/pulls and the appropriate settings?
+
+- how we handle array settings and direction settings
+
+2,0,3,4(is really higher),1 /hardware/speed/complexity/X/Y
+
+* MON/TUE 16/17 MAR
 
 *complexity*:
 
@@ -263,12 +261,14 @@ main.c:
   f0106er->step=1; f0106er->speed=1; 
   hdgener->step=1; hdgener->speed=1; 
 
++  wormdir setting for all walkers as part of struct wormflag!
+
 [simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
 cpu: addr, wrap,CPU%31,delay
 leak: addr, wrap,CPU%31,delay
 CA: CA%NUM_CA,delay,howmany]
 
-but we should have speedwrappers for cpu and leak?
+should have speedwrappers for cpu and leak also
 
 audio.c:
 
@@ -292,11 +292,13 @@ X/Y if Y is 0 then use fingerboard
 
 ////
 
-- further tweaks/TODOs each file - WED/THU
+- further tweaks/TODOs each file - THU/FRI
 
 ///////
 
 ** DONE:- 
+
+- re-try leakage etc. code in cpuint DONE
 
 - double up audio switches with playback all of datagen DONE. TEST upto 21
 

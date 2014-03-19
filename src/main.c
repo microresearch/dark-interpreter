@@ -197,7 +197,7 @@ u16 sin_data[256];  // sine LUT Array
 	    // 0- GENERIK SPEED WRAPPER
 
 	    speedwrapper++;
-	    tmp=(adc_buffer[0]); //adjust if 2 slow
+	    tmp=(adc_buffer[0]<<4); //adjust if 2 slow
 	    if (speedwrapper>=tmp){
 	      speedwrapper=0;
 
@@ -205,7 +205,7 @@ u16 sin_data[256];  // sine LUT Array
 	      // what of ordering?
 
 	      	      func_runall(stackyy,buf16,stack_pos); // simulations
-	      //	      machine_run(m); //cpu - WRAP own speedTODO
+	      	      machine_run(m); //cpu - WRAP own speedTODO
 	      //	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
 	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 
