@@ -225,9 +225,11 @@ outside, and in open daylight.
 
 - where we do stack push/pulls and the appropriate settings?TEST so far....
 
-- master foldbacksettingwalker is set where?as extra setting
+- master foldbacksettingwalker is set where?as extra setting-past end of settings TEST
 
 //////
+
+- finger setting - up/down, direction
 
 - extend complexity setting
 

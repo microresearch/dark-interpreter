@@ -34,45 +34,46 @@
 
 // audio.c
 
-#define SAMPLESTEP (settingsarray[16])
-#define SAMPLEWRAP ((settingsarray[17])<<8) // 32 bit
-#define SAMPLESTART (settingsarray[18])
-#define SAMPLESPEED (settingsarray[19])
+#define SAMPLESTEP (settingsarray[17])
+#define SAMPLEWRAP ((settingsarray[18])<<8) // 32 bit
+#define SAMPLESTART (settingsarray[19])
+#define SAMPLESPEED (settingsarray[20])
 
-#define ANYSTEP (settingsarray[20])
-#define ANYSPEED (settingsarray[21])
-#define EDGERASSETTING ((settingsarray[22])<<8) // 32 bit
-#define INSTEP (settingsarray[23])
-#define EDGESTEP (settingsarray[24])
-#define EDGESPEED (settingsarray[25])
+#define ANYSTEP (settingsarray[21])
+#define ANYSPEED (settingsarray[22])
+#define EDGERASSETTING ((settingsarray[23])<<8) // 32 bit
+#define INSTEP (settingsarray[24])
+#define EDGESTEP (settingsarray[25])
+#define EDGESPEED (settingsarray[26])
+
+#define PUSHONE16BIT (settingsarray[27])
+#define PUSHTWO16BIT (settingsarray[28])
+#define PUSHONE8BIT (settingsarray[29])
+#define PUSHTWO8BIT (settingsarray[30])
+#define PUSHTHREE8BIT (settingsarray[31])
+#define EXESTACKPUSH (settingsarray[32])
+
+#define FINALWORMFLAG (settingsarray[33])
+#define FINALSTEP (settingsarray[34])
+#define FINALSPEED (settingsarray[35])
 
 // directions from main.c
 
-#define HDGENERDIR (settingsarray[26]%8)
-#define LMERDIR (settingsarray[27]%8)
-#define MAXIMERDIR (settingsarray[28]%8)
-#define F0106ERDIR (settingsarray[29]%8)
+#define HDGENERDIR (settingsarray[36]%8)
+#define LMERDIR (settingsarray[37]%8)
+#define MAXIMERDIR (settingsarray[38]%8)
+#define F0106ERDIR (settingsarray[39]%8)
+#define FINALDIR (settingsarray[40]%8)
 
 // directions from audio.c
 
-#define SAMPLEDIR (settingsarray[30])
-#define ANYDIR (settingsarray[31])
-
-#define PUSHONE16BIT (settingsarray[32])
-#define PUSHTWO16BIT (settingsarray[33])
-#define PUSHONE8BIT (settingsarray[34])
-#define PUSHTWO8BIT (settingsarray[35])
-#define PUSHTHREE8BIT (settingsarray[36])
-#define EXESTACKPUSH (settingsarray[37])
-
-#define FINALDIR (settingsarray[38]%8)
-#define FINALWORMFLAG (settingsarray[39])
-#define FINALSTEP (settingsarray[40])
-#define FINALSPEED (settingsarray[41])
+#define SAMPLEDIR (settingsarray[41])
+#define ANYDIR (settingsarray[42])
 
 
-#define BEFORESTACK 42 // limit here
-#define FINALL 52 // end of end = +10 TODO:check!
+#define BEFOREDIR  36
+#define BEFORESTACK 43 // limit here
+#define FINALL 53 // end of end = +10 TODO:check!
 /* 
 
 stack+10=48odd + extra settings

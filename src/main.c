@@ -267,10 +267,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
 
 	    //+++///* some kind of foldback where walkers also set settingsarray
-	    // set by MASTER_WALKER (and where is this set???)
-	    // set at end of settingsindex >XXX
+	    // set by FINAL at end of settingsindex >XXX
 	    
-	    if (settings>FINALL){
+	    if (settings>=FINALL){
 	      // walk datagen as settings array settings... but where are settings?
 	      // step, dir
 	    if (++finaldel==FINALSPEED){
@@ -298,9 +297,24 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (settings_trap>0) 
 	      {
 		setted=adc_buffer[1]>>4; // 8 bits
-	    if (setted==0){ // do we do this every time?
-	      // do finger thing for all settings/push pop etc.
-	    }
+		if (setted==0){ // do we do this every time?
+		  // do finger thing for all settings/push pop etc.*TODO*
+		  // up and down is 8 and 7
+		  // left and right is 5 and 6
+		  // value is highest
+		  if (settingsindex<BEFORESTACK){ 
+		    //if 8>7 move up // otherwise down - bit how stay above 0//more or less?
+		 
+		  }
+		  else if (settingsindex<BEFOREDIR){ 
+		  // directions
+
+		  }
+		  else {
+		  // push and pop
+
+		  }
+		} // end of finger
 	    else 
 	      {
 		if (settingsindex<BEFORESTACK){ 
