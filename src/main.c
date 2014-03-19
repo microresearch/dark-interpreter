@@ -112,7 +112,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
    u8 exestack[MAX_EXE_STACK];
    u8 settings, oldsettings=0,settings_trap=0,setted,settingsindex=0;
    u8 pushypop,pushpopflag=0;
-
+   u8 index=0, finaldel=0;
+   u16 finalpos=0;
 
    //	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
@@ -264,19 +265,40 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	     */
 	    
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
+
+	    //+++///* some kind of foldback where walkers also set settingsarray
+	    // set by MASTER_WALKER (and where is this set???)
+	    // set at end of settingsindex >XXX
+	    
+	    if (settings>FINALL){
+	      // walk datagen as settings array settings... but where are settings?
+	      // step, dir
+	    if (++finaldel==FINALSPEED){
+	      if (FINALWORMFLAG&1) tmp=FINALSTEP*direction[wormdir];
+	      else tmp=FINALSTEP*direction[FINALDIR];
+	      finalpos+=tmp;
+	      tmp=finalpos%32768;
+	      settingsarray[index%BEFORESTACK]=buf16[tmp]>>8; 
+	      finaldel=0;
+	      index++;
+	    }
+	    }
+	    else {
 	    if (oldsettings==settings) settings_trap++;
 	    else settings_trap=0;
 	    oldsettings=settings;
 	    
-	    if (settings_trap>64){ // threshold is 64
+	    if (settings_trap>64){ // threshold is 64REPEATS
 	      pushpopflag=0;
 	      settings_trap=0;
 	      //find our setting
 	      settingsindex=settings;
 	    }
 	    // now we can set it
-	    if (settings_trap>0) setted=adc_buffer[1]>>4; // 8 bits
-	    if (setted==0){
+	    if (settings_trap>0) 
+	      {
+		setted=adc_buffer[1]>>4; // 8 bits
+	    if (setted==0){ // do we do this every time?
 	      // do finger thing for all settings/push pop etc.
 	    }
 	    else 
@@ -328,11 +350,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		      }
 		  }
 	      }
-
+	      }
+	    }
 	 /////
-	 //+++///* some kind of foldback where walkers also set settingsarray
-	 // set by MASTER_WALKER (and where is this set???- in complexity?)
-
 
 #ifndef LACH
 

@@ -65,8 +65,14 @@
 #define PUSHTHREE8BIT (settingsarray[36])
 #define EXESTACKPUSH (settingsarray[37])
 
-#define BEFORESTACK 38 // limit here
+#define FINALDIR (settingsarray[38]%8)
+#define FINALWORMFLAG (settingsarray[39])
+#define FINALSTEP (settingsarray[40])
+#define FINALSPEED (settingsarray[41])
 
+
+#define BEFORESTACK 42 // limit here
+#define FINALL 52 // end of end = +10 TODO:check!
 /* 
 
 stack+10=48odd + extra settings
@@ -75,6 +81,6 @@ dir=hardwaredirs below=4, sampledir, anydir,
 
 +otherdirs
 
-so aim for 64 with extra settings and so on...
+so aim for 64??? but at end we have datagenwalker for settingsarray
 
 */

@@ -223,16 +223,11 @@ outside, and in open daylight.
 
 - handling edger via complexity- as set of options/walkersDONE-TEST!
 
-/////
-
 - where we do stack push/pulls and the appropriate settings?TEST so far....
 
-all as part of settings with settingsarray followed by dirs and then
-push/pull
+- master foldbacksettingwalker is set where?as extra setting
 
 //////
-
-- master foldbacksettingwalker is set where?
 
 - extend complexity setting
 
