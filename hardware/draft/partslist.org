@@ -6,7 +6,7 @@
 1Kx3bulk
 4.7Kx2bulk
 5.6Kx4->have
-10K xmany
+10K xmanybulk
 33Kx1->have
 100K x1-bulk
 200K x2->have
@@ -31,9 +31,9 @@
 ** Active
 
 LEDx1 
-AD620 -top (have)RODER
+AD620 -top (have)ORDER
 DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R)
-OP27x3 -top (reichelt)
+OP337  x3 -top (mouser)
 HCT40106x1 (have hcf)-works
 CD74HCT4053M96x1
 HCT4066x3 (have)
