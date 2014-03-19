@@ -1,3 +1,23 @@
+	      // memory TEST push/pop
+	      // sims/ca/machine/pureleak
+
+	      /*	      if (rand()%2==1) {
+		//stack_pos=func_pop(stackyy,stack_pos);
+  		stack_posy=ca_pop(stackyyy,stack_posy);
+		cpustackpop(m);
+		cpustackpoppp(datagenbuffer);
+						
+	      }
+	      else {
+		addr=randi()<<4;
+		cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+		addr=randi()<<4;
+		cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
+		stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
+		}*/
+
+
     /*
     //2-unhang all [where to re-hang-use a flag]+1 extra option: clocks hang/clocks unhang here
     //question is if really makes sense to unhang _all_

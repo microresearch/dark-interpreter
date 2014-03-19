@@ -214,19 +214,16 @@ outside, and in open daylight.
 
 * WED 18 MAR
 
-- execution stack for datagens
+- test new hardware optionsDONE-example code for digfilterbackDONE-TEST!
 
-- how we handle edger? via complexity? as set of options
+- execution stack for datagensDONE-TEST!
 
-- audio.c sample wrap size/constraint=grainsize as part of speed
-  setting or complexity
+- test new speed settings+ granulationDONE-TEST!
 
-- new hardware settings:
+- handling edger via complexity- as set of options/walkersDONE-TEST!
 
-in hardware.c maybe enlarge range res2 to 32 (combinations of
-  hangs/unhangs, filter feeds and so on)
+////
 
-add flag for filtermix back in to audio (digfilterflag=32) and *TEST* simple code there!
 
 
 *key questions*:
@@ -235,7 +232,20 @@ add flag for filtermix back in to audio (digfilterflag=32) and *TEST* simple cod
 
 - how we handle array settings and direction settings
 
+so we have basic settings, dir settings and stack push/pull to handle
+
 2,0,3,4(is really higher),1 /hardware/speed/complexity/X/Y
+
+** done
+
+[check filter flags for filterfeedback!]DONE
+
+- new hardware settings:
+
+in hardware.c maybe enlarge range res2 to 32 (combinations of
+  hangs/unhangs, filter feeds and so on)
+
+add flag for filtermix back in to audio (digfilterflag=32) and *TEST* simple code there!
 
 * MON/TUE 16/17 MAR
 
@@ -243,8 +253,7 @@ add flag for filtermix back in to audio (digfilterflag=32) and *TEST* simple cod
 
 audio: 0-> for granulation +[ effects, digfiltereffects=settings], edger cases?
 
-[main: [running of 4 datagens(order of running_STACK?)]still question
-of stack/push/pull as knob] -> somewhere else
+effects in straight complexity setting, filter????
 
 //////
 
@@ -256,27 +265,29 @@ main.c:
   m->m_infectprob=randi()%255;
   m->m_mutateprob=randi()%255;
 
-  lmer->step=1; lmer->speed=1; 
-  maximer->step=1; maximer->speed=1; 
-  f0106er->step=1; f0106er->speed=1; 
-  hdgener->step=1; hdgener->speed=1; 
-
-+  wormdir setting for all walkers as part of struct wormflag!
+  lmer->step=1; lmer->speed=1; wormflag
+  maximer->step=1; maximer->speed=1; wormflag
+  f0106er->step=1; f0106er->speed=1; wormflag
+  hdgener->step=1; hdgener->speed=1; wormflag
 
 [simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
 cpu: addr, wrap,CPU%31,delay
 leak: addr, wrap,CPU%31,delay
 CA: CA%NUM_CA,delay,howmany]
 
-should have speedwrappers for cpu and leak also
+!leakspeed, machinespeed!
 
 audio.c:
 
 NORMAL: samplestep,samplewrap,samplestart,speed
 DATAGENWALK: anyspeed,anystep 
 
-incoming sample: edger, instep
+incoming sample: edger as setting, instep
 
+EDGEWALK: edgespeed,edgestep;
+
+
+////
 + 2 walkers for effects, filter effects: step,speed
 how these work?
 
@@ -288,9 +299,10 @@ X/Y if Y is 0 then use fingerboard
 
 - setting of directions? sampledir,anydir, hardware dirs, other walkers for effects?
 
-- all effects
-
 ////
+
+
+- all effects
 
 - further tweaks/TODOs each file - THU/FRI
 

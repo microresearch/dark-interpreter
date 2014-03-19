@@ -1,4 +1,4 @@
- /*
+/*
 
  Oh, eternity with outstretched wings, that broodest over the secret
  truths in whose roots lie the mysteries of man—his whence, his
@@ -35,8 +35,9 @@
  #include "CPUint.h"
  #include "CA.h"
 
+#define MAX_EXE_STACK 8
 
- #define randi() (adc_buffer[9])
+#define randi() (adc_buffer[9])
   //#define randi() rand()
   //define randi() (datagenbuffer[adc_buffer[9]<<4])
 
@@ -48,18 +49,20 @@
 
  //uint16_t datagenbuffer[32] __attribute__ ((section (".ccmdata")))  __attribute__((aligned(4)));
 
- u8* datagenbuffer = (u8*)0x10000000;
+u8* datagenbuffer = (u8*)0x10000000;
 
 extern u8 digfilterflag;
 
 u8 wormdir; // worm direction
+u8 cons; //constraint/grain size used in audio.c
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
+u16 settingsarray[32];
 //u8 steppy; // TODO_ testing
 
  struct dgenwalker{
    // xxxx(samp/hard/clocks)->step,position,direction(into array),speed,start,end 
-   u8 step,dir,speed,del;
+   u8 step,dir,speed,del,wormflag;
    u16 pos;
  };
 
@@ -80,6 +83,22 @@ u16 sin_data[256];  // sine LUT Array
 
  u16 sampel;
 
+u8 exestackpush(u8 exenum, u8* exestack, u8 exetype){
+  u8 tmp;
+  if (exenum<MAX_EXE_STACK){
+    exestack[exenum]=exetype;
+    exenum++;
+  }
+  return exenum;
+}
+
+u8 exestackpop(u8 exenum, u8* exestack){
+  if (exenum>0){
+    exenum--;
+  }
+  return exenum;
+  }
+
  void main(void)
  {
 
@@ -89,9 +108,15 @@ u16 sin_data[256];  // sine LUT Array
    //	int32_t idx, rcount,wcount;
    //	uint16_t data,x,y,i,highest,lowest;
    u16 x,addr,tmp,oldhardware,hardware; 
-   u16 ave,speedwrapper=0;
+   u16 speedwrapper=0;
 
-	 //	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
+   u16 genspeed=1, hardspeed,hardcount;
+   u8 cpuspeed,cpucount;
+
+   u8 exenums=0,machine_count=0,leak_count=0,leakspeed=1,machinespeed=1; u8 exestack[MAX_EXE_STACK];
+
+
+   //	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
 
 	 struct dgenwalker *lmer=malloc(sizeof(struct dgenwalker));
@@ -101,10 +126,10 @@ u16 sin_data[256];  // sine LUT Array
 
 	 //  u8 step,dir,speed;  u16 pos,start,end; 
 	 //
-	 lmer->step=1; lmer->speed=1; lmer->dir=2;lmer->pos=0; lmer->del=0;
-	 maximer->step=1; maximer->speed=1; maximer->dir=2;maximer->pos=0;maximer->del=0;
-	 f0106er->step=1; f0106er->speed=1; f0106er->dir=2;f0106er->pos=0;f0106er->del=0;
-	 hdgener->step=1; hdgener->speed=1; hdgener->dir=2;hdgener->pos=0;hdgener->del=0;
+	 lmer->step=1; lmer->speed=1; lmer->dir=2;lmer->pos=0; lmer->del=0; lmer->wormflag=0;
+	 maximer->step=1; maximer->speed=1; maximer->dir=2;maximer->pos=0;maximer->del=0; maximer->wormflag=0;
+	 f0106er->step=1; f0106er->speed=1; f0106er->dir=2;f0106er->pos=0;f0106er->del=0; f0106er->wormflag=0;
+	 hdgener->step=1; hdgener->speed=1; hdgener->dir=2;hdgener->pos=0;hdgener->del=0; hdgener->wormflag=0;
 
 	 u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	 u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
@@ -156,10 +181,6 @@ u16 sin_data[256];  // sine LUT Array
    m->m_infectprob=randi()%255;
    m->m_mutateprob=randi()%255;
 
-   /*  for (x=0;x<65535;x++){
-     datagenbuffer[x]=x;
-     }*/
-
 	 u8 stack_pos=0;
 	 u8 stack_posy=0;
 	 struct stackey stackyy[STACK_SIZE];
@@ -169,6 +190,8 @@ u16 sin_data[256];  // sine LUT Array
  #ifndef LACH
 	 dohardwareswitch(2,0);
  #endif
+
+////////////////////TESTCODE_TODO_REMOVE
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -183,6 +206,13 @@ u16 sin_data[256];  // sine LUT Array
 	   //	   stack_pos=func_pushn(stackyy,2,buf16,stack_pos,1,10);
 	 	   }
 
+	 // execution stack
+	 for (x=0;x<MAX_EXE_STACK;x++){
+	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+	 }
+
+	 exenums=exestackpop(exenums,exestack);
+
 ///////////////////////////
 
 	  while(1)
@@ -194,60 +224,79 @@ u16 sin_data[256];  // sine LUT Array
 
  #else
 
-	    // 0- GENERIK SPEED WRAPPER
 
-	    speedwrapper++;
-	    tmp=(adc_buffer[0]<<4); //adjust if 2 slow
-	    if (speedwrapper>=tmp){
-	      speedwrapper=0;
+	    //0- speed knob=hardware speed, cpu speed(shift>>)=generic speed, grainsize (>>also)
+	    genspeed=adc_buffer[0];
+	    cons=(genspeed>>5)&15; // granulation
+	    cpuspeed=genspeed>>4; // 8 bits
+	    hardspeed=genspeed<<2; // 14 bits
 
-	      // 1-run machine/datagen code - based on complexity - and
-	      // what of ordering?
+	    cpucount++;
+	    if (cpucount>=cpuspeed){
+	      cpucount=0;
 
-	      	      func_runall(stackyy,buf16,stack_pos); // simulations
-	      	      machine_run(m); //cpu - WRAP own speedTODO
-	      //	      ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
-	      //	      machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
-
-	      // memory TEST push/pop
-	      // sims/ca/machine/pureleak
-
-	      /*	      if (rand()%2==1) {
-		//stack_pos=func_pop(stackyy,stack_pos);
-  		stack_posy=ca_pop(stackyyy,stack_posy);
-		cpustackpop(m);
-		cpustackpoppp(datagenbuffer);
-						
+	      for (x=0;x<exenums;x++){
+		switch(exestack[x]%4){
+		case 0:
+		  func_runall(stackyy,buf16,stack_pos); // simulations
+		  break;
+		case 1:
+		  ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+		  break;
+		case 2:
+		  machine_count++;
+		  if (machine_count>=machinespeed){
+		  machine_run(m); //cpu - WRAP own speedTODO
+		  machine_count=0;
+		  }
+		  break;
+		case 3:
+		  leak_count++;
+		  if (leak_count>=leakspeed){
+		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
+		    leak_count=0;
+		  }
+		    break;
+		}
 	      }
-	      else {
-		addr=randi()<<4;
-		cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-		addr=randi()<<4;
-		cpustackpushhh(datagenbuffer,addr,addr+(randi()<<4),1,1);
-		stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-		stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,1,10); // delay,howmany);
-		}*/
+	    }
 
+	    // 3-deal with settingsarray - should this be in slow/speed loop?
 
-	      // 3-deal with settingsarray
+	    // so we have basic settings, dir settings and stack push/pull to handle
 
+	    /* position in array//or dir//or stack push/pull:
 
+	       array[0->xx], dir=hardwaredirs below, sampledir,
+	       anydir, +otherdirs, stack push/pulls (0/1)
 
-	      //+++///* some kind of foldback where walkers also set settingsarray
-	      
+	       simulation: function%NUM_FUNCS,delay,howmany - as settings which are pushed
+	       cpu: addr, wrap,CPU%31,delay
+	       leak: addr, wrap,CPU%31,delay
+	       CA: CA%NUM_CA,delay,howmany
+
+	    */
+
+	    /* start with basic code to actually set via knobs */
+
+	    //+++///* some kind of foldback where walkers also set settingsarray
+	    // set by MASTER_WALKER
 
 
 #ifndef LACH
 
 	   // 4-hardware operations
 
-	     // **TODO: WORM_OVER_RIDE for all directions!!!!
+	    hardcount++;
+	    if (hardcount>=hardspeed){
+	      hardcount=0;
+
 
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	     if (digfilterflag&16){ // if we use hdgen at all
 	    if (++hdgener->del==hdgener->speed){
-
-    	    tmp=hdgener->step*direction8bit[hdgener->dir];
+	      if (hdgener->wormflag&1) tmp=hdgener->step*direction8bit[wormdir];
+	      else tmp=hdgener->step*direction8bit[hdgener->dir];
 	    hdgener->pos+=tmp;
 	    tmp=hdgener->pos;
 	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
@@ -264,7 +313,8 @@ u16 sin_data[256];  // sine LUT Array
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
 	  if (digfilterflag&2){
 	    if (++f0106er->del==f0106er->speed){
-    	    tmp=f0106er->step*direction[f0106er->dir];
+	      if (f0106er->wormflag&1) tmp=f0106er->step*direction[wormdir];
+	      else tmp=f0106er->step*direction[f0106er->dir];
 	    f0106er->pos+=tmp;
 	    tmp=f0106er->pos%32768;
 	    set40106pwm(buf16[tmp]); 
@@ -275,7 +325,8 @@ u16 sin_data[256];  // sine LUT Array
 	  if (digfilterflag&4){
 	    if (++lmer->del==lmer->speed){
 	    //lmer - set lmpwm
-	    tmp=lmer->step*direction[lmer->dir];
+	      if (lmer->wormflag&1) tmp=lmer->step*direction[wormdir];
+	    else tmp=lmer->step*direction[lmer->dir];
 	    lmer->pos+=tmp;
 	    x=lmer->pos%32768;
 	    tmp=(lmer->pos+1)%32768;
@@ -288,18 +339,19 @@ u16 sin_data[256];  // sine LUT Array
 	  if (digfilterflag&8){
 	    //maximer - setmaximpwm - just one
 	    if (++maximer->del==maximer->speed){
-	    tmp=maximer->step*direction[maximer->dir];
+	      if (maximer->wormflag&1) tmp=maximer->step*direction[wormdir];
+	    else tmp=maximer->step*direction[maximer->dir];
 	    maximer->pos+=tmp;
 	    tmp=maximer->pos%32768;
 	    setmaximpwm(buf16[tmp]); 
 	    maximer->del=0;
 	    }
 	  }
+	    } // hardcount
 #endif
-	    } // speedwrapper
 #endif
 	 }
-}
+	  }
 
 #ifdef  USE_FULL_ASSERT
 

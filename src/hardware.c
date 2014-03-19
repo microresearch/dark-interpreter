@@ -104,7 +104,7 @@ void reset_switches(void);
 void reset_clocks(void);
 
 void dohardwareswitch(uint16_t modder, u8 hdgen){
-  uint16_t res,res2;
+  u8 res,res2;
   static uint8_t hangflag=0, clockhangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
@@ -145,7 +145,7 @@ RES: feedback on/off - jackin-> - lm358in->
 3-feedoff xx     lmin
   */
 
-
+  res=0;
   //   res=2; // test
   //  res=1;
     //    res=3;
@@ -191,7 +191,7 @@ RES: feedback on/off - jackin-> - lm358in->
   digfilterflag=0;
 
   // now as 32 options with digfilterflag as 32 for filterfeed
-
+  //  res2=0;
   switch(res2){
   case 0:
   case 1:
@@ -208,7 +208,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8);
     GPIOB->BSRRL = (1<<2) | (1<<9);//
     GPIOC->BSRRL= (1<<10) | (1<<11);
-    digfilterflag=32;
+    digfilterflag=40;
    break;
   case 3:
    //1-straightout with filtermix-distort
@@ -217,7 +217,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<2) | (1<<9);//
     GPIOC->BSRRH= (1<<10);
     GPIOC->BSRRL= (1<<11);
-    if (clockhangflag==0) digfilterflag=34;
+    if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
    break;
   case 4:
@@ -227,7 +227,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<0) |(1<<2) | (1<<5) | (1<<9);//
     GPIOC->BSRRH= (1<<11);
     GPIOC->BSRRL= (1<<10);
-    if (clockhangflag==0) digfilterflag=34;
+    if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
    break;
   case 5:
@@ -236,7 +236,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<3) | (1<<4) | (1<<6) | (1<<8);
     GPIOB->BSRRL = (1<<0) | (1<<2) | (1<<5) | (1<<9);//
     GPIOC->BSRRH= (1<<11) | (1<<10);
-    if (clockhangflag==0) digfilterflag=34;
+    if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
    break;
   case 6:
@@ -252,7 +252,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<10) | (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<9);
-    if (clockhangflag==0) digfilterflag=34;
+    if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
     break;
   case 8:
@@ -261,7 +261,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<9);
     GPIOC->BSRRL= (1<<1);
-    if (clockhangflag==0) digfilterflag=34;
+    if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
     break;
     //////////////additions DONE

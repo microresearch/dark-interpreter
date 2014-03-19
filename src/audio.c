@@ -20,7 +20,8 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 		mono_buffer[MONO_BUFSZ];
 
 extern __IO uint16_t adc_buffer[10];
-extern u8 wormdir; 
+extern u8 wormdir;
+extern u8 cons; 
 
 //extern u16 edger; // REPLACE with direct poti!
 
@@ -89,6 +90,30 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 	}
 }
 
+void audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,
+		  float32_t morph, u8 what)
+{
+	float32_t morph_inv = 1.0 - morph, f_sum;
+	int32_t sum;
+	
+	while(sz--)
+	{
+	  if (what&1) f_sum = (float32_t)*asrc++ * morph_inv + (float32_t)*bsrc++ * morph;
+	  else if (what&2) f_sum = (float32_t)*asrc++ * (float32_t)*bsrc++ * morph;
+	  else f_sum = (float32_t)*asrc++ + (float32_t)*bsrc++ * morph;
+		sum = f_sum;
+#if 0
+		sum = sum > 32767 ? 32767 : sum;
+		sum = sum < -32768 ? -32768 : sum;
+#else
+		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (sum) : [src] "r" (sum));
+#endif
+		
+		/* save to destination */
+		*dst++ = sum;
+	}
+}
+
 
 
 void buffer_put(int16_t in)
@@ -111,7 +136,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static u8 inproc=1,anydel=0,del=0;
 	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0;
 	u16 edger=0,samplestart=0,samplewrap=32768;
-	u8 x,steppy=0; 
+	u8 edgedel=0, edgespeed=1, edgestep=1;
+	u16 edgepos;
+	u8 x,res,steppy=0; 
 	int16_t dirry=1;
 
 	sampledir=1;samplestep=1;wrap=0;start=0;instep=1;
@@ -131,28 +158,54 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #else
 
 	u16 *buf16 = (u16*) datagenbuffer;
-
-	// complexity/walker for edger?
+	complexity=adc_buffer[3]>>5; // 7 bits=128 >>2 to 32 
 
 #ifdef LACH
 	edger=adc_buffer[0]<<3;
 #else
-	edger=0;
 	//edger as setting, edger as walk through? keep simple
+	res=complexity&3;
+	switch(res){
+	case 0:
+	  edger=0;
+	  break;
+	case 1:
+	  // edger is specific setting from settingarray-TODO
+	  break;
+	case 2:
+	  // edger is walker thru datagen using sampledir
+	  if (++edgedel==edgespeed){ 
+    	    tmp=edgestep*direction[sampledir];
+	    edgepos+=tmp;
+	    edger=edgepos%32768;
+	    edgedel=0;
+	    }
+	  break;
+	case 3:
+	  // edger is walker thru datagen using wormdir
+	  if (++edgedel==edgespeed){ 
+    	    tmp=edgestep*direction[wormdir];
+	    edgepos+=tmp;
+	    edger=edgepos%32768;
+	    edgedel=0;
+	    }
+	  break;
+	}
 
 #endif
 	di_split_stereo(sz, src, left_buffer, right_buffer,edger, instep);
 
-	steppy=adc_buffer[3]>>5;// TESTS!!!
-	speed=(adc_buffer[4]>>5)+1;
-	anystep=steppy+1; // 5 bits=32 and still jitter///average???
-		//		samplestep=1;
+	//	steppy=adc_buffer[3]>>5;// TESTS!!!
+	//	speed=(adc_buffer[4]>>5)+1;
+	//	samplestep=steppy+1; 
+	//		samplestep=1;
 	//	sampledir=2;
-	complexity=11;//TEST
+	//		complexity=11;//TEST
 
-	// COMPLEXITY TOTAL is: 21 so far
+	// COMPLEXITY TOTAL is: 21 so far- should be 32 with bitwise for ??? - effects
+	complexity=complexity>>2;
 
-	switch(complexity){
+	switch(complexity){// 32 options
 	case 0:
 	for (x=0;x<sz/2;x++){
 	  if (++del==speed){
@@ -451,7 +504,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
 	      if (sampledir&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -489,7 +542,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		dirry=-1;
 	      }
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
 	      if (sampledir&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -521,7 +574,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
 	      if (sampledir&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -553,7 +606,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
 	      if (sampledir&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -606,20 +659,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	} // end case
 
 #ifndef LACH	
-	if (digfilterflag&1){
+
+	if (digfilterflag&32){ // TODO/TESTCODE here....
+	  // processing of left buffer back into mono_buffer
+
+	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
+	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.5f,1);
+	}
+
+	if (digfilterflag&1){ // TODO
 	  // 3- any processing of left buffer
 	  // set via walker for effects//complexity????
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 	  //
 
-	for (x=0;x<sz/2;x++){
-	  
-	  left_buffer[x]=0;
-	  //    	  right_buffer[x]=(int16_t)datagenbuffer[(x+counter)%32768];
-	  //	  right_buffer[x]=(counter+x)*128;
-	    }
-
 	}
+
+
 #endif
 
 	// 4-out
