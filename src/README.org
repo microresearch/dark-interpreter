@@ -112,7 +112,7 @@ board with digital processing and generation extended by symmetrical
 custom filters, distortion, and switchable feedback paths. Order with
 9v socket (default) or battery clip on the back. Some skin control.
 
-230 euros
+230 euros (with free worldwide shipping with track number)
 
 *** 3-But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of Darkness.
 
@@ -120,8 +120,9 @@ This two-tiered Interpreter extends the Mater Suspiriorum with a skin
 breakout board and skin/EEG amplifier (strap it to the head, stick it
 in the earth, pull it across the skin, into the body). All signal
 paths and settings are accessible to the skin for complex hand
-re-routing, and feedback. Order with 9v socket (not recommended for
-safety reasons) or battery clip (default) on the back.
+re-routing, and feedback. Of course the device can be used without any
+wished skin transfer. Order with 9v socket (not recommended for safety
+reasons) or battery clip (default) on the back.
 
 290 euros
 
@@ -222,19 +223,22 @@ outside, and in open daylight.
 
 - handling edger via complexity- as set of options/walkersDONE-TEST!
 
+/////
+
+- where we do stack push/pulls and the appropriate settings?TEST so far....
+
+all as part of settings with settingsarray followed by dirs and then
+push/pull
+
+//////
+
+- master foldbacksettingwalker is set where?
+
+- extend complexity setting
+
+- effects/filtereffect
+
 ////
-
-
-
-*key questions*:
-
-- where we do stack push/pulls and the appropriate settings?
-
-- how we handle array settings and direction settings
-
-so we have basic settings, dir settings and stack push/pull to handle
-
-2,0,3,4(is really higher),1 /hardware/speed/complexity/X/Y
 
 ** done
 
@@ -270,7 +274,7 @@ main.c:
   f0106er->step=1; f0106er->speed=1; wormflag
   hdgener->step=1; hdgener->speed=1; wormflag
 
-[simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
+simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
 cpu: addr, wrap,CPU%31,delay
 leak: addr, wrap,CPU%31,delay
 CA: CA%NUM_CA,delay,howmany]

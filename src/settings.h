@@ -1,11 +1,17 @@
-/*
 
-simulation: function%NUM_FUNCS,delay,howmany - are these not set on a push!
-cpu: addr, wrap,CPU%31,delay
-leak: addr, wrap,CPU%31,delay
-CA: CA%NUM_CA,delay,howmany - set on a push as generic 4 values from array
+/* position in array//or dir//or stack push/pull:
+
+   array[0->xx], dir=hardwaredirs below, sampledir,
+   anydir, +otherdirs, stack push/pulls (0/1)x4
+
+   simulation: function%NUM_FUNCS,delay,howmany - as settings which are pushed
+   cpu: addr, wrap,CPU%31,delay
+   leak: addr, wrap,CPU%31,delay
+   CA: CA%NUM_CA,delay,howmany
 
 */
+
+// main.c
 
 #define LEAKINESS (settingsarray[0])
 #define INFECTION (settingsarray[1])
@@ -16,9 +22,9 @@ CA: CA%NUM_CA,delay,howmany - set on a push as generic 4 values from array
 #define MAXIMERWORMFLAG (settingsarray[6])
 #define MAXIMERSTEP (settingsarray[7])
 #define MAXIMERSPEED (settingsarray[8])
-#define f0106ERWORMFLAG (settingsarray[9])
-#define f0106ERSTEP (settingsarray[10])
-#define f0106ERSPEED (settingsarray[11])
+#define F0106ERWORMFLAG (settingsarray[9])
+#define F0106ERSTEP (settingsarray[10])
+#define F0106ERSPEED (settingsarray[11])
 #define HDGENERWORMFLAG (settingsarray[12])
 #define HDGENERSTEP (settingsarray[13])
 #define HDGENERSPEED (settingsarray[14])
@@ -26,23 +32,48 @@ CA: CA%NUM_CA,delay,howmany - set on a push as generic 4 values from array
 #define LEAKSPEED (settingsarray[15])
 #define MACHINESPEED (settingsarray[16])
 
+// audio.c
+
 #define SAMPLESTEP (settingsarray[16])
-#define SAMPLEWRAP (settingsarray[17])
+#define SAMPLEWRAP ((settingsarray[17])<<8) // 32 bit
 #define SAMPLESTART (settingsarray[18])
 #define SAMPLESPEED (settingsarray[19])
 
 #define ANYSTEP (settingsarray[20])
 #define ANYSPEED (settingsarray[21])
-#define EDGERASSETTING (settingsarray[22])
+#define EDGERASSETTING ((settingsarray[22])<<8) // 32 bit
 #define INSTEP (settingsarray[23])
 #define EDGESTEP (settingsarray[24])
 #define EDGESPEED (settingsarray[25])
 
-/* then +4 for generic push settings
+// directions from main.c
 
-so array is 29 but then for settings we have: +2 or +4 push/pull, 
+#define HDGENERDIR (settingsarray[26]%8)
+#define LMERDIR (settingsarray[27]%8)
+#define MAXIMERDIR (settingsarray[28]%8)
+#define F0106ERDIR (settingsarray[29]%8)
 
-dir=hardwaredirs below=4, sampledir, anydir, +otherdirs
+// directions from audio.c
+
+#define SAMPLEDIR (settingsarray[30])
+#define ANYDIR (settingsarray[31])
+
+#define PUSHONE16BIT (settingsarray[32])
+#define PUSHTWO16BIT (settingsarray[33])
+#define PUSHONE8BIT (settingsarray[34])
+#define PUSHTWO8BIT (settingsarray[35])
+#define PUSHTHREE8BIT (settingsarray[36])
+#define EXESTACKPUSH (settingsarray[37])
+
+#define BEFORESTACK 38 // limit here
+
+/* 
+
+stack+10=48odd + extra settings
+
+dir=hardwaredirs below=4, sampledir, anydir, 
+
++otherdirs
 
 so aim for 64 with extra settings and so on...
 
