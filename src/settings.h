@@ -35,13 +35,13 @@
 // audio.c
 
 #define SAMPLESTEP (settingsarray[17])
-#define SAMPLEWRAP ((settingsarray[18])<<8) // 32 bit
+#define SAMPLEWRAP ((settingsarray[18])<<7) // 32 bit
 #define SAMPLESTART (settingsarray[19])
 #define SAMPLESPEED (settingsarray[20])
 
 #define ANYSTEP (settingsarray[21])
 #define ANYSPEED (settingsarray[22])
-#define EDGERASSETTING ((settingsarray[23])<<8) // 32 bit
+#define EDGERASSETTING ((settingsarray[23])<<7) // 32 bit
 #define INSTEP (settingsarray[24])
 #define EDGESTEP (settingsarray[25])
 #define EDGESPEED (settingsarray[26])
@@ -74,14 +74,3 @@
 #define BEFOREDIR  36
 #define BEFORESTACK 43 // limit here
 #define FINALL 53 // end of end = +10 TODO:check!
-/* 
-
-stack+10=48odd + extra settings
-
-dir=hardwaredirs below=4, sampledir, anydir, 
-
-+otherdirs
-
-so aim for 64??? but at end we have datagenwalker for settingsarray
-
-*/

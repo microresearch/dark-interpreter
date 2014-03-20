@@ -145,7 +145,7 @@ RES: feedback on/off - jackin-> - lm358in->
 3-feedoff xx     lmin
   */
 
-  res=0;
+      res=2; 	  //TESTER!
   //   res=2; // test
   //  res=1;
     //    res=3;
@@ -184,14 +184,14 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRL = (1<<13);
  }
 
-  //      res2=1;
+         res2=0; 	  //TESTER!
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
   digfilterflag=0;
 
   // now as 32 options with digfilterflag as 32 for filterfeed
-  //  res2=0;
+  //  res2=2; //TODO test ffilterfoldback
   switch(res2){
   case 0:
   case 1:

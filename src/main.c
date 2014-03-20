@@ -38,9 +38,9 @@
 
 #define MAX_EXE_STACK 8
 
-#define randi() (adc_buffer[9])
-  //#define randi() rand()
-  //define randi() (datagenbuffer[adc_buffer[9]<<4])
+//#define randi() (adc_buffer[9])
+//#define randi() rand()
+#define randi() (datagenbuffer[adc_buffer[9]<<4])
 
  /* DMA buffers for I2S */
  __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -55,7 +55,7 @@ u8* datagenbuffer = (u8*)0x10000000;
 extern u8 digfilterflag;
 
 u8 wormdir; // worm direction
-u8 cons; //constraint/grain size used in audio.c
+//u8 cons; //constraint/grain size used in audio.c
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
 u8 settingsarray[64];
@@ -106,8 +106,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
    // order that all inits and audio_init called seems to be important
    u16 x,addr,tmp,oldhardware,hardware; 
    u16 speedwrapper=0;
-   u16 genspeed=1, hardspeed,hardcount;
-   u8 cpuspeed,cpucount;
+   u16 genspeed, hardspeed,hardcount;
+   u16 cpuspeed,cpucount;
    u8 exenums=0,machine_count=0,leak_count=0; 
    u8 exestack[MAX_EXE_STACK];
    u8 settings, oldsettings=0,settings_trap=0,setted,settingsindex=0;
@@ -177,6 +177,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 ////////////////////TESTCODE_TODO_REMOVE - but do replace with some
 ////////////////////minimal setup code to get started
+	 //TESTER!
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -187,13 +188,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-	   //	   stack_pos=func_pushn(stackyy,2,buf16,stack_pos,1,10);
+	   //	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
+	   	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,1,10);
 	 	   }
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
@@ -211,15 +212,16 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 
 	    //0- speed knob=hardware speed, cpu speed(shift>>)=generic speed, grainsize (>>also)
-	    genspeed=adc_buffer[0];
-	    cons=(genspeed>>5)&15; // granulation
-	    cpuspeed=genspeed>>4; // 8 bits
-	    hardspeed=genspeed<<2; // 14 bits
-
+	    genspeed=adc_buffer[0]>>5;
+ 	    cpuspeed=genspeed; //TODO! tune speeds
+	    hardspeed=genspeed;//<<2; // 14 bits
+	    //	    cpuspeed=1; hardspeed=1;
+	    MACHINESPEED=1;
 	    cpucount++;
-	    if (cpucount>=cpuspeed){
-	      cpucount=0;
 
+	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
+	      cpucount=0;
+ 	      	  
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
@@ -245,9 +247,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    leak_count=0;
 		  }
 		    break;
-		}
-	      }
-	    }
+		    }
+		    }
+		    }
+	 
 
 	    // 3-deal with settingsarray - should this be in slow/speed loop?
 
@@ -263,7 +266,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       - or set with [1] as to where it stops
 
 	     */
-	    
+
+	    /*	    
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
 
 	    //+++///* some kind of foldback where walkers also set settingsarray
@@ -300,11 +304,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		if (setted==0){ // do we do this every time?
 		  // do finger thing for all settings/push pop etc.*TODO*
 		  // up and down is 8 and 7
-		  // left and right is 5 and 6
-		  // value is highest
+		  // left and right is 5 and 6 - highest???
 		  if (settingsindex<BEFORESTACK){ 
 		    //if 8>7 move up // otherwise down - bit how stay above 0//more or less?
-		 
+		    //add/subtract from zero????
+
 		  }
 		  else if (settingsindex<BEFOREDIR){ 
 		  // directions
@@ -365,7 +369,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 	      }
 	      }
-	    }
+	      }*/
 	 /////
 
 #ifndef LACH

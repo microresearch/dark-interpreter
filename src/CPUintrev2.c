@@ -1609,7 +1609,7 @@ int main(void)
 	    if (sampledir&1) dirry=1;
 	    else dirry=-1;
 	    
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -1626,10 +1626,10 @@ int main(void)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
 	      else wrap=start-wrap;
-	      if (wrap==0) wrap=1;
 	      
 	      //	    printf("xxxdir %d samplepos %d wrap %d start %d\n",dirry, samplepos,wrap,start);
 	    start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      if (wrap<1) wrap=2;
 	      if (sampledir&1) samplepos=0;
 	      else samplepos=wrap;
 		}

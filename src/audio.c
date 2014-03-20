@@ -21,7 +21,6 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 
 extern __IO uint16_t adc_buffer[10];
 extern u8 wormdir;
-extern u8 cons; 
 extern u8 settingsarray[64];
 
 extern u8 digfilterflag;
@@ -126,12 +125,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp=0,edger=0;
+	u16 tmp=0,edger=0,cons;
 	u8 complexity=0;
 	static u8 anydel=0,del=0,edgedel=0;
 	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0,edgepos=0;
 	u8 x,res; 
 	int16_t dirry=1;
+
+	INSTEP=1; //TESTER!
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
@@ -145,7 +146,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 
 #else
-
+	cons=(adc_buffer[0]>>5)&15;
 	u16 *buf16 = (u16*) datagenbuffer;
 	complexity=adc_buffer[3]>>5; // 7 bits=128 >>2 to 32 
 
@@ -154,13 +155,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #else
 	//edger as setting, edger as walk through? keep simple
 	res=complexity&3;
+	//	res=0;
+
+	//	EDGESPEED=1; EDGESTEP=1;SAMPLEDIR=2; //TESTER!
+	//	res=0;
 	switch(res){
 	case 0:
 	  edger=0;
 	  break;
 	case 1:
 	  // edger is specific setting from settingarray-TODO
-	  edger=EDGERASSETTING;
+	 	  edger=EDGERASSETTING; 
+		  // edger=16000;//TESTER!
 	  break;
 	case 2:
 	  // edger is walker thru datagen using SAMPLEDIR
@@ -186,17 +192,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	di_split_stereo(sz, src, left_buffer, right_buffer,edger, INSTEP);
 
 	// COMPLEXITY TOTAL is: 21 so far- should be 32 with bitwise for ??? - effects
+	// COMPLEXITY &3 for edger
+	// so for effects????
+	
 	complexity=complexity>>2;
-
+	//	complexity=0; SAMPLEDIR=2;ANYSPEED=1;ANYDIR=2;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
 	switch(complexity){// 32 options
 	case 0:
 	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	  samplepos+=SAMPLESTEP;
 	  if (samplepos>=SAMPLEWRAP) samplepos=0;
+	  //if (samplepos>=32768) samplepos=0;//TESTER!
+
 	  del=0;
 	  }
 	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
+	  //	  mono_buffer[x]=audio_buffer[samplepos%32768]; // TESTER!
 	}
 	break;
 	/////////
@@ -245,7 +257,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (SAMPLEDIR&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -261,8 +273,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
+	      start=start%32768;wrap=wrap>>cons;
+	      if (wrap==0) wrap=1;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -277,7 +289,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -299,8 +311,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		wrap=start-wrap;
 		dirry=-1;
 	      }
+	      start=start%32768;wrap=wrap>>cons; 
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -315,7 +327,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (wormdir&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -331,8 +343,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
+	      start=start%32768;wrap=wrap>>cons;
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -347,7 +359,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (wormdir&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -363,8 +375,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
+	      start=start%32768;wrap=wrap>>cons;
 	      if (wrap<1) wrap=2;
-	      start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -391,12 +403,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //5/walk datagen dir as samples
  	for (x=0;x<sz/2;x++){
 	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[ANYDIR];
+	  //	  if (++anydel==ANYSPEED){ 
+	  //    	    tmp=ANYSTEP*direction[ANYDIR];
+	  tmp=direction[3];
 	    anypos+=tmp;
 	    tmp=anypos%32768;
 	    anydel=0;
-	  }
+	    //	  }
 	  mono_buffer[x]=audio_buffer[buf16[tmp]%32768];
 	}
 	break;
@@ -418,10 +431,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	  samplepos+=SAMPLESTEP;
-	  if (samplepos>=SAMPLEWRAP) samplepos=0;
+	    if (samplepos>=SAMPLEWRAP) samplepos=0;
+	  //	  if (samplepos>=32000) samplepos=0;	  //TESTER!
 	  del=0;
 	  }
-	  mono_buffer[x]=buf16[(SAMPLESTART+samplepos)%32768];
+	  	  mono_buffer[x]=buf16[(SAMPLESTART+samplepos)%32768];
+	  //	  mono_buffer[x]=buf16[(samplepos)%32768]; 	  //TESTER!
+
 	}
 	break;
 	/////////
@@ -470,7 +486,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (SAMPLEDIR&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -486,8 +502,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      if (wrap<1) wrap=2;
 	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
+	      if (wrap<1) wrap=2;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -502,7 +518,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -524,8 +540,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		wrap=start-wrap;
 		dirry=-1;
 	      }
-	      if (wrap<1) wrap=2;
 	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
+	      if (wrap<1) wrap=2;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -540,7 +556,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (wormdir&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -556,8 +572,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      if (wrap<1) wrap=2;
 	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
+	      if (wrap<1) wrap=2;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -572,7 +588,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (wormdir&1) dirry=1;
 	    else dirry=-1;
 	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry+start)>start)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -588,8 +604,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      if (wrap<1) wrap=2;
 	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
+	      if (wrap<1) wrap=2;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
 		}
@@ -647,7 +663,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // processing of left buffer back into mono_buffer
 
 	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
-	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.5f,1);
+	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
 	}
 
 	if (digfilterflag&1){ // TODO

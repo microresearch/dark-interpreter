@@ -213,23 +213,41 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* THU 19 MAR
+
+- all tests below //full test crashes so isolate
+
+[marking test settings as TESTER]
+
+- what if steps are zero??? what else should not be zero. trap this
+
+- also fullfinger setting up and down
+
+- differences for full/lower fingers?
+
+- settings for effects, filtereffects, filterineffects (straight, walker)=x9
+
 * WED 18 MAR
 
-- test new hardware optionsDONE-example code for digfilterbackDONE-TEST!
+1- test new hardware optionsDONE-example code for digfilterbackDONE-TEST!OK!
 
-- execution stack for datagensDONE-TEST!
+2- execution stack for datagensDONE-TEST!OK!
 
-- test new speed settings+ granulationDONE-TEST!
+3- test new speed settingsTESTEDOK!+// granulationDONE-TEST!OK
 
-- handling edger via complexity- as set of options/walkersDONE-TEST!
+4- handling edger via complexity- as set of options/walkersDONE-TEST!OK
 
-- where we do stack push/pulls and the appropriate settings?TEST so far....
+///
 
-- master foldbacksettingwalker is set where?as extra setting-past end of settings TEST
+5- where we do stack push/pulls and the appropriate settings?TEST so far....
+
+6- master foldbacksettingwalker is set where?as extra setting-past end of settings TEST
 
 //////
 
-- finger setting - up/down, direction
+- finger setting - up/down, direction-STARTED
+
+
 
 - extend complexity setting
 
