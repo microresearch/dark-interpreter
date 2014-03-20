@@ -215,6 +215,15 @@ outside, and in open daylight.
 
 * THU 19 MAR
 
+- try to make one setting (clear all else and focus)DONEbut is q. hard
+  (maybe limit for set poti can be a setting but where?)
+
+- try to push/pop on all stacks...//try settingsfinalfoldback!
+
+- crash potential???
+
+////
+
 [marking test settings as TESTER]
 
 - what if steps are zero??? what else should not be zero. trap
@@ -222,15 +231,15 @@ outside, and in open daylight.
 
 [but with knobs steps should never be set to zero?]
 
-- why crash is only manifest with edger????
+- why crash is only manifest with edger and now not? some kind of leakage
 
 ///
 
-- also fullfinger setting up and down
+- speedups - why sound is so bitty?
 
-- differences for full/lower fingers?
+- also fullfinger setting up and down/left-rigt
 
-- settings for effects, filtereffects, filterineffects (straight, walker)=x9
+- settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
 
 * WED 18 MAR
 

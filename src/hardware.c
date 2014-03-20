@@ -139,16 +139,15 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   /*
 RES: feedback on/off - jackin-> - lm358in->
 
-0-feedon 
-1-feedon xx     lmin ??? makes no sense
-2-feedoff jackin xx
-3-feedoff xx     lmin
+0-feedoff jackin xx
+1-feedoff xx     lmin
+2-feedon 
+3-feedon xx     lmin ??? makes no sense
+
+
   */
 
-  //      res=2; 	  //TESTER!
-  //   res=2; // test
-  //  res=1;
-    //    res=3;
+  res=0; 	  //TESTER!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -185,7 +184,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  //         res2=0; 	  //TESTER!
+  res2=0; 	  //TESTER!
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 

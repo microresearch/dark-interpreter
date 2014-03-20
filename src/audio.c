@@ -57,15 +57,14 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge, u8 step)
 {
   static u16 count=0; 
-  //  edge=0;
-	while(sz)
+  	while(sz)
 	{
 		*ldst++ = *src++;
 		sz--;
 		*rdst++ = *src;
-		audio_buffer[count] = *src++;
 		count+=step;
-		if (count>=AUDIO_BUFSZ) count=edge%32768; //TODO; stops short
+		if (count>=AUDIO_BUFSZ) count=edge%32768; //TODO; stops short/wrap
+		audio_buffer[count] = *src++;
 		//		*rdst++ = 0;
 		sz--;
 	}
@@ -130,7 +129,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u8 x,res; 
 	int16_t dirry=1;
 
-	//	INSTEP=1; //TESTER!
+	INSTEP=1; //TESTER!
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
@@ -161,7 +160,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #else
 
 	res=complexity&3;
-	//	res=0;
+	res=0;
 	switch(res){
 	case 0:
 	  edger=0;
@@ -202,19 +201,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// so for effects????
 	
 	complexity=complexity>>2;
-	//	complexity=0; SAMPLEDIR=2;ANYSPEED=1;ANYDIR=2;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
+	complexity=0; ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1;// SAMPLESPEED=1;//TESTER!
+
 	switch(complexity){// 32 options
 	case 0:
 	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	  samplepos+=SAMPLESTEP;
-	  if (samplepos>=SAMPLEWRAP) samplepos=0;
-	  //if (samplepos>=32768) samplepos=0;//TESTER!
+	    if (samplepos>=SAMPLEWRAP) samplepos=0;
+	    //if (samplepos>=32768) samplepos=0;//TESTER!
 
 	  del=0;
 	  }
-	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
-	  //	  mono_buffer[x]=audio_buffer[samplepos%32768]; // TESTER!
+	  tmp=samplepos%32768;
+	  //	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
+	  	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
 	}
 	break;
 	/////////
@@ -684,7 +685,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #endif
 
 	// 4-out
-	//	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+	//audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 		audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif
 

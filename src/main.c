@@ -120,6 +120,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
    u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
    u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
+   u8 handup, oldhandup, handdown, oldhanddown;
+
    inittable(3,4,randi()<<4,table);
 
   float pi= 3.141592;
@@ -167,6 +169,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 u16 hdgenerpos=0,lmerpos=0,f0106erpos=0,maximerpos=0;
 	 u8 stack_pos=0;
 	 u8 stack_posy=0;
+
 	 struct stackey stackyy[STACK_SIZE];
 	 struct stackey stackyyy[STACK_SIZE];
 	 u16 *buf16 = (u16*) datagenbuffer;
@@ -220,7 +223,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (LEAKSPEED==0) LEAKSPEED=1;
 	    cpucount++;
 
-	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
+//	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
 	      cpucount=0;
  	      	  
 	      for (x=0;x<exenums;x++){
@@ -249,33 +252,19 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 		    break;
 		    }
-		    }
-		    }
+	      }
+	      //	    }
 	 
-
+	    
 	    // 3-deal with settingsarray - should this be in slow/speed loop?
-
-	    // settingsarray, dir settings and stack push/pull to handle
-
-	    /* start with basic code to actually set via knobs - test code TODO
-	       
-	       - find setting in array/or if after array this is where
-	       - X knob [4] stops???  if knob has stayed the same for
-	       - x amount of time then we use as setting
-	       
-	       - then if Y[1] is 0 the use fingers - how to set there? test code TODO
-	       - or set with [1] as to where it stops
-
-	     */
-
 		    
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
 	    
-	    if (settings>=FINALL){
+	    /*	    	    if (settings>=FINALL){
 	      // walk datagen as settings array settings...
 
-	      if (FINALSTEP==0) FINALSTEP=1;
-	      if (FINALSPEED==0) FINALSPEED=1;
+		      if (FINALSTEP==0) FINALSTEP=1;
+		      if (FINALSPEED==0) FINALSPEED=1;
 
 	    if (++finaldel==FINALSPEED){
 	      if (FINALWORMFLAG&1) tmp=FINALSTEP*direction[wormdir];
@@ -287,17 +276,18 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      index++;
 	    }
 	    }
-	    else {
+	    else {*/
 	    if (oldsettings==settings) settings_trap++;
 	    else settings_trap=0;
 	    oldsettings=settings;
 	    
-	    if (settings_trap>64){ // threshold is 64REPEATS
+	    if (settings_trap>8){ // trap_threshold was 64REPEATS -- where we could set this!
 	      pushpopflag=0;
 	      settings_trap=0;
 	      //find our setting
 	      settingsindex=settings;
 	    }
+	    settings_trap=1;settingsindex=20;	    //TESTY!!
 
 	    // now we can set it
 	    if (settings_trap>0) 
@@ -306,10 +296,21 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		if (setted==0){ // do we do this every time?
 		  // do finger thing for all settings/push pop etc.*TODO*
 		  // up and down is 8 and 7
-		  // left and right is 5 and 6 - highest???
+		  // left and right is 5 and 6 -for lower board only
+		  // for upper makes sense with up/down as 6/8 left/right 5/7 TODO as ifdefs 
+
 		  if (settingsindex<BEFOREDIR){ 
-		    //if 8>7 move up // otherwise down - bit how stay above 0//more or less?
-		    //add/subtract from zero????
+		    // up- as long as [6] > lastupsetting increment value
+		    handup=adc_buffer[6]>>4; //8 bits
+		    if (handup>oldhandup) settingsarray[settingsindex]++;
+		    oldhandup=handup;
+
+		    // down- as long as [8] > lastdownsetting decrement value
+		    handdown=adc_buffer[8]>>4;
+		    if (handdown>oldhanddown) settingsarray[settingsindex]--;
+		    oldhanddown=handdown;
+		    
+		    // TEST THIS with say samplespeed on 20!
 
 		  }
 		  else if (settingsindex<BEFORESTACK){ 
@@ -321,7 +322,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 		  }
 		} // end of finger
-		else // knobby
+		else // knobbyNOW
 	      {
 		if (settingsindex<BEFORESTACK){ // DIR is included here 
 		  settingsarray[settingsindex]=setted;
@@ -330,7 +331,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  {
 		    // push/pop array
 		    // but how to stop repeated pushings/poppings
-		     if (pushpopflag==0)
+		    if (pushpopflag==0) //TEST!
 		      {
 			//first 4 is push of each// last is pop
 			pushypop=settingsindex-BEFORESTACK; 
@@ -367,17 +368,17 @@ u8 exestackpop(u8 exenum, u8* exestack){
 			  exenums=exestackpop(exenums,exestack);
 			}
 			pushpopflag=1;
-			}
+		      }
 		  }
 		  }
 	      }
-	    }
+	    //	    }
 	 /////
 
 #ifndef LACH
 
 	   // 4-hardware operations
-
+	    /*
 	    hardcount++;
 	    if (hardcount>=hardspeed){
 	      hardcount=0;
@@ -446,7 +447,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    maximerdel=0;
 	    }
 	  }
-	    } // hardcount
+	  } // hardcount*/
 #endif
 #endif
 	 }
