@@ -303,7 +303,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 		  if (settingsindex<BEFOREDIR){ 
 		    // up- as long as [6] > lastupsetting increment value
-		    handup=adc_buffer[6]>>8; //8 bits //adc6???
+		    handup=adc_buffer[6]>>8; //4 bits //adc6???
 		    if (handup>oldhandup) sstt++;
 		    else sstt=0;
 		    if (sstt>2){
@@ -313,7 +313,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    oldhandup=handup;
 
 		    // down- as long as [8] > lastdownsetting decrement value
-		    handdown=adc_buffer[8]>>8; //8 bits
+		    handdown=adc_buffer[8]>>8; //4 bits
 		    if (handdown>oldhanddown) ttss++;
 		    else ttss=0;
 		    if (ttss>2){
@@ -322,10 +322,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    }
 
 		    oldhanddown=handdown;
-
 		    settingsarray[settingsindex]=tempsetting; //8 bits
 
-		    // TEST THIS with say samplespeed on 20!
+		    // TESTED THIS with say samplespeed on 20!
 
 		  }
 		  else if (settingsindex<BEFORESTACK){ 

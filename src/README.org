@@ -213,14 +213,25 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* FRI 20 MAR
+
+- TESTtry to push/pop on all stacks
+
+- TESTtry settingsfinalfoldback!
+
+- crash potentials WHY??? in edger?
+
+- also fullfinger setting up and down/left-right_WHERE TO SET on zero
+  of top knob (and shift array)
+
+- finish finger code - dir and push/pop
+
+- constraints in each file for all settings
+
+- settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
+
+
 * THU 19 MAR
-
-- try to make one setting (clear all else and focus)DONEbut is q. hard
-  (maybe limit for set poti can be a setting but where?)
-
-- try to push/pop on all stacks...//try settingsfinalfoldback!
-
-- crash potential???
 
 ////
 
@@ -237,9 +248,12 @@ outside, and in open daylight.
 
 - speedups - why sound is so bitty?
 
-- also fullfinger setting up and down/left-rigt
+** ///DONE
 
-- settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
+- try to make one setting (clear all else and focus)DONEbut is q. hard
+  (maybe limit for set poti can be a setting but where?)
+
+- basic fingers
 
 * WED 18 MAR
 
