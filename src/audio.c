@@ -151,7 +151,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	if (SAMPLESTEP==0) SAMPLESTEP=1;
 	if (SAMPLESPEED==0) SAMPLESPEED=1;
 	if (ANYSTEP==0) ANYSTEP=1;
-	if (ANYSPEED==0) ANYSPEED=1;
+       	if (ANYSPEED==0) ANYSPEED=1;
 	if (EDGESTEP==0) EDGESTEP=1;
 	if (EDGESPEED==0) EDGESPEED=1;
 	
@@ -206,16 +206,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	switch(complexity){// 32 options
 	case 0:
 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
+	  if (++del==(SAMPLESPEED%8)){
 	  samplepos+=SAMPLESTEP;
-	    if (samplepos>=SAMPLEWRAP) samplepos=0;
-	    //if (samplepos>=32768) samplepos=0;//TESTER!
+	  //	    if (samplepos>=SAMPLEWRAP) samplepos=0;
+	    if (samplepos>=32768) samplepos=0;//TESTER!
 
 	  del=0;
 	  }
 	  tmp=samplepos%32768;
-	  //	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
-	  	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
+	  //	  	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
+		  	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
 	}
 	break;
 	/////////

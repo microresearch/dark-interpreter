@@ -25,6 +25,7 @@ u8 wormdir; // worm direction
 extern u8 wormdir;
 #endif
 
+
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -1563,6 +1564,8 @@ int main(void)
 {
   u16 xx; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
+u8 settingsarray[64];
+
   srandom(time(0));
   for (xx=0;xx<65535;xx++){
     buffer[xx]=randi()%255;
@@ -1644,9 +1647,13 @@ int main(void)
 	    	    printf("dir %d samplepos %d wrap %d start %d sample %d\n",dirry, samplepos,wrap,start, samplepos+start);
 		    }*/
 
-	  printf("%d\n",256<<7);
+
+	  //	  printf("%d\n",256<<7);
 
 	//	  printf("samplepos %d wrap %d start %d\n",samplepos,wrap,start);
+
+	  settingsarray[20]--;
+	  printf("ary %d\n",settingsarray[20]);
 
 	}
 	}

@@ -120,7 +120,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
    u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
    u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
-   u8 handup, oldhandup, handdown, oldhanddown;
+   u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
 
    inittable(3,4,randi()<<4,table);
 
@@ -287,12 +287,14 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //find our setting
 	      settingsindex=settings;
 	    }
+	    
 	    settings_trap=1;settingsindex=20;	    //TESTY!!
 
 	    // now we can set it
 	    if (settings_trap>0) 
 	      {
 		setted=adc_buffer[1]>>4; // 8 bits
+		setted=0;
 		if (setted==0){ // do we do this every time?
 		  // do finger thing for all settings/push pop etc.*TODO*
 		  // up and down is 8 and 7
@@ -301,15 +303,28 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 		  if (settingsindex<BEFOREDIR){ 
 		    // up- as long as [6] > lastupsetting increment value
-		    handup=adc_buffer[6]>>4; //8 bits
-		    if (handup>oldhandup) settingsarray[settingsindex]++;
+		    handup=adc_buffer[6]>>8; //8 bits //adc6???
+		    if (handup>oldhandup) sstt++;
+		    else sstt=0;
+		    if (sstt>2){
+		      sstt=0;
+		      tempsetting++;
+		    }
 		    oldhandup=handup;
 
 		    // down- as long as [8] > lastdownsetting decrement value
-		    handdown=adc_buffer[8]>>4;
-		    if (handdown>oldhanddown) settingsarray[settingsindex]--;
+		    handdown=adc_buffer[8]>>8; //8 bits
+		    if (handdown>oldhanddown) ttss++;
+		    else ttss=0;
+		    if (ttss>2){
+		      ttss=0;
+		      tempsetting--;
+		    }
+
 		    oldhanddown=handdown;
-		    
+
+		    settingsarray[settingsindex]=tempsetting; //8 bits
+
 		    // TEST THIS with say samplespeed on 20!
 
 		  }

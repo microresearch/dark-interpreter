@@ -1,8 +1,21 @@
+		    if (handdown>oldhanddown) sstt++;
+		    if (sstt>8) {
+		      sstt=0;
+		      settingsarray[settingsindex]--;
+		      }*/
+
+
+
+	    tmp=(adc_buffer[0]<<4); //adjust if 2 slow
+	    if (speedwrapper>=tmp){
+	      speedwrapper=0;
+
+
 	      // memory TEST push/pop
 	      // sims/ca/machine/pureleak
 
 	      /*	      if (rand()%2==1) {
-		//stack_pos=func_pop(stackyy,stack_pos);
+		stack_pos=func_pop(stackyy,stack_pos);
   		stack_posy=ca_pop(stackyyy,stack_posy);
 		cpustackpop(m);
 		cpustackpoppp(datagenbuffer);
