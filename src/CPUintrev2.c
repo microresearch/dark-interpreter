@@ -1417,6 +1417,11 @@ void machine_run(machine* this) {
   //    threadcount=0;
 
     // slowing all down these 3????not so bad could run less frequenctly!TODO***
+  if (this->m_leakiness==0) this->m_leakiness=1;
+  if (this->m_infectprob==0) this->m_infectprob=1;
+  if (this->m_mutateprob==0) this->m_mutateprob=1;
+
+
          	if ((randi()%this->m_leakiness)==0) {
 	    	leak(this);
 		}
@@ -1603,7 +1608,7 @@ int main(void)
 
 	while(1) {
 
- 	for (x=0;x<sz/2;x++){
+	  /* 	for (x=0;x<sz/2;x++){
 	  if (++del==speed){
 	    //	    tmp=(samplestep*direction[sampledir])%32768; // and if goes backwards in dir? wrap?
 	    if (sampledir&1) dirry=1;
@@ -1637,12 +1642,13 @@ int main(void)
 	  }
 	  //	    	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
 	    	    printf("dir %d samplepos %d wrap %d start %d sample %d\n",dirry, samplepos,wrap,start, samplepos+start);
-	}
+		    }*/
 
-
+	  printf("%d\n",256<<7);
 
 	//	  printf("samplepos %d wrap %d start %d\n",samplepos,wrap,start);
 
 	}
-}
+	}
+
 #endif

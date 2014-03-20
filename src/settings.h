@@ -16,6 +16,7 @@
 #define LEAKINESS (settingsarray[0])
 #define INFECTION (settingsarray[1])
 #define MUTATION (settingsarray[2])
+
 #define LMERWORMFLAG (settingsarray[3])
 #define LMERSTEP (settingsarray[4])
 #define LMERSPEED (settingsarray[5])
@@ -35,8 +36,8 @@
 // audio.c
 
 #define SAMPLESTEP (settingsarray[17])
-#define SAMPLEWRAP ((settingsarray[18])<<7) // 32 bit
-#define SAMPLESTART (settingsarray[19])
+#define SAMPLEWRAP ((settingsarray[18])<<7) // 32 bit max 32768
+#define SAMPLESTART ((settingsarray[19])<<7)  // 32 bit max 32768
 #define SAMPLESPEED (settingsarray[20])
 
 #define ANYSTEP (settingsarray[21])
@@ -67,10 +68,10 @@
 
 // directions from audio.c
 
-#define SAMPLEDIR (settingsarray[41])
-#define ANYDIR (settingsarray[42])
+#define SAMPLEDIR ((settingsarray[41])%8)
+#define ANYDIR ((settingsarray[42])%8)
 
 
 #define BEFOREDIR  36
 #define BEFORESTACK 43 // limit here
-#define FINALL 53 // end of end = +10 TODO:check!
+#define FINALL 53 // end of end = +10 for push and pops

@@ -145,17 +145,27 @@ RES: feedback on/off - jackin-> - lm358in->
 3-feedoff xx     lmin
   */
 
-      res=2; 	  //TESTER!
+  //      res=2; 	  //TESTER!
   //   res=2; // test
   //  res=1;
     //    res=3;
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
+   GPIOC->BSRRH = (1<<8);
+   GPIOC->BSRRL = (1<<13);
+   break;
+ case 1:
+   GPIOB->BSRRL = (1<<7);
+   GPIOC->BSRRH = (1<<8);
+   GPIOC->BSRRL = (1<<13);
+   break;
+ case 2:
+   GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRL = (1<<8); // BSRRL sets BIT!
    GPIOC->BSRRH = (1<<13); //
    break;
- case 1:
+ case 3:
    /*   GPIOB->BSRRL = (1<<7);
    GPIOC->BSRRL = (1<<8); 
    GPIOC->BSRRH = (1<<13); // irrelevant */ 
@@ -173,18 +183,9 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIO_Init(GPIOC, &GPIO_InitStructure);
    clockhangflag=1;
    break;
- case 2:
-   GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRH = (1<<8);
-   GPIOC->BSRRL = (1<<13);
-   break;
- case 3:
-   GPIOB->BSRRL = (1<<7);
-   GPIOC->BSRRH = (1<<8);
-   GPIOC->BSRRL = (1<<13);
  }
 
-         res2=0; 	  //TESTER!
+  //         res2=0; 	  //TESTER!
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 

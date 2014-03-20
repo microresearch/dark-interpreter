@@ -28,8 +28,6 @@ extern u8 *datagenbuffer;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
-
-
 void Audio_Init(void)
 {
 	uint32_t i;
@@ -58,16 +56,16 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 
 void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge, u8 step)
 {
-  static u16 count; 
+  static u16 count=0; 
   //  edge=0;
 	while(sz)
 	{
 		*ldst++ = *src++;
 		sz--;
-		count+=step;
-		if (count>=AUDIO_BUFSZ) count=edge;
 		*rdst++ = *src;
 		audio_buffer[count] = *src++;
+		count+=step;
+		if (count>=AUDIO_BUFSZ) count=edge%32768; //TODO; stops short
 		//		*rdst++ = 0;
 		sz--;
 	}
@@ -125,14 +123,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp=0,edger=0,cons;
+	u16 tmp=0,cons;
 	u8 complexity=0;
 	static u8 anydel=0,del=0,edgedel=0;
-	static u16 counter=0,start=0,wrap=32768,samplepos=0,anypos=0,edgepos=0;
+	static u16 edger=0,counter=0,start=0,wrap=32768,samplepos=0,anypos=0,edgepos=0;
 	u8 x,res; 
 	int16_t dirry=1;
 
-	INSTEP=1; //TESTER!
+	//	INSTEP=1; //TESTER!
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
@@ -150,14 +148,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u16 *buf16 = (u16*) datagenbuffer;
 	complexity=adc_buffer[3]>>5; // 7 bits=128 >>2 to 32 
 
+	if (INSTEP==0) INSTEP=1;
+	if (SAMPLESTEP==0) SAMPLESTEP=1;
+	if (SAMPLESPEED==0) SAMPLESPEED=1;
+	if (ANYSTEP==0) ANYSTEP=1;
+	if (ANYSPEED==0) ANYSPEED=1;
+	if (EDGESTEP==0) EDGESTEP=1;
+	if (EDGESPEED==0) EDGESPEED=1;
+	
 #ifdef LACH
 	edger=adc_buffer[0]<<3;
 #else
-	//edger as setting, edger as walk through? keep simple
-	res=complexity&3;
-	//	res=0;
 
-	//	EDGESPEED=1; EDGESTEP=1;SAMPLEDIR=2; //TESTER!
+	res=complexity&3;
 	//	res=0;
 	switch(res){
 	case 0:
@@ -165,7 +168,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	case 1:
 	  // edger is specific setting from settingarray-TODO
-	 	  edger=EDGERASSETTING; 
+	  edger=EDGERASSETTING; // but should never be higher than 32768 
 		  // edger=16000;//TESTER!
 	  break;
 	case 2:
@@ -173,7 +176,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++edgedel==EDGESPEED){ 
     	    tmp=EDGESTEP*direction[SAMPLEDIR];
 	    edgepos+=tmp;
-	    edger=edgepos%32768;
+	    tmp=edgepos%32768;
+	    edger=buf16[tmp];
 	    edgedel=0;
 	    }
 	  break;
@@ -182,13 +186,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++edgedel==EDGESPEED){ 
     	    tmp=EDGESTEP*direction[wormdir];
 	    edgepos+=tmp;
-	    edger=edgepos%32768;
+	    tmp=edgepos%32768;
+	    edger=buf16[tmp];
 	    edgedel=0;
 	    }
 	  break;
 	}
 
 #endif
+
 	di_split_stereo(sz, src, left_buffer, right_buffer,edger, INSTEP);
 
 	// COMPLEXITY TOTAL is: 21 so far- should be 32 with bitwise for ??? - effects
@@ -663,7 +669,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // processing of left buffer back into mono_buffer
 
 	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
-	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
+	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
 	}
 
 	if (digfilterflag&1){ // TODO

@@ -216,7 +216,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
  	    cpuspeed=genspeed; //TODO! tune speeds
 	    hardspeed=genspeed;//<<2; // 14 bits
 	    //	    cpuspeed=1; hardspeed=1;
-	    MACHINESPEED=1;
+	    if (MACHINESPEED==0) MACHINESPEED=1;
+	    if (LEAKSPEED==0) LEAKSPEED=1;
 	    cpucount++;
 
 	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
@@ -267,15 +268,15 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	     */
 
-	    /*	    
+		    
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
-
-	    //+++///* some kind of foldback where walkers also set settingsarray
-	    // set by FINAL at end of settingsindex >XXX
 	    
 	    if (settings>=FINALL){
-	      // walk datagen as settings array settings... but where are settings?
-	      // step, dir
+	      // walk datagen as settings array settings...
+
+	      if (FINALSTEP==0) FINALSTEP=1;
+	      if (FINALSPEED==0) FINALSPEED=1;
+
 	    if (++finaldel==FINALSPEED){
 	      if (FINALWORMFLAG&1) tmp=FINALSTEP*direction[wormdir];
 	      else tmp=FINALSTEP*direction[FINALDIR];
@@ -297,6 +298,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //find our setting
 	      settingsindex=settings;
 	    }
+
 	    // now we can set it
 	    if (settings_trap>0) 
 	      {
@@ -305,12 +307,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  // do finger thing for all settings/push pop etc.*TODO*
 		  // up and down is 8 and 7
 		  // left and right is 5 and 6 - highest???
-		  if (settingsindex<BEFORESTACK){ 
+		  if (settingsindex<BEFOREDIR){ 
 		    //if 8>7 move up // otherwise down - bit how stay above 0//more or less?
 		    //add/subtract from zero????
 
 		  }
-		  else if (settingsindex<BEFOREDIR){ 
+		  else if (settingsindex<BEFORESTACK){ 
 		  // directions
 
 		  }
@@ -319,16 +321,16 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 		  }
 		} // end of finger
-	    else 
+		else // knobby
 	      {
-		if (settingsindex<BEFORESTACK){ 
+		if (settingsindex<BEFORESTACK){ // DIR is included here 
 		  settingsarray[settingsindex]=setted;
 		}
 		else
 		  {
 		    // push/pop array
 		    // but how to stop repeated pushings/poppings
-		    if (pushpopflag==0)
+		     if (pushpopflag==0)
 		      {
 			//first 4 is push of each// last is pop
 			pushypop=settingsindex-BEFORESTACK; 
@@ -365,11 +367,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 			  exenums=exestackpop(exenums,exestack);
 			}
 			pushpopflag=1;
-		      }
+			}
+		  }
 		  }
 	      }
-	      }
-	      }*/
+	    }
 	 /////
 
 #ifndef LACH
@@ -380,8 +382,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (hardcount>=hardspeed){
 	      hardcount=0;
 
+
+
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	     if (digfilterflag&16){ // if we use hdgen at all
+	       if (HDGENERSPEED==0) HDGENERSPEED=1;
+	       if (HDGENERSTEP==0) HDGENERSTEP=1;
 	    if (++hdgenerdel==HDGENERSPEED){
 	      if (HDGENERWORMFLAG&1) tmp=HDGENERSTEP*direction8bit[wormdir];
 	      else tmp=HDGENERSTEP*direction8bit[HDGENERDIR];
@@ -400,6 +406,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		   
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
 	  if (digfilterflag&2){
+	       if (F0106ERSPEED==0) F0106ERSPEED=1;
+	       if (F0106ERSTEP==0) F0106ERSTEP=1;
 	    if (++f0106erdel==F0106ERSPEED){
 	      if (F0106ERWORMFLAG&1) tmp=F0106ERSTEP*direction[wormdir];
 	      else tmp=F0106ERSTEP*direction[F0106ERDIR];
@@ -411,6 +419,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	  }
 	  
 	  if (digfilterflag&4){
+	       if (LMERSPEED==0) LMERSPEED=1;
+	       if (LMERSTEP==0) LMERSTEP=1;
 	    if (++lmerdel==LMERSPEED){
 	    //lmer - set lmpwm
 	      if (LMERWORMFLAG&1) tmp=LMERSTEP*direction[wormdir];
@@ -425,7 +435,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	  }
 	  
 	  if (digfilterflag&8){
-	    //maximer - setmaximpwm - just one
+	       if (MAXIMERSPEED==0) MAXIMERSPEED=1;
+	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
 	      if (MAXIMERWORMFLAG&1) tmp=MAXIMERSTEP*direction[wormdir];
 	    else tmp=MAXIMERSTEP*direction[MAXIMERDIR];

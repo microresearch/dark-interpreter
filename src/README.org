@@ -215,11 +215,16 @@ outside, and in open daylight.
 
 * THU 19 MAR
 
-- all tests below //full test crashes so isolate
-
 [marking test settings as TESTER]
 
-- what if steps are zero??? what else should not be zero. trap this
+- what if steps are zero??? what else should not be zero. trap
+  this//some fatal/trappedDONE
+
+[but with knobs steps should never be set to zero?]
+
+- why crash is only manifest with edger????
+
+///
 
 - also fullfinger setting up and down
 
