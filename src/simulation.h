@@ -12,6 +12,8 @@
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16
 
+#define NUM_FUNCS 31
+
 typedef unsigned char u8;
 typedef uint16_t u16;
 
@@ -116,3 +118,14 @@ struct Fitz
   float u,w,b0,b1;
   u8 del;
 };
+
+
+void inittable(u8 r, u8 k, int rule, u8 *table);
+
+struct stackey{
+  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
+  u8 delay,howmuch;
+  void* unit;
+  };
+
+
