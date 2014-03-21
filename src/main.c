@@ -281,7 +281,6 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (oldsettings==settings) settings_trap++;
 	    else {
 	      settings_trap=0;
-	      pushpopflag=0; //does that work? TESTY
 	    }
 	    oldsettings=settings;
 	    
@@ -289,10 +288,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      settings_trap=0;
 	      //find our setting
 	      settingsindex=settings;
+	      pushpopflag=0; //seems to work
 	    }
 	    
-	    settings_trap=1;settingsindex=41;	    //TESTY!!
-
+	    
 	    // now we can set it
 	    if (settings_trap>0) 
 	      {
@@ -382,27 +381,28 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    pushypop=settingsindex-BEFORESTACK; 
 			switch(pushypop){
 			case 0:
-			  if (setted>128) stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>64) stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT,PUSHTHREE8BIT);
 			  else stack_pos=func_pop(stackyy,stack_pos);
 			  break;
 			case 1:
-			  if (setted>128) stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>64) stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT,PUSHTHREE8BIT);
 			  else stack_posy=ca_pop(stackyyy,stack_posy);
 			  break;
 			case 2:
-			  if (setted>128) cpustackpush(m,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  if (setted>64) cpustackpush(m,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
 			  else stack_posy=ca_pop(stackyyy,stack_posy);
 			  break;
 			case 3:
-			  if (setted>128) cpustackpushhh(datagenbuffer,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  if (setted>64) cpustackpushhh(datagenbuffer,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
 			  else cpustackpoppp(datagenbuffer);
 			  break;
 			case 4:
-			  if (setted>128) exenums=exestackpush(exenums,exestack,EXESTACKPUSH);
+			default:
+			  if (setted>64) exenums=exestackpush(exenums,exestack,EXESTACKPUSH);
 			  else exenums=exestackpop(exenums,exestack);
 			}
 			pushpopflag=1;
-		  }
+		    }
 		  }
 	      }
 	      }
