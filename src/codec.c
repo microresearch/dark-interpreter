@@ -42,7 +42,7 @@
 
 const uint16_t w8731_init_data[] = 
 {
-	0x01A,			// Reg 00: Left Line In (0dB, mute off)-INCGAIN!!
+	0x01A,			// Reg 00: Left Line In (0dB, mute off)-INCGAIN!!was 0x017
 	0x01A,			// Reg 01: Right Line In (0dB, mute off)
 	0x079,			// Reg 02: Left Headphone out (0dB)
 	0x079,			// Reg 03: Right Headphone out (0dB)
