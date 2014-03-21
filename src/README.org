@@ -215,20 +215,31 @@ outside, and in open daylight.
 
 * FRI 20 MAR
 
-- TESTtry to push/pop on all stacks
+
+- TESTtry to push/pop poti on all stacks!NEW CODE
+
+- add push/pop for finger code TEST
 
 - TESTtry settingsfinalfoldback!
+
+- finger code for lower board and test THERE
+
+/////
 
 - crash potentials WHY??? in edger?
 
 - also fullfinger setting up and down/left-right_WHERE TO SET on zero
   of top knob (and shift array)
 
-- finish finger code - dir and push/pop
-
-- constraints in each file for all settings
+- constraints in each file for all settings main.c audio.c
 
 - settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
+
+- speedups
+
+** DONE
+
+- finger code - dirTEST/ISOLATE_DONE!
 
 
 * THU 19 MAR

@@ -201,7 +201,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// so for effects????
 	
 	complexity=complexity>>2;
-	complexity=0; ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1;// SAMPLESPEED=1;//TESTER!
+	complexity=1; ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
 
 	switch(complexity){// 32 options
 	case 0:
@@ -222,7 +222,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	case 1:
 	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
-	  tmp=SAMPLESTEP*direction[SAMPLEDIR];
+	    tmp=SAMPLESTEP*direction[SAMPLEDIR];
+	    //	  tmp=SAMPLESTEP*direction[2];
 	  samplepos+=tmp;
 	  del=0;
 	  }

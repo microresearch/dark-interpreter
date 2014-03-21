@@ -121,6 +121,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
    u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
    u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
+   u8 handleft, handright, oldhandleft,oldhandright,up=0,down=0,left=0,right=0,handcount=0;
 
    inittable(3,4,randi()<<4,table);
 
@@ -278,23 +279,25 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    }
 	    else {*/
 	    if (oldsettings==settings) settings_trap++;
-	    else settings_trap=0;
+	    else {
+	      settings_trap=0;
+	      pushpopflag=0; //does that work? TESTY
+	    }
 	    oldsettings=settings;
 	    
 	    if (settings_trap>8){ // trap_threshold was 64REPEATS -- where we could set this!
-	      pushpopflag=0;
 	      settings_trap=0;
 	      //find our setting
 	      settingsindex=settings;
 	    }
 	    
-	    settings_trap=1;settingsindex=20;	    //TESTY!!
+	    settings_trap=1;settingsindex=41;	    //TESTY!!
 
 	    // now we can set it
 	    if (settings_trap>0) 
 	      {
-		setted=adc_buffer[1]>>4; // 8 bits
-		setted=0;
+		setted=adc_buffer[1]>>5; // 8 bits
+		//		setted=0;	    //TESTY!!
 		if (setted==0){ // do we do this every time?
 		  // do finger thing for all settings/push pop etc.*TODO*
 		  // up and down is 8 and 7
@@ -323,16 +326,44 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 		    oldhanddown=handdown;
 		    settingsarray[settingsindex]=tempsetting; //8 bits
-
-		    // TESTED THIS with say samplespeed on 20!
-
 		  }
 		  else if (settingsindex<BEFORESTACK){ 
-		  // directions
+		  // directions - find a winner
+		    handup=adc_buffer[6]>>7; //4 bits //adc6???
+		    handdown=adc_buffer[8]>>7; //4 bits
+		    handleft=adc_buffer[5]>>7; //4 bits //adc6???
+		    handright=adc_buffer[7]>>7; //4 bits //adc6???
 
+		    if (handup>8) up++; //TODO: TWEAKING but seems okay...
+		    if (handdown>8) down++;
+		    if (handleft>8) left++;
+		    if (handright>8) right++;
+		    handcount++;
+		    if (up>8 && up>down && up>left && up>right) {
+		      settingsarray[settingsindex]=0;
+		      up=0;down=0;left=0;right=0;
+		    }
+		    else if (down>8 && down>left && down>right) {
+		      settingsarray[settingsindex]=4;
+		      up=0;down=0;left=0;right=0;
+		    }
+		    else if (left>8 && left>right) {
+		      settingsarray[settingsindex]=6;
+		      up=0;down=0;left=0;right=0;
+		    }
+		    else if (right>8) {
+		      settingsarray[settingsindex]=2;
+		      up=0;down=0;left=0;right=0;
+		    }
+
+		    if (handcount>9){
+		      handcount=0;up=0;down=0;left=0;right=0;
+		    }
 		  }
 		  else {
-		  // push and pop
+		  // push and pop-as below
+
+
 
 		  }
 		} // end of finger
@@ -345,48 +376,36 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  {
 		    // push/pop array
 		    // but how to stop repeated pushings/poppings
-		    if (pushpopflag==0) //TEST!
-		      {
+		    // or push on >128 settin pop on less (saves settings)
 			//first 4 is push of each// last is pop
-			pushypop=settingsindex-BEFORESTACK; 
+		    if (pushpopflag==0){
+		    pushypop=settingsindex-BEFORESTACK; 
 			switch(pushypop){
 			case 0:
-			  stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>128) stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  else stack_pos=func_pop(stackyy,stack_pos);
 			  break;
 			case 1:
-			  stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>128) stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  else stack_posy=ca_pop(stackyyy,stack_posy);
 			  break;
 			case 2:
-			  cpustackpush(m,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  if (setted>128) cpustackpush(m,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  else stack_posy=ca_pop(stackyyy,stack_posy);
 			  break;
 			case 3:
-			  cpustackpushhh(datagenbuffer,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  if (setted>128) cpustackpushhh(datagenbuffer,PUSHONE16BIT,PUSHTWO16BIT,PUSHONE8BIT%31,PUSHTWO8BIT);
+			  else cpustackpoppp(datagenbuffer);
 			  break;
-			  ///
 			case 4:
-			  stack_pos=func_pop(stackyy,stack_pos);
-			  break;
-			case 5:
-			  stack_posy=ca_pop(stackyyy,stack_posy);
-			  break;
-			case 6:
-			  cpustackpop(m);
-			  break;
-			case 7:
-			  cpustackpoppp(datagenbuffer);
-			  break;
-			case 8:
-			  exenums=exestackpush(exenums,exestack,EXESTACKPUSH);		  
-			  break;
-			case 9:
-			  exenums=exestackpop(exenums,exestack);
+			  if (setted>128) exenums=exestackpush(exenums,exestack,EXESTACKPUSH);
+			  else exenums=exestackpop(exenums,exestack);
 			}
 			pushpopflag=1;
-		      }
 		  }
 		  }
 	      }
-	    //	    }
+	      }
 	 /////
 
 #ifndef LACH
