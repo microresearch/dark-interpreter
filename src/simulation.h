@@ -11,8 +11,37 @@
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16
+#define STACK_SIZE 16
+#define NUM_FUNCS 28
 
-#define NUM_FUNCS 31
+#define CONVY 0
+#define SINEY 1
+#define INCY 2
+#define DECY 3
+#define LEFTY 4
+#define RIGHTY 5
+#define SWAPPY 6
+#define NEXTINCY 7
+#define NEXTDECY 8
+#define NEXTMULTY 9
+#define NEXTDIVY 10
+#define COPYY 11
+#define ZEROY 12
+#define FULLY 13
+#define RANDY 14
+#define KNOBY 15
+#define SWAPAUDIOY 16
+#define ORAUDIOY 17
+#define SIMPLESIRY 18
+#define SEIRY 19
+#define SICRY 20
+#define IFSY 21
+#define ROSSLERY 22
+#define SECONDROSSLERY 23
+#define BRUSSELY 24
+#define SPRUCEY 25
+#define OREGONY 26
+#define FITZY 27
 
 typedef unsigned char u8;
 typedef uint16_t u16;
@@ -123,7 +152,7 @@ struct Fitz
 void inittable(u8 r, u8 k, int rule, u8 *table);
 
 struct stackey{
-  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
+  u16 (*functione) (uint16_t count, u8 delay, u16 *workingbuffer, uint8_t howmuch, void * unity);
   u8 delay,howmuch;
   void* unit;
   };

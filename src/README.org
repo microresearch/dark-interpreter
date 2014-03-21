@@ -215,7 +215,9 @@ outside, and in open daylight.
 
 * FRI 20 MAR
 
-- add push/pop for finger code TEST
+- somehow SIMULATION.h screwed up REDO!!!
+
+- add push/pop for finger codeDONE---> TEST
 
 - TESTtry settingsfinalfoldback!
 
@@ -233,6 +235,8 @@ outside, and in open daylight.
 - settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
 
 - speedups
+
+NOTE: settings reduced to 7 bits cos of jitter!
 
 ** DONE
 
