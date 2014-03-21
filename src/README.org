@@ -215,8 +215,6 @@ outside, and in open daylight.
 
 * FRI 20 MAR
 
-- somehow SIMULATION.h screwed up REDO!!!
-
 - add push/pop for finger codeDONE---> TEST
 
 - TESTtry settingsfinalfoldback!
@@ -239,6 +237,11 @@ outside, and in open daylight.
 NOTE: settings reduced to 7 bits cos of jitter!
 
 ** DONE
+
+- codec.c inc. gain (again) DONE 1A
+
+- somehow SIMULATION.h screwed up REDO!!!done after march 21 15.24
+  reverted files somehow????
 
 - finger code - dirTEST/ISOLATE_DONE!
 
