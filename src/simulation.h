@@ -158,3 +158,9 @@ struct stackey{
   };
 
 
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 delay, u8 howmuch);
+void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_pos);
+signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos);
+void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy);
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy,u8 delay, u8 howmuch);
+signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy);
