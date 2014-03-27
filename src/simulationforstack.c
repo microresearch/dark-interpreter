@@ -1451,8 +1451,8 @@ void main(void)
 
          while(1){
 	 //	 count=runform(count, buf16, 10, unity);
-	   f.d++;
-	   printf("%d\n",f.d);
+	   //	   f.d++;
+	   //	   printf("%d\n",f.d);
          }
 }
 #endif
