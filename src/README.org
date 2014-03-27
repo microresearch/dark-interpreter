@@ -213,16 +213,25 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* FRI 28 MAR
+
+- test formant filter from tinysynth below
+
+- using bit fields to restrict values:
+
+eg:
+
+ struct flagtype
+ {
+ u16 d : 15;
+ };
+
+
 * THU 27 MAR
 
 //TODO:
 
 - crashtests on edger?
-- formant filter-style in sims
-
-see :  /root/latestresearch/sc3-plugins-src-2012-05-26/source/StkUGens/stk-4.4.2/src
-
-or Tinysynth.h
 
 //?NEW IDEAS?
 
@@ -259,27 +268,13 @@ write left into audiobuffer or datagenbuffer, playback from place in audiobuffer
 
 ** formant
 
-STK VoicForm.h tick:
+http://www.musicdsp.org/showArchiveComment.php?ArchiveID=110 (but if we use floats?)
 
-inline StkFloat VoicForm :: tick( unsigned int )
-{
-  StkFloat temp;
-  temp = onepole_.tick( onezero_.tick( voiced_->tick() ) );
-  temp += noiseEnv_.tick() * noise_.tick();
-  lastFrame_[0] = filters_[0].tick(temp);
-  lastFrame_[0] += filters_[1].tick(temp);
-  lastFrame_[0] += filters_[2].tick(temp);
-  lastFrame_[0] += filters_[3].tick(temp);
-  /*
-    temp  += noiseEnv_.tick() * noise_.tick();
-    lastFrame_[0]  = filters_[0].tick(temp);
-    lastFrame_[0]  = filters_[1].tick(lastFrame_[0]);
-    lastFrame_[0]  = filters_[2].tick(lastFrame_[0]);
-    lastFrame_[0]  = filters_[3].tick(lastFrame_[0]);
-  */
-  return lastFrame_[0];
-}
+http://www.p01.org/releases/JS1K_Speech_Synthesizer/
 
+http://smelt.cs.princeton.edu/code/motion/motion-sing.ck
+
+and tinysynth
 
 ** DONE
 
@@ -317,16 +312,6 @@ ops, also exchanges between: copy, parallel, what else?
 -settingsarray(expand/contract)
 -datagenarray
 -audioarray
-
-- formant filter in effects:
-
-http://www.musicdsp.org/showArchiveComment.php?ArchiveID=110 (but if we use floats?)
-
-http://www.p01.org/releases/JS1K_Speech_Synthesizer/
-
-http://smelt.cs.princeton.edu/code/motion/motion-sing.ck
-
-and tinysynth
 
 //-> TESTS as below
 

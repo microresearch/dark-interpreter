@@ -12,7 +12,7 @@
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16
 #define STACK_SIZE 16
-#define NUM_FUNCS 28
+#define NUM_FUNCS 29
 
 #define CONVY 0
 #define SINEY 1
@@ -42,6 +42,7 @@
 #define SPRUCEY 25
 #define OREGONY 26
 #define FITZY 27
+#define FORMY 28
 
 typedef unsigned char u8;
 typedef uint16_t u16;
@@ -53,6 +54,11 @@ struct siney{
 
 struct CONV{
 float c0, c1, c2;
+};
+
+struct FORM{
+  u8 freq[3];
+  u8 w[3];
 };
 
 struct generik{

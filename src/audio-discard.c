@@ -1,3 +1,16 @@
+	    /* 	 func_runall(stack,buf16,stack_pos); */
+	    /* 	    if (++lmer->del==lmer->speed){ */
+	    /* //lmer - set lmpwm */
+	    /* tmp=lmer->step*direction[lmer->dir]; */
+	    /* if ((lmer->pos+tmp)>=lmer->wrap) lmer->pos=(lmer->pos+tmp)%(lmer->wrap+1); */
+	    /* else lmer->pos+=tmp; */
+	    /* x=(lmer->start+lmer->pos)%32768; */
+	    /* //	    tmp=(lmer->start+lmer->pos+1)%32768; */
+	    /* //	    	    setlmpwm(buf16[x],buf16[tmp]);  */
+	    /* //	    printf("where: %d value: %d\n",x,buf16[x]);  */
+	    /* lmer->del=0; */
+	    /* } */
+
 		    if (handdown>oldhanddown) sstt++;
 		    if (sstt>8) {
 		      sstt=0;
