@@ -191,17 +191,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    }
 	  break;
 	}
+	edger=adc_buffer[0]<<3; // TESTING!!!
 
 #endif
 
-	di_split_stereo(sz, src, left_buffer, right_buffer,edger, INSTEP);
+		di_split_stereo(sz, src, left_buffer, right_buffer,edger, INSTEP);
 
 	// COMPLEXITY TOTAL is: 21 so far- should be 32 with bitwise for ??? - effects
 	// COMPLEXITY &3 for edger
 	// so for effects????
 	
 	complexity=complexity>>2;
-	complexity=11; ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
+	complexity=0; 
+	ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
 
 	switch(complexity){// 32 options
 	case 0:
@@ -215,7 +217,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	  tmp=samplepos%32768;
 	  //	  	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
-		  	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
+	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
 	}
 	break;
 	/////////
@@ -667,6 +669,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #ifndef LACH	
 
+	// NOTE!: These two should be the same - just differ into which
+	/// one we place result!
+
 	if (digfilterflag&32){ // TODO/TESTCODE here....
 	  // processing of left buffer back into mono_buffer
 
@@ -674,8 +679,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
 	}
 
-	if (digfilterflag&1){ // TODO
-	  // 3- any processing of left buffer
+	else if (digfilterflag&1){ // TODO
+	  // 3- any processing of left buffer into left buffer
 	  // set via walker for effects//complexity????
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 	  //

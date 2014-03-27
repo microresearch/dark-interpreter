@@ -26,8 +26,8 @@ extern u8 table[21];
 #define STACK_SIZE 16
 
 struct stackey{
-  u16 (*functione) (uint16_t count, u8 delay, u8 *workingbuffer, uint8_t howmuch, void * unity);
-  u8 delay,howmuch;
+  u16 (*functione) (uint16_t count, u8 *workingbuffer, uint8_t howmuch, void * unity);
+  u8 howmuch;
   void* unit;
   };
 
@@ -39,18 +39,17 @@ void hodgeinit(void* unity, u8* cells){
   struct hodge* unit=unity;
   unit->q=cells[0];unit->k1=cells[1];unit->k2=cells[2];unit->g=cells[3];
   unit->celllen=cells[4];
-  unit->del=0;
   if (unit->k1==0) unit->k1=1;
   if (unit->k2==0) unit->k2=1;
 }
 
-uint16_t runhodge(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runhodge(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i=0;
   struct hodge *unit=unity;
 
-  if (++unit->del==delay){
+
   for (i=0;i<howmuch;i++){
 
     y=x-unit->celllen-1;
@@ -105,8 +104,6 @@ uint16_t runhodge(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
   //  printf("%c",cells[y]);
 #endif
   }
-  unit->del=0;
-  }
   return x;
 }
 
@@ -115,13 +112,13 @@ uint16_t runhodge(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-uint16_t runhodgenet(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runhodgenet(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
 
   struct hodge* unit=unity;
   u8 sum=0, numill=0, numinf=0; u16 place;
   uint16_t y;
   u8 i=0;
-  if (++unit->del==delay){
+
   for (i=0;i<howmuch;i++){
 
   place=x-unit->celllen-1;
@@ -176,8 +173,6 @@ uint16_t runhodgenet(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* uni
   //  printf("%c",cells[x]);
 #endif
   }
-  unit->del=0;
-  }
   return x;
 }
 
@@ -190,16 +185,15 @@ void inittable(u8 r, u8 k, int rule, u8 *table);
 void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
   unit->celllen=cells[0]+1;
-  unit->del=0;
   unit->rule=cells[1];
 }
 
-uint16_t runlife(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runlife(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
   struct CA* unit=unity;
-  if (++unit->del==delay){
+
   for (i=0;i<howmuch;i++){
 
     //  sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
@@ -246,8 +240,6 @@ uint16_t runlife(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
   //  printf("%c",cells[x]);
   x++;
   }
-  unit->del=0;
-  }
   return x;
 }
 
@@ -255,11 +247,11 @@ uint16_t runlife(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
 
 //one dimensional - working line by line through buffer
 
-uint16_t runcel(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runcel(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 state,i=0; u16 y;
   struct CA* unit=unity;
-  if (++unit->del==delay){
+
   for (i=1;i<howmuch;i++){
       state = 0;
       y=x+i+1;
@@ -280,8 +272,6 @@ uint16_t runcel(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
       } 
       //      printf("%c",cells[x+i+unit->celllen]);
 
-  }
-  unit->del=0;
   }
 
   return x;
@@ -315,7 +305,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 // 1d with rules
 
-uint16_t runcel1d(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runcel1d(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
 
   u8 cell,sum; int16_t z,zz;
   u8 k=4, i;//k=states
@@ -353,15 +343,14 @@ void fireinit(void* unity, u8* cells){
   unit->probB=cells[0]/32;
   unit->probI=cells[1]/10;
   unit->celllen=cells[2];
-  unit->del=0;
 }
 
-uint16_t runfire(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch,void* unity){
+uint16_t runfire(uint16_t x, u8 *cells, uint8_t howmuch,void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
   struct fire* unit=unity;
-  if (++unit->del==delay){
+
   for (i=0;i<howmuch;i++){
 
     y=x-unit->celllen-1;
@@ -403,8 +392,6 @@ uint16_t runfire(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch,void* unity){
     //    printf("%c",cells[y]);
     x++;
   }
-  unit->del=0;
-  }
   return x;
 }
 
@@ -424,7 +411,6 @@ copper(?) stays copper unless just 1 or 2 neighbours are heads(1) then it become
 
 void wireinit(void* unity, u8* cells){
   struct CA* unit=unity;
-  unit->del=0;
   unit->celllen=cells[0];
 }
 
@@ -450,11 +436,11 @@ u8 headcount(struct CA* unit,u8 *cells,u16 place){
   else return 0;
 }
 
-uint16_t runwire(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runwire(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
   u8 sum;
   uint16_t y; u8 i=0;
   struct CA* unit=unity;
-  if (++unit->del==delay){
+
   for (i=0;i<howmuch;i++){
 
     y=x+32768;
@@ -466,8 +452,6 @@ uint16_t runwire(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
     else cells[y]=cells[x];
     //    printf("%c",cells[y]);
     x++;
-  }
-  unit->del=0;
   }
   return x;
 }
@@ -503,13 +487,11 @@ void SIRinit(void* unity, u8* cells){
   unit->probD=cells[0]/32;
   unit->probI=cells[1]/10;
   unit->celllen=cells[2];
-  unit->del=0;
 }
 
-uint16_t runSIR(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runSIR(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
   struct SIR* unit=unity;
   uint16_t y,yy; u8 i=0;
-  if (++unit->del==delay){
 
   for (i=0;i<howmuch;i++){
 
@@ -554,8 +536,6 @@ uint16_t runSIR(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
     //    printf("%c",cells[y]);
     x++;
   }
-  unit->del=0;
-  }
   return x;
 }
 
@@ -574,7 +554,7 @@ infection radius???, max population=15
 
 void SIR16init(void* unity, u8* cells){
   struct SIR16* unit=unity;
-  unit->del=0; u16 i,y; u8 total,suscept,infected;
+  u16 i,y; u8 total,suscept,infected;
 
   /*with probabilities fixed for:
 
@@ -603,11 +583,11 @@ void SIR16init(void* unity, u8* cells){
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
-uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity){
+uint16_t runSIR16(uint16_t x, u8 *cells, uint8_t howmuch, void* unity){
   u8 i,ii; u16 y,dest,yy;
   u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
   struct SIR16* unit=unity;
-  if (++unit->del==delay){
+
 
     // select random cell, for each of ind, select neighbour and move
     // it there based on probability and neighbour not full
@@ -712,9 +692,7 @@ uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 #endif
 
   }
-  unit->del=0;
   
-  }
   return x;
 }
 
@@ -722,12 +700,11 @@ uint16_t runSIR16(uint16_t x, u8 delay, u8 *cells, uint8_t howmuch, void* unity)
 
 //stack_posy=ca_pushn(stack,0,datagenbuffer,stack_posy,1,10); // delay,howmany);
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy,u8 delay, u8 howmuch){
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch){
   if (stack_posy<STACK_SIZE)
     {
       //   printf("%d\n",stack_posy);
       stack[stack_posy].howmuch=howmuch;
-      stack[stack_posy].delay=delay;
 
       switch(typerr){
       case HODGEY:
@@ -785,7 +762,7 @@ void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy){
   static u16 count; u8 i;
   for (i=0;i<stack_posy;i++){
     if (stack[stack_posy].unit!=NULL){
-    count=stack[i].functione(count,stack[i].delay,buffer,stack[i].howmuch,stack[i].unit);
+    count=stack[i].functione(count,buffer,stack[i].howmuch,stack[i].unit);
         }
   }
 }

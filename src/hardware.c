@@ -151,7 +151,7 @@ RES: feedback on/off - jackin-> - lm358in->
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRH = (1<<8);
+   GPIOC->BSRRH = (1<<8); // was H!
    GPIOC->BSRRL = (1<<13);
    break;
  case 1:
@@ -184,7 +184,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  res2=0; 	  //TESTER!
+  res2=1; 	  //TESTER!
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -197,9 +197,9 @@ RES: feedback on/off - jackin-> - lm358in->
   case 1:
    //1-straightout
     // clear other options up here:
-    GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
+    GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6);// | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
-    GPIOB->BSRRL = (1<<2);//
+    GPIOB->BSRRL = (1<<2) | (1<<8);// | (1<<9);// this gets rid of hum
     GPIOC->BSRRL= (1<<10);
    break;
   case 2:

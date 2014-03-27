@@ -213,32 +213,137 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* THU 27 MAR
+
+//TODO:
+
+- crashtests on edger?
+- formant filter-style in sims
+
+see :  /root/latestresearch/sc3-plugins-src-2012-05-26/source/StkUGens/stk-4.4.2/src
+
+or Tinysynth.h
+
+//?NEW IDEAS?
+
+-datagenarray - shifts so we operate on audioarray (or both? - select in stack)
+
+so all effects are from this mixed operation (not set or set some mixes/morphs)
+
+(edger becomes more important - where to set? some dark int/double
+theory to double up all potis/shadows/connections/mirrors)
+
+so we have 8 knobs + mirror===mirror somehow knob (but should do more
+than mirror)
+
+so let's say top knob acts as crossover but also with options to
+mirror one set of settings to other half (or add or subtract, or multiply)
+
+mirror and stacks!
+
+so we have top=mirror/darkint
+
+1-hardware 5-filterops
+2-leadingedge 6-topedge - and/or set who that edge is for?
+3-speed 7-complexity/farm off some of settings here (also to speed)
+4-settings/foldback.directions/push/pop - and how this works with fingers (fingeroverride?)
+//8-operations on settingsarray (walker, mirrors, viral etc.)
+
+-or mirror complexity=audiobufferops with filterops and speed with hardware???
+
+////
+
+but for filter/leftbuffer effect we have no buffer spare - should act
+as mirror with list of ops: mix/multiply left with audio/datagen,
+write left into audiobuffer or datagenbuffer, playback from place in audiobuffer
+
+** formant
+
+STK VoicForm.h tick:
+
+inline StkFloat VoicForm :: tick( unsigned int )
+{
+  StkFloat temp;
+  temp = onepole_.tick( onezero_.tick( voiced_->tick() ) );
+  temp += noiseEnv_.tick() * noise_.tick();
+  lastFrame_[0] = filters_[0].tick(temp);
+  lastFrame_[0] += filters_[1].tick(temp);
+  lastFrame_[0] += filters_[2].tick(temp);
+  lastFrame_[0] += filters_[3].tick(temp);
+  /*
+    temp  += noiseEnv_.tick() * noise_.tick();
+    lastFrame_[0]  = filters_[0].tick(temp);
+    lastFrame_[0]  = filters_[1].tick(lastFrame_[0]);
+    lastFrame_[0]  = filters_[2].tick(lastFrame_[0]);
+    lastFrame_[0]  = filters_[3].tick(lastFrame_[0]);
+  */
+  return lastFrame_[0];
+}
+
+
+** DONE
+
+- tests as is (very low hum is present)? PSU? (present when we don't
+  sample anything in, present with 9v - to do with filter- now do:
+
+  GPIOB->BSRRL =  (1<<8);// this gets rid of hum IN hardware.cDONE
+
+- perhaps lose delay from caforstack and simulationforstack in favour
+  of stepping- deleted delay codeDONE - how to step?
+
+* WED 26 MAR
+
+TODO:
+-control/effects for filter in audio.c
+-controls/settings - 
+-datagen tests/stackings
+-fill out all complexity settings
+-tweaks
+
+- trying to sort fingers/knobs...
+
+decide so far on for settingsarray:
+
+x knob (when 0 default to fingers)
+y is up/down/push and pop
+
+how to make all settingsarray the same, viral ops on settings array,
+all of these as new settings of settings of... black
+stack... movements thru settingsarray
+
+as last knob - operations on settingsarray->various foldbacks, these
+ops, also exchanges between: copy, parallel, what else?
+
+-settingsarray(expand/contract)
+-datagenarray
+-audioarray
+
+- formant filter in effects:
+
+http://www.musicdsp.org/showArchiveComment.php?ArchiveID=110 (but if we use floats?)
+
+http://www.p01.org/releases/JS1K_Speech_Synthesizer/
+
+http://smelt.cs.princeton.edu/code/motion/motion-sing.ck
+
+and tinysynth
+
+//-> TESTS as below
+
+
+* MON 24 MAR
+
+- new tests/check code integrity-DONE
+
 * FRI 20 MAR
-
-- add push/pop for finger codeDONE---> TEST
-
-- TESTtry settingsfinalfoldback!
-
-- finger code for lower board and TEST there
-
-/////
-
-- crash potentials WHY??? in edger?
-
-- also fullfinger setting up and down/left-right_WHERE TO SET on zero
-  of top knob (and shift array)
-
-- constraints in each file for all settings main.c audio.c
-
-- settings for effects, filtereffects, filterineffects (straight, walker)=x9+++
-
-- speedups
 
 NOTE: settings reduced to 7 bits cos of jitter!
 
 ** DONE
 
-- codec.c inc. gain (again) DONE 1A
+- add push/pop for finger codeDONE---> TEST
+
+- codec.c inc. gain (again) DONE - RETEST
 
 - somehow SIMULATION.h screwed up REDO!!!done after march 21 15.24
   reverted files somehow????

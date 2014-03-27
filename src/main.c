@@ -50,6 +50,8 @@
 
  //uint16_t datagenbuffer[32] __attribute__ ((section (".ccmdata")))  __attribute__((aligned(4)));
 
+extern int16_t audio_buffer[AUDIO_BUFSZ];
+
 u8* datagenbuffer = (u8*)0x10000000;
 
 extern u8 digfilterflag;
@@ -192,18 +194,21 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   //	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,1,10);
-	   	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,1,10);
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10);
+	   //	   	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10);
 	 	   }
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
 
 ///////////////////////////
+
+//TESTING!
+	 buf16 = (u16*) audio_buffer;
 
 	  while(1)
 	  {
@@ -226,7 +231,6 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 //	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
 	      cpucount=0;
- 	      	  
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
@@ -278,7 +282,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    }
 	    }
 	    else {*/
-	    if (oldsettings==settings) settings_trap++;
+	    /*	    if (oldsettings==settings) settings_trap++;
 	    else {
 	      settings_trap=0;
 	    }
@@ -386,11 +390,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    pushypop=settingsindex-BEFORESTACK; 
 			switch(pushypop){
 			case 0:
-			  if (setted>64) stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>64) stack_pos=func_pushn(stackyy,PUSHONE8BIT%NUM_FUNCS,buf16,stack_pos,PUSHTWO8BIT);
 			  else stack_pos=func_pop(stackyy,stack_pos);
 			  break;
 			case 1:
-			  if (setted>64) stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT,PUSHTHREE8BIT);
+			  if (setted>64) stack_posy=ca_pushn(stackyyy,PUSHONE8BIT%NUM_CA,datagenbuffer,stack_posy,PUSHTWO8BIT);
 			  else stack_posy=ca_pop(stackyyy,stack_posy);
 			  break;
 			case 2:
@@ -452,7 +456,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		    }
 		  }
 	      }
-	      }
+	      }*/
 	 /////
 
 #ifndef LACH
