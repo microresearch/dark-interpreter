@@ -215,17 +215,7 @@ outside, and in open daylight.
 
 * FRI 28 MAR
 
-- test formant filter from tinysynth below
-
-- using bit fields to restrict values:
-
-eg:
-
- struct flagtype
- {
- u16 d : 15;
- };
-
+- test formant filter from tinysynth below -> ARM!
 
 * THU 27 MAR
 
@@ -277,6 +267,16 @@ http://smelt.cs.princeton.edu/code/motion/motion-sing.ck
 and tinysynth
 
 ** DONE
+
+- using bit fields to restrict values - is slower on PC?so leave out
+
+eg:
+
+ struct flagtype
+ {
+ u16 d : 15;
+ };
+
 
 - tests as is (very low hum is present)? PSU? (present when we don't
   sample anything in, present with 9v - to do with filter- now do:

@@ -62,6 +62,10 @@ extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 extern u16 sin_data[256];
 #endif
 
+ struct simul
+ {
+ u16 countd : 15;
+ };
 
 
 //////////////////////////////////////////////////////////
@@ -83,10 +87,12 @@ const u16 SAMPLE_FREQUENCY = 48000;
 const float Pi = 3.1415926535f;
 const float PI_2 = 6.28318531f;
 
+struct simul sim; 
+
 uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   struct FORM *unit=unity;
-  float buff[255]; float x;
+  float buff[255]; float x; 
   // samples to float
 
   for (int f = 0; f < 3; f++ ) {
@@ -98,29 +104,71 @@ uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
   float q = 1.0f - unit->w[f] * (Pi * 10.0f / SAMPLE_FREQUENCY);
   float xp = 0;
 
-  for (int s = 0; s < howmuch; s++ ) {
+  sim.countd=count;
+
+  for (u8 s = 0; s < howmuch; s++ ) {
     // x is our float sample
     // Apply formant filter
-      x=(float)(workingbuffer[count+s])/32768.0f;
-   
-    x = x + 2.0f * cosf ( PI_2 * freq ) * buf1Res * q - buf2Res * q * q;
+    sim.countd++;
+    x=(float)(workingbuffer[sim.countd])/32768.0f;
+       x = x + 2.0f * cosf ( PI_2 * freq ) * buf1Res * q - buf2Res * q * q;
     buf2Res = buf1Res;
     buf1Res = x;
     x = 0.75f * xp + x;
     xp = x;
     buff[s]+=x; // as float
     if (f==2){
-      count++;
-      if (count==MAX_SAM) count=0;
-      workingbuffer[count]=(float)buff[s]*32768.0f;
+      workingbuffer[sim.countd]=(float)buff[s]*32768.0f;
 #ifdef PCSIM
-      printf("%c",workingbuffer[count]%255);
+      //      printf("%c",workingbuffer[sim.countd]%255);
 #endif
     }
   }
  }
-  return count;
+  return sim.countd;
 }
+
+//////////////////////////////////////////////////////////SPEED!
+
+uint16_t runformtest(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+
+  struct FORM *unit=unity; u16 tmp;
+  float buff[255]; float x; 
+  // samples to float
+
+  for (int f = 0; f < 3; f++ ) {
+  u8 ff = unit->freq[f]; // the three freqs
+
+  float freq = (float)ff*(50.0f/SAMPLE_FREQUENCY);
+
+  float buf1Res = 0, buf2Res = 0;
+  float q = 1.0f - unit->w[f] * (Pi * 10.0f / SAMPLE_FREQUENCY);
+  float xp = 0;
+  tmp=count;
+  for (u8 s = 0; s < howmuch; s++ ) {
+    // x is our float sample
+    // Apply formant filter
+    x=(float)(workingbuffer[tmp])/32768.0f;
+       x = x + 2.0f * cosf ( PI_2 * freq ) * buf1Res * q - buf2Res * q * q;
+    buf2Res = buf1Res;
+    buf1Res = x;
+    x = 0.75f * xp + x;
+    xp = x;
+    buff[s]+=x; // as float
+    if (f==2){
+      workingbuffer[tmp]=(float)buff[s]*32768.0f;
+#ifdef PCSIM
+      printf("%c",workingbuffer[tmp]%255);
+#endif
+    }
+      tmp++;
+      if (tmp==MAX_SAM) count=0;
+  }
+ }
+  return tmp;
+}
+
+
 //////////////////////////////////////////////////////////
 
 // convolve
@@ -1421,7 +1469,7 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
-  u16 x,count=0;
+  int x; u16 count=0;
   u8 howmuch,i;
   //   uint16_t xxx[MAX_SAM];
      u8 xxx[MAX_SAM*2];
@@ -1438,21 +1486,11 @@ void main(void)
 
   forminit(unity, xxx);
 
-  //tests
-
- struct flagtype
- {
- u16 d : 15;
- };
-
- struct flagtype f;
- f.d=0;
-
-
-         while(1){
-	 //	 count=runform(count, buf16, 10, unity);
+           while(1){
+  //  for (x=0;x<1000000;x++){
+	   count=runformtest(count, buf16, 100, unity);
 	   //	   f.d++;
 	   //	   printf("%d\n",f.d);
-         }
+  }
 }
 #endif
