@@ -159,11 +159,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	edger=adc_buffer[0]<<3;
 #else
 
+
 	res=complexity&3;
 	res=0;
 	switch(res){
 	case 0:
-	  edger=0;
+	  //	  edger=0;
+	  edger=adc_buffer[0]<<3;//TESTER!
+
 	  break;
 	case 1:
 	  // edger is specific setting from settingarray-TODO
@@ -191,7 +194,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    }
 	  break;
 	}
-	edger=adc_buffer[0]<<3; // TESTING!!!
 
 #endif
 

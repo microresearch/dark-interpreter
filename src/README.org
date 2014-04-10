@@ -213,9 +213,26 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* THU 10 APR
+
+- to recap what needs to be done... crashtests/new ideas/formant?
+
+TODO:
+
+- do granulations make sense/sound okay?
+- steps in CA and simulation
+- swopping between audio and data buffers (in stacks?)
+- mirror/settings and new settings
+- fill out complexity settings
+- filter effects and mirroring
+- any other effects/morphs not covered by datagen swappery! 
+- tweaks
+
 * FRI 28 MAR
 
-- test formant filter from tinysynth below -> ARM!
+- test formant filter from tinysynth below -> ARM!DONE!
+
+- q of steps in CA and simulationTODO
 
 * THU 27 MAR
 
@@ -225,7 +242,7 @@ outside, and in open daylight.
 
 //?NEW IDEAS?
 
--datagenarray - shifts so we operate on audioarray (or both? - select in stack)
+-datagenarray - shifts so we operate on audioarray (or both? - select in stack?)
 
 so all effects are from this mixed operation (not set or set some mixes/morphs)
 
