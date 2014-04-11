@@ -184,7 +184,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  res2=1; 	  //TESTER!
+  //  res2=1; 	  //TESTER!
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 

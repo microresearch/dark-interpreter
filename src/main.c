@@ -176,6 +176,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 struct stackey stackyy[STACK_SIZE];
 	 struct stackey stackyyy[STACK_SIZE];
 	 u16 *buf16 = (u16*) datagenbuffer;
+	 //	 buf16 = (u16*) audio_buffer; //TESTER!
 
  #ifndef LACH
 	 dohardwareswitch(2,0);
@@ -184,6 +185,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 ////////////////////TESTCODE_TODO_REMOVE - but do replace with some
 ////////////////////minimal setup code to get started
 	 //TESTER!
+
+	 // CA
+	 for (x=0;x<STACK_SIZE;x++){
+	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10); 
+	   }
+
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -194,21 +201,26 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   //	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10);
-	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,100);
+	   //stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
 	 	   }
+
+	 //pureleak
+
+  for (x=0;x<MAX_FRED;x++){
+    addr=randi()%65536;
+    cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
+  }
+
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
 
 ///////////////////////////
-
-//TESTING!
-	 buf16 = (u16*) audio_buffer;
 
 	  while(1)
 	  {
@@ -267,9 +279,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 #ifndef LACH
 
 	   // 4-hardware operations
-	    /*
-	    hardcount++;
-	    if (hardcount>=hardspeed){
+	      
+	      //	    hardcount++;
+	      //	    if (hardcount>=hardspeed){
 	      hardcount=0;
 
 
@@ -286,7 +298,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
 	    hdgenerdel=0;
 	    }
-	     }
+     }
 	  else
 	    {
 	    hardware=adc_buffer[2]>>5;
@@ -336,7 +348,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    maximerdel=0;
 	    }
 	  }
-	  } // hardcount*/
+	  //	  } // hardcount*/
 #endif
 #endif
 	 }

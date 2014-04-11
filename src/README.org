@@ -215,18 +215,30 @@ outside, and in open daylight.
 
 * THU 10 APR
 
-- to recap what needs to be done... crashtests/new ideas/formant?
+- question of villager metaphor/approach/past texts?
+
+- playing with cons as % or >> in audio.c
 
 TODO:
 
-- do granulations make sense/sound okay?
+- cleanup and mark clearly all test sections
+- TODOs in each file (check all audio so far)
 - steps in CA and simulation
-- swopping between audio and data buffers (in stacks?)
-- mirror/settings and new settings
-- fill out complexity settings
+- test all datagens and stack approach
+- swopping between audio and data buffers (can be done in stacks or as general setting?)
+- knobs-mirror/settings and new settings
+- fingers
+- fill out extra complexity settings
 - filter effects and mirroring
 - any other effects/morphs not covered by datagen swappery! 
 - tweaks
+
+** DONE
+
+- tested edger code...
+- formant code appears to work
+- junked former finger/settings code to main.c.discarded
+- do granulations/complexity make sense/sound okay?SEEMS so - redo maybe overflow
 
 * FRI 28 MAR
 
@@ -253,17 +265,18 @@ so we have 8 knobs + mirror===mirror somehow knob (but should do more
 than mirror)
 
 so let's say top knob acts as crossover but also with options to
-mirror one set of settings to other half (or add or subtract, or multiply)
+mirror one set of settings to other half (or add or subtract, or
+multiply),also foldback for _these_ settings
 
 mirror and stacks!
 
 so we have top=mirror/darkint
 
-1-hardware 5-filterops
-2-leadingedge 6-topedge - and/or set who that edge is for?
+1-hardware 5-filterops/effectops
+2-leadingedge 6-topedge - and/or set who that edge is for? HOW?
 3-speed 7-complexity/farm off some of settings here (also to speed)
 4-settings/foldback.directions/push/pop - and how this works with fingers (fingeroverride?)
-//8-operations on settingsarray (walker, mirrors, viral etc.)
+//8-operations on settingsarray (walker, mirrors, viral etc.) is this foldback?
 
 -or mirror complexity=audiobufferops with filterops and speed with hardware???
 
@@ -271,7 +284,11 @@ so we have top=mirror/darkint
 
 but for filter/leftbuffer effect we have no buffer spare - should act
 as mirror with list of ops: mix/multiply left with audio/datagen,
-write left into audiobuffer or datagenbuffer, playback from place in audiobuffer
+write left into audiobuffer or datagenbuffer, playback from place in
+audiobuffer
+
+these ops perform at location array[XXX]
+
 
 ** formant
 
