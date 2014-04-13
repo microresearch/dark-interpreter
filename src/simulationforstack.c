@@ -117,9 +117,10 @@ uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
       tmp++;
       if (tmp==MAX_SAM) count=0;
   }
- }
-  return tmp;
 }
+
+  return tmp;
+  }
 
 
 //////////////////////////////////////////////////////////

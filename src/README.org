@@ -213,23 +213,32 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* THU 10 APR
+* THU 10 APR+
 
-- question of villager metaphor/approach/past texts?
-
-- playing with cons as % or >> in audio.c
+- playing with cons as % or >> in audio.c -> % is favoured
 
 TODO:
 
+- test updates/tweaks in audio.c: wrap/edge in
+
+
+- where do we set cons granularity for audio.c?
+
+[- question of villager metaphor/approach/micro-macro operations as complexity?
+larger chunk contagion and movement?]
+
 - cleanup and mark clearly all test sections
 - TODOs in each file (check all audio so far)
-- steps in CA and simulation
-- test all datagens and stack approach
-- swopping between audio and data buffers (can be done in stacks or as general setting?)
+- steps in CA and simulation (fractional or?), maybe also end/start points for each 
+
+- test all datagens and stack approach AGAIN
+- swopping between audio and data buffers (should be done in
+  stacks/+machine or as general/global setting?)
+
 - knobs-mirror/settings and new settings
 - fingers
-- fill out extra complexity settings
-- filter effects and mirroring
+- fill out extra complexity settings (and bring in more micro-macro cast)
+- filter/leftbuffer effects/mirroring
 - any other effects/morphs not covered by datagen swappery! 
 - tweaks
 
@@ -247,10 +256,6 @@ TODO:
 - q of steps in CA and simulationTODO
 
 * THU 27 MAR
-
-//TODO:
-
-- crashtests on edger?
 
 //?NEW IDEAS?
 
@@ -273,7 +278,9 @@ mirror and stacks!
 so we have top=mirror/darkint
 
 1-hardware 5-filterops/effectops
+
 2-leadingedge 6-topedge - and/or set who that edge is for? HOW?
+
 3-speed 7-complexity/farm off some of settings here (also to speed)
 4-settings/foldback.directions/push/pop - and how this works with fingers (fingeroverride?)
 //8-operations on settingsarray (walker, mirrors, viral etc.) is this foldback?
@@ -833,7 +840,7 @@ http://www.wolfsonmicro.com/products/audio_hubs/WM8731/
 
 5-test all datagen/hardware flags with simple datagen running 
 
-6-test clocks and unhanging?->needs code to finish it?
+6-test clocks and unhanging?->needs code to finish it?DONE
 
 7-[construct/test simple board]
 

@@ -170,7 +170,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRH = (1<<13); // irrelevant */ 
 
    // **TODO - TEST
-   // add unhang for clocks? 
+   // add unhang for clocks? DONE! 
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
    GPIO_Init(GPIOA, &GPIO_InitStructure);

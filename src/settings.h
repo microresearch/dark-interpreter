@@ -47,12 +47,12 @@
 #define EDGESTEP (settingsarray[25])
 #define EDGESPEED (settingsarray[26])
 
-#define PUSHONE16BIT (settingsarray[27])
-#define PUSHTWO16BIT (settingsarray[28])
+#define PUSHONE16BIT (settingsarray[27]) // settings for the push <<???
+#define PUSHTWO16BIT (settingsarray[28]) // settings for the push <<???
 #define PUSHONE8BIT (settingsarray[29])
 #define PUSHTWO8BIT (settingsarray[30])
 #define PUSHTHREE8BIT (settingsarray[31])
-#define EXESTACKPUSH (settingsarray[32])
+#define EXESTACKPUSH (settingsarray[32]) // TYPE so limit to 0-3
 
 #define FINALWORMFLAG (settingsarray[33])
 #define FINALSTEP (settingsarray[34])

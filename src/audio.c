@@ -64,9 +64,10 @@ void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 
 		*rdst++ = *src;
 		count+=step;
 		//if (count>=AUDIO_BUFSZ) count=edge; //TODO; stops short/wrap???
-		//		if (count>=AUDIO_BUFSZ) count=(edge+(count-AUDIO_BUFSZ)%(AUDIO_BUFSZ-edge)); // tyring to fix
-		count=count%(AUDIO_BUFSZ-edge);
-		audio_buffer[edge+count] = *src++;
+		// RE_TEST! jitter can be good with [edge+count]=edge always changes!
+		if (count>=AUDIO_BUFSZ) count=(edge+((count-AUDIO_BUFSZ)%(AUDIO_BUFSZ-edge))); // tyring to fix
+		//	count=count%(AUDIO_BUFSZ-edge); // THIS WAS ALT:
+		//audio_buffer[edge+count] = *src++;
 		audio_buffer[count] = *src++;
 		//		*rdst++ = 0;
 		sz--;
@@ -527,8 +528,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
-	      wrap=wrap>>cons; 
+	      //	      start=start%32768;wrap=wrap>>cons; 
+	      wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
 	      if (wrap<1) wrap=2;
 	      if (SAMPLEDIR&1) samplepos=0;
 	      else samplepos=wrap;
@@ -688,11 +689,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #ifndef LACH	
 
-	// NOTE!: These two should be the same - just differ into which
-	/// one we place result!
+
 
 	if (digfilterflag&32){ // TODO/TESTCODE here....
-	  // processing of left buffer back into mono_buffer
+	  // processing of left buffer mixed(or not)back into mono_buffer
 
 	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
 	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
@@ -700,8 +700,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	else if (digfilterflag&1){ // TODO
 	  // 3- any processing of left buffer into left buffer
-	  // set via walker for effects//complexity????
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
+
+	  /// 
 	  //
 
 	}
