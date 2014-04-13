@@ -103,7 +103,7 @@ The simplest Dark Interpreter consisting of one digital base board for
 solely digital processing and generation. Order with 9v socket
 (default) or battery clip on the back. Some skin control.
 
-160 euros
+170 euros
 
 *** 2-The second Sister is called Mater Suspiriorum, Our Lady of Sighs.
 
@@ -124,7 +124,7 @@ re-routing, and feedback. Of course the device can be used without any
 wished skin transfer. Order with 9v socket (not recommended for safety
 reasons) or battery clip (default) on the back.
 
-290 euros
+310 euros
 
 ** Samples/recordings
 
@@ -219,16 +219,22 @@ outside, and in open daylight.
 
 TODO:
 
-- test updates/tweaks in audio.c: wrap/edge in
-
+- test updates/tweaks in audio.c: wrap/edge in di_split_stereo
 
 - where do we set cons granularity for audio.c?
 
 [- question of villager metaphor/approach/micro-macro operations as complexity?
 larger chunk contagion and movement?]
 
-- cleanup and mark clearly all test sections
 - TODOs in each file (check all audio so far)
+
+*audio.c:* where is cons set?; filter/leftbuffer effects; expand complexity/micro-macro thing
+*main.c:* setup code for machines, sims etc;tune speeds and wraps; all knob code
+*simulationforstack.c:* runknob assignment; question of start/end/step; bufferq
+*CAforstack.c:* buffer constraint in SIR16init
+*pureleak.c:* hardware tie-in for masque; SPL in corewars,; var readins
+*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
+
 - steps in CA and simulation (fractional or?), maybe also end/start points for each 
 
 - test all datagens and stack approach AGAIN
@@ -292,9 +298,7 @@ so we have top=mirror/darkint
 but for filter/leftbuffer effect we have no buffer spare - should act
 as mirror with list of ops: mix/multiply left with audio/datagen,
 write left into audiobuffer or datagenbuffer, playback from place in
-audiobuffer
-
-these ops perform at location array[XXX]
+audiobuffer -> these ops perform at location array[XXX]
 
 
 ** formant

@@ -118,7 +118,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
 
   res= modder&3; // 12 bits now lose 5 = 7 bits=128 2 bottom bits =5 bits=32!
   res2=modder>>2; // //
-  // **TODO/DONE: maybe res2 as >>2 so we have 32 options
+  // **DONE: maybe res2 as >>2 so we have 32 options
   // as res=0-4 * 32 = 128 which is modder>>5 which comes in 
 
   if ((res2>16 || res2<9) && hangflag==1){ // new hangers=9->16
@@ -169,7 +169,6 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRL = (1<<8); 
    GPIOC->BSRRH = (1<<13); // irrelevant */ 
 
-   // **TODO - TEST
    // add unhang for clocks? DONE! 
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
@@ -191,7 +190,7 @@ RES: feedback on/off - jackin-> - lm358in->
   digfilterflag=0;
 
   // now as 32 options with digfilterflag as 32 for filterfeed
-  //  res2=2; //TODO test ffilterfoldback
+  //  res2=2; 
   switch(res2){
   case 0:
   case 1:
@@ -323,7 +322,7 @@ RES: feedback on/off - jackin-> - lm358in->
         //2-unhang all except input 
     // input is pb7
        hangflag=1;
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!seems okay
        GPIO_InitStructure.GPIO_Mode = 0x04;
       GPIO_Init(GPIOB, &GPIO_InitStructure);
          GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;

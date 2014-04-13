@@ -702,7 +702,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // 3- any processing of left buffer into left buffer
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 
-	  /// 
+	  /// but for filter/leftbuffer effect we have no buffer spare - should act
+	  /// as mirror with list of ops: mix/multiply left with audio/datagen,
+	  /// write left into audiobuffer or datagenbuffer, playback from place in
+	  /// audiobuffer -> these ops perform at location array[XXX]
+
+	  // use left, use audiobuffer, use datagenbuffer, read/write
+
 	  //
 
 	}
