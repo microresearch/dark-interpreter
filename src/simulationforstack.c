@@ -175,7 +175,7 @@ uint16_t runsine(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
   for (i=0; i<howmuch; i++) {
     count++;
     if (count==MAX_SAM) count=0;
-    workingbuffer[count]=sin_data[(unit->cc)%256];//**TODO/DONE-crash???OKAY!!
+    workingbuffer[count]=sin_data[(unit->cc)%256];
 #ifdef PCSIM
     printf("%c",workingbuffer[count]);
 #endif
@@ -1439,12 +1439,12 @@ void main(void)
   struct FORM *unity=malloc(sizeof(struct FORM));
 
   forminit(unity, xxx);
-
-           while(1){
+  
+  /*           while(1){
   //  for (x=0;x<1000000;x++){
 	   count=runformtest(count, buf16, 100, unity);
 	   //	   f.d++;
 	   //	   printf("%d\n",f.d);
-  }
+	   }*/
 }
 #endif

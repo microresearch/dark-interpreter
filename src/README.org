@@ -213,7 +213,49 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* THU 10 APR+
+* TUE 15 APR
+
+*new ideas/TODO:*
+
+- add start and wrap for all datagens
+- mirror (or not) READ/WRITE ops in audio.c and abstract out/down to
+  grain has length 32768 (straight play), grain is determined size,
+  grain is 1
+- that grains can set datagen start/wrap settings also.
+- macro-chunk operations/feedback>???
+- edge/wrap for read/write become part of mirrored list of walker settings
+- new knobs= push inits + pop (as 2 knobs also with swops of buffers,
+  other datagen settings);micro-macro;
+
+
+* MON 14 APR
+
+- revising audio.c! TODO TO TEST and fill out...
+
+*new ideas:*
+
+thus TODO: revising complexity in audio.c, walkers and so on!
+
+some kind of compression of data spaces (so we could >>bitshift
+wrap/edge, restrict datagens to certain areas, also as is with cons
+granularity, restrict foldback to areas - ie. expand and contract)
+
+also ways of re-arranging larger chunks, potentially applying multiple
+granularity as part of micro-macro (which could somehow replace
+complexity knob - also how settings work with this - that we can globally
+or locally apply certain settings)
+
+restrict all walkers _and_ all datagens...
+
+but need like simultaneous multiple levels of micro-macro
+
+multiple repeated/stacked grain operations (reduce audio.c)- so is
+like chunk of grains repeating NOT POSSIBLE or just do as mirrored
+read/write chunk operations...
+
+add start
+
+* THU 10 APR
 
 - playing with cons as % or >> in audio.c -> % is favoured
 
@@ -226,7 +268,8 @@ TODO:
 [- question of villager metaphor/approach/micro-macro operations as complexity?
 larger chunk contagion and movement?]
 
-- TODOs in each file (check all audio so far)
+- TODOs in each file (check all audio so far) - recheck all TODOs as
+  some are new
 
 *audio.c:* where is cons set?; filter/leftbuffer effects; expand complexity/micro-macro thing
 *main.c:* setup code for machines, sims etc;tune speeds and wraps; all knob code

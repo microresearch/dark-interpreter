@@ -66,6 +66,7 @@ void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 
 		//if (count>=AUDIO_BUFSZ) count=edge; //TODO; stops short/wrap???
 		// RE_TEST! jitter can be good with [edge+count]=edge always changes!
 		if (count>=AUDIO_BUFSZ) count=(edge+((count-AUDIO_BUFSZ)%(AUDIO_BUFSZ-edge))); // tyring to fix
+
 		//	count=count%(AUDIO_BUFSZ-edge); // THIS WAS ALT:
 		//audio_buffer[edge+count] = *src++;
 		audio_buffer[count] = *src++;
@@ -215,25 +216,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		settingsarray[42]=2; // ANYDIR TESTER!	
 		complexity=4; 
 
-
+		u16 wrappie;
 	switch(complexity){// 32 options
-	case 0:
+	case 0: // straight out
 	for (x=0;x<sz/2;x++){
 	  if (++del==(SAMPLESPEED%8)){
 	  samplepos+=SAMPLESTEP;
-	  //  if (samplepos>=SAMPLEWRAP) samplepos=0;
-	  if (samplepos>=adc_buffer[0]<<3) samplepos=0; // TESTER!
-	  //  if (samplepos>=32768) samplepos=0;//TESTER!
-
+	  wrappie=SAMPLEWRAP;
+	  if ((SAMPLESTART+wrappie)>=AUDIO_BUFSZ) wrappie=AUDIO_BUFSZ-SAMPLESTART;
+	  if (samplepos>=wrappie) samplepos=samplepos-wrappie; 
+	  // if (samplepos>=adc_buffer[0]<<3) samplepos=0; // TESTER!
+	  // if (samplepos>=32768) samplepos=0;//TESTER!
 	  del=0;
 	  }
-	  tmp=samplepos%32768;
-	  //	  	  mono_buffer[x]=audio_buffer[(SAMPLESTART+samplepos)%32768];
-	  mono_buffer[x]=audio_buffer[tmp]; // TESTER!
+	  //tmp=samplepos%32768;
+	  mono_buffer[x]=audio_buffer[SAMPLESTART+samplepos];
+	  //mono_buffer[x]=audio_buffer[tmp]; // TESTER!
 	}
 	break;
 	/////////
-	case 1:
+	case 1: // direction and no start/wrap - should be or no: TODO?
 	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    tmp=SAMPLESTEP*direction[SAMPLEDIR];
@@ -244,7 +246,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 	break;
 	/////////
-	case 2:
+	case 2: // AGAIN TODO any wrap - wormdir
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	  tmp=SAMPLESTEP*direction[wormdir];
@@ -254,8 +256,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
 	break;
-	case 3:
-	  //3/walkdatagenasdirwalk 
+	case 3:	  //3/walkdatagenasdirwalk (???)
  	for (x=0;x<sz/2;x++){
 	  //walk any 
 	    if (++anydel==ANYSPEED){
@@ -278,37 +279,35 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    if (SAMPLEDIR&1) dir=1;
 	    else dir=-1;
 	    dirry=(int16_t)dir*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
+	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
 		  tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
+		  anypos+=tmp;
+		  tmp=anypos%32768;
+		  start=buf16[tmp]>>1;
+		  tmp=ANYSTEP*direction[ANYDIR];
+		  anypos+=tmp;
+		  tmp=anypos%32768;
+		  wrap=buf16[tmp]>>1;
 
 	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
 	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;
-	      //	      wrap=wrap>>cons;
 	      wrap=wrap%cons;
-	      //	      if (wrap==0) wrap=1;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
+	      if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
+	      if (SAMPLEDIR&1) samplepos=start;
+	      else samplepos=start+wrap;
 		}
 	  del=0;
 	  }
-	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
+	  //	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768]; INCORRECT as need go back to start????
+	  mono_buffer[x]=audio_buffer[samplepos];
 	}
 	  break;
 	/////////
-	case 5:
-	  //5/walk datagen dir as grains with direction
+	case 5:	  //5/walk datagen dir as grains with direction: TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)dir*SAMPLESTEP;
@@ -345,7 +344,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
 	}
 	/////////
-	case 6:
+	case 6://5/walk datagen dir as grains with wormdir: TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    if (wormdir&1) dirry=1;
@@ -378,7 +377,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
 	}
 	break;	  /////
-	case 7:
+	case 7: //5/walk datagen dir as grains with wormdir and wormdir: TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    if (wormdir&1) dirry=1;
@@ -506,7 +505,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 	  break;
 	case 15:
-	  //4/walk datagen dir as grains
+	  //15/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    if (SAMPLEDIR&1) dirry=1;
@@ -541,7 +540,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	/////////
 	case 16:
-	  //5/walk datagen dir as grains with direction
+	  //16/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)dir*SAMPLESTEP;
@@ -579,6 +578,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 	/////////
 	case 17:
+	  //17/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    if (wormdir&1) dirry=1;
@@ -612,6 +612,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 	break;	  /////
 	case 18:
+	  //18/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
  	for (x=0;x<sz/2;x++){
 	  if (++del==SAMPLESPEED){
 	    if (wormdir&1) dirry=1;
