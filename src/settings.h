@@ -75,8 +75,10 @@
 
 // directions from audio.c - add read dirs
 
-#define SAMPLEDIR ((settingsarray[41])%8)
-#define ANYDIR ((settingsarray[42])%8)
+#define DATADIRR ((settingsarray[41])%4)
+#define DATADIRW ((settingsarray[41])%4)
+#define SAMPLEDIRR ((settingsarray[42])%4)
+#define SAMPLEDIRW ((settingsarray[42])%4)
 
 
 #define BEFOREDIR  36

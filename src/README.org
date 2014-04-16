@@ -215,12 +215,14 @@ outside, and in open daylight.
 
 * WED 16 APR
 
-so concrete TODO:
+concrete TODO:
 
 [1day]WED
 - simplify read/write in audio.c - DONE
+- *todo* // where to map directions to wormdir (now halved)
 
 - start and wrap code all datagens
+
 
 [2days]THU
 - re-test all audio/datagens and audio!

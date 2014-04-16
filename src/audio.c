@@ -123,13 +123,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u16 tmp=0; u8 cons;
 	u8 complexity=0,x;
 	static u16 start=0,wrap=32768,samplepos=0,anypos=0,count=0;
-	static u8 del=0,thisdir,thatdir,villagewrite;
+	static u8 del=0,villagewrite;
 
 	int16_t dirry=1;
 	float temp;
 
 	static u16 anyposread=0,sampleposread=0,wrapread=32767,startread=0;
-	static u8 delread=0,thisdirread=1,villageread=0, thatdirread=1;
+	static u8 delread=0,villageread=0;
 	u16 wrapper; 
 	// TODO:find a place in settings for these
 	u16 SAMPLEWRAPREAD=32767,SAMPLESTARTREAD=0;
@@ -149,12 +149,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static int16_t newdirread[4]={-256,1,256,-1};
 	static int16_t directionread[4]={-256,1,256,-1};
 
-
-	// TODO what is dir: thisdir, thatdir
-	// but wormdir is like 8 bytes - divide by 2
-
-	// TODO: make sure all sample read/writes are %32768
-
 	///	///	///	///
 	
 	// readin villager processing of left into left and right into audio_buffer
@@ -168,7 +162,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  audio_buffer[sampleposread%32768]=*src++;
 
 	  if (++delread==SAMPLESPEEDREAD){
-	    dirry=(int16_t)newdirread[thisdirread]*SAMPLESTEPREAD;
+	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    if ((sampleposread+dirry)<wrapread && (sampleposread+dirry)>startread)
 		  {
 		    sampleposread+=dirry;//)%32768;
@@ -178,11 +172,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    startread=SAMPLESTART;sampleposread=startread;wrapread=SAMPLEWRAPREAD;
 		    if ((SAMPLESTART+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
 		    newdirread[0]=-256;newdirread[2]=256;
-		  if (thisdirread==1 || thisdirread==2) sampleposread=startread;
+		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
 		  else sampleposread=wrapread;
 		  }
 		  else if (villageread==1) {
-		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
@@ -192,13 +186,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  wrapread=0;
 		  }
 		  else {
-		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  startread=buf16[tmp%32768]>>1;
-		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
@@ -209,7 +203,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  if ((startread+wrapread)>=AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-startread; 
 		  else wrapread+=startread;
 		  // but which is start if we go backwards...???
-		  if (thisdirread==1 || thisdirread==2) sampleposread=startread;
+		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
 		  else sampleposread=wrapread;
 		  // recalc direction array
 		  temp=sqrtf((float)wrapread);newdirread[0]=-temp;newdirread[2]=temp;
@@ -220,7 +214,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 
 	// writeout villager processing  into mono_buffer
-	SAMPLESPEED=1;SAMPLESTEP=1;thisdir=1;thatdir=1;villagewrite=1;
+	SAMPLESPEED=1;SAMPLESTEP=1;villagewrite=1;
 
 	settingsarray[18]=255;//wrap // TESTY
 	settingsarray[19]=0;
@@ -228,7 +222,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	    mono_buffer[x]=audio_buffer[samplepos%32768];
 	  if (++del==SAMPLESPEED){
-	    dirry=(int16_t)newdir[thisdir]*SAMPLESTEP;
+	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
 		  {
 		    samplepos+=dirry;//)%32768;
@@ -238,11 +232,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP;
 		    if ((SAMPLESTART+wrap)>AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-SAMPLESTART;
 		    newdir[0]=-256;newdir[2]=256;
-		  if (thisdir==1 || thisdir==2) samplepos=start;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
 		  else samplepos=wrap;
 		  }
 		  else if (villagewrite==1) {
-		  tmp=ANYSTEP*direction[thatdir];
+		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
@@ -252,24 +246,24 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  wrap=0;
 		  }
 		  else {
-		  tmp=ANYSTEP*direction[thatdir];
+		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  start=buf16[tmp%32768]>>1;
-		  tmp=ANYSTEP*direction[thatdir];
+		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  wrap=buf16[tmp%32768]>>1;
-		  wrap=wrap%cons; 
+		  wrap=wrap%cons; //TODO: cons must be >0. also above 
 		  if (wrap==0) wrap=1;
 		  if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
 		  else wrap+=start;
 		  // but which is start if we go backwards...???
-		  if (thisdir==1 || thisdir==2) samplepos=start;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
 		  else samplepos=wrap;
 		  // recalc direction array
 		  temp=sqrtf((float)wrap);newdir[0]=-temp;newdir[2]=temp;
