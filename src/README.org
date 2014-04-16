@@ -1,4 +1,4 @@
-Oh, eternity with outstretched wings, that broodest over the secret
+`Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
 organ!
@@ -213,6 +213,43 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* WED 16 APR
+
+so concrete TODO:
+
+[1day]WED
+- simplify read/write in audio.c 
+*- test updates/tweaks in audio.c*
+- start and wrap code all datagens
+- re-test all audio/datagens and audio!
+
+[2days]THU
+- assign/map new knobs and all settings re-arranged (all new ideas into files)
+- knob and finger code
+
+[3days]FRI
+- filter and effects
+
+[4days]SUN
+- push and pop/buffer swop/datagen settings
+- new constraints of all datagens and walkers(inc foldback to areas
+  only) under micro-macro 
+- mirror knob: cross-settings option(mirror etc.) 
+
+[5/6days]MON/TUE
+- how/if to work with larger chunk movements???
+- extras like grain spawn mode
+- TODOs in each file (check all audio so far) - recheck all TODOs as
+  some are new:
+*CAforstack.c:* buffer constraint in SIR16init
+*pureleak.c:* hardware tie-in for masque; SPL in corewars,; var readins
+*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
+
+[extras]WED+
+- excess settings settings - actions such as read/write mirror which are like one off operations
+- redefine extra knob for LACH (as was edger!)
+- tweaking
+
 * TUE 15 APR
 
 *new ideas/TODO:*
@@ -221,12 +258,11 @@ outside, and in open daylight.
 - mirror (or not) READ/WRITE ops in audio.c and abstract out/down to
   grain has length 32768 (straight play), grain is determined size,
   grain is 1
-- that grains can set datagen start/wrap settings also.
-- macro-chunk operations/feedback>???
+- that grains can set datagen start/wrap settings also (grain spawn mode)
+- macro-chunk operations/feedback like this above???
 - edge/wrap for read/write become part of mirrored list of walker settings
 - new knobs= push inits + pop (as 2 knobs also with swops of buffers,
-  other datagen settings);micro-macro;
-
+  other datagen settings);micro-macro
 
 * MON 14 APR
 

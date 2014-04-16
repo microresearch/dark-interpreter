@@ -1439,6 +1439,8 @@ void main(void)
   struct FORM *unity=malloc(sizeof(struct FORM));
 
   forminit(unity, xxx);
+
+  printf("test%d\n",256<<7);
   
   /*           while(1){
   //  for (x=0;x<1000000;x++){

@@ -215,7 +215,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);

@@ -36,7 +36,7 @@
 // audio.c
 
 #define SAMPLESTEP (settingsarray[17])
-#define SAMPLEWRAP ((settingsarray[18])<<7) // 32 bit max 32768
+#define SAMPLEWRAP (((settingsarray[18])<<8)%32768) // 32 bit max 32768
 #define SAMPLESTART ((settingsarray[19])<<7)  // 32 bit max 32768
 #define SAMPLESPEED (settingsarray[20])
 

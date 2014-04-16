@@ -54,23 +54,17 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 	}
 }
 
-void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst,u16 edge, u8 step)
-{// edge must always be under 32768
+void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
+{ // TESTY!!!
   static u16 count=0; 
   	while(sz)
 	{
 		*ldst++ = *src++;
 		sz--;
 		*rdst++ = *src;
-		count+=step;
-		//if (count>=AUDIO_BUFSZ) count=edge; //TODO; stops short/wrap???
-		// RE_TEST! jitter can be good with [edge+count]=edge always changes!
-		if (count>=AUDIO_BUFSZ) count=(edge+((count-AUDIO_BUFSZ)%(AUDIO_BUFSZ-edge))); // tyring to fix
-
-		//	count=count%(AUDIO_BUFSZ-edge); // THIS WAS ALT:
-		//audio_buffer[edge+count] = *src++;
+		count+=1;
+ 		if (count>=AUDIO_BUFSZ) count=0;
 		audio_buffer[count] = *src++;
-		//		*rdst++ = 0;
 		sz--;
 	}
 }
@@ -126,571 +120,155 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-	u16 tmp=0,cons;
-	u8 complexity=0;
-	static u8 anydel=0,del=0,edgedel=0;
-	static u16 edger=0,counter=0,start=0,wrap=32768,samplepos=0,anypos=0,edgepos=0;
-	u8 x,res; 
-	static signed char dir; int16_t dirry=1;
+	u16 tmp=0; u8 cons;
+	u8 complexity=0,x;
+	static u16 start=0,wrap=32768,samplepos=0,anypos=0,count=0;
+	static u8 del=0,thisdir,thatdir,villagewrite;
 
-	INSTEP=1; //TESTER!
+	int16_t dirry=1;
+	float temp;
+
+	static u16 anyposread=0,sampleposread=0,wrapread=32767,startread=0;
+	static u8 delread=0,thisdirread=1,villageread=0, thatdirread=1;
+	// TODO:find a place in settings for these
+	u16 SAMPLEWRAPREAD=32767,SAMPLESTARTREAD=0;
+	u8 SAMPLESPEEDREAD=1,SAMPLESTEPREAD=1,ANYSTEPREAD=1,consread=0;
 
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
-	
-	/*	int16_t *buf16 = (int16_t*) datagenbuffer;
-	
-	for (x=0;x<sz/2;x++){
-	  right_buffer[x]=buf16[(x+counter)%32768];
-	  }
-	  counter+=x;*/
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-
 #else
-	//	cons=(adc_buffer[0]>>5)&15; // TEST granularity of cons
-	cons=(adc_buffer[0])>>2; // TESTY! granularity of cons
+
 	u16 *buf16 = (u16*) datagenbuffer;
-	complexity=adc_buffer[3]>>5; // 7 bits=128 >>2 to 32 
 
-	if (INSTEP==0) INSTEP=1;
-	if (SAMPLESTEP==0) SAMPLESTEP=1;
-	if (SAMPLESPEED==0) SAMPLESPEED=1;
-	if (ANYSTEP==0) ANYSTEP=1;
-       	if (ANYSPEED==0) ANYSPEED=1;
-	if (EDGESTEP==0) EDGESTEP=1;
-	if (EDGESPEED==0) EDGESPEED=1;
+	// set dirs
+	static int16_t newdir[4]={-256,1,256,-1};
+	static int16_t direction[4]={-256,1,256,-1};
+	static int16_t newdirread[4]={-256,1,256,-1};
+	static int16_t directionread[4]={-256,1,256,-1};
+
+	///	///	///	///
 	
-#ifdef LACH
-	edger=adc_buffer[0]<<3;
-#else
+	// write villager processing of left into left and right into audio_buffer
 
-	INSTEP=1;EDGESTEP=1;EDGESPEED=1;
+	int16_t * ldst=left_buffer;
+	int16_t * rdst=right_buffer;
 
-	res=complexity&3;
-	res=0;
-	switch(res){
-	case 0:
-	  edger=0;
-	  break;
-	case 1:
-	  // edger is specific setting from settingarray-TODO
-	  edger=EDGERASSETTING; // but should never be higher than 32768 
-		  // edger=16000;//TESTER!
-	  break;
-	case 2:
-	  // edger is walker thru datagen using SAMPLEDIR
-
-	  if (++edgedel==EDGESPEED){ 
-	    //    	    tmp=EDGESTEP*direction[SAMPLEDIR];
-    	    tmp=EDGESTEP*direction[2]; // TESTER!
-	    edgepos+=tmp;
-	    tmp=edgepos%32768;
-	    edger=buf16[tmp]%32768;
-	    edgedel=0;
-	    }
-	  break;
-	case 3:
-	  // edger is walker thru datagen using wormdir
-	  if (++edgedel==EDGESPEED){ 
-    	    tmp=EDGESTEP*direction[wormdir];
-	    edgepos+=tmp;
-	    tmp=edgepos%32768;
-	    edger=buf16[tmp]%32768;
-	    edgedel=0;
-	    }
-	  break;
-	}
-
-#endif
-
-		di_split_stereo(sz, src, left_buffer, right_buffer,edger, INSTEP);
-
-	// COMPLEXITY TOTAL is: 21 so far- should be 32 with bitwise for ??? - effects
-	// COMPLEXITY &3 for edger
-	// so for effects????
-	
-		complexity=complexity>>2;
-		ANYSPEED=1;ANYSTEP=1;SAMPLESTEP=1; SAMPLESPEED=1;//TESTER!
-		settingsarray[41]=2; // SAMPLEDIR TESTER!	
-		settingsarray[42]=2; // ANYDIR TESTER!	
-		complexity=4; 
-
-		u16 wrappie;
-	switch(complexity){// 32 options
-	case 0: // straight out
-	for (x=0;x<sz/2;x++){
-	  if (++del==(SAMPLESPEED%8)){
-	  samplepos+=SAMPLESTEP;
-	  wrappie=SAMPLEWRAP;
-	  if ((SAMPLESTART+wrappie)>=AUDIO_BUFSZ) wrappie=AUDIO_BUFSZ-SAMPLESTART;
-	  if (samplepos>=wrappie) samplepos=samplepos-wrappie; 
-	  // if (samplepos>=adc_buffer[0]<<3) samplepos=0; // TESTER!
-	  // if (samplepos>=32768) samplepos=0;//TESTER!
-	  del=0;
-	  }
-	  //tmp=samplepos%32768;
-	  mono_buffer[x]=audio_buffer[SAMPLESTART+samplepos];
-	  //mono_buffer[x]=audio_buffer[tmp]; // TESTER!
-	}
-	break;
-	/////////
-	case 1: // direction and no start/wrap - should be or no: TODO?
-	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    tmp=SAMPLESTEP*direction[SAMPLEDIR];
-	  samplepos+=tmp;
-	  del=0;
-	  }
-	  mono_buffer[x]=audio_buffer[samplepos%32768];
-	}
-	break;
-	/////////
-	case 2: // AGAIN TODO any wrap - wormdir
  	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	  tmp=SAMPLESTEP*direction[wormdir];
-	  samplepos+=tmp;
-	  del=0;
+	  *ldst++ = *src++;
+	  *rdst++ = *src;
+	  audio_buffer[sampleposread]=*src++;
+
+	  if (++delread==SAMPLESPEEDREAD){
+	    dirry=(int16_t)newdirread[thisdirread]*SAMPLESTEPREAD;
+	    if ((sampleposread+dirry)<wrapread && (sampleposread+dirry)>startread)
+		  {
+		    sampleposread+=dirry;//)%32768;
+		  }
+		else {
+		  if (villageread==0) {
+		    startread=SAMPLESTART;sampleposread=startread;wrapread=SAMPLEWRAPREAD;
+		    if ((SAMPLESTART+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
+		    newdirread[0]=-256;newdirread[2]=256;
+		  if (thisdirread==1 || thisdirread==2) sampleposread=startread;
+		  else sampleposread=wrapread;
+		  }
+		  else if (villageread==1) {
+		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  anypos+=tmp;
+		  tmp=anypos%32768;
+		  sampleposread=buf16[tmp]>>1;//constrain this too TODO???
+		  wrap=0;
+		  }
+		  else {
+		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  anyposread+=tmp;
+		  startread=buf16[tmp]>>1;
+		  tmp=ANYSTEPREAD*directionread[thatdirread];
+		  anyposread+=tmp;
+		  tmp=anyposread%32768;
+		  wrapread=buf16[tmp]>>1;
+		  wrapread=wrapread%consread; 
+		  if (wrapread==0) wrapread=1;
+		  if ((startread+wrapread)>=AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-startread; 
+		  else wrapread+=startread;
+		  // but which is start if we go backwards...???
+		  if (thisdirread==1 || thisdirread==2) sampleposread=startread;
+		  else sampleposread=wrapread;
+		  // recalc direction array
+		  temp=sqrtf((float)wrapread);newdirread[0]=-temp;newdirread[2]=temp;
+		  }
+		}
+	  delread=0;
 	  }
-	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	}
-	break;
-	case 3:	  //3/walkdatagenasdirwalk (???)
+
+	// testy:
+	///	di_split_stereo(sz, src, left_buffer, mono_buffer);
+	///	///	///	///
+
+
+
+	// read villager processing  into mono_buffer
+	SAMPLESPEED=1;SAMPLESTEP=1;thisdir=1;thatdir=1;villagewrite=0;
+
+	settingsarray[18]=255;//wrap // TESTY
+	settingsarray[19]=0;
+
  	for (x=0;x<sz/2;x++){
-	  //walk any 
-	    if (++anydel==ANYSPEED){
-    	    tmp=ANYSTEP*direction[ANYDIR];
-	    anypos+=tmp;
-	    anydel=0;
-	    }
-	    if (++del==SAMPLESPEED){
-	      tmp=SAMPLESTEP*direction[datagenbuffer[tmp]%8];
-	      samplepos+=tmp;
-	      del=0;
-	    }
-	  mono_buffer[x]=audio_buffer[samplepos%32768];
-	}
-	  break;
-	case 4:
-	  //4/walk datagen dir as grains
- 	for (x=0;x<sz/2;x++){
+	    mono_buffer[x]=audio_buffer[samplepos];
 	  if (++del==SAMPLESPEED){
-	    if (SAMPLEDIR&1) dir=1;
-	    else dir=-1;
-	    dirry=(int16_t)dir*SAMPLESTEP;
+	    dirry=(int16_t)newdir[thisdir]*SAMPLESTEP;
 	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
-		  tmp=ANYSTEP*direction[ANYDIR];
+		  if (villagewrite==0) {
+		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP;
+		    if ((SAMPLESTART+wrap)>AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-SAMPLESTART;
+		    newdir[0]=-256;newdir[2]=256;
+		  if (thisdir==1 || thisdir==2) samplepos=start;
+		  else samplepos=wrap;
+		  }
+		  else if (villagewrite==1) {
+		  tmp=ANYSTEP*direction[thatdir];
 		  anypos+=tmp;
 		  tmp=anypos%32768;
+		  samplepos=buf16[tmp]>>1;//constrain this too TODO???
+		  wrap=0;
+		  }
+		  else {
+		  tmp=ANYSTEP*direction[thatdir];
+		  anypos+=tmp;
 		  start=buf16[tmp]>>1;
-		  tmp=ANYSTEP*direction[ANYDIR];
+		  tmp=ANYSTEP*direction[thatdir];
 		  anypos+=tmp;
 		  tmp=anypos%32768;
 		  wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      wrap=wrap%cons;
-	      if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
-	      if (SAMPLEDIR&1) samplepos=start;
-	      else samplepos=start+wrap;
-		}
-	  del=0;
-	  }
-	  //	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768]; INCORRECT as need go back to start????
-	  mono_buffer[x]=audio_buffer[samplepos];
-	}
-	  break;
-	/////////
-	case 5:	  //5/walk datagen dir as grains with direction: TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    dirry=(int16_t)dir*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
+		  wrap=wrap%cons; 
+		  if (wrap==0) wrap=1;
+		  if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
+		  else wrap+=start;
+		  // but which is start if we go backwards...???
+		  if (thisdir==1 || thisdir==2) samplepos=start;
+		  else samplepos=wrap;
+		  // recalc direction array
+		  temp=sqrtf((float)wrap);newdir[0]=-temp;newdir[2]=temp;
 		  }
-		else {
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) {
-		wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-		dir=1;
-	      }
-	      else {
-		wrap=start-wrap;
-		dir=-1;
-	      }
-	      //	      start=start%32768;wrap=wrap>>cons; 
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
 		}
 	  del=0;
 	  }
-	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
 	}
-	/////////
-	case 6://5/walk datagen dir as grains with wormdir: TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    if (wormdir&1) dirry=1;
-	    else dirry=-1;
-	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
+       
 
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-	}
-	break;	  /////
-	case 7: //5/walk datagen dir as grains with wormdir and wormdir: TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    if (wormdir&1) dirry=1;
-	    else dirry=-1;
-	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[wormdir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[wormdir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-	}
-	break;
-	  //////
-	case 8:
-	  //5/walk datagen dir as samples-wormdir
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[wormdir];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	    }
-	  mono_buffer[x]=audio_buffer[buf16[tmp]%32768];
-	}
-	break;
-	case 9:
-	  //5/walk datagen dir as samples
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-	    tmp=ANYSTEP*direction[ANYDIR];
-	  //	  tmp=direction[3];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	    	  }
-	  mono_buffer[x]=audio_buffer[buf16[tmp]%32768];
-	}
-	break;
-	case 10:
-	  //5/walk datagen dir as samples
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[ANYDIR];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	  }
-	  mono_buffer[x]=audio_buffer[(buf16[buf16[tmp]%32768]%32768)];
-	}
-	break;
-	/////11+ is datagen
-	case 11:
-	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	  samplepos+=SAMPLESTEP;
-	  //    if (samplepos>=SAMPLEWRAP) samplepos=0;
-	  	  if (samplepos>=32000) samplepos=0;	  //TESTER!
-	  del=0;
-	  }
-	  //	  mono_buffer[x]=buf16[(SAMPLESTART+samplepos)%32768];
-	  	  mono_buffer[x]=buf16[(samplepos)%32768]; 	  //TESTER!
-
-	}
-	break;
-	/////////
-	case 12:
-	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	  tmp=SAMPLESTEP*direction[SAMPLEDIR];
-	  samplepos+=tmp;
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[samplepos%32768];
-	}
-	break;
-	/////////
-	case 13:
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	  tmp=SAMPLESTEP*direction[wormdir];
-	  samplepos+=tmp;
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[samplepos%32768];
-	}
-	break;
-	case 14:
-	  //3/walkdatagenasdirwalk 
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	    if (++anydel==ANYSPEED){
-    	    tmp=ANYSTEP*direction[ANYDIR];
-	    anypos+=tmp;
-	    anydel=0;
-	    }
-	    if (++del==SAMPLESPEED){
-	      tmp=SAMPLESTEP*direction[datagenbuffer[tmp]%8];
-	      samplepos+=tmp;
-	      del=0;
-	    }
-	  mono_buffer[x]=buf16[samplepos%32768];
-	}
-	  break;
-	case 15:
-	  //15/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    if (SAMPLEDIR&1) dirry=1;
-	    else dirry=-1;
-	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons; 
-	      wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[(start+samplepos)%32768];
-	}
-	  break;
-	/////////
-	case 16:
-	  //16/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    dirry=(int16_t)dir*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) {
-		wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-		dir=1;
-	      }
-	      else {
-		wrap=start-wrap;
-		dir=-1;
-	      }
-	      //	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[(start+samplepos)%32768];
-	}
-	/////////
-	case 17:
-	  //17/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    if (wormdir&1) dirry=1;
-	    else dirry=-1;
-	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768>>1;
-	      start=buf16[tmp];
-	      tmp=ANYSTEP*direction[ANYDIR];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[(start+samplepos)%32768];
-	}
-	break;	  /////
-	case 18:
-	  //18/walk datagen dir as grains -- TODO: alter audio section as above once tested!!!!
- 	for (x=0;x<sz/2;x++){
-	  if (++del==SAMPLESPEED){
-	    if (wormdir&1) dirry=1;
-	    else dirry=-1;
-	    dirry=(int16_t)dirry*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-	      tmp=ANYSTEP*direction[wormdir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp]>>1;
-	      tmp=ANYSTEP*direction[wormdir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp]>>1;
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir/AS OPTION!
-	      else wrap=start-wrap;
-	      //	      start=start%32768;wrap=wrap>>cons;  //constrain sample wrap size//TODO complex/speed?
-	      wrap=wrap>>cons; 
-	      if (wrap<1) wrap=2;
-	      if (SAMPLEDIR&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  mono_buffer[x]=buf16[(start+samplepos)%32768];
-	}
-	break;
-	  //////
-	case 19:
-	  //5/walk datagen dir as samples-wormdir
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[wormdir];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	    }
-	  mono_buffer[x]=buf16[buf16[tmp]%32768];
-	}
-	break;
-	case 20:
-	  //5/walk datagen dir as samples
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[ANYDIR];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	  }
-	  mono_buffer[x]=buf16[buf16[tmp]%32768];
-	}
-	break;
-	case 21:
-	  //5/walk datagen dir as samples
- 	for (x=0;x<sz/2;x++){
-	  //walk any 
-	  if (++anydel==ANYSPEED){ 
-    	    tmp=ANYSTEP*direction[ANYDIR];
-	    anypos+=tmp;
-	    tmp=anypos%32768;
-	    anydel=0;
-	  }
-	  mono_buffer[x]=buf16[(buf16[buf16[tmp]%32768]%32768)];
-	}
-	break;
-
-	} // end case
-
-#ifndef LACH	
+	///	///	///	///
 
 
+
+
+
+#ifndef LACH // as we have no filter!
 
 	if (digfilterflag&32){ // TODO/TESTCODE here....
 	  // processing of left buffer mixed(or not)back into mono_buffer
