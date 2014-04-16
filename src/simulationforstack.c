@@ -118,13 +118,10 @@ void runform(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 #endif
     }
       tmp++;
-      if (tmp>=unit->wrap) count=unit->start;
+      if (tmp>=unit->wrap) tmp=unit->start;
   }
-}
-
-  //  return tmp;
+  }
   unit->count=tmp;
-
   }
 
 
@@ -164,7 +161,7 @@ void runconv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 #endif
   }
-
+  unit->count=tmp;
 }
 
 
@@ -736,7 +733,7 @@ void runseir(uint16_t *workingbuffer, uint8_t howmuch,void* unity){
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-        if (count>=unit->wrap) count=unit->start;
+    if (count>=unit->wrap) count=unit->start;
 
     seir_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count]=unit->S;
@@ -1530,27 +1527,19 @@ void main(void)
   
   struct FORM *unity=malloc(sizeof(struct FORM));
 
-  forminit(unity, xxx,0,32768);
+  forminit(unity, xxx,0,3);
 
   //  printf("test%d\n",256<<7);
   
-  u16 tmp,anypos=0,ANYSTEP=1,wrapper=0,AUDIO_BUFSZ=32768,ANYWRAP=32767,ANYSTART=0;
 
              while(1){
   //  for (x=0;x<1000000;x++){
-	       //	   count=runformtest(count, buf16, 100, unity);
+	       runform(buf16, 100, unity);
 	   //	   f.d++;
 	   //	   printf("%d\n",f.d);
 
-	       tmp=ANYSTEP*1;
-	       anypos+=tmp;
-	       wrapper=ANYWRAP;
-	       if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
-	       //
-	       //tmp=anypos%32768;
-	       tmp=ANYSTART+(anypos%wrapper); 
 	       //	       samplepos=buf16[tmp]>>1;//constrain this too but could need a START--> TODO???
-	       printf("%d\n",tmp);
+	       ///	       printf("%d\n",tmp);
 
 
 	   }

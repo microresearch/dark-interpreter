@@ -221,7 +221,7 @@ concrete TODO:
 - simplify read/write in audio.c - DONE
 - *todo* // where to map directions to wormdir (now halved)
 
-- start and wrap code all datagens: is just ca, sim
+- start and wrap code all datagens: is just ca, simDONE. TO TEST!
 
 
 [2days]THU
@@ -248,7 +248,7 @@ concrete TODO:
 *cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
 
 [extras]WED/THU/FRI
-- excess settings settings - actions such as read/write mirror which are like one off operations
+- excess settings - actions such as read/write mirroring which are one off operations
 - redefine extra knob for LACH (as was edger!)
 - tweaking
 
