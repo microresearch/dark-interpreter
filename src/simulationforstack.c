@@ -1440,13 +1440,27 @@ void main(void)
 
   forminit(unity, xxx);
 
-  printf("test%d\n",256<<7);
+  //  printf("test%d\n",256<<7);
   
-  /*           while(1){
+  u16 tmp,anypos=0,ANYSTEP=1,wrapper=0,AUDIO_BUFSZ=32768,ANYWRAP=32767,ANYSTART=0;
+
+             while(1){
   //  for (x=0;x<1000000;x++){
-	   count=runformtest(count, buf16, 100, unity);
+	       //	   count=runformtest(count, buf16, 100, unity);
 	   //	   f.d++;
 	   //	   printf("%d\n",f.d);
-	   }*/
+
+	       tmp=ANYSTEP*1;
+	       anypos+=tmp;
+	       wrapper=ANYWRAP;
+	       if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+	       //
+	       //tmp=anypos%32768;
+	       tmp=ANYSTART+(anypos%wrapper); 
+	       //	       samplepos=buf16[tmp]>>1;//constrain this too but could need a START--> TODO???
+	       printf("%d\n",tmp);
+
+
+	   }
 }
 #endif

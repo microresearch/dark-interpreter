@@ -130,10 +130,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	static u16 anyposread=0,sampleposread=0,wrapread=32767,startread=0;
 	static u8 delread=0,thisdirread=1,villageread=0, thatdirread=1;
+	u16 wrapper; 
 	// TODO:find a place in settings for these
 	u16 SAMPLEWRAPREAD=32767,SAMPLESTARTREAD=0;
 	u8 SAMPLESPEEDREAD=1,SAMPLESTEPREAD=1,ANYSTEPREAD=1,consread=0;
-
+	u16 ANYSTART=0, ANYWRAP=32767;
+	u16 ANYSTARTREAD=0, ANYWRAPREAD=32767;
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
@@ -147,9 +149,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static int16_t newdirread[4]={-256,1,256,-1};
 	static int16_t directionread[4]={-256,1,256,-1};
 
+
+	// TODO what is dir: thisdir, thatdir
+	// but wormdir is like 8 bytes - divide by 2
+
+	// TODO: make sure all sample read/writes are %32768
+
 	///	///	///	///
 	
-	// write villager processing of left into left and right into audio_buffer
+	// readin villager processing of left into left and right into audio_buffer
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
@@ -157,7 +165,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
  	for (x=0;x<sz/2;x++){
 	  *ldst++ = *src++;
 	  *rdst++ = *src;
-	  audio_buffer[sampleposread]=*src++;
+	  audio_buffer[sampleposread%32768]=*src++;
 
 	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[thisdirread]*SAMPLESTEPREAD;
@@ -175,19 +183,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		  else if (villageread==1) {
 		  tmp=ANYSTEPREAD*directionread[thatdirread];
-		  anypos+=tmp;
-		  tmp=anypos%32768;
-		  sampleposread=buf16[tmp]>>1;//constrain this too TODO???
-		  wrap=0;
+		  anyposread+=tmp;
+		  wrapper=ANYWRAPREAD;
+		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
+		  sampleposread=buf16[tmp%32768]>>1;//constrain this too TODO???// but need start TODO
+		  //AS IN: sampleposread=READSTART+buf16[tmp]>>constraint1;
+		  wrapread=0;
 		  }
 		  else {
 		  tmp=ANYSTEPREAD*directionread[thatdirread];
 		  anyposread+=tmp;
-		  startread=buf16[tmp]>>1;
+		  wrapper=ANYWRAPREAD;
+		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
+		  startread=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEPREAD*directionread[thatdirread];
 		  anyposread+=tmp;
-		  tmp=anyposread%32768;
-		  wrapread=buf16[tmp]>>1;
+		  wrapper=ANYWRAPREAD;
+		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
+		  wrapread=buf16[tmp%32768]>>1;
 		  wrapread=wrapread%consread; 
 		  if (wrapread==0) wrapread=1;
 		  if ((startread+wrapread)>=AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-startread; 
@@ -203,20 +219,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	}
 
-	// testy:
-	///	di_split_stereo(sz, src, left_buffer, mono_buffer);
-	///	///	///	///
-
-
-
-	// read villager processing  into mono_buffer
-	SAMPLESPEED=1;SAMPLESTEP=1;thisdir=1;thatdir=1;villagewrite=0;
+	// writeout villager processing  into mono_buffer
+	SAMPLESPEED=1;SAMPLESTEP=1;thisdir=1;thatdir=1;villagewrite=1;
 
 	settingsarray[18]=255;//wrap // TESTY
 	settingsarray[19]=0;
 
  	for (x=0;x<sz/2;x++){
-	    mono_buffer[x]=audio_buffer[samplepos];
+	    mono_buffer[x]=audio_buffer[samplepos%32768];
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)newdir[thisdir]*SAMPLESTEP;
 	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
@@ -234,18 +244,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  else if (villagewrite==1) {
 		  tmp=ANYSTEP*direction[thatdir];
 		  anypos+=tmp;
-		  tmp=anypos%32768;
-		  samplepos=buf16[tmp]>>1;//constrain this too TODO???
+		  wrapper=ANYWRAP;
+		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  tmp=ANYSTART+(anypos%wrapper); 
+		  samplepos=buf16[tmp%32768]>>1;//constrain this too - TODO???
+		  //AS IN: samplepos=WRITESTART+buf16[tmp]>>constraint2;
 		  wrap=0;
 		  }
 		  else {
 		  tmp=ANYSTEP*direction[thatdir];
 		  anypos+=tmp;
-		  start=buf16[tmp]>>1;
+		  wrapper=ANYWRAP;
+		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  tmp=ANYSTART+(anypos%wrapper); 
+		  start=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEP*direction[thatdir];
 		  anypos+=tmp;
-		  tmp=anypos%32768;
-		  wrap=buf16[tmp]>>1;
+		  wrapper=ANYWRAP;
+		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  tmp=ANYSTART+(anypos%wrapper); 
+		  wrap=buf16[tmp%32768]>>1;
 		  wrap=wrap%cons; 
 		  if (wrap==0) wrap=1;
 		  if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
@@ -263,10 +281,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
        
 
 	///	///	///	///
-
-
-
-
 
 #ifndef LACH // as we have no filter!
 
