@@ -50,19 +50,23 @@ typedef uint16_t u16;
 struct siney{
   u16 sin_data[256];  // sine LUT Array
   u16 cc;
+  u16 start, wrap, count;
 };
 
 struct CONV{
 float c0, c1, c2;
+  u16 start, wrap, count;
 };
 
 struct FORM{
   u8 freq[3];
   u8 w[3];
+  u16 start, wrap, count;
 };
 
 struct generik{
   u16 cop;
+  u16 start, wrap, count;
 };
 
 struct simpleSIR{
@@ -73,6 +77,7 @@ struct simpleSIR{
   float step;
   float S,I,R;
   float dPop[3];
+  u16 start, wrap, count;
 };
 
 struct SEIR {
@@ -85,6 +90,7 @@ struct SEIR {
   float S0,I0;
   float S,I[MAX_GROUPS]; // 4x8x16=512bytes
   float dPop[MAX_GROUPS+1];//4x9=36bytes
+  u16 start, wrap, count;
 };
 
 struct SICR {
@@ -100,6 +106,7 @@ struct SICR {
   float t,S,I,C,R;
   float dPop[3];
   float step;
+  u16 start, wrap, count;
 };
 
 typedef struct{ float x, y; } Point;
@@ -108,53 +115,60 @@ struct IFS {
   float prob[5];
   float coeff[4][6];
   Point p1,p2;
+  u16 start, wrap, count;
 	};
 
 struct Rossler{
   float h,a,b,c,lx0,ly0,lz0;
+  u16 start, wrap, count;
 };
 
 struct secondRossler{
   float z0, zn, znm1;
   float a,b,c,h;
   float x0, y0, xn, yn, xnm1, ynm1;
+  u16 start, wrap, count;
 };
 
 struct Brussel{
   float x,y; 
   float delta,mu,gamma;
+  u16 start, wrap, count;
 };
 
 struct Spruce{
   float x, y; 
   float k1,k2,alpha,beta,mu,rho,delta;
+  u16 start, wrap, count;
 };
 
 struct Oregon
 {
   float x, y, z; 
   float delta,epsilon,mu,q;
+  u16 start, wrap, count;
 };
 
 struct Fitz
 {
   float u,w,b0,b1;
+  u16 start, wrap, count;
 };
 
 
 void inittable(u8 r, u8 k, int rule, u8 *table);
 
 struct stackey{
-  u16 (*functione) (uint16_t count, u16 *workingbuffer, uint8_t howmuch, void * unity);
+  void (*functione) (u16 *workingbuffer, uint8_t howmuch, void* unity);
   u8 howmuch;
   void* unit;
   };
 
 
-signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch);
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap);
 void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_pos);
 signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos);
 
 void ca_runall(struct stackey stack[STACK_SIZE], u8* buffer, u8 stack_posy);
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch);
+signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap);
 signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy);

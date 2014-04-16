@@ -66,15 +66,17 @@ extern u16 sin_data[256];
 
 // formantz
 
-void forminit(void* unity, u8 *workingbuffer){
+void forminit(void* unity, u8 *workingbuffer, u16 start, u16 wrap){
   struct FORM* unit=unity;
   unit->freq[0]=(u8)workingbuffer[0];
   unit->freq[1]=(u8)workingbuffer[1];
   unit->freq[2]=(u8)workingbuffer[2];
-
   unit->w[0]=(u8)workingbuffer[3];
   unit->w[1]=(u8)workingbuffer[4];
   unit->w[2]=(u8)workingbuffer[5];
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
 const u16 SAMPLE_FREQUENCY = 48000;
@@ -83,11 +85,12 @@ const float PI_2 = 6.28318531f;
 
 //////////////////////////////////////////////////////////SPEED!
 
-uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runform(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   struct FORM *unit=unity; u16 tmp;
   float buff[255]; float x; 
   // samples to float
+  u16 count=unit->count;
 
   for (int f = 0; f < 3; f++ ) {
   u8 ff = unit->freq[f]; // the three freqs
@@ -115,11 +118,13 @@ uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 #endif
     }
       tmp++;
-      if (tmp==MAX_SAM) count=0;
+      if (tmp>=unit->wrap) count=unit->start;
   }
 }
 
-  return tmp;
+  //  return tmp;
+  unit->count=tmp;
+
   }
 
 
@@ -127,21 +132,24 @@ uint16_t runform(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
 // convolve
 
-void convinit(void* unity, uint16_t *workingbuffer){
+void convinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct CONV* unit=unity;
   unit->c0=(float)workingbuffer[0]/16384.0;
   unit->c1=(float)workingbuffer[1]/16384.0;
   unit->c2=(float)workingbuffer[2]/16384.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
 
-uint16_t runconv(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runconv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 y,tmp;
   struct CONV *unit=unity;
-
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+    if (count>=unit->wrap) count=unit->start;
     y=count+16384;
     y=y%32768;
     if (count==0) tmp=32766;
@@ -156,7 +164,7 @@ uint16_t runconv(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
 #endif
   }
-  return count;
+
 }
 
 
@@ -164,24 +172,29 @@ uint16_t runconv(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
 // sine
 
-void sineinit(void* unity, uint16_t *workingbuffer){
+void sineinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct siney* unit=unity;
   unit->cc=0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
-uint16_t runsine(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsine(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct siney *unit=unity;
+  u16 count=unit->count;
+
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+    if (count>=unit->wrap) count=unit->start;
     workingbuffer[count]=sin_data[(unit->cc)%256];
 #ifdef PCSIM
     printf("%c",workingbuffer[count]);
 #endif
     unit->cc++;
   }
-  return count;
+  unit->count=count;
 }
 
 
@@ -189,72 +202,86 @@ uint16_t runsine(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
 // generic arithmetik datagens
 
-void geninit(void* unity, uint16_t *workingbuffer){
+void geninit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct generik* unit=unity;
   unit->cop=workingbuffer[0]; 
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
-uint16_t runinc(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
+
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+    if (count>=unit->wrap) count=unit->start;
     workingbuffer[count]=unit->cop++;
 #ifdef PCSIM
     //    printf("%c",workingbuffer[count]);
 #endif
   }
-  return count;
+  unit->count=count;
 }
 
-uint16_t rundec(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void rundec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     workingbuffer[count]=unit->cop--;
 #ifdef PCSIM
     printf("%c",workingbuffer[count]);
 #endif
   }
-  return count;
+  unit->count=count;
 }
 
-uint16_t runleft(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runleft(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+    //        if (count>=unit->wrap) count=unit->start;
+
+    if (count>=unit->wrap) count=unit->start;
+
     workingbuffer[count]=workingbuffer[count]<<=1;
 #ifdef PCSIM
     //    printf("%d %d\n",count,workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-  return count;
+  unit->count=count;
 }
 
-uint16_t runright(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runright(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     workingbuffer[count]=workingbuffer[count]>>=1;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runswap(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runswap(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp,yy;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=32766) count=0;
@@ -267,12 +294,13 @@ uint16_t runswap(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runnextinc(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 yy;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++; 
     if (count>=32766) count=0;
@@ -282,13 +310,13 @@ uint16_t runnextinc(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runnextdec(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextdec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
-  for (i=0; i<howmuch; i++) {
+  u16 count=unit->count;  for (i=0; i<howmuch; i++) {
     count++;
     if (count>=32766) count=0;
     workingbuffer[count]=workingbuffer[count+1]-1;
@@ -297,12 +325,13 @@ uint16_t runnextdec(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runnextmult(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextmult(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=32766) count=0;
@@ -312,12 +341,13 @@ uint16_t runnextmult(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, v
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runnextdiv(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextdiv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=32766) count=0;
@@ -327,13 +357,14 @@ uint16_t runnextdiv(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
 
-uint16_t runcopy(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runcopy(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++; 
     if (count>=32766) count=0;
@@ -343,80 +374,90 @@ uint16_t runcopy(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runzero(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runzero(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     workingbuffer[count]=0;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runfull(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runfull(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     workingbuffer[count]=65535;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runrand(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runrand(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch*2; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     workingbuffeur[count]=randi()%255;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
-uint16_t runknob(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0;
   u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch*2; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     //    workingbuffeur[count]=randi()%255; ////TODO!!!! WHICH KONNNNBBB
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
     printf("%c", workingbuffer[count]);
 #endif
   }
-    return count;
+    unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 // swap datagen 16 bits to and from audio buffer
 
-uint16_t runswapaudio(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runswapaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
-      for (i=0; i<howmuch; i++) {
+  u16 count=unit->count;
+  for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
 #ifndef PCSIM
     // convert signed to unsigned how? 
 
@@ -425,18 +466,20 @@ uint16_t runswapaudio(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, 
     workingbuffer[count]=temp;
 #endif
 }
-    return count;
+    unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 // OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
 
-uint16_t runORaudio(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runORaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
+  u16 count=unit->count;
       for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
 #ifndef PCSIM
     // convert signed to unsigned how? 
 
@@ -466,7 +509,7 @@ uint16_t runORaudio(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
 
 #endif
 }
-    return count;
+    unit->count=count;
 }
 
 
@@ -543,7 +586,7 @@ void Runge_Kutta(struct simpleSIR* unit)
   return;
 }
 
-void simplesirinit(void* unity, uint16_t *workingbuffer){
+void simplesirinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct simpleSIR* unit=unity;
   //  unit->t=0;
 
@@ -556,30 +599,35 @@ void simplesirinit(void* unity, uint16_t *workingbuffer){
   unit->step=0.01/((unit->beta+unit->gamm)*unit->S0);
   unit->S=unit->S0; unit->I=unit->I0; unit->R=1-unit->S-unit->I;
   // what else in init?
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
-uint16_t runsimplesir(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsimplesir(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct simpleSIR* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count]=unit->I;
 #ifdef PCSIM
     printf("%c",unit->I);
 #endif    
   }
-  return count;
 
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // SEIR. SIR
 
-void seirinit(void* unity, uint16_t *workingbuffer){
+void seirinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unsigned char i;
   struct SEIR* unit=unity;
   //unit->beta=17/5;
@@ -598,6 +646,9 @@ void seirinit(void* unity, uint16_t *workingbuffer){
     {
       unit->I[i]=unit->I0/unit->n;
     }
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 
 }
 
@@ -678,27 +729,29 @@ void seir_Runge_Kutta(struct SEIR* unit)
 }
 
 
-uint16_t runseir(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch,void* unity){
+void runseir(uint16_t *workingbuffer, uint8_t howmuch,void* unity){
 
   u8 i=0;
   struct SEIR* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     seir_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count]=unit->S;
 #ifdef PCSIM
         printf("%c",unit->S);
 #endif
   }
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // SICR. SIR
 
-void sicrinit(void* unity, uint16_t *workingbuffer){
+void sicrinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   //unit->beta=0.2;
   //unit->epsilon=0.1;
 //unit->gamm=1.0/100.0;
@@ -716,6 +769,10 @@ unit->C0=1e-3;
 
 unit->S=unit->S0; unit->I=unit->I0; unit->C=unit->C0; unit->R=1-unit->S-unit->I-unit->C0;
 unit->step=0.01/((unit->beta+unit->gamm+unit->mu+unit->Gamm)*unit->S0);
+
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 
 }
 
@@ -773,20 +830,22 @@ void sicr_Runge_Kutta(struct SICR* unit)
   return;
 }
 
-uint16_t runsicr(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsicr(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct SICR* unit=unity;
+  u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
-    if (count==MAX_SAM) count=0;
+        if (count>=unit->wrap) count=unit->start;
+
     sicr_Runge_Kutta(unit);//  unit->t+=step;
     workingbuffer[count]=unit->S;
 #ifdef PCSIM
     printf("%c",unit->S);
 #endif
   }
-  return count;
+  unit->count=count;
 }
 
 
@@ -796,7 +855,7 @@ uint16_t runsicr(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
 // IFS
 
-void ifsinit(void* unity, uint16_t *workingbuffer){
+void ifsinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   u8 i,iter;
   u8 column = 6, row = 4;
   struct IFS* unit=unity;
@@ -825,9 +884,13 @@ void ifsinit(void* unity, uint16_t *workingbuffer){
   unit->prob[4]=(float)workingbuffer[4]/65536.0;
     }
   }
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
+
 }
 
-uint16_t runifs(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runifs(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   float randiom_num;
   u8 iter,i,it,x;
@@ -845,7 +908,7 @@ uint16_t runifs(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* 
 #else
   randiom_num = (float)randi()/4096.0;
 #endif
-
+  u16 count=unit->count;
   for (x=0;x<howmuch;x++){
     count++;
   for(i = 0; i < row; i++){
@@ -861,7 +924,8 @@ uint16_t runifs(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* 
     //    unit->returnvalx=(int)((unit->p2.x)*1024);
   //  if (unit->p2.y>0.0)
     //   unit->returnvaly=(int)((unit->p2.y)*1024);
-  if (count==MAX_SAM) count=0;
+      if (count>=unit->wrap) count=unit->start;
+
   workingbuffer[count]=unit->p2.x;
 #ifdef PCSIM
     printf("%c",unit->p2.x);
@@ -874,14 +938,14 @@ uint16_t runifs(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* 
     unit->p1.x=0.5;
     unit->p1.y=0.5;*/
 }
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // ROSSLER
 
-void rosslerinit(void* unity, uint16_t *workingbuffer) {
+void rosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   /*  unit->h = 0.1;
   unit->a = 0.3;
   unit->b = 0.2;
@@ -893,9 +957,13 @@ void rosslerinit(void* unity, uint16_t *workingbuffer) {
   unit->lx0 = 0.1;
   unit->ly0 = 0;
   unit->lz0 = 0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
+
 }
 
-uint16_t runrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   float lx0,ly0,lz0,lx1,ly1,lz1;
   //  float h,a,b,c;
   u8 i=0;
@@ -908,6 +976,7 @@ uint16_t runrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
   float b = unit->b;
   float c = unit->c;
 
+  u16 count=unit->count;
 
   for (i=0; i<howmuch; i++) {
     count++;
@@ -923,20 +992,21 @@ uint16_t runrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
 #ifdef PCSIM
     printf("%c",lx1);
 #endif
-  if (count==MAX_SAM) count=0;
+      if (count>=unit->wrap) count=unit->start;
+
   workingbuffer[count]=lx1;
   //  workingbuffer[i+1]=ly1;
   //  workingbuffer[i+2]=lz1;
   }
 
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // 2nd rossler from: MCLDChaosUGens.cpp
 
-void secondrosslerinit(void* unity, uint16_t *workingbuffer){
+void secondrosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct secondRossler* unit=unity;
   unit->a = (float)workingbuffer[0]/65536.0;
   unit->b = (float)workingbuffer[1]/65536.0;
@@ -945,10 +1015,13 @@ void secondrosslerinit(void* unity, uint16_t *workingbuffer){
   unit->x0 = (float)workingbuffer[4]/65536.0;
   unit->y0 = (float)workingbuffer[5]/65536.0;
   unit->z0 = (float)workingbuffer[6]/65536.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 
   }
 
-uint16_t runsecondrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsecondrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct secondRossler* unit=unity;
@@ -970,7 +1043,7 @@ uint16_t runsecondrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmu
   float dx = xn - xnm1;
   float dy = yn - ynm1;
   float dz = zn - znm1;
-
+  u16 count=unit->count;
 	for (i=0; i<howmuch; ++i) {
     count++;
 			xnm1 = xn;
@@ -1016,7 +1089,8 @@ uint16_t runsecondrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmu
 	/*		ZXP(xout) = (xnm1 + dx) * 0.5f;
 		ZXP(yout) = (ynm1 + dy) * 0.5f;
 		ZXP(zout) = (znm1 + dz) * 1.0f;*/
-	    if (count==MAX_SAM) count=0;
+	        if (count>=unit->wrap) count=unit->start;
+
 	    workingbuffer[count]=xnm1+dx;
 #ifdef PCSIM
 	    printf("%c",(xnm1+dx));
@@ -1028,14 +1102,14 @@ uint16_t runsecondrossler(uint16_t count, uint16_t *workingbuffer, uint8_t howmu
 	unit->xnm1 = xnm1;
 	unit->ynm1 = ynm1;
 	unit->znm1 = znm1;
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // BRUSSELATOR
 
-void brusselinit(void* unity, uint16_t *workingbuffer) {
+void brusselinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Brussel* unit=unity;   
 
   unit->x = 0.5f; 
@@ -1043,9 +1117,12 @@ void brusselinit(void* unity, uint16_t *workingbuffer) {
   unit->delta = (float)workingbuffer[0]/65536.0;
   unit->mu = (float)workingbuffer[1]/65536.0;
   unit->gamma = (float)workingbuffer[2]/65536.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
-uint16_t runbrussel(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runbrussel(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     
   float dx, dy; 
   
@@ -1054,6 +1131,7 @@ uint16_t runbrussel(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
   float muplusone = 1.0f+unit->mu; 
   float x= unit->x; 
   float y= unit->y;  
+  u16 count=unit->count;
     for (i=0; i<howmuch; ++i) {
 	    count++;	
       float temp = x*x*y; 
@@ -1063,7 +1141,8 @@ uint16_t runbrussel(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
         
         x += unit->delta*dx; 
         y += unit->delta*dy; 
-	if (count==MAX_SAM) count=0;
+	    if (count>=unit->wrap) count=unit->start;
+
 	workingbuffer[count]=x*65536.0;
 	}
 #ifdef PCSIM
@@ -1072,14 +1151,14 @@ uint16_t runbrussel(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, vo
 #endif
     unit->x = x; 
     unit->y = y;
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // spruceworm
 
-void spruceinit(void *unity, uint16_t *workingbuffer) {
+void spruceinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
     struct Spruce* unit=unity;
   unit->x = 0.9f; 
   unit->y = 0.1f; 
@@ -1090,16 +1169,19 @@ void spruceinit(void *unity, uint16_t *workingbuffer) {
   unit->mu = (float)workingbuffer[4]/65536.0;
   unit->rho = (float)workingbuffer[5]/65536.0;
   unit->delta = (float)workingbuffer[6]/65536.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 }
 
-uint16_t runspruce(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runspruce(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   float dx, dy; 
   u8 i=0;
   struct Spruce* unit=unity;
     float x= unit->x; 
     float y= unit->y;  
-
+  u16 count=unit->count;
 	for (i=0; i<howmuch; ++i) {
 	    count++;	
         float temp = y*y; 
@@ -1110,7 +1192,8 @@ uint16_t runspruce(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, voi
         x += unit->delta*dx; 
         y += unit->delta*dy; 
 
-	if (count==MAX_SAM) count=0;
+	    if (count>=unit->wrap) count=unit->start;
+
 	workingbuffer[count]=x*65536.0;
 
 	}
@@ -1120,14 +1203,14 @@ uint16_t runspruce(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, voi
 #ifdef PCSIM
   	printf("%c",x*65536); 
 #endif
-  return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // OREGONATOR
 
-void oregoninit(void *unity, uint16_t *workingbuffer) {
+void oregoninit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Oregon* unit=unity;
     unit->x = 0.5f; 
     unit->y = 0.5f; 
@@ -1136,10 +1219,13 @@ void oregoninit(void *unity, uint16_t *workingbuffer) {
     unit->epsilon = (float)workingbuffer[1]/65536.0;
     unit->mu = (float)workingbuffer[2]/65536.0;
     unit->q = (float)workingbuffer[3]/65536.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
 
 }
 
-uint16_t runoregon(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runoregon(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   
   float dx, dy, dz; 
   u8 i=0;
@@ -1148,6 +1234,7 @@ uint16_t runoregon(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, voi
   float x= unit->x; 
   float y= unit->y; 
   float z= unit->z; 
+  u16 count=unit->count;
 	for (i=0; i<howmuch; ++i) {
 	    count++;	
         dx = unit->epsilon*((unit->q*y) -(x*y) + (x*(1-x))); 
@@ -1161,7 +1248,8 @@ uint16_t runoregon(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, voi
 	//	output1[i]= x; 
 	//        output2[i]= y; 
 	//        output3[i]= z; 
-	if (count==MAX_SAM) count=0;
+	    if (count>=unit->wrap) count=unit->start;
+
 	workingbuffer[count]=x*65536.0;
 	}
 #ifdef PCSIM
@@ -1170,14 +1258,14 @@ uint16_t runoregon(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, voi
 	unit->x = x; 
 	unit->y = y;
 	unit->z = z;
-return count;
+  unit->count=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local floats?
 
-void fitzinit(void *unity, uint16_t *workingbuffer) {
+void fitzinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Fitz* unit=unity;
   unit->u=0.0;
   unit->w=0.0;
@@ -1185,9 +1273,13 @@ void fitzinit(void *unity, uint16_t *workingbuffer) {
   		unit->b1= 1.1;
   //    unit->b0=(float)workingbuffer[0]/32768.0;
   //    unit->b1=(float)workingbuffer[1]/32768.0;
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
+
 }
 
-uint16_t runfitz(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runfitz(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
   /* SETTINGS */
 
@@ -1199,7 +1291,7 @@ uint16_t runfitz(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
 
   u=unit->u;
   w=unit->w;
-
+  u16 count=unit->count;
   for (x=0;x<howmuch;x++){
     count++;
     if (count>=MAX_SAM) count=0;
@@ -1226,7 +1318,7 @@ uint16_t runfitz(uint16_t count, uint16_t *workingbuffer, uint8_t howmuch, void*
   }
   unit->u=u;
   unit->w=w;
-  return count;
+  unit->count=count;
   }
 
 
@@ -1243,7 +1335,7 @@ void passingarraytest(uint8_t *buffer) {
 #endif
 
 
-signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch){
+signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap){
   if (stack_pos<STACK_SIZE)
     {
       stack[stack_pos].howmuch=howmuch;
@@ -1252,147 +1344,147 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
       switch(typerr){
       case CONVY:
 	stack[stack_pos].unit=malloc(sizeof(struct CONV));
-	convinit(stack[stack_pos].unit,buffer);
+	convinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runconv;
 	break;
       case FORMY:
 	stack[stack_pos].unit=malloc(sizeof(struct FORM));
-	forminit(stack[stack_pos].unit,buffer);
+	forminit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runform;
 	break;
       case SINEY:
 	stack[stack_pos].unit=malloc(sizeof(struct siney));
-	sineinit(stack[stack_pos].unit,buffer);
+	sineinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runsine;
 	break;
       case INCY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runinc;
 	break;
       case DECY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=rundec;
 	break;
       case LEFTY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runleft;
 	break;
       case RIGHTY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runright;
 	break;
       case SWAPPY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runswap;
 	break;
       case NEXTINCY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runnextinc;
 	break;
       case NEXTDECY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runnextdec;
 	break;
       case NEXTMULTY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runnextmult;
 	break;
       case NEXTDIVY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runnextdiv;
 	break;
       case COPYY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runcopy;
 	break;
       case ZEROY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runzero;
 	break;
       case FULLY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runfull;
 	break;
       case RANDY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runrand;
 	break;
       case KNOBY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runknob;
 	break;
       case SWAPAUDIOY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runswapaudio;
 	break;
       case ORAUDIOY:
 	stack[stack_pos].unit=malloc(sizeof(struct generik));
-	geninit(stack[stack_pos].unit,buffer);
+	geninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runORaudio;
 	break;
       case SIMPLESIRY:
 	stack[stack_pos].unit=malloc(sizeof(struct simpleSIR));
-	simplesirinit(stack[stack_pos].unit,buffer);
+	simplesirinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runsimplesir;
 	break;
       case SEIRY:
 	stack[stack_pos].unit=malloc(sizeof(struct SEIR));
-	seirinit(stack[stack_pos].unit,buffer);
+	seirinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runseir;
 	break;
       case SICRY:
 	stack[stack_pos].unit=malloc(sizeof(struct SICR));
-	sicrinit(stack[stack_pos].unit,buffer);
+	sicrinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runsicr;
 	break;
       case IFSY:
 	stack[stack_pos].unit=malloc(sizeof(struct IFS));
-	ifsinit(stack[stack_pos].unit,buffer);
+	ifsinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runifs;
 	break;
       case ROSSLERY:
 	stack[stack_pos].unit=malloc(sizeof(struct Rossler));
-	rosslerinit(stack[stack_pos].unit,buffer);
+	rosslerinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runrossler;
 	break;
       case SECONDROSSLERY:
 	stack[stack_pos].unit=malloc(sizeof(struct secondRossler));
-	secondrosslerinit(stack[stack_pos].unit,buffer);
+	secondrosslerinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runsecondrossler;
 	break;
       case BRUSSELY:
 	stack[stack_pos].unit=malloc(sizeof(struct Brussel));
-	brusselinit(stack[stack_pos].unit,buffer);
+	brusselinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runconv;
 	break;
       case SPRUCEY:
 	stack[stack_pos].unit=malloc(sizeof(struct Spruce));
-	spruceinit(stack[stack_pos].unit,buffer);
+	spruceinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runconv;
 	break;
       case OREGONY:
 	stack[stack_pos].unit=malloc(sizeof(struct Oregon));
-	oregoninit(stack[stack_pos].unit,buffer);
+	oregoninit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runoregon;
 	break;
       case FITZY:
 	stack[stack_pos].unit=malloc(sizeof(struct Fitz));
-	fitzinit(stack[stack_pos].unit,buffer);
+	fitzinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runfitz;
       }
       stack_pos++;
@@ -1405,7 +1497,7 @@ void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_pos){
 
   static u16 count; char i; signed char x;
       for (i=0;i<stack_pos;i++){
-      count=stack[i].functione(count,buffer,stack[i].howmuch,stack[i].unit);// set howmuch in struct!
+      stack[i].functione(buffer,stack[i].howmuch,stack[i].unit);// set howmuch in struct!
         }
 }
 
@@ -1438,7 +1530,7 @@ void main(void)
   
   struct FORM *unity=malloc(sizeof(struct FORM));
 
-  forminit(unity, xxx);
+  forminit(unity, xxx,0,32768);
 
   //  printf("test%d\n",256<<7);
   

@@ -48,7 +48,7 @@ void hodgeinit(void* unity, u8* cells, u16 start, u16 wrap){
 
 //  u16 (*functione) (u16 *workingbuffer, uint8_t howmuch, void * unity, u16 start, u16 wrap);
 
-void runhodge(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runhodge(u8 *cells, uint8_t howmuch, void* unity){
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i=0;
@@ -117,7 +117,7 @@ void runhodge(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-void runhodgenet(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runhodgenet(u8 *cells, uint8_t howmuch, void* unity){
 
   struct hodge* unit=unity;
   u8 sum=0, numill=0, numinf=0; u16 place;
@@ -199,7 +199,7 @@ void cainit(void* unity, u8* cells, u16 start, u16 wrap){
   unit->count=start;
 }
 
-void runlife(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runlife(u8 *cells, uint8_t howmuch, void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
@@ -261,7 +261,7 @@ void runlife(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
 
 //one dimensional - working line by line through buffer
 
-void runcel(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runcel(u8 *cells, uint8_t howmuch, void* unity){
 
   u8 state,i=0; u16 y;
   struct CA* unit=unity;
@@ -321,7 +321,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 // 1d with rules
 
-void runcel1d(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runcel1d(u8 *cells, uint8_t howmuch, void* unity){
 
   u8 cell,sum; int16_t z,zz;
   u8 k=4, i;//k=states
@@ -368,7 +368,7 @@ void fireinit(void* unity, u8* cells,  u16 start, u16 wrap){
   unit->count=start;
 }
 
-void runfire(u8 *cells, uint8_t howmuch,void* unity, u16 start, u16 wrap){
+void runfire(u8 *cells, uint8_t howmuch,void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
@@ -464,7 +464,7 @@ u8 headcount(struct CA* unit,u8 *cells,u16 place){
   else return 0;
 }
 
-void runwire(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runwire(u8 *cells, uint8_t howmuch, void* unity){
   u8 sum;
   uint16_t y; u8 i=0;
   struct CA* unit=unity;
@@ -522,7 +522,7 @@ void SIRinit(void* unity, u8* cells, u16 start, u16 wrap){
   unit->count=start;
 }
 
-void runSIR(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runSIR(u8 *cells, uint8_t howmuch, void* unity){
   struct SIR* unit=unity;
   uint16_t y,yy; u8 i=0;
   u16 x= unit->count;
@@ -843,10 +843,12 @@ int main(void)
 
   inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
 
-  /*  for (x=0;x<STACK_SIZE;x++){
-    stack_posy=ca_pushn(stack,0,buffer, stack_posy,1,100); // last as delay,howmany
-    }*/
-    printf("stackposy: %d\n", stack_posy);
+    for (x=0;x<STACK_SIZE;x++){
+
+      stack_posy=ca_pushn(stack,0,buffer, stack_posy,100,0,32768); // last as howmany, start.,wrap
+    }
+
+    //    printf("stackposy: %d\n", stack_posy);
 
 
                while(1){
@@ -854,7 +856,7 @@ int main(void)
 
 		 //	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
 		 //	 	 else stack_posy=ca_pop(stack,stack_posy);
-		 //		 printf("stackposy: %d\n", stack_posy);
+		 //	 printf("stackposy: %d\n", stack_posy);
 
     	 }
 

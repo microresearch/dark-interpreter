@@ -203,13 +203,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // CA
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10); 
+	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10,0,32767);//howmuch,start,wrap 
 	   }
 
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,100);
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
 	   //stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
 	 	   }
 
