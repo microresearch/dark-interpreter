@@ -221,7 +221,7 @@ concrete TODO:
 - simplify read/write in audio.c - DONE
 - *todo* // where to map directions to wormdir (now halved)
 
-- start and wrap code all datagens
+- start and wrap code all datagens: is just ca, sim
 
 
 [2days]THU
@@ -233,14 +233,14 @@ concrete TODO:
 - filter and effects
 
 [4days]SUN
-- push and pop/buffer swop/datagen settings
+- push and pop/buffer+swop/datagen settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro 
 - mirror knob: cross-settings option(mirror etc.) 
 
 [5/6days]MON/TUE
 - how/if to work with larger chunk movements???
-- extras like grain spawn mode
+- extras like grain spawn mode, mirroring of settings
 - TODOs in each file (check all audio so far) - recheck all TODOs as
   some are new:
 *CAforstack.c:* buffer constraint in SIR16init

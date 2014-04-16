@@ -186,11 +186,6 @@ u8 exestackpop(u8 exenum, u8* exestack){
 ////////////////////minimal setup code to get started
 	 //TESTER!
 
-	 // CA
-	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10); 
-	   }
-
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -199,18 +194,24 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	     cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
 	   }
 
-	 	 //simulationforstack:	
-	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,100);
-	   //stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
-	 	   }
-
 	 //pureleak
 
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
     cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
   }
+
+	 // CA
+	 for (x=0;x<STACK_SIZE;x++){
+	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10); 
+	   }
+
+
+	 	 //simulationforstack:	
+	 for (x=0;x<STACK_SIZE;x++){
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,100);
+	   //stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
+	 	   }
 
 
 	 // execution stack
