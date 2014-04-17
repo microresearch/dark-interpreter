@@ -1567,7 +1567,7 @@ void main(void)
 
   //  printf("test%d\n",256<<7);
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
+	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
 	   //   stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
 	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);
 	   //signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap){

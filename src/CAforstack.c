@@ -106,7 +106,7 @@ void runhodge(u8 *cells, uint8_t howmuch, void* unity){
   x++;
   if (x>(unit->start+unit->wrap)) x=unit->start;
 #ifdef PCSIM  
-  //  printf("%c",cells[y]);
+    printf("%c",cells[y]);
 #endif
   }
   unit->count=x;
@@ -178,7 +178,7 @@ void runhodgenet(u8 *cells, uint8_t howmuch, void* unity){
   if (x>(unit->start+unit->wrap)) x=unit->start;
 
 #ifdef PCSIM  
-  //  printf("%c",cells[x]);
+    printf("%c",cells[x]);
 #endif
   }
   unit->count=x;
@@ -246,7 +246,7 @@ void runlife(u8 *cells, uint8_t howmuch, void* unity){
   else cells[y]=cells[x];
 
 #ifdef PCSIM  
-  //  printf("%c",cells[x]);
+    printf("%c",cells[x]);
 #endif
 
   //  printf("%c",cells[x]);
@@ -285,7 +285,9 @@ void runcel(u8 *cells, uint8_t howmuch, void* unity){
       else{
 	cells[y] = 0;
       } 
-      //      printf("%c",cells[x+i+unit->celllen]);
+#ifdef PCSIM  
+    printf("%c",cells[x]);
+#endif
 
   }
   x+=i;
@@ -342,11 +344,13 @@ void runcel1d(u8 *cells, uint8_t howmuch, void* unity){
 
     y=x+i+unit->celllen;
         cells[y]= table[sum]<<4;  
+
+#ifdef PCSIM  
+    printf("%c",cells[x]);
+#endif
     
-	//	if (sum>21)      printf("%d\n",sum);
   }
 
-  //  if (sum>18)    printf("ttt %d\n",sum);
 
   x=x+i;
  if (x>(unit->start+unit->wrap)) x=unit->start;
@@ -413,7 +417,11 @@ void runfire(u8 *cells, uint8_t howmuch,void* unity){
     else if ((cells[x]&1)==0 && randi()%255<=(sum*unit->probI)) cells[y]=cells[x]|1;  //veg->burning
     else if ((cells[x]&1)==1 && randi()%255<=unit->probB) cells[y]=254; // burning->burnt
     else cells[y]=cells[x];
-    //    printf("%c",cells[y]);
+
+#ifdef PCSIM  
+    printf("%c",cells[x]);
+#endif
+
     x++;
     if (x>(unit->start+unit->wrap)) x=unit->start;
   }
@@ -479,7 +487,11 @@ void runwire(u8 *cells, uint8_t howmuch, void* unity){
     else if (cells[x]==255) cells[y]=129;  // tail to copper
     else if (cells[x]>128 && headcount(unit,cells,x)==1) cells[y]=1;
     else cells[y]=cells[x];
-    //    printf("%c",cells[y]);
+
+#ifdef PCSIM  
+    printf("%c",cells[x]);
+#endif
+
     x++;
   if (x>(unit->start+unit->wrap)) x=unit->start;
   }
@@ -566,8 +578,10 @@ void runSIR(u8 *cells, uint8_t howmuch, void* unity){
 
     else cells[y]=cells[x]; // blank cells
 
+#ifdef PCSIM  
+    printf("%c",cells[x]);
+#endif
 
-    //    printf("%c",cells[y]);
     x++;
   if (x>(unit->start+unit->wrap)) x=unit->start;
 
@@ -729,9 +743,11 @@ uint16_t runSIR16(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
     yy=y+1;
     cells[yy]=(futureinfected<<4)+futurerecovered;
     x+=2;
-#ifdef PCSIM
-    //    printf("%c%c",cells[y],cells[yy]);
+
+#ifdef PCSIM  
+    printf("%c",cells[x]);
 #endif
+
   if (x>(unit->start+unit->wrap)) x=unit->start;
   }
     unit->count=x;
@@ -845,7 +861,7 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
 
-      stack_posy=ca_pushn(stack,0,buffer, stack_posy,100,0,32768); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,0,buffer, stack_posy,100,0,32); // last as howmany, start.,wrap
     }
 
     //    printf("stackposy: %d\n", stack_posy);
