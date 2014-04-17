@@ -229,8 +229,8 @@ concrete TODO:
 
 [3days]FRI
 
-- do and test hardware walkers with start/wrap and cons:
-- cons for h walkers on wrap (speed of using cons as limit also with if and not %)
+- test hardware walkers with start/wrap and cons
+- question of speed of using cons as limit also with if and not %)
 
 NOTETODO: - when wrapper changes we need to redo direction array!!!
 

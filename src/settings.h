@@ -80,17 +80,20 @@
 
 // TODO: excess settings/actions
 
-// dirs to follow wormdir (but need to follow not just set once)
+// dirs to follow wormdir (but need to follow not just set once)-halved in some/all cases?
 // mirror read and write heads as an action
 // that grains can set datagen start/wrap settings also (grain spawn mode)
 
-// CONSTRAINT settings!
+// CONSTRAINT/micro-macro settings!
 
-#define cons (settingsarray[0])
+#define cons (settingsarray[0]) // NONE OF THESE CAN BE ZERO!!!!TODO!!!
 #define consread (settingsarray[0])
 #define consdata (settingsarray[0])
 #define consdatar (settingsarray[0])
 #define hdgenercons (settingsarray[0])
+#define f0cons (settingsarray[0])
+#define lmcons (settingsarray[0])
+#define maxcons (settingsarray[0])
 
 /////////////////////////////////
 

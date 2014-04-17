@@ -1553,6 +1553,9 @@ void main(void)
      u8 xxx[MAX_SAM*2];
   srand(time(NULL));
 
+  u16 AUDIO_BUFSZ=32768;
+  u16 f0106erpos=0, F0106ERSTEP=1, F0106ERWRAP, F0106ERSTART, f0cons,tmp,wrapper;
+
   u8 stack_pos=0;
   struct stackey stackyy[STACK_SIZE];
 
@@ -1566,16 +1569,18 @@ void main(void)
   //  forminit(unity, xxx,0,3);
 
   //  printf("test%d\n",256<<7);
-	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
+  //	 for (x=0;x<STACK_SIZE;x++){
+  //	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
 	   //   stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
 	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);
 	   //signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap){
-	 	   }
+  //	 	   }
   
 
-	              while(1){
-			func_runall(stackyy,buf16,stack_pos); // simulations
+  //	              while(1){
+  for (x=0;x<50000000;x++){
+
+			//			func_runall(stackyy,buf16,stack_pos); // simulations
   //  for (x=0;x<1000000;x++){
 	       //	       runform(buf16, 100, unity);
 	   //	   f.d++;
@@ -1584,6 +1589,23 @@ void main(void)
 	       //	       samplepos=buf16[tmp]>>1;//constrain this too but could need a START--> TODO???
 	       ///	       printf("%d\n",tmp);
 
+
+			// speed test:
+    F0106ERSTART=rand()%32768;
+    F0106ERWRAP=rand()%32768;
+    f0cons=rand()%32768;
+    if (f0cons==0) f0cons=1;
+	      wrapper=F0106ERWRAP%f0cons;
+	      //	      if (wrapper==0) wrapper=1;
+	      //	      if ((F0106ERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-F0106ERSTART;
+	      // TODO or/ 
+	      tmp=AUDIO_BUFSZ-F0106ERSTART;
+	      if (tmp!=0) wrapper=wrapper%tmp;// SPEED QUESTION?
+	      else wrapper=1;
+		  if (wrapper==0) wrapper=1;
+	      tmp=F0106ERSTART+(f0106erpos%wrapper);
+	      //	      set40106pwm(buf16[tmp]); 
+	      //	      f0106erdel=0;
 
 	 	   }
 }

@@ -176,6 +176,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  tmper=(buf16[tmp]%consread)%(AUDIO_BUFSZ-SAMPLESTARTREAD);	
 		  // TODO or could be just limit consread 
@@ -187,12 +188,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  startread=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  wrapread=buf16[tmp%32768]>>1;
 		  wrapread=wrapread%consread; 
@@ -228,6 +231,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  if (villagewrite==0) {
 		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP%cons;
 		    if ((SAMPLESTART+wrap)>AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-SAMPLESTART;
+		    if (wrapper==0) wrapper=1;
 		    newdir[0]=-256;newdir[2]=256;
 		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
 		  else samplepos=wrap;
@@ -237,6 +241,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  anypos+=tmp;
 		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  tmper=(buf16[tmp]%cons)%(AUDIO_BUFSZ-SAMPLESTART);	
 		  // TODO or could be just limit cons 
@@ -248,12 +253,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  anypos+=tmp;
 		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  start=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  if (wrapper==0) wrapper=1;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  wrap=buf16[tmp%32768]>>1;
 		  wrap=wrap%cons; //TODO: cons must be >0. also above 
