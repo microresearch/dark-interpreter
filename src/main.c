@@ -292,12 +292,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (HDGENERSPEED==0) HDGENERSPEED=1;
 	       if (HDGENERSTEP==0) HDGENERSTEP=1;
 	    if (++hdgenerdel==HDGENERSPEED){
-	      if (HDGENERWORMFLAG&1) tmp=HDGENERSTEP*direction8bit[wormdir];
-	      else tmp=HDGENERSTEP*direction8bit[HDGENERDIR];
-	    hdgenerpos+=tmp;
-	    tmp=hdgenerpos;
-	    dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
-	    hdgenerdel=0;
+	      hdgenerpos+=(HDGENERSTEP*direction8bit[HDGENERDIR]);
+	      tmp=hdgenerpos;
+	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
+	      hdgenerdel=0;
 	    }
      }
 	  else
@@ -312,9 +310,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (F0106ERSPEED==0) F0106ERSPEED=1;
 	       if (F0106ERSTEP==0) F0106ERSTEP=1;
 	    if (++f0106erdel==F0106ERSPEED){
-	      if (F0106ERWORMFLAG&1) tmp=F0106ERSTEP*direction[wormdir];
-	      else tmp=F0106ERSTEP*direction[F0106ERDIR];
-	    f0106erpos+=tmp;
+	      f0106erpos+=(F0106ERSTEP*direction[F0106ERDIR]);
 	    tmp=f0106erpos%32768;
 	    set40106pwm(buf16[tmp]); 
 	    f0106erdel=0;
@@ -326,9 +322,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (LMERSTEP==0) LMERSTEP=1;
 	    if (++lmerdel==LMERSPEED){
 	    //lmer - set lmpwm
-	      if (LMERWORMFLAG&1) tmp=LMERSTEP*direction[wormdir];
-	    else tmp=LMERSTEP*direction[LMERDIR];
-	    lmerpos+=tmp;
+	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
 	    x=lmerpos%32768;
 	    tmp=(lmerpos+1)%32768;
 	    setlmpwm(buf16[x],buf16[tmp]); 
@@ -341,9 +335,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (MAXIMERSPEED==0) MAXIMERSPEED=1;
 	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
-	      if (MAXIMERWORMFLAG&1) tmp=MAXIMERSTEP*direction[wormdir];
-	    else tmp=MAXIMERSTEP*direction[MAXIMERDIR];
-	    maximerpos+=tmp;
+
+	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
 	    tmp=maximerpos%32768;
 	    setmaximpwm(buf16[tmp]); 
 	    maximerdel=0;

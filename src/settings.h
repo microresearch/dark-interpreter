@@ -11,59 +11,47 @@
 
 */
 
-// settings to add - each walker should be constrained by start and wrap
+//////////////////////////////////////////////WALKERS
 
-// main.c
+#define LMERSTEP (settingsarray[0])
+#define LMERWRAP (settingsarray[1])
+#define LMERSTART (settingsarray[2])
+#define LMERSPEED (settingsarray[3])
 
-#define LEAKSPEED (settingsarray[0])
-#define MACHINESPEED (settingsarray[1])
-#define LEAKINESS (settingsarray[14])
-#define INFECTION (settingsarray[15])
-#define MUTATION (settingsarray[16])
-
-
-#define LMERWORMFLAG (settingsarray[2])
-#define LMERSTEP (settingsarray[3])
-#define LMERSPEED (settingsarray[4])
-
-#define MAXIMERWORMFLAG (settingsarray[5])
-#define MAXIMERSTEP (settingsarray[6])
+#define MAXIMERSTEP (settingsarray[4])
+#define MAXIMERWRAP (settingsarray[5])
+#define MAXIMERSTART (settingsarray[6])
 #define MAXIMERSPEED (settingsarray[7])
 
-#define F0106ERWORMFLAG (settingsarray[8])
-#define F0106ERSTEP (settingsarray[9])
-#define F0106ERSPEED (settingsarray[10])
+#define F0106ERSTEP (settingsarray[8])
+#define F0106ERWRAP (settingsarray[9])
+#define F0106ERSTART (settingsarray[10])
+#define F0106ERSPEED (settingsarray[11])
 
-#define HDGENERWORMFLAG (settingsarray[11])
 #define HDGENERSTEP (settingsarray[12])
-#define HDGENERSPEED (settingsarray[13])
+#define HDGENERWRAP (settingsarray[13])
+#define HDGENERSTART (settingsarray[14])
+#define HDGENERSPEED (settingsarray[15])
 
+#define SAMPLESTEP (settingsarray[16])
+#define SAMPLEWRAP (((settingsarray[17])<<8)%32768) // 32 bit max 32768
+#define SAMPLESTART ((settingsarray[18])<<7)  // 32 bit max 32768
+#define SAMPLESPEED (settingsarray[19])
 
-// audio.c
+#define SAMPLESTEPREAD (settingsarray[20])
+#define SAMPLEWRAPREAD (((settingsarray[21])<<8)%32768) // 32 bit max 32768
+#define SAMPLESTARTREAD ((settingsarray[22])<<7)  // 32 bit max 32768
+#define SAMPLESPEEDREAD (settingsarray[23])
 
-#define SAMPLESTEP (settingsarray[17])
-#define SAMPLEWRAP (((settingsarray[18])<<8)%32768) // 32 bit max 32768
-#define SAMPLESTART ((settingsarray[19])<<7)  // 32 bit max 32768
-#define SAMPLESPEED (settingsarray[20])
+#define ANYSTEP (settingsarray[24])
+#define ANYWRAP (settingsarray[25])
+#define ANYSTART (settingsarray[26])
+#define ANYSPEED (settingsarray[27])
 
-//add reading samplestuff, start and wraps
-
-#define ANYSTEP (settingsarray[21])
-#define ANYSPEED (settingsarray[22])
-
-
-#define PUSHONE16BIT (settingsarray[27]) // settings for the push <<???
-#define PUSHTWO16BIT (settingsarray[28]) // settings for the push <<???
-#define PUSHONE8BIT (settingsarray[29])
-#define PUSHTWO8BIT (settingsarray[30])
-#define PUSHTHREE8BIT (settingsarray[31])
-#define EXESTACKPUSH (settingsarray[32]) // TYPE so limit to 0-3
-
-// add start and wraps
-
-#define FINALWORMFLAG (settingsarray[33])
-#define FINALSTEP (settingsarray[34])
-#define FINALSPEED (settingsarray[35])
+#define ANYSTEPREAD (settingsarray[28])
+#define ANYWRAPREAD (settingsarray[29])
+#define ANYSTARTREAD (settingsarray[30])
+#define ANYSPEEDREAD (settingsarray[31]) // 0-31 walker settings!!!
 
 // directions from main.c
 
@@ -80,6 +68,34 @@
 #define SAMPLEDIRR ((settingsarray[42])%4)
 #define SAMPLEDIRW ((settingsarray[42])%4)
 
+//////////////////////////////////////////////////
+
+#define LEAKSPEED (settingsarray[0])
+#define MACHINESPEED (settingsarray[1])
+#define LEAKINESS (settingsarray[14])
+#define INFECTION (settingsarray[15])
+#define MUTATION (settingsarray[16])
+
+//////////////////////////////////
+
+// TODO: excess settings/actions
+
+// dirs to follow wormdir (but need to follow not just set once)
+// cons, consread
+
+#define cons (settingsarray[0])
+#define consread (settingsarray[0])
+
+/////////////////////////////////
+
+///push settings
+
+#define PUSHONE16BIT (settingsarray[27]) // settings for the push <<???
+#define PUSHTWO16BIT (settingsarray[28]) // settings for the push <<???
+#define PUSHONE8BIT (settingsarray[29])
+#define PUSHTWO8BIT (settingsarray[30])
+#define PUSHTHREE8BIT (settingsarray[31])
+#define EXESTACKPUSH (settingsarray[32]) // TYPE so limit to 0-3
 
 #define BEFOREDIR  36
 #define BEFORESTACK 43 // limit here

@@ -120,8 +120,8 @@ void buffer_put(int16_t in)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	u16 tmp=0; u8 cons;
-	u8 complexity=0,x;
+	u16 tmp=0,tmper;
+	u8 x;
 	static u16 start=0,wrap=32768,samplepos=0,anypos=0,count=0;
 	static u8 del=0,villagewrite;
 
@@ -132,10 +132,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static u8 delread=0,villageread=0;
 	u16 wrapper; 
 	// TODO:find a place in settings for these
-	u16 SAMPLEWRAPREAD=32767,SAMPLESTARTREAD=0;
-	u8 SAMPLESPEEDREAD=1,SAMPLESTEPREAD=1,ANYSTEPREAD=1,consread=0;
-	u16 ANYSTART=0, ANYWRAP=32767;
-	u16 ANYSTARTREAD=0, ANYWRAPREAD=32767;
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
@@ -169,8 +165,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		else {
 		  if (villageread==0) {
-		    startread=SAMPLESTART;sampleposread=startread;wrapread=SAMPLEWRAPREAD;
-		    if ((SAMPLESTART+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
+		    startread=SAMPLESTARTREAD;sampleposread=startread;wrapread=SAMPLEWRAPREAD;
+		    if ((SAMPLESTARTREAD+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
 		    newdirread[0]=-256;newdirread[2]=256;
 		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
 		  else sampleposread=wrapread;
@@ -181,8 +177,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  wrapper=ANYWRAPREAD;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
-		  sampleposread=buf16[tmp%32768]>>1;//constrain this too TODO???// but need start TODO
-		  //AS IN: sampleposread=READSTART+buf16[tmp]>>constraint1;
+		  //check size
+		  tmper=(buf16[tmp]%cons)%(AUDIO_BUFSZ-SAMPLESTARTREAD);	
+		  sampleposread=SAMPLESTARTREAD+tmper;
 		  wrapread=0;
 		  }
 		  else {

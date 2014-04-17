@@ -26,7 +26,7 @@ extern u8 table[21];
 #define STACK_SIZE 16
 
 struct stackey{
-  u16 (*functione) (u16 *workingbuffer, uint8_t howmuch, void * unity);
+void (*functione) (u8 *workingbuffer, u8 howmuch, void * unity);  
   u8 howmuch;
   void* unit;
   };
@@ -45,8 +45,6 @@ void hodgeinit(void* unity, u8* cells, u16 start, u16 wrap){
   if (unit->k1==0) unit->k1=1;
   if (unit->k2==0) unit->k2=1;
 }
-
-//  u16 (*functione) (u16 *workingbuffer, uint8_t howmuch, void * unity, u16 start, u16 wrap);
 
 void runhodge(u8 *cells, uint8_t howmuch, void* unity){
 
@@ -638,7 +636,7 @@ void SIR16init(void* unity, u8* cells, u16 start, u16 wrap){
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
-uint16_t runSIR16(u8 *cells, uint8_t howmuch, void* unity, u16 start, u16 wrap){
+void runSIR16(u8 *cells, uint8_t howmuch, void* unity){
   u8 i,ii; u16 y,dest,yy;
   u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
   struct SIR16* unit=unity;
@@ -843,8 +841,8 @@ signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
 #ifdef PCSIM
 int main(void)
 {
-  u16 x;
-  u8 buffer[65536];
+  u16 x,xx;
+  u16 buffer[32768];
   uint16_t count=0;
   srandom(time(0));
 
@@ -853,15 +851,15 @@ int main(void)
   void *malloced[NUM_CA];
 
 
-  for (x=0;x<65535;x++){
-    buffer[x]=randi()%255;
+  for (x=0;x<32768;x++){
+    buffer[x]=randi()%65536;
   }
 
   inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
 
     for (x=0;x<STACK_SIZE;x++){
-
-      stack_posy=ca_pushn(stack,0,buffer, stack_posy,100,0,32); // last as howmany, start.,wrap
+      xx=rand()%16000;
+      stack_posy=ca_pushn(stack,rand()%9,buffer, stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
     }
 
     //    printf("stackposy: %d\n", stack_posy);

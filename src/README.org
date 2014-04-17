@@ -220,13 +220,15 @@ concrete TODO:
 [1day]WED
 - simplify read/write in audio.c - DONE
 - *TODO* // where to map directions to wormdir (now halved)
-- start and wrap code all datagens: is just ca, simDONE. TO TEST!
+- start and wrap code all datagens: is just ca, simDONE. TO TEST!DONE
 
 
-[2days]THU
-- re-test all audio/datagens and audio!
+[2days]THU+
 - assign/map new knobs and all settings re-arranged (all new ideas into files)
-- knob and finger code
+
+- do away with wormflag//all walkers with start and wrap, constraints in audio.c
+
+- re-test all audio/datagens and audio
 
 [3days]FRI
 - filter and effects
@@ -236,6 +238,7 @@ concrete TODO:
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro 
 - mirror knob: cross-settings option(mirror etc.) 
+- knob and finger code
 
 [5/6days]MON/TUE
 - how/if to work with larger chunk movements???
