@@ -165,7 +165,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		else {
 		  if (villageread==0) {
-		    startread=SAMPLESTARTREAD;sampleposread=startread;wrapread=SAMPLEWRAPREAD;
+		    startread=SAMPLESTARTREAD;sampleposread=startread;wrapread=SAMPLEWRAPREAD%consread;
 		    if ((SAMPLESTARTREAD+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
 		    newdirread[0]=-256;newdirread[2]=256;
 		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
@@ -174,24 +174,24 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  else if (villageread==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD;
+		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
-		  //check size
-		  tmper=(buf16[tmp]%cons)%(AUDIO_BUFSZ-SAMPLESTARTREAD);	
+		  tmper=(buf16[tmp]%consread)%(AUDIO_BUFSZ-SAMPLESTARTREAD);	
+		  // TODO or could be just limit consread 
 		  sampleposread=SAMPLESTARTREAD+tmper;
 		  wrapread=0;
 		  }
 		  else {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD;
+		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  startread=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD;
+		  wrapper=ANYWRAPREAD%consdatar;
 		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
 		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
 		  wrapread=buf16[tmp%32768]>>1;
@@ -226,7 +226,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		else {
 		  if (villagewrite==0) {
-		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP;
+		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP%cons;
 		    if ((SAMPLESTART+wrap)>AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-SAMPLESTART;
 		    newdir[0]=-256;newdir[2]=256;
 		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
@@ -235,23 +235,24 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  else if (villagewrite==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP;
+		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
 		  tmp=ANYSTART+(anypos%wrapper); 
-		  samplepos=buf16[tmp%32768]>>1;//constrain this too - TODO???
-		  //AS IN: samplepos=WRITESTART+buf16[tmp]>>constraint2;
+		  tmper=(buf16[tmp]%cons)%(AUDIO_BUFSZ-SAMPLESTART);	
+		  // TODO or could be just limit cons 
+		  samplepos=SAMPLESTART+tmper;
 		  wrap=0;
 		  }
 		  else {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP;
+		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  start=buf16[tmp%32768]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP;
+		  wrapper=ANYWRAP%consdata;
 		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
 		  tmp=ANYSTART+(anypos%wrapper); 
 		  wrap=buf16[tmp%32768]>>1;

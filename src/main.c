@@ -169,7 +169,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
 
 	 u8 hdgenerdel=0,lmerdel=0,f0106erdel=0,maximerdel=0;
-	 u16 hdgenerpos=0,lmerpos=0,f0106erpos=0,maximerpos=0;
+	 u16 hdgenerpos=0,lmerpos=0,f0106erpos=0,maximerpos=0,wrapper;
+	 
 	 u8 stack_pos=0;
 	 u8 stack_posy=0;
 
@@ -274,7 +275,21 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //	    }
 	 
 	    
-	    // 3-deal with settingsarray - should this be in slow/speed loop?
+	      // TODO:3-deal with settingsarray - should this be in slow/speed loop?
+
+	      // KNOBS->>>>
+	      // LACH: NO HARDWARE so need re-assign 
+	      // SUSP (and LACH): 3,0,2,4,1
+	      // TENE: 2,0,3,4,1 
+
+	      // 0-4 top down
+
+	      // 0=mirror left///right selector and ops across all knobbed settings/feedbacks
+	      // 1=hardware///1=filterops/effects
+	      // 2=push///2=pull-datagen ops and actions
+	      // 3=speed///3=micro-macro
+	      // 4=settings///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
+
 		    
 
 #ifndef LACH
@@ -285,15 +300,15 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //	    if (hardcount>=hardspeed){
 	      hardcount=0;
 
-
-
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	     if (digfilterflag&16){ // if we use hdgen at all
 	       if (HDGENERSPEED==0) HDGENERSPEED=1;
 	       if (HDGENERSTEP==0) HDGENERSTEP=1;
 	    if (++hdgenerdel==HDGENERSPEED){
+	      // 8 bitdir so leave as is
 	      hdgenerpos+=(HDGENERSTEP*direction8bit[HDGENERDIR]);
-	      tmp=hdgenerpos;
+	      wrapper=HDGENERWRAP%hdgenercons; // can go 65536
+	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
 	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
 	      hdgenerdel=0;
 	    }
@@ -310,6 +325,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (F0106ERSPEED==0) F0106ERSPEED=1;
 	       if (F0106ERSTEP==0) F0106ERSTEP=1;
 	    if (++f0106erdel==F0106ERSPEED){
+	      // TODO: start and wrap
+	      // when wrapper changes we need to redo direction array!!!
+
 	      f0106erpos+=(F0106ERSTEP*direction[F0106ERDIR]);
 	    tmp=f0106erpos%32768;
 	    set40106pwm(buf16[tmp]); 
@@ -321,7 +339,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (LMERSPEED==0) LMERSPEED=1;
 	       if (LMERSTEP==0) LMERSTEP=1;
 	    if (++lmerdel==LMERSPEED){
-	    //lmer - set lmpwm
+	      // TODO: start and wrap
+	      // when wrapper changes we need to redo direction array!!!
 	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
 	    x=lmerpos%32768;
 	    tmp=(lmerpos+1)%32768;
@@ -335,6 +354,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (MAXIMERSPEED==0) MAXIMERSPEED=1;
 	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
+	      // TODO: start and wrap
+	      // when wrapper changes we need to redo direction array!!!
 
 	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
 	    tmp=maximerpos%32768;

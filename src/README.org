@@ -224,13 +224,17 @@ concrete TODO:
 
 
 [2days]THU+
-- assign/map new knobs and all settings re-arranged (all new ideas into files)
-
-- do away with wormflag//all walkers with start and wrap, constraints in audio.c
-
-- re-test all audio/datagens and audio
+- do away with wormflag//all walkers with start and wrap, constraints in audio.c DONE
+- assign/map new knobs and all settings re-arranged DONE
 
 [3days]FRI
+
+- do and test hardware walkers with start/wrap and cons:
+- cons for h walkers on wrap (speed of using cons as limit also with if and not %)
+
+NOTETODO: - when wrapper changes we need to redo direction array!!!
+
+- re-test all audio/datagens and audio
 - filter and effects
 
 [4days]SUN

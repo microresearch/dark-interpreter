@@ -16,7 +16,7 @@
 #define LMERSTEP (settingsarray[0])
 #define LMERWRAP (settingsarray[1])
 #define LMERSTART (settingsarray[2])
-#define LMERSPEED (settingsarray[3])
+#define LMERSPEED (settingsarray[3]) //+4 for mirroring ops across walkers
 
 #define MAXIMERSTEP (settingsarray[4])
 #define MAXIMERWRAP (settingsarray[5])
@@ -51,7 +51,7 @@
 #define ANYSTEPREAD (settingsarray[28])
 #define ANYWRAPREAD (settingsarray[29])
 #define ANYSTARTREAD (settingsarray[30])
-#define ANYSPEEDREAD (settingsarray[31]) // 0-31 walker settings!!!
+#define ANYSPEEDREAD (settingsarray[31]) // 0-31 =32 (4x8) walker settings!!!
 
 // directions from main.c
 
@@ -81,10 +81,16 @@
 // TODO: excess settings/actions
 
 // dirs to follow wormdir (but need to follow not just set once)
-// cons, consread
+// mirror read and write heads as an action
+// that grains can set datagen start/wrap settings also (grain spawn mode)
+
+// CONSTRAINT settings!
 
 #define cons (settingsarray[0])
 #define consread (settingsarray[0])
+#define consdata (settingsarray[0])
+#define consdatar (settingsarray[0])
+#define hdgenercons (settingsarray[0])
 
 /////////////////////////////////
 
