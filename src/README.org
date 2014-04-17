@@ -219,8 +219,7 @@ concrete TODO:
 
 [1day]WED
 - simplify read/write in audio.c - DONE
-- *todo* // where to map directions to wormdir (now halved)
-
+- *TODO* // where to map directions to wormdir (now halved)
 - start and wrap code all datagens: is just ca, simDONE. TO TEST!
 
 
