@@ -215,11 +215,13 @@ outside, and in open daylight.
 
 * FRI 18 APR
 
-- test hardware walkers with start/wrap and cons
-
 -settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
 
+- test hardware walkers with start/wrap and cons and consider new walker scheme
+- hardware wlakers new direction code?
+
 - re-test all audio/datagens and audio
+
 - filter and effects
 
 ideas: bulk settings at angles -process across all settings eg.++(but

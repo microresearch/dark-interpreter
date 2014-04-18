@@ -84,7 +84,6 @@ u16 settingsarray[64];
      __asm__ __volatile__ ("nop\n\t":::"memory");	\
  } while (0)
 
- u16 sampel;
 
 u8 exestackpush(u8 exenum, u8* exestack, u8 exetype){
   u8 tmp;
@@ -134,13 +133,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
   int sign_samp,i;
   w= 2*pi;
   w= w/256;
-    for (i = 0; i <= 256; i++)
+      for (i = 0; i <= 256; i++)
     {
       yi= 2047*sinf(phase); // was 2047
       phase=phase+w;
       sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
       sin_data[i]=sign_samp; // write value into array
-    }
+      }
 
 
 	 //	ADC1_Initonce();
@@ -187,6 +186,23 @@ u8 exestackpop(u8 exenum, u8* exestack){
 ////////////////////minimal setup code to get started
 	 //TESTER!
 
+	 // setup code for walkers
+	 for (x=0;x<32;x+=4){
+	   settingsarray[x]=1;
+	   settingsarray[x+1]=32767;
+	   settingsarray[x+2]=0;
+	   settingsarray[x+3]=1;
+	 }
+
+	 // for constraints
+	 for (x=32;x<40;x++){
+	   settingsarray[x]=32768;
+	 }
+
+	 // for directions
+	 for (x=40;x<48;x++){
+	   settingsarray[x]=1;
+	 }
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -204,20 +220,20 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // CA
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10,0,32767);//howmuch,start,wrap 
+	   stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);//howmuch,start,wrap 
 	   }
 
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
-	   //stack_pos=func_pushn(stackyy,28,buf16,stack_pos,100);
-	 	   }
+	   	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
+	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);//howmuch,start,wrap
+	 }
 
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
@@ -245,6 +261,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 //	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
 	      cpucount=0;
+
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
@@ -298,21 +315,22 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      
 	      //	    hardcount++;
 	      //	    if (hardcount>=hardspeed){
-	      hardcount=0;
+	      	      hardcount=0;
 
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
-	     if (digfilterflag&16){ // if we use hdgen at all
-	       if (HDGENERSPEED==0) HDGENERSPEED=1;
-	       if (HDGENERSTEP==0) HDGENERSTEP=1;
-	    if (++hdgenerdel==HDGENERSPEED){
+	    	     if (digfilterflag&16){ // if we use hdgen at all
+		       if (HDGENERSPEED==0) HDGENERSPEED=1;
+		       if (HDGENERSTEP==0) HDGENERSTEP=1;
+		       if (++hdgenerdel==HDGENERSPEED){
 	      // 8 bitdir so leave as is
-	      hdgenerpos+=(HDGENERSTEP*direction8bit[HDGENERDIR]);
-	      wrapper=HDGENERWRAP%hdgenercons; // can go 65536
-	      if (wrapper==0) wrapper=1;
-	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
-	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
-	      hdgenerdel=0;
-	    }
+	      	      hdgenerpos+=(HDGENERSTEP*direction8bit[HDGENERDIR]);
+	           wrapper=HDGENERWRAP%hdgenercons; // can go 65536
+		   if (wrapper==0) wrapper=1;
+	      	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
+	      	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
+		       	      hdgenerdel=0;
+	      	    }
+
      }
 	  else
 	    {
@@ -320,8 +338,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	    oldhardware=hardware;
 	    }
-		   
+	     		   
 	  // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
+
+		     		     
 	  if (digfilterflag&2){
 	       if (F0106ERSPEED==0) F0106ERSPEED=1;
 	       if (F0106ERSTEP==0) F0106ERSTEP=1;
@@ -336,23 +356,24 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      f0106erdel=0;
 	    }
 	  }
+
 	  
 	  if (digfilterflag&4){
 	       if (LMERSPEED==0) LMERSPEED=1;
 	       if (LMERSTEP==0) LMERSTEP=1;
 	    if (++lmerdel==LMERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
-	      wrapper=LMERWRAP%lmcons;
+	      	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
+	      	      wrapper=LMERWRAP%lmcons;
 	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      x=LMERSTART+(lmerpos%wrapper);
-	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
-	      wrapper=LMERWRAP%lmcons;
+	      	      x=LMERSTART+(lmerpos%wrapper);
+	      	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
+	      	      wrapper=LMERWRAP%lmcons;
 	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      tmp=LMERSTART+(lmerpos%wrapper);
-	      setlmpwm(buf16[x],buf16[tmp]); 
+	      	      tmp=LMERSTART+(lmerpos%wrapper);
+	      	      setlmpwm(buf16[x],buf16[tmp]); 
 	      lmerdel=0;
 	    }
 
@@ -363,16 +384,16 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
-	      wrapper=MAXIMERWRAP%maxcons;
-	      //	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
+	      	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
+	      	      wrapper=MAXIMERWRAP%maxcons;
+	      	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
-	      setmaximpwm(buf16[tmp]); 
+	      	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
+	      	      setmaximpwm(buf16[x]); 
 	      maximerdel=0;
 	    }
 	  }
-	  //	  } // hardcount*/
+	  //	  } // hardcount
 #endif
 #endif
 	 }

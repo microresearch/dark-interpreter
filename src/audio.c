@@ -146,12 +146,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static int16_t directionread[4]={-256,1,256,-1};
 
 	///	///	///	///
+
 	
 	// readin villager processing of left into left and right into audio_buffer
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
 
+	
  	for (x=0;x<sz/2;x++){
 	  *ldst++ = *src++;
 	  *rdst++ = *src;
@@ -214,13 +216,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 
 	// writeout villager processing  into mono_buffer
-	SAMPLESPEED=1;SAMPLESTEP=1;villagewrite=1;
+	SAMPLESPEED=1;SAMPLESTEP=1;villagewrite=0;SAMPLEDIRW=1;
+	SAMPLESTART=0;SAMPLEWRAP=32767;
+	cons=32768;
 
-	settingsarray[18]=32768;//wrap // TESTY
-	settingsarray[19]=0;
 
  	for (x=0;x<sz/2;x++){
-	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	  // 	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	  	    mono_buffer[x]=buf16[samplepos%32768];
+
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
@@ -277,7 +281,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  del=0;
 	  }
 	}
-       
+	       
 
 	///	///	///	///
 

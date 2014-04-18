@@ -35,7 +35,8 @@ CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
 AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
 LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX)
-LFLAGS_END = -lm -lc -Wl,--gc-sections
+LFLAGS_END = -lm -lc -Wl,--gc-sections,-Map=myfile.map
+
 
 # Executables
 ARCH = arm-none-eabi

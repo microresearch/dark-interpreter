@@ -53,28 +53,41 @@
 #define ANYSTARTREAD (settingsarray[30])
 #define ANYSPEEDREAD (settingsarray[31]) // 0-31 =32 (4x8) walker settings!!!
 
-// directions from main.c
+// CONSTRAINT/micro-macro settings!
 
-#define HDGENERDIR (settingsarray[36]%8)
-#define LMERDIR (settingsarray[37]%8)
-#define MAXIMERDIR (settingsarray[38]%8)
-#define F0106ERDIR (settingsarray[39]%8)
-#define FINALDIR (settingsarray[40]%8)
-
-// directions from audio.c - add read dirs
-
-#define DATADIRR ((settingsarray[41])%4)
-#define DATADIRW ((settingsarray[41])%4)
-#define SAMPLEDIRR ((settingsarray[42])%4)
-#define SAMPLEDIRW ((settingsarray[42])%4)
+#define cons (settingsarray[32]) // NONE OF THESE CAN BE ZERO!!!!TODO!!! 1-32768
+#define consread (settingsarray[33])
+#define consdata (settingsarray[34])
+#define consdatar (settingsarray[35])
+#define hdgenercons (settingsarray[36])
+#define f0cons (settingsarray[37])
+#define lmcons (settingsarray[38])
+#define maxcons (settingsarray[39])
 
 //////////////////////////////////////////////////
 
-#define LEAKSPEED (settingsarray[0])
-#define MACHINESPEED (settingsarray[1])
-#define LEAKINESS (settingsarray[14])
-#define INFECTION (settingsarray[15])
-#define MUTATION (settingsarray[16])
+// directions from main.c
+
+#define HDGENERDIR (settingsarray[40]) //TODO redo
+#define LMERDIR (settingsarray[41])
+#define MAXIMERDIR (settingsarray[42])
+#define F0106ERDIR (settingsarray[43])
+#define FINALDIR (settingsarray[44])
+
+// directions from audio.c - add read dirs
+
+#define DATADIRR (settingsarray[45]) // TODO restrict to 4
+#define DATADIRW (settingsarray[46])
+#define SAMPLEDIRR (settingsarray[47])
+#define SAMPLEDIRW (settingsarray[48])
+
+//////////////////////////////////////////////////
+
+#define LEAKSPEED (settingsarray[49])
+#define MACHINESPEED (settingsarray[50])
+#define LEAKINESS (settingsarray[51])
+#define INFECTION (settingsarray[52])
+#define MUTATION (settingsarray[53])
 
 //////////////////////////////////
 
@@ -84,28 +97,17 @@
 // mirror read and write heads as an action
 // that grains can set datagen start/wrap settings also (grain spawn mode)
 
-// CONSTRAINT/micro-macro settings!
-
-#define cons (settingsarray[0]) // NONE OF THESE CAN BE ZERO!!!!TODO!!! 1-32768
-#define consread (settingsarray[0])
-#define consdata (settingsarray[0])
-#define consdatar (settingsarray[0])
-#define hdgenercons (settingsarray[0])
-#define f0cons (settingsarray[0])
-#define lmcons (settingsarray[0])
-#define maxcons (settingsarray[0])
-
 /////////////////////////////////
 
 ///push settings
 
-#define PUSHONE16BIT (settingsarray[27]) // settings for the push <<???
-#define PUSHTWO16BIT (settingsarray[28]) // settings for the push <<???
-#define PUSHONE8BIT (settingsarray[29])
-#define PUSHTWO8BIT (settingsarray[30])
-#define PUSHTHREE8BIT (settingsarray[31])
-#define EXESTACKPUSH (settingsarray[32]) // TYPE so limit to 0-3
+#define PUSHONE16BIT (settingsarray[54]) // settings for the push <<???
+#define PUSHTWO16BIT (settingsarray[55]) // settings for the push <<???
+#define PUSHONE8BIT (settingsarray[56])
+#define PUSHTWO8BIT (settingsarray[57])
+#define PUSHTHREE8BIT (settingsarray[58])
+#define EXESTACKPUSH (settingsarray[59]) // TYPE so limit to 0-3
 
-#define BEFOREDIR  36
-#define BEFORESTACK 43 // limit here
-#define FINALL 48 // end of end = +5 for push and pops
+#define BEFOREDIR  0
+#define BEFORESTACK 0 // limit here
+#define FINALL 0 // end of end = +5 for push and pops
