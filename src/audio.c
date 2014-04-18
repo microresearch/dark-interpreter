@@ -122,14 +122,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 tmp=0,tmper;
 	u8 x;
-	static u16 start=0,wrap,samplepos=0,anypos=0,count=0;
-	static u8 del=0,villagewrite=0;
+	static u16 start=0,wrap,samplepos=0,anypos=0,count;
+	static u8 del=0,villagewrite=1;
 
 	int16_t dirry=1;
 	float temp;
 
 	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
-	static u8 delread=0,villageread=0;
+	static u8 delread=0,villageread=1;
 	u16 wrapper; 
 	// TODO:find a place in settings for these
 #ifdef TEST_STRAIGHT
@@ -152,8 +152,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-	SAMPLEWRAPREAD=adc_buffer[0];
-	SAMPLEWRAP=adc_buffer[3];
+	SAMPLEWRAPREAD=adc_buffer[0]; // TESTER!
+	SAMPLEWRAP=adc_buffer[3]; // TESTER!
 	
  	for (x=0;x<sz/2;x++){
 	  *ldst++ = *src++;
@@ -162,7 +162,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    if (((sampleposread-startread)+dirry)<wrapread && (sampleposread+dirry)>startread)
+	    count=((sampleposread-startread)+dirry);
+	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
@@ -170,18 +171,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  if (villageread==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
 		    newdirread[0]=-180;newdirread[2]=180;
-		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
-		    else sampleposread=wrapread;
+		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
+		    else sampleposread=startread+wrapread;
 		  }
 
 		  else if (villageread==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD;
-		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  sampleposread=SAMPLESTARTREAD+tmper;
-		  wrapread=0;
+		  wrapread=0;startread=0;
 		  }
 		  else {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
@@ -218,7 +218,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
-	    if (((samplepos-start)+dirry)<wrap && (samplepos+dirry)>start)
+	    count=((samplepos-start)+dirry);
+	    if (count<wrap && (samplepos+dirry)>start)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -238,7 +239,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+tmper;
-		  wrap=0;
+		  wrap=0;start=0;
 		  }
 		  /////////////////////////////////////
 		  else {

@@ -223,9 +223,6 @@ outside, and in open daylight.
 /// tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
 - check sqrtf code with float and co...DONE
 
-
-- filter and effects
-
 *TODOideas*: bulk settings at angles -process across all settings eg.++(but
 that is done by datagen walker)
 
@@ -253,6 +250,8 @@ DONE:
 concrete TODO:
 
 [4days]SUN
+
+- filter and effects as walkers (add to settingsarray means we have > 32)
 - push and pop/buffer+swop/datagen settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro 

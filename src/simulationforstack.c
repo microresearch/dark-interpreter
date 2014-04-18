@@ -1580,12 +1580,16 @@ void main(void)
   //	              while(1){
    static int16_t mxdir[4]={-180,1,180,-1};
   u16 maximerpos=0,MAXIMERSTEP=1,MAXIMERDIR=3,MAXIMERWRAP=100,MAXIMERSTART=100;
-  float temp; u16 wrap=200;
+  float temp; u16 wrap=0;
+  int16_t dirrrr=-1;
 
   count=0;
 
-  temp=sqrtf((float)wrap);mxdir[0]=-temp;mxdir[2]=temp;
-  printf("test: %d\n",mxdir[0]);
+  //  temp=sqrtf((float)wrap);mxdir[0]=-temp;mxdir[2]=temp;
+  //  printf("test: %d\n",mxdir[0]);
+  count+=dirrrr;
+  if (count<wrap) printf("FAIL! %d",count+dirrrr);
+  
 
   /*  for (x=0;x<50000;x++){
 

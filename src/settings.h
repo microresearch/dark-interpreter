@@ -91,6 +91,8 @@
 // mirror read and write heads as an action
 // that grains can set datagen start/wrap settings also (grain spawn mode)
 
+// villageread, villagewrite=0-2
+
 /////////////////////////////////
 
 ///push settings
