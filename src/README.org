@@ -215,21 +215,26 @@ outside, and in open daylight.
 
 * FRI 18 APR
 
-- settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
-- test hardware walkers with start/wrap and cons DONE
+*TODOideas*: 
 
-- implement/TEST new walker scheme (audio) and do away with cons...*TEST*
-
-/// tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
-- check sqrtf code with float and co...DONE
-
-*TODOideas*: bulk settings at angles -process across all settings eg.++(but
+- bulk settings at angles -process across all settings eg.++(but
 that is done by datagen walker)
 
-NOTES_ *TODO*: - when wrapper changes we need to redo direction array!!!
+- good to have knob for settings which could replace pull/pop knob (tho
+  makes no sense to mirror) or find somehow way to do this
+
+- when wrapper changes we need to redo direction array!!!
 
 - done away with cons (and processing) but simply altering
   all wraps in settingsarray once (as action) *TODO*
+
+///DONE:
+
+- settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
+- test hardware walkers with start/wrap and cons DONE
+- implement/TEST new walker scheme (audio) and do away with cons...*TEST*
+/// tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
+- check sqrtf code with float and co...DONE
 
 * THU 17 APR
 
@@ -254,7 +259,8 @@ concrete TODO:
 - filter and effects as walkers (add to settingsarray means we have > 32)
 - push and pop/buffer+swop/datagen settings
 - new constraints of all datagens and walkers(inc foldback to areas
-  only) under micro-macro 
+  only) under micro-macro -> file under ACTIONS again such as
+  mirroring, constraint, expansion, reduction, remapping
 
 [5/6days]MON/TUE
 - mirror knob: cross-settings option(mirror etc.) 

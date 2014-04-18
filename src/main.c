@@ -193,22 +193,22 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 //TESTER!
 
 	 // setup code for walkers
-	 for (x=0;x<32;x+=4){
-	   settingsarray[x]=1;
-	   settingsarray[x+1]=32767;
-	   settingsarray[x+2]=0;
-	   settingsarray[x+3]=1;
-	 }
+	 for (x=0;x<8;x++){
+	   settingsarray[x]=0;
+	 }//start
 
-	 // for constraints
-	 for (x=32;x<40;x++){
-	   settingsarray[x]=32768;
-	 }
+	 for (x=8;x<16;x++){
+	   settingsarray[x]=32767;
+	 }//wrap
 
-	 // for directions
-	 for (x=40;x<48;x++){
+	 for (x=16;x<24;x++){
 	   settingsarray[x]=1;
-	 }
+	 }//step
+
+	 for (x=24;x<32;x++){
+	   settingsarray[x]=1;
+	 }//speed
+
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)

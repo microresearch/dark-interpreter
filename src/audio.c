@@ -123,13 +123,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u16 tmp=0,tmper;
 	u8 x;
 	static u16 start=0,wrap,samplepos=0,anypos=0,count;
-	static u8 del=0,villagewrite=1;
+	static u8 del=0,villagewrite=0;
 
 	int16_t dirry=1;
 	float temp;
 
 	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
-	static u8 delread=0,villageread=1;
+	static u8 delread=0,villageread=2;
 	u16 wrapper; 
 	// TODO:find a place in settings for these
 #ifdef TEST_STRAIGHT
@@ -276,20 +276,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
 	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
+
+	  // COPY walker from above and select ops for mix/multiply/morph/whatever
+
+
 	}
 
 	else if (digfilterflag&1){ // TODO
 	  // 3- any processing of left buffer into left buffer
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
-
 	  /// but for filter/leftbuffer effect we have no buffer spare - should act
 	  /// as mirror with list of ops: mix/multiply left with audio/datagen,
 	  /// write left into audiobuffer or datagenbuffer, playback from place in
 	  /// audiobuffer -> these ops perform at location array[XXX]
-
 	  // use left, use audiobuffer, use datagenbuffer, read/write
-
 	  //
+
+	  // COPY walker from above and select ops for mix/multiply/morph/whatever
 
 	}
 

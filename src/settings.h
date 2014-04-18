@@ -13,46 +13,43 @@
 
 //////////////////////////////////////////////WALKERS
 
-// these as chunks or do all steps, then wraps usw.
+// these as chunks or do all steps, then wraps usw. TODO- makes more sense
 
-#define LMERSTEP (settingsarray[0])
-#define LMERWRAP (settingsarray[1])
-#define LMERSTART (settingsarray[2])
-#define LMERSPEED (settingsarray[3]) //+4 for mirroring ops across walkers
 
-#define MAXIMERSTEP (settingsarray[4])
-#define MAXIMERWRAP (settingsarray[5])
-#define MAXIMERSTART (settingsarray[6])
-#define MAXIMERSPEED (settingsarray[7])
+#define MAXIMERSTART (settingsarray[0])
+#define LMERSTART (settingsarray[1])
+#define F0106ERSTART (settingsarray[2])
+#define HDGENERSTART (settingsarray[3])
+#define SAMPLESTART (settingsarray[4]) 
+#define SAMPLESTARTREAD (settingsarray[5]) 
+#define ANYSTART (settingsarray[6])
+#define ANYSTARTREAD (settingsarray[7])
 
-#define F0106ERSTEP (settingsarray[8])
-#define F0106ERWRAP (settingsarray[9])
-#define F0106ERSTART (settingsarray[10])
-#define F0106ERSPEED (settingsarray[11])
+#define LMERWRAP (settingsarray[8])
+#define MAXIMERWRAP (settingsarray[9])
+#define F0106ERWRAP (settingsarray[10])
+#define HDGENERWRAP (settingsarray[11])
+#define SAMPLEWRAP (settingsarray[12])
+#define SAMPLEWRAPREAD (settingsarray[13])
+#define ANYWRAPREAD (settingsarray[14])
+#define ANYWRAP (settingsarray[15])
 
-#define HDGENERSTEP (settingsarray[12])
-#define HDGENERWRAP (settingsarray[13])
-#define HDGENERSTART (settingsarray[14])
-#define HDGENERSPEED (settingsarray[15])
+#define LMERSTEP (settingsarray[16])
+#define MAXIMERSTEP (settingsarray[17])
+#define F0106ERSTEP (settingsarray[18])
+#define HDGENERSTEP (settingsarray[19])
+#define SAMPLESTEP (settingsarray[20])
+#define SAMPLESTEPREAD (settingsarray[21])
+#define ANYSTEP (settingsarray[22])
+#define ANYSTEPREAD (settingsarray[23])
 
-#define SAMPLESTEP (settingsarray[16])
-#define SAMPLEWRAP (settingsarray[17])
-#define SAMPLESTART (settingsarray[18])  // 32 bit max 32768
-#define SAMPLESPEED (settingsarray[19])
-
-#define SAMPLESTEPREAD (settingsarray[20])
-#define SAMPLEWRAPREAD (settingsarray[21])
-#define SAMPLESTARTREAD (settingsarray[22])  // 32 bit max 32768
-#define SAMPLESPEEDREAD (settingsarray[23])
-
-#define ANYSTEP (settingsarray[24])
-#define ANYWRAP (settingsarray[25])
-#define ANYSTART (settingsarray[26])
-#define ANYSPEED (settingsarray[27])
-
-#define ANYSTEPREAD (settingsarray[28])
-#define ANYWRAPREAD (settingsarray[29])
-#define ANYSTARTREAD (settingsarray[30])
+#define LMERSPEED (settingsarray[24])
+#define MAXIMERSPEED (settingsarray[25])
+#define F0106ERSPEED (settingsarray[26])
+#define HDGENERSPEED (settingsarray[27])
+#define SAMPLESPEED (settingsarray[28])
+#define SAMPLESPEEDREAD (settingsarray[29])
+#define ANYSPEED (settingsarray[30])
 #define ANYSPEEDREAD (settingsarray[31]) // 0-31 =32 (4x8) walker settings!!!
 
 // CONSTRAINT/micro-macro settings!
@@ -92,6 +89,8 @@
 // that grains can set datagen start/wrap settings also (grain spawn mode)
 
 // villageread, villagewrite=0-2
+
+// alter all/some wraps
 
 /////////////////////////////////
 
