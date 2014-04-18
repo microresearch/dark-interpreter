@@ -21,7 +21,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 
 extern __IO uint16_t adc_buffer[10];
 extern u8 wormdir;
-extern u8 settingsarray[64];
+extern u16 settingsarray[64];
 
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
@@ -216,7 +216,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// writeout villager processing  into mono_buffer
 	SAMPLESPEED=1;SAMPLESTEP=1;villagewrite=1;
 
-	settingsarray[18]=255;//wrap // TESTY
+	settingsarray[18]=32768;//wrap // TESTY
 	settingsarray[19]=0;
 
  	for (x=0;x<sz/2;x++){

@@ -34,13 +34,13 @@
 #define HDGENERSPEED (settingsarray[15])
 
 #define SAMPLESTEP (settingsarray[16])
-#define SAMPLEWRAP (((settingsarray[17])<<8)%32768) // 32 bit max 32768
-#define SAMPLESTART ((settingsarray[18])<<7)  // 32 bit max 32768
+#define SAMPLEWRAP (settingsarray[17])
+#define SAMPLESTART (settingsarray[18])  // 32 bit max 32768
 #define SAMPLESPEED (settingsarray[19])
 
 #define SAMPLESTEPREAD (settingsarray[20])
-#define SAMPLEWRAPREAD (((settingsarray[21])<<8)%32768) // 32 bit max 32768
-#define SAMPLESTARTREAD ((settingsarray[22])<<7)  // 32 bit max 32768
+#define SAMPLEWRAPREAD (settingsarray[21])
+#define SAMPLESTARTREAD (settingsarray[22])  // 32 bit max 32768
 #define SAMPLESPEEDREAD (settingsarray[23])
 
 #define ANYSTEP (settingsarray[24])
@@ -86,7 +86,7 @@
 
 // CONSTRAINT/micro-macro settings!
 
-#define cons (settingsarray[0]) // NONE OF THESE CAN BE ZERO!!!!TODO!!!
+#define cons (settingsarray[0]) // NONE OF THESE CAN BE ZERO!!!!TODO!!! 1-32768
 #define consread (settingsarray[0])
 #define consdata (settingsarray[0])
 #define consdatar (settingsarray[0])

@@ -60,7 +60,7 @@ u8 wormdir; // worm direction
 //u8 cons; //constraint/grain size used in audio.c
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
-u8 settingsarray[64];
+u16 settingsarray[64];
 //u8 steppy; // TODO_ testing
 
  struct dgenwalker{
@@ -365,9 +365,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      // when wrapper changes we need to redo direction array!!!
 	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
 	      wrapper=MAXIMERWRAP%maxcons;
-	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
+	      //	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      x=MAXIMERSTART+(maximerpos%wrapper);
+	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
 	      setmaximpwm(buf16[tmp]); 
 	      maximerdel=0;
 	    }

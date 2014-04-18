@@ -213,9 +213,30 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* WED 16 APR
+* FRI 18 APR
 
-concrete TODO:
+- test hardware walkers with start/wrap and cons
+
+-settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
+
+- re-test all audio/datagens and audio
+- filter and effects
+
+ideas: bulk settings at angles -process across all settings eg.++(but
+that is done by datagen walker)
+
+- do we handle wrap okay (as just hits top with no wrap - we could
+  just start and then run as long as wrap is)????
+
+eg. 
+		  if (f0106erpos>wrapper) f0106erpos=0;
+		  tmp=(F0106ERSTART+f0106erpos)%AUDIO_BUFSZ;
+
+NOTE_ *TODO*: - when wrapper changes we need to redo direction array!!!
+
+* THU 17 APR
+
+DONE:
 
 [1day]WED
 - simplify read/write in audio.c - DONE
@@ -227,24 +248,18 @@ concrete TODO:
 - do away with wormflag//all walkers with start and wrap, constraints in audio.c DONE
 - assign/map new knobs and all settings re-arranged DONE
 
-[3days]FRI
+* WED 16 APR
 
-- test hardware walkers with start/wrap and cons
-- question of speed of using cons as limit also with if and not %)
-
-NOTETODO: - when wrapper changes we need to redo direction array!!!
-
-- re-test all audio/datagens and audio
-- filter and effects
+concrete TODO:
 
 [4days]SUN
 - push and pop/buffer+swop/datagen settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro 
-- mirror knob: cross-settings option(mirror etc.) 
-- knob and finger code
 
 [5/6days]MON/TUE
+- mirror knob: cross-settings option(mirror etc.) 
+- knob and finger code
 - how/if to work with larger chunk movements???
 - extras like grain spawn mode, mirroring of settings
 - TODOs in each file (check all audio so far) - recheck all TODOs as

@@ -1578,6 +1578,12 @@ void main(void)
   
 
   //	              while(1){
+
+  F0106ERSTART=50;
+    F0106ERWRAP=90;
+    //    f0cons=rand()%32768;
+    if (f0cons==0) f0cons=1;
+
   for (x=0;x<50000000;x++){
 
 			//			func_runall(stackyy,buf16,stack_pos); // simulations
@@ -1591,19 +1597,20 @@ void main(void)
 
 
 			// speed test:
-    F0106ERSTART=rand()%32768;
-    F0106ERWRAP=rand()%32768;
-    f0cons=rand()%32768;
-    if (f0cons==0) f0cons=1;
-	      wrapper=F0106ERWRAP%f0cons;
+    f0106erpos+=1;
+    wrapper=F0106ERWRAP;//%f0cons;
 	      //	      if (wrapper==0) wrapper=1;
 	      //	      if ((F0106ERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-F0106ERSTART;
 	      // TODO or/ 
-	      tmp=AUDIO_BUFSZ-F0106ERSTART;
-	      if (tmp!=0) wrapper=wrapper%tmp;// SPEED QUESTION?
-	      else wrapper=1;
+	      //	      tmp=AUDIO_BUFSZ-F0106ERSTART;
+	      //	      if (tmp!=0) wrapper=wrapper%tmp;// SPEED QUESTION?
+	      //	      else wrapper=1;
 		  if (wrapper==0) wrapper=1;
-	      tmp=F0106ERSTART+(f0106erpos%wrapper);
+		  //	      tmp=F0106ERSTART+(f0106erpos%wrapper);
+		  if (f0106erpos>wrapper) f0106erpos=0;
+		  tmp=(F0106ERSTART+f0106erpos)%100;
+				  //		  tmp=(F0106ERSTART+(f0106erpos%wrapper))%100;
+		  //		  printf("at: %d\n",tmp);
 	      //	      set40106pwm(buf16[tmp]); 
 	      //	      f0106erdel=0;
 
