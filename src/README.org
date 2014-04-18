@@ -215,26 +215,24 @@ outside, and in open daylight.
 
 * FRI 18 APR
 
--settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
+- settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
+- test hardware walkers with start/wrap and cons DONE
 
-- test hardware walkers with start/wrap and cons and consider new walker scheme
-- hardware wlakers new direction code?
+- implement/TEST new walker scheme (audio) and do away with cons...*TEST*
 
-- re-test all audio/datagens and audio
+/// tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
+- check sqrtf code with float and co...DONE
+
 
 - filter and effects
 
-ideas: bulk settings at angles -process across all settings eg.++(but
+*TODOideas*: bulk settings at angles -process across all settings eg.++(but
 that is done by datagen walker)
 
-- do we handle wrap okay (as just hits top with no wrap - we could
-  just start and then run as long as wrap is)????
+NOTES_ *TODO*: - when wrapper changes we need to redo direction array!!!
 
-eg. 
-		  if (f0106erpos>wrapper) f0106erpos=0;
-		  tmp=(F0106ERSTART+f0106erpos)%AUDIO_BUFSZ;
-
-NOTE_ *TODO*: - when wrapper changes we need to redo direction array!!!
+- done away with cons (and processing) but simply altering
+  all wraps in settingsarray once (as action) *TODO*
 
 * THU 17 APR
 

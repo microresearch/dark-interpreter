@@ -13,6 +13,8 @@
 
 //////////////////////////////////////////////WALKERS
 
+// these as chunks or do all steps, then wraps usw.
+
 #define LMERSTEP (settingsarray[0])
 #define LMERWRAP (settingsarray[1])
 #define LMERSTART (settingsarray[2])
@@ -54,21 +56,13 @@
 #define ANYSPEEDREAD (settingsarray[31]) // 0-31 =32 (4x8) walker settings!!!
 
 // CONSTRAINT/micro-macro settings!
-
-#define cons (settingsarray[32]) // NONE OF THESE CAN BE ZERO!!!!TODO!!! 1-32768
-#define consread (settingsarray[33])
-#define consdata (settingsarray[34])
-#define consdatar (settingsarray[35])
-#define hdgenercons (settingsarray[36])
-#define f0cons (settingsarray[37])
-#define lmcons (settingsarray[38])
-#define maxcons (settingsarray[39])
+// we just attack wraps directly
 
 //////////////////////////////////////////////////
 
 // directions from main.c
 
-#define HDGENERDIR (settingsarray[40]) //TODO redo
+#define HDGENERDIR (settingsarray[40]) //TODO redo?
 #define LMERDIR (settingsarray[41])
 #define MAXIMERDIR (settingsarray[42])
 #define F0106ERDIR (settingsarray[43])

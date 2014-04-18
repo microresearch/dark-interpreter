@@ -122,13 +122,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 tmp=0,tmper;
 	u8 x;
-	static u16 start=0,wrap=32768,samplepos=0,anypos=0,count=0;
-	static u8 del=0,villagewrite;
+	static u16 start=0,wrap,samplepos=0,anypos=0,count=0;
+	static u8 del=0,villagewrite=0;
 
 	int16_t dirry=1;
 	float temp;
 
-	static u16 anyposread=0,sampleposread=0,wrapread=32767,startread=0;
+	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
 	static u8 delread=0,villageread=0;
 	u16 wrapper; 
 	// TODO:find a place in settings for these
@@ -140,10 +140,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	u16 *buf16 = (u16*) datagenbuffer;
 
 	// set dirs
-	static int16_t newdir[4]={-256,1,256,-1};
-	static int16_t direction[4]={-256,1,256,-1};
-	static int16_t newdirread[4]={-256,1,256,-1};
-	static int16_t directionread[4]={-256,1,256,-1};
+	static int16_t newdir[4]={-180,1,180,-1};
+	static int16_t direction[4]={-180,1,180,-1};
+	static int16_t newdirread[4]={-180,1,180,-1};
+	static int16_t directionread[4]={-180,1,180,-1};
 
 	///	///	///	///
 
@@ -152,7 +152,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-
+	SAMPLEWRAPREAD=adc_buffer[0];
+	SAMPLEWRAP=adc_buffer[3];
 	
  	for (x=0;x<sz/2;x++){
 	  *ldst++ = *src++;
@@ -161,53 +162,43 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    if ((sampleposread+dirry)<wrapread && (sampleposread+dirry)>startread)
+	    if (((sampleposread-startread)+dirry)<wrapread && (sampleposread+dirry)>startread)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
 		else {
 		  if (villageread==0) {
-		    startread=SAMPLESTARTREAD;sampleposread=startread;wrapread=SAMPLEWRAPREAD%consread;
-		    if ((SAMPLESTARTREAD+wrapread)>AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-SAMPLESTARTREAD;
-		    newdirread[0]=-256;newdirread[2]=256;
-		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
-		  else sampleposread=wrapread;
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    newdirread[0]=-180;newdirread[2]=180;
+		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
+		    else sampleposread=wrapread;
 		  }
+
 		  else if (villageread==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD%consdatar;
-		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
-		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
-		  tmper=(buf16[tmp]%consread)%(AUDIO_BUFSZ-SAMPLESTARTREAD);	
-		  // TODO or could be just limit consread 
+		  wrapper=ANYWRAPREAD;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  tmper=buf16[tmp]>>1;	
 		  sampleposread=SAMPLESTARTREAD+tmper;
 		  wrapread=0;
 		  }
 		  else {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD%consdatar;
-		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  wrapper=ANYWRAPREAD; 
 		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
-		  startread=buf16[tmp%32768]>>1;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
-		  wrapper=ANYWRAPREAD%consdatar;
-		  if ((ANYSTARTREAD+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTARTREAD;
+		  wrapper=ANYWRAPREAD;
 		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTARTREAD+(anyposread%wrapper); 
-		  wrapread=buf16[tmp%32768]>>1;
-		  wrapread=wrapread%consread; 
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  wrapread=buf16[tmp]>>1;
 		  if (wrapread==0) wrapread=1;
-		  if ((startread+wrapread)>=AUDIO_BUFSZ) wrapread=AUDIO_BUFSZ-startread; 
-		  else wrapread+=startread;
-		  // but which is start if we go backwards...???
 		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
-		  else sampleposread=wrapread;
-		  // recalc direction array
+		  else sampleposread=startread+wrapread;
 		  temp=sqrtf((float)wrapread);newdirread[0]=-temp;newdirread[2]=temp;
 		  }
 		}
@@ -216,64 +207,56 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 
 	// writeout villager processing  into mono_buffer
-	SAMPLESPEED=1;SAMPLESTEP=1;villagewrite=0;SAMPLEDIRW=1;
-	SAMPLESTART=0;SAMPLEWRAP=32767;
-	cons=32768;
+	SAMPLESPEED=1;SAMPLESTEP=1;SAMPLEDIRW=1;
+	SAMPLESTART=0;
+	//	cons=32768;
 
 
  	for (x=0;x<sz/2;x++){
-	  // 	    mono_buffer[x]=audio_buffer[samplepos%32768];
-	  	    mono_buffer[x]=buf16[samplepos%32768];
+	  	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	  //  	    mono_buffer[x]=buf16[samplepos%32768];
 
 	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>start)
+	    if (((samplepos-start)+dirry)<wrap && (samplepos+dirry)>start)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
 		  if (villagewrite==0) {
-		    start=SAMPLESTART;samplepos=start;wrap=SAMPLEWRAP%cons;
-		    if ((SAMPLESTART+wrap)>AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-SAMPLESTART;
-		    if (wrapper==0) wrapper=1;
-		    newdir[0]=-256;newdir[2]=256;
-		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
-		  else samplepos=wrap;
+		  start=SAMPLESTART;wrap=SAMPLEWRAP;
+		  newdir[0]=-180;newdir[2]=180;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=SAMPLESTART;
+		  else samplepos=SAMPLESTART+SAMPLEWRAP;
 		  }
+
+		  /////////////////////////////////////
 		  else if (villagewrite==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP%consdata;
-		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
-		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTART+(anypos%wrapper); 
-		  tmper=(buf16[tmp]%cons)%(AUDIO_BUFSZ-SAMPLESTART);	
-		  // TODO or could be just limit cons 
+		  wrapper=ANYWRAP;
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+tmper;
 		  wrap=0;
 		  }
+		  /////////////////////////////////////
 		  else {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP%consdata;
-		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  wrapper=ANYWRAP;
 		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTART+(anypos%wrapper); 
-		  start=buf16[tmp%32768]>>1;
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
-		  wrapper=ANYWRAP%consdata;
-		  if ((ANYSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-ANYSTART;
+		  wrapper=ANYWRAP;
 		  if (wrapper==0) wrapper=1;
-		  tmp=ANYSTART+(anypos%wrapper); 
-		  wrap=buf16[tmp%32768]>>1;
-		  wrap=wrap%cons; //TODO: cons must be >0. also above 
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  wrap=buf16[tmp]>>1;
 		  if (wrap==0) wrap=1;
-		  if ((start+wrap)>=AUDIO_BUFSZ) wrap=AUDIO_BUFSZ-start; 
-		  else wrap+=start;
-		  // but which is start if we go backwards...???
 		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
-		  else samplepos=wrap;
+		  else samplepos=start+wrap;
 		  // recalc direction array
 		  temp=sqrtf((float)wrap);newdir[0]=-temp;newdir[2]=temp;
 		  }

@@ -118,8 +118,14 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
    //	SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2)); //FPU - but should be in define
 
-   u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
-   u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
+   //   u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+   //   u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
+
+	// set dirs
+   static int16_t hddir[4]={-180,1,180,-1};
+   static int16_t lmdir[4]={-180,1,180,-1};
+   static int16_t mxdir[4]={-180,1,180,-1};
+   static int16_t dir40106[4]={-180,1,180,-1};
 
    u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
    u8 handleft, handright, oldhandleft,oldhandright,up=0,down=0,left=0,right=0,handcount=0;
@@ -233,7 +239,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
@@ -323,10 +329,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		       if (HDGENERSTEP==0) HDGENERSTEP=1;
 		       if (++hdgenerdel==HDGENERSPEED){
 	      // 8 bitdir so leave as is
-	      	      hdgenerpos+=(HDGENERSTEP*direction8bit[HDGENERDIR]);
-	           wrapper=HDGENERWRAP%hdgenercons; // can go 65536
-		   if (wrapper==0) wrapper=1;
-	      	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
+	      	      hdgenerpos+=(HDGENERSTEP*hddir[HDGENERDIR]);
+		      wrapper=HDGENERWRAP; // can go 65536
+		      if (wrapper==0) wrapper=1;
+		      //	      	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
+		      tmp=(HDGENERSTART+(hdgenerpos%wrapper))%32768; //to cover all directions
 	      	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
 		       	      hdgenerdel=0;
 	      	    }
@@ -347,11 +354,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (F0106ERSTEP==0) F0106ERSTEP=1;
 	    if (++f0106erdel==F0106ERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      f0106erpos+=(F0106ERSTEP*direction[F0106ERDIR]);
-	      wrapper=F0106ERWRAP%f0cons;
-	      if ((F0106ERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-F0106ERSTART;
+	      f0106erpos+=(F0106ERSTEP*dir40106[F0106ERDIR]);
+	      wrapper=F0106ERWRAP;
+	      //	      if ((F0106ERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-F0106ERSTART;
 	      if (wrapper==0) wrapper=1;
-	      tmp=F0106ERSTART+(f0106erpos%wrapper);
+	      // tmp=F0106ERSTART+(f0106erpos%wrapper);
+	      tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
 	      set40106pwm(buf16[tmp]); 
 	      f0106erdel=0;
 	    }
@@ -363,17 +371,21 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (LMERSTEP==0) LMERSTEP=1;
 	    if (++lmerdel==LMERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
-	      	      wrapper=LMERWRAP%lmcons;
-	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
+	      	      lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
+	      	      wrapper=LMERWRAP;
+		      //	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      	      x=LMERSTART+(lmerpos%wrapper);
-	      	      lmerpos+=(LMERSTEP*direction[LMERDIR]);
-	      	      wrapper=LMERWRAP%lmcons;
-	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
+	      //	      	      x=LMERSTART+(lmerpos%wrapper);
+	      x=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
+
+	      	      lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
+	      	      wrapper=LMERWRAP;
+		      //	      if ((LMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-LMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      	      tmp=LMERSTART+(lmerpos%wrapper);
-	      	      setlmpwm(buf16[x],buf16[tmp]); 
+	      //	      tmp=LMERSTART+(lmerpos%wrapper);
+	      tmp=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
+
+	      setlmpwm(buf16[x],buf16[tmp]); 
 	      lmerdel=0;
 	    }
 
@@ -384,11 +396,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      	      maximerpos+=(MAXIMERSTEP*direction[MAXIMERDIR]);
-	      	      wrapper=MAXIMERWRAP%maxcons;
-	      	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
+	      	      maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
+	      	      wrapper=MAXIMERWRAP;
+		      //	      	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
 	      if (wrapper==0) wrapper=1;
-	      	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
+	      //	      	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
+	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768; //to cover all directions
+
 	      	      setmaximpwm(buf16[x]); 
 	      maximerdel=0;
 	    }
