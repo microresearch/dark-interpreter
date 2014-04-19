@@ -25,7 +25,7 @@
 #define ANYSTART (settingsarray[6])
 #define ANYSTARTREAD (settingsarray[7])
 
-#define LMERWRAP (settingsarray[8])
+#define LMERWRAP (settingsarray[8])//when wrapper changes we need to redo direction array!!!
 #define MAXIMERWRAP (settingsarray[9])
 #define F0106ERWRAP (settingsarray[10])
 #define HDGENERWRAP (settingsarray[11])
@@ -91,6 +91,8 @@
 // villageread, villagewrite=0-2
 
 // alter all/some wraps
+
+// when wrapper changes we need to redo direction array!!!
 
 /////////////////////////////////
 

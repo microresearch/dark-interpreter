@@ -160,6 +160,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *rdst++ = *src;
 	  audio_buffer[sampleposread%32768]=*src++;
 
+	  // TODO:
+	  // or src as datagenbuffer/ldst?
+
 	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
@@ -277,7 +280,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
 	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
 
-	  // COPY walker from above and select ops for mix/multiply/morph/whatever
+	  //!!! COPY walker from above and select ops for mix/multiply/morph/whatever
 
 
 	}
@@ -292,7 +295,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // use left, use audiobuffer, use datagenbuffer, read/write
 	  //
 
-	  // COPY walker from above and select ops for mix/multiply/morph/whatever
+	  //!!!! COPY walker from above and select ops for mix/multiply/morph/whatever
 
 	}
 
