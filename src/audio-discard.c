@@ -1,3 +1,69 @@
+/////////////////////////////////////////////
+
+//former WRITE code!!!!!!!!!!!TODO!!!!!NOTE!!!!!
+// writeout villager processing  into mono_buffer
+
+ 	for (x=0;x<sz/2;x++){
+	  mono_buffer[x]=audio_buffer[samplepos%32768];
+
+		    	  if (++del==SAMPLESPEED){
+	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+	    count=((samplepos-start)+dirry);
+	    if (count<wrap && (samplepos+dirry)>start)
+		  {
+		    samplepos+=dirry;//)%32768;
+		  }
+		else {
+		  if (villagewrite==0) {
+		  start=SAMPLESTART;wrap=SAMPLEWRAP;
+		  newdir[0]=-180;newdir[2]=180;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=SAMPLESTART;
+		  else samplepos=SAMPLESTART+SAMPLEWRAP;
+		  }
+
+		  /////////////////////////////////////
+		  else if (villagewrite==1) {
+		  tmp=ANYSTEP*direction[DATADIRW];
+		  anypos+=tmp;
+		  wrapper=ANYWRAP;
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  tmper=buf16[tmp]>>1;	
+		  samplepos=SAMPLESTART+tmper;
+		  wrap=0;start=0;
+		  }
+		  /////////////////////////////////////
+		  else {
+		  tmp=ANYSTEP*direction[DATADIRW];
+		  anypos+=tmp;
+		  wrapper=ANYWRAP;
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  start=buf16[tmp]>>1;
+		  tmp=ANYSTEP*direction[DATADIRW];
+		  anypos+=tmp;
+		  wrapper=ANYWRAP;
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
+		  wrap=buf16[tmp]>>1;
+		  if (wrap==0) wrap=1;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start;
+		  else samplepos=start+wrap;
+		  // recalc direction array
+		  temp=sqrtf((float)wrap);newdir[0]=-temp;newdir[2]=temp;
+		  }
+		}
+	  del=0;
+	  }
+	}
+	 
+
+
+
+
+
+
+/////////////////////////////////////////////
+
 
 	if (digfilterflag&32){ // TODO/TESTCODE here....
 	  // processing of left buffer mixed(or not)back into mono_buffer

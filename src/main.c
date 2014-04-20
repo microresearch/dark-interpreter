@@ -193,23 +193,23 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 //TESTER!
 
 	 // setup code for walkers
-	 for (x=0;x<8;x++){
+	 for (x=0;x<10;x++){
 	   settingsarray[x]=0;
 	 }//start
 
-	 for (x=8;x<16;x++){
+	 for (x=10;x<20;x++){
 	   settingsarray[x]=32767;
 	 }//wrap
 
-	 for (x=16;x<24;x++){
+	 for (x=20;x<30;x++){
 	   settingsarray[x]=1;
 	 }//step
 
-	 for (x=24;x<32;x++){
+	 for (x=30;x<37;x++){
 	   settingsarray[x]=1;
 	 }//speed
 
-	 for (x=40;x<49;x++){
+	 for (x=37;x<48;x++){
 	   settingsarray[x]=1;
 	 }//DIR
 

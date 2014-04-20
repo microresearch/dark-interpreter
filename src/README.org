@@ -213,7 +213,7 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* SAT 20 APR
+* SUN 20 APR
 
 [4days]SUN
 
@@ -221,7 +221,8 @@ outside, and in open daylight.
 
 - how to test filter/leftbuffer effects?
 
-
+- do we want to use rdst more in audio.c // monobuffer???? we use it for leftbuffer only???
+// so can discard it when we don't use leftbuffer
 
 - chunk movers in simulation
 - re-test hang/unhang in hardware

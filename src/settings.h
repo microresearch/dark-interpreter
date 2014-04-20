@@ -22,35 +22,41 @@
 #define HDGENERSTART (settingsarray[3])
 #define SAMPLESTART (settingsarray[4]) 
 #define SAMPLESTARTREAD (settingsarray[5]) 
-#define ANYSTART (settingsarray[6])
-#define ANYSTARTREAD (settingsarray[7])
+#define SAMPLESTARTFILT (settingsarray[6]) 
+#define ANYSTART (settingsarray[7])
+#define ANYSTARTREAD (settingsarray[8])
+#define ANYSTARTFILT (settingsarray[9])
 
-#define LMERWRAP (settingsarray[8])//when wrapper changes we need to redo direction array!!!
-#define MAXIMERWRAP (settingsarray[9])
-#define F0106ERWRAP (settingsarray[10])
-#define HDGENERWRAP (settingsarray[11])
-#define SAMPLEWRAP (settingsarray[12])
-#define SAMPLEWRAPREAD (settingsarray[13])
-#define ANYWRAPREAD (settingsarray[14])
-#define ANYWRAP (settingsarray[15])
 
-#define LMERSTEP (settingsarray[16])
-#define MAXIMERSTEP (settingsarray[17])
-#define F0106ERSTEP (settingsarray[18])
-#define HDGENERSTEP (settingsarray[19])
-#define SAMPLESTEP (settingsarray[20])
-#define SAMPLESTEPREAD (settingsarray[21])
-#define ANYSTEP (settingsarray[22])
-#define ANYSTEPREAD (settingsarray[23])
+#define LMERWRAP (settingsarray[10])//when wrapper changes we need to redo direction array!!!
+#define MAXIMERWRAP (settingsarray[11])
+#define F0106ERWRAP (settingsarray[12])
+#define HDGENERWRAP (settingsarray[13])
+#define SAMPLEWRAP (settingsarray[14])
+#define SAMPLEWRAPREAD (settingsarray[15])
+#define SAMPLEWRAPFILT (settingsarray[16])
+#define ANYWRAPREAD (settingsarray[17])
+#define ANYWRAP (settingsarray[18])
+#define ANYWRAPFILT (settingsarray[19])
 
-#define LMERSPEED (settingsarray[24])
-#define MAXIMERSPEED (settingsarray[25])
-#define F0106ERSPEED (settingsarray[26])
-#define HDGENERSPEED (settingsarray[27])
-#define SAMPLESPEED (settingsarray[28])
-#define SAMPLESPEEDREAD (settingsarray[29])
-#define ANYSPEED (settingsarray[30])
-#define ANYSPEEDREAD (settingsarray[31]) // 0-31 =32 (4x8) walker settings!!!
+#define LMERSTEP (settingsarray[20])
+#define MAXIMERSTEP (settingsarray[21])
+#define F0106ERSTEP (settingsarray[22])
+#define HDGENERSTEP (settingsarray[23])
+#define SAMPLESTEP (settingsarray[24])
+#define SAMPLESTEPREAD (settingsarray[25])
+#define SAMPLESTEPFILT (settingsarray[26])
+#define ANYSTEP (settingsarray[27])
+#define ANYSTEPREAD (settingsarray[28])
+#define ANYSTEPFILT (settingsarray[29])
+
+#define LMERSPEED (settingsarray[30])
+#define MAXIMERSPEED (settingsarray[31])
+#define F0106ERSPEED (settingsarray[32])
+#define HDGENERSPEED (settingsarray[33])
+#define SAMPLESPEED (settingsarray[34])
+#define SAMPLESPEEDREAD (settingsarray[35])
+#define SAMPLESPEEDFILT (settingsarray[36])
 
 // CONSTRAINT/micro-macro settings!
 // we just attack wraps directly
@@ -59,18 +65,26 @@
 
 // directions from main.c
 
-#define HDGENERDIR (settingsarray[40]) //TODO redo?
-#define LMERDIR (settingsarray[41])
-#define MAXIMERDIR (settingsarray[42])
-#define F0106ERDIR (settingsarray[43])
-#define FINALDIR (settingsarray[44])
+#define HDGENERDIR (settingsarray[37]) //TODO redo?
+#define LMERDIR (settingsarray[38])
+#define MAXIMERDIR (settingsarray[39])
+#define F0106ERDIR (settingsarray[40])
+#define FINALDIR (settingsarray[41])
 
 // directions from audio.c - add read dirs
 
-#define DATADIRR (settingsarray[45]) // TODO restrict to 4
-#define DATADIRW (settingsarray[46])
-#define SAMPLEDIRR (settingsarray[47])
-#define SAMPLEDIRW (settingsarray[48])
+#define DATADIRR (settingsarray[42]) // TODO restrict to 4
+#define DATADIRW (settingsarray[43])
+#define DATADIRF (settingsarray[44])
+#define SAMPLEDIRR (settingsarray[45])
+#define SAMPLEDIRW (settingsarray[46])
+#define SAMPLEDIRF (settingsarray[47])
+
+// CONSTRAINT/micro-macro settings!
+// we just attack wraps directly
+
+//////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////
 
@@ -93,6 +107,9 @@
 #define EFFECTREAD (settingsarray[53]) 
 //nofilter. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
 // else options = 0-14 = total=128
+
+#define EFFECTWRITE (settingsarray[54]) 
+#define EFFECTFILTER (settingsarray[54]) 
 
 // alter all/some wraps
 
