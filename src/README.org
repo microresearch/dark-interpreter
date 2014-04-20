@@ -217,7 +217,6 @@ outside, and in open daylight.
 
 [4days]SUN
 
-- re-test direction in audio.c
 - run thru basic effects
 
 - filter and effects as walkers (add to settingsarray means we have > 32)

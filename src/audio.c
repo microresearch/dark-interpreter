@@ -241,9 +241,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #else
 	// settings for firstbuffer/secondbuffer - can be datagen
 	// but we also need to work with leftbuffer (if flag is 1 or 32):
-	SAMPLEDIRW=3;
+	//	SAMPLEDIRW=3;
 	
-
+	// TODO: put this in loop below or????
 	EFFECTREAD=adc_buffer[4]>>6;// TESTY!!! 0->64
 	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
 	else firstbuf=audio_buffer;
@@ -253,7 +253,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	//	EFFECTREAD=0;
       	for (x=0;x<sz/2;x++){
 	  
-	  switch(EFFECTREAD){ //>>3 lowest bit for clip/noclip
+	  switch(EFFECTREAD>>3){ //>>3 lowest bit for clip/noclip
 	  case 0:
 	  default:
 	  *ldst++ = *src++;
