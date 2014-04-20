@@ -223,13 +223,12 @@ start on settings code etc. see below...
 
 * SUN 20 APR
 
-
 - TODO: do we want to use rdst more in audio.c // monobuffer???? we use it for leftbuffer only???
 // so can discard it when we don't use leftbuffer
 
 - TODO: look into ssat/usat to replace %32768 ???
 
-- TODO: that wraps for sim, ca should always be constrained to 32768
+- TODO: that all wraps should always be constrained to 32768
 
 - good to have knob for settings which could replace pull/pop knob (tho
   makes no sense to mirror this knob) or find somehow way to do this
@@ -237,7 +236,7 @@ start on settings code etc. see below...
 - TODO: when wrapper changes we need to redo direction array!!!
 
 - done away with cons (and processing) but simply altering
-  all wraps in settingsarray once (as action) *TODO*
+  all wraps in settingsarray once (as action) *T
 
 - TODO: test fingers with different fingers!
 
@@ -246,7 +245,7 @@ start on settings code etc. see below...
 - TODOs in each file (check all audio so far) - recheck all TODOs as
   some are new:
 
-*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcodeTEST
+*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode
 *CAforstack.c:* buffer constraint in SIR16init-IGNORE!
 *pureleak.c:* hardware tie-in for masque; SPL in corewars
 
@@ -306,7 +305,8 @@ concrete TODO:
 
 *new ideas/TODO:*
 
-- that grains can set datagen start/wrap settings also (grain spawn mode)
+- that grains can set datagen start/wrap settings also (grain spawn mode) and vice versa
+
 - macro-chunk operations/feedback like this above???TODO
 - edge/wrap for read/write become part of mirrored list of walker settings
 - new knobs= push inits + pop (as 2 knobs also with swops of buffers,

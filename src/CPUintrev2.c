@@ -150,7 +150,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    //           printf("%c",machine_peek(m,this->m_pc));
+    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
     //    this->m_CPU=5;
@@ -766,8 +766,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peek(m,this->m_pc);
       //      printf("instr %d ",instr);
 
-      //      this->m_reg8bit2=biotadir[randi()%8]; // replace with buffer steering TODO or:
-      wormdir=randi()%8;
+      //      wormdir=randi()%8;
+      wormdir=(SAMPLEDIRR*2)%8;
       this->m_reg16bit1=biotadir[wormdir];
       this->m_pc+=this->m_reg16bit1;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
@@ -1425,12 +1425,13 @@ void machine_poke(machine* this, uint16_t addr, u8 data) {
 
 void machine_run(machine* this) {
 
-  //    static u8 threadcount=0;
-  //    threadcount++;
+  static u8 thrcount=0;
+  thrcount++;
   //  if (threadcount>this->m_threadcount) {
   //    threadcount=0;
 
-    // slowing all down these 3????not so bad could run less frequenctly!TODO***
+  if (thrcount==254){
+    thrcount=0;
   if (this->m_leakiness==0) this->m_leakiness=1;
   if (this->m_infectprob==0) this->m_infectprob=1;
   if (this->m_mutateprob==0) this->m_mutateprob=1;
@@ -1447,7 +1448,7 @@ void machine_run(machine* this) {
 	if ((randi()%this->m_mutateprob)==0) {
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
 	  }
-	  //	}
+  }
 
   	for (unsigned char n=0; n<this->m_threadcount; n++) {
   	  thread_run(&this->m_threads[n],this);
@@ -1594,13 +1595,14 @@ u8 settingsarray[64];
   u8 flag,other;
   int16_t right_buffer[64]; u8 sz=128;
 
-	for (unsigned char n=0; n<100; n++)
+	for (unsigned char n=0; n<10; n++)
 	{
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
+	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
+	  cpustackpush(m,addr,addr+randi()%65536,6,1);
 	}
 
 
@@ -1623,6 +1625,7 @@ u8 settingsarray[64];
 	wrap=0;start=0;
 
 	while(1) {
+	  machine_run(m); //cpu - WRAP own speedTODO
 
 	}
 	}
