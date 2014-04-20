@@ -1578,27 +1578,37 @@ void main(void)
   //	 	   }
   
   //	              while(1){
-   static int16_t mxdir[4]={-180,1,180,-1};
-  u16 maximerpos=0,MAXIMERSTEP=1,MAXIMERDIR=3,MAXIMERWRAP=100,MAXIMERSTART=100;
-  float temp; u16 wrap=0;
-  int16_t dirrrr=-1;
+   static int16_t newdir[4]={-180,1,180,-1};
+   u16 samplepos=0,start,wrap,SAMPLESTEP=1,SAMPLEDIRW=3,SAMPLEWRAP=100,SAMPLESTART=100;
+  float temp;
+  int16_t dirrrr=-1,dirry;
 
   count=0;
 
   //  temp=sqrtf((float)wrap);mxdir[0]=-temp;mxdir[2]=temp;
   //  printf("test: %d\n",mxdir[0]);
-  count+=dirrrr;
-  if (count<wrap) printf("FAIL! %d",count+dirrrr);
-  
+  //  count+=dirrrr;
+  //  count=4096;
+  //  if (count<wrap) printf("FAIL! %d",count+dirrrr);
+  //  printf("shift %d\n",count>>6);
 
-  /*  for (x=0;x<50000;x++){
+    for (x=0;x<50000;x++){
 
-    maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
-    wrapper=MAXIMERWRAP;
-    if (wrapper==0) wrapper=1;
-    x=(MAXIMERSTART+(maximerpos%wrapper))%32768; //to cover all directions
-    printf("AT:%d\n",x);
+      dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+      count=((samplepos-start)+dirry);
+      if (count<wrap && (samplepos+dirry)>start)
+		  {
+		    samplepos+=dirry;//)%32768;
+		  }
+		else {
+		  start=SAMPLESTART;wrap=SAMPLEWRAP;
+		  newdir[0]=-180;newdir[2]=180;
+		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=SAMPLESTART;
+		  else samplepos=SAMPLESTART+SAMPLEWRAP;
+		  }
 
-    }*/
+    printf("AT:%d\n",samplepos);
+    }
+
 }
 #endif

@@ -1,3 +1,41 @@
+
+void audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,
+		  float32_t morph, u8 what)
+{
+	float32_t morph_inv = 1.0 - morph, f_sum;
+	int32_t sum;
+	
+	while(sz--)
+	{
+	  if (what&1) f_sum = (float32_t)*asrc++ * morph_inv + (float32_t)*bsrc++ * morph;
+	  else if (what&2) f_sum = (float32_t)*asrc++ * (float32_t)*bsrc++ * morph;
+	  else f_sum = (float32_t)*asrc++ + (float32_t)*bsrc++ * morph; //same as aboive
+		sum = f_sum;
+#if 0
+		sum = sum > 32767 ? 32767 : sum;
+		sum = sum < -32768 ? -32768 : sum;
+#else
+		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (sum) : [src] "r" (sum));
+#endif
+		
+		/* save to destination */
+		*dst++ = sum;
+	}
+}
+
+
+
+void buffer_put(int16_t in)
+{
+	/* put data in */
+	*audio_ptr++ = in;
+	
+	/* wrap pointer */
+	if(audio_ptr-audio_buffer == AUDIO_BUFSZ)
+		audio_ptr = audio_buffer;
+}
+
+
 ///from last cull for read/write:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 

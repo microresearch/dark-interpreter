@@ -81,55 +81,21 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 	}
 }
 
-void audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,
-		  float32_t morph, u8 what)
-{
-	float32_t morph_inv = 1.0 - morph, f_sum;
-	int32_t sum;
-	
-	while(sz--)
-	{
-	  if (what&1) f_sum = (float32_t)*asrc++ * morph_inv + (float32_t)*bsrc++ * morph;
-	  else if (what&2) f_sum = (float32_t)*asrc++ * (float32_t)*bsrc++ * morph;
-	  else f_sum = (float32_t)*asrc++ + (float32_t)*bsrc++ * morph;
-		sum = f_sum;
-#if 0
-		sum = sum > 32767 ? 32767 : sum;
-		sum = sum < -32768 ? -32768 : sum;
-#else
-		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (sum) : [src] "r" (sum));
-#endif
-		
-		/* save to destination */
-		*dst++ = sum;
-	}
-}
-
-
-
-void buffer_put(int16_t in)
-{
-	/* put data in */
-	*audio_ptr++ = in;
-	
-	/* wrap pointer */
-	if(audio_ptr-audio_buffer == AUDIO_BUFSZ)
-		audio_ptr = audio_buffer;
-}
-
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
 	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-	u16 tmp=0,tmper;
+	u16 tmp=0,tmper,count;
+	int16_t tmp16;
+	int32_t tmp32;
 	u8 x;
-	static u16 start=0,wrap,samplepos=0,anypos=0,count;
-	static u8 del=0,villagewrite=0;
+	static u16 start=0,wrap,samplepos=0,anypos=0;
+	static u8 del=0,villagewrite=0; // TODO village in settinsg
 
 	int16_t dirry=1;
 	float temp;
 
 	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
-	static u8 delread=0,villageread=2;
+	static u8 delread=0,villageread=0;  // TODO village in settinsg
 	u16 wrapper; 
 	// TODO:find a place in settings for these
 #ifdef TEST_STRAIGHT
@@ -138,6 +104,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 #else
 
 	u16 *buf16 = (u16*) datagenbuffer;
+	//	int16_t *buf16int =(int16_t*) datagenbuffer;
+	int16_t *firstbuf, *secondbuf;
 
 	// set dirs
 	static int16_t newdir[4]={-180,1,180,-1};
@@ -147,23 +115,82 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	///	///	///	///
 
-	
 	// readin villager processing of left into left and right into audio_buffer
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-	SAMPLEWRAPREAD=adc_buffer[0]; // TESTER!
-	SAMPLEWRAP=adc_buffer[3]; // TESTER!
-	
- 	for (x=0;x<sz/2;x++){
-	  *ldst++ = *src++;
-	  *rdst++ = *src;
-	  audio_buffer[sampleposread%32768]=*src++;
+		SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
+	//		SAMPLEWRAPREAD=32767; // TESTER!
+	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
+	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
 
-	  // TODO:
-	  // or src as datagenbuffer/ldst?
+	//		SAMPLEWRAP=32767; // TESTER!
 
-	  if (++delread==SAMPLESPEEDREAD){
+	/////////////////////////////LACH
+
+#ifdef LACH
+
+	// firstbuf, secondbuf
+	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	else firstbuf=audio_buffer;
+	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	else secondbuf=audio_buffer;
+
+
+      	for (x=0;x<sz/2;x++){
+
+	  switch(EFFECTREAD>>3){ // lowest bit for clip/noclip
+	  case 0:
+	  default:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  firstbuf[sampleposread%32768]=*src++;
+	  break;
+	  case 1:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  secondbuf[sampleposread%32768]=*src++;
+	  break;	    
+	  case 2:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp16=secondbuf[sampleposread%32768];
+	  secondbuf[sampleposread%32768]=firstbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
+	  break;
+
+	  // effects with/without clipping *, +, -, 
+	  case 3:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 4:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 5:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)-secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 6:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=secondbuf[sampleposread%32768]-(*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  }
+	  /////
+	  	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
@@ -209,17 +236,138 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	}
 
+	/////////////////////////////NO____LACH!!!!!!!!!
+
+#else
+	// settings for firstbuffer/secondbuffer - can be datagen
+	// but we also need to work with leftbuffer (if flag is 1 or 32):
+	SAMPLEDIRW=3;
+	
+
+	EFFECTREAD=adc_buffer[4]>>6;// TESTY!!! 0->64
+	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	else firstbuf=audio_buffer;
+	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	else secondbuf=audio_buffer;
+		
+	//	EFFECTREAD=0;
+      	for (x=0;x<sz/2;x++){
+	  
+	  switch(EFFECTREAD){ //>>3 lowest bit for clip/noclip
+	  case 0:
+	  default:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  firstbuf[sampleposread%32768]=*src++;
+	  break;
+	  ///////
+	  case 1:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  secondbuf[sampleposread%32768]=*src++;
+	  break;	    
+	  case 2:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp16=secondbuf[sampleposread%32768];
+	  secondbuf[sampleposread%32768]=firstbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
+	  break;
+
+	  // effects with/without clipping *, +, -, 
+	  case 3:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 4:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 5:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)-secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 6:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=secondbuf[sampleposread%32768]-(*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  }
+	 
+	  /*	  
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  firstbuf[sampleposread%32768]=*src++;
+	  */
+
+	  	  if (++delread==SAMPLESPEEDREAD){
+	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	    count=((sampleposread-startread)+dirry);
+	    if (count<wrapread && (sampleposread+dirry)>startread)
+		  {
+		    sampleposread+=dirry;//)%32768;
+		  }
+		else {
+		  if (villageread==0) {
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    newdirread[0]=-180;newdirread[2]=180;
+		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
+		    else sampleposread=startread+wrapread;
+		  }
+
+		  else if (villageread==1) {
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
+		  tmper=buf16[tmp]>>1;	
+		  sampleposread=SAMPLESTARTREAD+tmper;
+		  wrapread=0;startread=0;
+		  }
+		  else {
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  wrapper=ANYWRAPREAD; 
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  startread=buf16[tmp]>>1;
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  wrapper=ANYWRAPREAD;
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  wrapread=buf16[tmp]>>1;
+		  if (wrapread==0) wrapread=1;
+		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
+		  else sampleposread=startread+wrapread;
+		  temp=sqrtf((float)wrapread);newdirread[0]=-temp;newdirread[2]=temp;
+		  }
+		}
+	  delread=0;
+	  }
+	}
+
+#endif
+
+////////////////////////////////END OF READINSSS
+
 	// writeout villager processing  into mono_buffer
-	SAMPLESPEED=1;SAMPLESTEP=1;SAMPLEDIRW=1;
-	SAMPLESTART=0;
-	//	cons=32768;
 
 
  	for (x=0;x<sz/2;x++){
 	  	    mono_buffer[x]=audio_buffer[samplepos%32768];
-	  //  	    mono_buffer[x]=buf16[samplepos%32768];
 
-	  if (++del==SAMPLESPEED){
+		    	  if (++del==SAMPLESPEED){
 	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && (samplepos+dirry)>start)
@@ -296,6 +444,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //
 
 	  //!!!! COPY walker from above and select ops for mix/multiply/morph/whatever
+	  // also zero as effect action (actions also above with read/write)
 
 	}
 

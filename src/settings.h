@@ -90,6 +90,10 @@
 
 // villageread, villagewrite=0-2
 
+#define EFFECTREAD (settingsarray[53]) 
+//LACH. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
+//NOLACH. bit0=clip/noclip; 
+
 // alter all/some wraps
 
 // when wrapper changes we need to redo direction array!!!

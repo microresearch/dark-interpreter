@@ -213,24 +213,36 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
-* FRI 18 APR
+* SAT 20 APR
 
-*TODOideas*: 
+[4days]SUN
+
+- re-test direction in audio.c
+- run thru basic effects
+
+- filter and effects as walkers (add to settingsarray means we have > 32)
+- also that if flag is so can add left to possible audiobuffer
 
 - chunk movers in simulation
 - re-test hang/unhang
-- for LACH replace hardware knobs with 2x start.edge read.write (mirror divides into 4 now)
 
-- bulk settings at angles -process across all settings eg.++(but
-that is done by datagen walker)
+- look into ssat/usat to replace %32768 ???
+
+*TODO/ideas*: 
 
 - good to have knob for settings which could replace pull/pop knob (tho
   makes no sense to mirror) or find somehow way to do this
 
-- when wrapper changes we need to redo direction array!!!
+/////
+
+- TODO: when wrapper changes we need to redo direction array!!!
 
 - done away with cons (and processing) but simply altering
   all wraps in settingsarray once (as action) *TODO*
+
+- TODO: test fingers with different fingers!
+
+* FRI 18 APR
 
 ///DONE:
 
@@ -258,20 +270,14 @@ DONE:
 
 concrete TODO:
 
-[4days]SUN
-
-- filter and effects as walkers (add to settingsarray means we have > 32)
-- also that if flag is so can add left to possible audiobuffer
-
+[5/6days]MON/TUE
 - push and pop/buffer+swop/datagen settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
   mirroring, constraint, expansion, reduction, remapping
-
-[5/6days]MON/TUE
 - mirror knob: cross-settings option(mirror etc.) 
 - knob and finger code
-- how/if to work with larger chunk movements???
+
 - extras like grain spawn mode, mirroring of settings
 - TODOs in each file (check all audio so far) - recheck all TODOs as
   some are new:
@@ -280,8 +286,13 @@ concrete TODO:
 *cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
 
 [extras]WED/THU/FRI
+
 - excess settings - actions such as read/write mirroring which are one off operations
-- redefine extra knob for LACH (as was edger!)
+
+- redefine extra knob for LACH (as was edger!): - for LACH replace
+  hardware knobs with 2x start.edge read.write (mirror divides into 4
+  now)
+
 - tweaking
 
 * TUE 15 APR

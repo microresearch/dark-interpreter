@@ -141,9 +141,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
   w= w/256;
       for (i = 0; i <= 256; i++)
     {
-      yi= 2047*sinf(phase); // was 2047
+      yi= 16383*sinf(phase); // was 2047
       phase=phase+w;
-      sign_samp=2047+yi;     // dc offset translated for a 12 bit DAC
+      sign_samp=16383+yi;     // dc offset translated for a 12 bit DAC - but is 16 bit?
       sin_data[i]=sign_samp; // write value into array
       }
 
@@ -209,6 +209,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	   settingsarray[x]=1;
 	 }//speed
 
+	 for (x=40;x<49;x++){
+	   settingsarray[x]=1;
+	 }//DIR
+
 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
@@ -249,11 +253,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	  while(1)
 	  {
 
- #ifdef TEST_STRAIGHT
+#ifdef TEST_STRAIGHT
 
 	    // nothing???
 
- #else
+#else
 
 
 	    //0- speed knob=hardware speed, cpu speed(shift>>)=generic speed, grainsize (>>also)
