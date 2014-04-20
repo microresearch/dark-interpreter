@@ -128,6 +128,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	/////////////////////////////LACH
 
+	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
+
+
 #ifdef LACH
 
 	// firstbuf, secondbuf
@@ -237,14 +240,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 
 	/////////////////////////////NO____LACH!!!!!!!!!
-
 #else
-	// settings for firstbuffer/secondbuffer - can be datagen
-	// but we also need to work with leftbuffer (if flag is 1 or 32):
-	//	SAMPLEDIRW=3;
-	
+
+	if (digfilterflag&32 || digfilterflag&1){
+
+	  ////////////////////////////////////LDST effects also...
+
+	  // so ldst *(src-1) becomes possible mixerrr
 	// TODO: put this in loop below or????
-	EFFECTREAD=adc_buffer[4]>>6;// TESTY!!! 0->64
 	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
 	else firstbuf=audio_buffer;
 	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
@@ -273,8 +276,188 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  secondbuf[sampleposread%32768]=firstbuf[sampleposread%32768];
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
+	  ////////
+	  // Effects with/without clipping *, +, -, 
+	  case 3:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 4:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 5:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++)-secondbuf[sampleposread%32768];
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 6:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=secondbuf[sampleposread%32768]-(*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
 
-	  // effects with/without clipping *, +, -, 
+
+	  // start of *(src-1)
+	  case 7:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32= *(src-1) * (*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 8:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=secondbuf[samplepos%32768]* *(src-1);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *src++;
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 9:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=*(src-1)-(*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 10:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=(*src++) - *(src-2);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 11:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=secondbuf[sampleposread%32768]-*(src-1);
+	  *src++;
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 12:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32= *(src-1)-secondbuf[sampleposread%32768];
+	  *src++;
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+
+	  case 13:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=*(src-1)+(*src++);
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  case 14:
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp32=*(src-1)+secondbuf[sampleposread%32768];
+	  *src++;
+	  if (EFFECTREAD&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  firstbuf[sampleposread%32768]=tmp32;
+	  break;
+	  }
+	 
+	  /*	  
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  firstbuf[sampleposread%32768]=*src++;
+	  */
+
+	  	  if (++delread==SAMPLESPEEDREAD){
+	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	    count=((sampleposread-startread)+dirry);
+	    if (count<wrapread && (sampleposread+dirry)>startread)
+		  {
+		    sampleposread+=dirry;//)%32768;
+		  }
+		else {
+		  if (villageread==0) {
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    newdirread[0]=-180;newdirread[2]=180;
+		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
+		    else sampleposread=startread+wrapread;
+		  }
+
+		  else if (villageread==1) {
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
+		  tmper=buf16[tmp]>>1;	
+		  sampleposread=SAMPLESTARTREAD+tmper;
+		  wrapread=0;startread=0;
+		  }
+		  else {
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  wrapper=ANYWRAPREAD; 
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  startread=buf16[tmp]>>1;
+		  tmp=ANYSTEPREAD*directionread[DATADIRR];
+		  anyposread+=tmp;
+		  wrapper=ANYWRAPREAD;
+		  if (wrapper==0) wrapper=1;
+		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
+		  wrapread=buf16[tmp]>>1;
+		  if (wrapread==0) wrapread=1;
+		  if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread;
+		  else sampleposread=startread+wrapread;
+		  temp=sqrtf((float)wrapread);newdirread[0]=-temp;newdirread[2]=temp;
+		  }
+		}
+	  delread=0;
+	  }
+	}
+
+	}
+	else
+	  {
+	// TODO: put this in loop below or????
+	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	else firstbuf=audio_buffer;
+	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	else secondbuf=audio_buffer;
+		
+	//	EFFECTREAD=0;
+      	for (x=0;x<sz/2;x++){
+	  
+	  switch(EFFECTREAD>>3){ //>>3 lowest bit for clip/noclip
+	  case 0:
+	  default:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  firstbuf[sampleposread%32768]=*src++;
+	  break;
+	  ///////
+	  case 1:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  secondbuf[sampleposread%32768]=*src++;
+	  break;	    
+	  case 2:
+	  *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  tmp16=secondbuf[sampleposread%32768];
+	  secondbuf[sampleposread%32768]=firstbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
+	  break;
+	  ////////
+	  // Effects with/without clipping *, +, -, 
 	  case 3:
 	  *src++;
 	  *rdst++ = *src; // TODO: if we use this at all!
@@ -356,7 +539,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  delread=0;
 	  }
 	}
-
+	  }
 #endif
 
 ////////////////////////////////END OF READINSSS
@@ -422,18 +605,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #ifndef LACH // as we have no filter!
 
-	if (digfilterflag&32){ // TODO/TESTCODE here....
-	  // processing of left buffer mixed(or not)back into mono_buffer
-
-	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
-	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
-
-	  //!!! COPY walker from above and select ops for mix/multiply/morph/whatever
-
-
-	}
-
-	else if (digfilterflag&1){ // TODO
+if (digfilterflag&1){ // TODO
 	  // 3- any processing of left buffer into left buffer
 	  // left as datagen/as process of right/as process of left/as new buffer/as mix of these
 	  /// but for filter/leftbuffer effect we have no buffer spare - should act

@@ -91,8 +91,8 @@
 // villageread, villagewrite=0-2
 
 #define EFFECTREAD (settingsarray[53]) 
-//LACH. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
-//NOLACH. bit0=clip/noclip; 
+//nofilter. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
+// else options = 0-14 = total=128
 
 // alter all/some wraps
 

@@ -217,13 +217,14 @@ outside, and in open daylight.
 
 [4days]SUN
 
-- run thru basic effects
-
 - filter and effects as walkers (add to settingsarray means we have > 32)
-- also that if flag is so can add left to possible audiobuffer
+
+- how to test filter/leftbuffer effects?
+
+
 
 - chunk movers in simulation
-- re-test hang/unhang
+- re-test hang/unhang in hardware
 
 - look into ssat/usat to replace %32768 ???
 

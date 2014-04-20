@@ -1,4 +1,25 @@
 
+	if (digfilterflag&32){ // TODO/TESTCODE here....
+	  // processing of left buffer mixed(or not)back into mono_buffer
+
+	  //audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,float32_t morph, u8 what) what - what is 1 or 2 so far for options
+	  //	  audio_morphy(sz/2, mono_buffer, mono_buffer, left_buffer,0.1f,2);
+
+	  //!!! COPY walker from above and select ops for mix/multiply/morph/whatever
+
+
+	}
+
+	else 
+
+      	for (x=0;x<sz/2;x++){
+	  
+	  *ldst++ = *src++;
+	  *rdst++ = *src; // TODO: if we use this at all!
+	  audio_buffer[sampleposread%32768]=*src++;
+
+	}
+
 void audio_morphy(int16_t sz, int16_t *dst, int16_t *asrc, int16_t *bsrc,
 		  float32_t morph, u8 what)
 {
