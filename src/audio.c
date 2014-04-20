@@ -89,7 +89,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	int32_t tmp32;
 	u8 x;
 	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-	static u8 del=0,delf=0,villagewrite=0; // TODO village in settinsg
+	static u8 del=0,delf=0,villagewrite=0; // TODO village in settings
 
 	int16_t dirry=1;
 	float temp;

@@ -13,9 +13,6 @@
 
 //////////////////////////////////////////////WALKERS
 
-// these as chunks or do all steps, then wraps usw. TODO- makes more sense
-
-
 #define MAXIMERSTART (settingsarray[0])
 #define LMERSTART (settingsarray[1])
 #define F0106ERSTART (settingsarray[2])

@@ -199,6 +199,121 @@ void runsine(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   unit->count=count;
 }
 
+//////////////////////////////////////////////////////////
+/* chunking 
+
+- copy one buffer chunk to another chunk
+- do some kind of walker
+
+*/
+
+void chunkinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
+  struct chunkey* unit=unity; u16 tmp;
+  unit->otherstart=workingbuffer[0]>>1;
+  unit->otherwrap=workingbuffer[1]>>1;
+  if (unit->otherstart>unit->otherwrap) {
+    u16 tmp=unit->otherstart;
+    unit->otherstart=unit->otherwrap;
+    unit->otherwrap=tmp;
+  }
+  unit->start=start;
+  unit->wrap=wrap;
+  unit->count=start;
+  unit->othercount=unit->otherstart;
+}
+
+void runchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  struct chunkey* unit=unity;
+  u16 count=unit->count;
+  u16 othercount=unit->othercount;
+
+  for (i=0; i<howmuch; i++) {
+    count++;
+    othercount++;
+    if (count>=unit->wrap) count=unit->start;
+    if (othercount>=unit->otherwrap) othercount=unit->otherstart;
+        workingbuffer[count]=workingbuffer[othercount];
+#ifdef PCSIM
+        printf("%c",workingbuffer[count]);
+    //    if (count>32767) printf("CONVCRASH%d\n",count);
+
+#endif
+  }
+  unit->count=count;
+  unit->othercount=othercount;
+}
+
+void runderefchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  struct chunkey* unit=unity;
+  u16 count=unit->count;
+
+  for (i=0; i<howmuch; i++) {
+    count++;
+    if (count>=unit->wrap) count=unit->start;
+    workingbuffer[count]=workingbuffer[workingbuffer[count]>>1];
+#ifdef PCSIM
+        printf("%c",workingbuffer[count]);
+    //    if (count>32767) printf("CONVCRASH%d\n",count);
+
+#endif
+  }
+  unit->count=count;
+}
+
+void runwalkerchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  struct chunkey* unit=unity;
+  u16 count=unit->count; u16 tmp;
+  u16 othercount=unit->othercount;
+
+  for (i=0; i<howmuch; i++) {
+    count++;
+    othercount++;
+    if (count>=unit->wrap) count=unit->start;
+    if (othercount>=unit->otherwrap) {
+      othercount=workingbuffer[count]>>1;
+      unit->otherwrap=(othercount+workingbuffer[(count+1)%32768]>>1)%32768;
+    }
+    workingbuffer[count]=workingbuffer[othercount];
+
+#ifdef PCSIM
+        printf("%c",workingbuffer[count]);
+    //    if (count>32767) printf("CONVCRASH%d\n",count);
+
+#endif
+  }
+  unit->count=count;
+  unit->othercount=othercount;
+}
+
+
+void runswapchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+  u8 i=0;
+  struct chunkey* unit=unity;
+  u16 count=unit->count; u16 tmp;
+  u16 othercount=unit->othercount;
+
+  for (i=0; i<howmuch; i++) {
+    count++;
+    othercount++;
+    if (count>=unit->wrap) count=unit->start;
+    if (othercount>=unit->otherwrap) othercount=unit->otherstart;
+    tmp=workingbuffer[count];
+    workingbuffer[count]=workingbuffer[othercount];
+    workingbuffer[othercount]=tmp;
+#ifdef PCSIM
+        printf("%c",workingbuffer[count]);
+    //    if (count>32767) printf("CONVCRASH%d\n",count);
+
+#endif
+  }
+  unit->count=count;
+  unit->othercount=othercount;
+}
+
+
 
 //////////////////////////////////////////////////////////
 
@@ -450,10 +565,14 @@ void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     count++;
         if (count>=unit->wrap) count=unit->start;
 
-    //    workingbuffeur[count]=randi()%255; ////TODO!!!! WHICH KONNNNBBB
-#ifdef PCSIM
+#ifndef PCSIM
+
+#ifdef SUSP | LACH
+        workingbuffeur[count]=adc_buffer[3]<<4;
     //    printf("%d\n",workingbuffer[count]);
-	    printf("%c", workingbuffer[count]);
+#else
+        workingbuffeur[count]=adc_buffer[2]<<4;
+#endif
 #endif
   }
     unit->count=count;
@@ -473,7 +592,7 @@ void runswapaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 #ifndef PCSIM
     // convert signed to unsigned how? 
 
-    temp=(uint16_t)audio_buffer[count%AUDIO_BUFSZ];
+    temp=(uint16_t)audio_buffer[count];
     audio_buffer[count%AUDIO_BUFSZ]=(int16_t)workingbuffer[count];
     workingbuffer[count]=temp;
 #endif
@@ -495,26 +614,26 @@ void runORaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 #ifndef PCSIM
     // convert signed to unsigned how? 
 
-    temp=(uint16_t)audio_buffer[count%AUDIO_BUFSZ];
+    temp=(uint16_t)audio_buffer[count];
     switch(unit->cop%5){
     case 0:
-    audio_buffer[count%AUDIO_BUFSZ]|=(int16_t)workingbuffer[count];
+    audio_buffer[count]|=(int16_t)workingbuffer[count];
     workingbuffer[count]|=temp;
     break;
     case 1:
-    audio_buffer[count%AUDIO_BUFSZ]^=(int16_t)workingbuffer[count];
+    audio_buffer[count]^=(int16_t)workingbuffer[count];
     workingbuffer[count]^=temp;
     break;
     case 2:
-    audio_buffer[count%AUDIO_BUFSZ]&=(int16_t)workingbuffer[count];
+    audio_buffer[count]&=(int16_t)workingbuffer[count];
     workingbuffer[count]&=temp;
     break;
     case 3:
-    audio_buffer[count%AUDIO_BUFSZ]-=(int16_t)workingbuffer[count];
+    audio_buffer[count]-=(int16_t)workingbuffer[count];
     workingbuffer[count]+=temp;
     break;
     case 4:
-    audio_buffer[count%AUDIO_BUFSZ]+=(int16_t)workingbuffer[count];
+    audio_buffer[count]+=(int16_t)workingbuffer[count];
     workingbuffer[count]-=temp;
     break;
     }
@@ -1518,6 +1637,26 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 	stack[stack_pos].unit=malloc(sizeof(struct Fitz));
 	fitzinit(stack[stack_pos].unit,buffer,start,wrap);
 	stack[stack_pos].functione=runfitz;
+	break;
+      case SWAPCHUNKY:
+	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
+	chunkinit(stack[stack_pos].unit,buffer,start,wrap);
+	stack[stack_pos].functione=runswapchunk;
+	break;
+      case CHUNKY:
+	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
+	chunkinit(stack[stack_pos].unit,buffer,start,wrap);
+	stack[stack_pos].functione=runchunk;
+	break;
+      case DEREFCHUNKY:
+	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
+	chunkinit(stack[stack_pos].unit,buffer,start,wrap);
+	stack[stack_pos].functione=runderefchunk;
+	break;
+      case WALKERCHUNKY:
+	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
+	chunkinit(stack[stack_pos].unit,buffer,start,wrap);
+	stack[stack_pos].functione=runwalkerchunk;
       }
       stack_pos++;
     }
@@ -1551,7 +1690,7 @@ void main(void)
   u8 howmuch,i;
   //   uint16_t xxx[MAX_SAM];
      u8 xxx[MAX_SAM*2];
-  srand(time(NULL));
+     srand(time(NULL)*rand());
 
   u16 AUDIO_BUFSZ=32768;
   u16 f0106erpos=0, F0106ERSTEP=1, F0106ERWRAP, F0106ERSTART, f0cons,tmp,wrapper;
@@ -1570,45 +1709,16 @@ void main(void)
   //  forminit(unity, xxx,0,3);
 
   //  printf("test%d\n",256<<7);
-  //	 for (x=0;x<STACK_SIZE;x++){
-  //	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
-	   //   stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
-	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);
-	   //signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap){
-  //	 	   }
+  	 for (x=0;x<STACK_SIZE;x++){
+	   //  	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
+	   //	     stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap //29-32
+	   stack_pos=func_pushn(stackyy,31,buf16,stack_pos,rand()%32760,0,rand()%32760);
+  	 	   }
   
-  //	              while(1){
-   static int16_t newdir[4]={-180,1,180,-1};
-   u16 samplepos=0,start,wrap,SAMPLESTEP=1,SAMPLEDIRW=3,SAMPLEWRAP=100,SAMPLESTART=100;
-  float temp;
-  int16_t dirrrr=-1,dirry;
+  	              while(1){
+			func_runall(stackyy,buf16,stack_pos); // simulations
 
-  count=0;
-
-  //  temp=sqrtf((float)wrap);mxdir[0]=-temp;mxdir[2]=temp;
-  //  printf("test: %d\n",mxdir[0]);
-  //  count+=dirrrr;
-  //  count=4096;
-  //  if (count<wrap) printf("FAIL! %d",count+dirrrr);
-  //  printf("shift %d\n",count>>6);
-
-    for (x=0;x<50000;x++){
-
-      dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
-      count=((samplepos-start)+dirry);
-      if (count<wrap && (samplepos+dirry)>start)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-		  start=SAMPLESTART;wrap=SAMPLEWRAP;
-		  newdir[0]=-180;newdir[2]=180;
-		  if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=SAMPLESTART;
-		  else samplepos=SAMPLESTART+SAMPLEWRAP;
-		  }
-
-    printf("AT:%d\n",samplepos);
-    }
-
+		      }
 }
+
 #endif

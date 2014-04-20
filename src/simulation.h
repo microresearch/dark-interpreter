@@ -12,7 +12,7 @@
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16
 #define STACK_SIZE 16
-#define NUM_FUNCS 29
+#define NUM_FUNCS 33
 
 #define CONVY 0
 #define SINEY 1
@@ -43,6 +43,10 @@
 #define OREGONY 26
 #define FITZY 27
 #define FORMY 28
+#define CHUNKY 29
+#define DEREFCHUNKY 30
+#define WALKERCHUNKY 31
+#define SWAPCHUNKY 32
 
 typedef unsigned char u8;
 typedef uint16_t u16;
@@ -68,6 +72,12 @@ struct generik{
   u16 cop;
   u16 start, wrap, count;
 };
+
+struct chunkey{
+  u16 otherstart,otherwrap,othercount;
+  u16 start, wrap, count;
+};
+
 
 struct simpleSIR{
   float beta;//=520.0/365.0;
