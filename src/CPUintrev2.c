@@ -9,12 +9,17 @@
 #include <string.h>
 #include <time.h>
 #include "CPUint.h"
+#include "settings.h"
+u16 settingsarray[64];
 #define randi() rand()
 #else
 #include <malloc.h>
 #include "CPUint.h"
+#include "settings.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
+extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
+extern u16 settingsarray[64];
 #endif
 
 #include <math.h>
@@ -47,12 +52,7 @@ Based in part on spork factory by Dave Griffiths.
 
 */
 
-/* TODO:
-
-- output for reddeath and few others (how?)
-
-- fix 16/8 bit issue in poke and peek!!!!!!!!!!!!1
-
+/* 
 /////////////OLDER::::
 
 - cpus link to grains - some variable/array for exchange of grains/cpu
@@ -356,7 +356,7 @@ void thread_run(thread* this, machine *m) {
 ///////////////////////////////////////////////////////////////
 
     case 3:
-      // masque red death: add in output???
+      // masque red death: 
 
       if (this->m_pc>=this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
@@ -375,7 +375,9 @@ void thread_run(thread* this, machine *m) {
       case 1:
 	if (this->m_reg8bit2==13){
 	  this->m_reg16bit1++;
-	  machine_poke(m,this->m_reg16bit1,machine_p88k(m,this->m_pc)); //READ IN! TODO!
+#ifndef PCSIM
+	  machine_poke(m,this->m_reg16bit1,audio_buffer[this->m_pc%32768]); //READ IN
+#endif
 	  this->m_pc++;
 	}
 	else this->m_pc++;
@@ -390,7 +392,19 @@ void thread_run(thread* this, machine *m) {
 	else this->m_pc++;
 	break;
 	case 3:
-	  //	  seven rooms: divide cellspace into 7 - 7 layers with filter each: TODO
+	  //	  seven rooms: 
+	  temp= (this->m_pc)%7;
+	  LMERWRAP=LMERWRAP>>temp;
+	  MAXIMERWRAP=MAXIMERWRAP>>temp;
+	  F0106ERWRAP=F0106ERWRAP>>temp;
+	  HDGENERWRAP=HDGENERWRAP>>temp;
+	  SAMPLEWRAP=SAMPLEWRAP>>temp;
+	  SAMPLEWRAPREAD=SAMPLEWRAPREAD>>temp;
+	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;
+	  ANYWRAPREAD=ANYWRAPREAD>>temp;
+	  ANYWRAP=ANYWRAP>>temp;
+	  ANYWRAPFILT=ANYWRAPFILT>>temp;
+	  this->m_pc++;
 	  break;
 	case 4:
 	  machine_poke(m,this->m_reg16bit1-1,machine_p88k(m,this->m_reg8bit1-1)^255);
@@ -407,7 +421,6 @@ void thread_run(thread* this, machine *m) {
 	  break;
 #ifndef PCSIM
 	case 6:
-	  //cells[omem+1]=adcread(3); rEADIN TODO
 	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[((this->m_reg16bit1)>>8)%10]);
 #endif
 	  this->m_pc++;
@@ -1610,50 +1623,6 @@ u8 settingsarray[64];
 	wrap=0;start=0;
 
 	while(1) {
-
-	  /* 	for (x=0;x<sz/2;x++){
-	  if (++del==speed){
-	    //	    tmp=(samplestep*direction[sampledir])%32768; // and if goes backwards in dir? wrap?
-	    if (sampledir&1) dirry=1;
-	    else dirry=-1;
-	    
-	    if ((samplepos+dirry)<wrap && (samplepos+dirry)>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-		  //	    if (++anydel==anyspeed){
-	      tmp=anystep*direction[anydir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      start=buf16[tmp];
-	      tmp=anystep*direction[anydir];
-	      anypos+=tmp;
-	      tmp=anypos%32768;
-	      wrap=buf16[tmp];
-
-	      if (wrap>start) wrap=wrap-start; //or grain is backwards - alter dir?
-	      else wrap=start-wrap;
-	      
-	      //	    printf("xxxdir %d samplepos %d wrap %d start %d\n",dirry, samplepos,wrap,start);
-	    start=start%32768;wrap=wrap>>4;  //constrain sample wrap size//TODO complex/speed?
-	      if (wrap<1) wrap=2;
-	      if (sampledir&1) samplepos=0;
-	      else samplepos=wrap;
-		}
-	  del=0;
-	  }
-	  //	    	  mono_buffer[x]=audio_buffer[(start+samplepos)%32768];
-	    	    printf("dir %d samplepos %d wrap %d start %d sample %d\n",dirry, samplepos,wrap,start, samplepos+start);
-		    }*/
-
-
-	  //	  printf("%d\n",256<<7);
-
-	//	  printf("samplepos %d wrap %d start %d\n",samplepos,wrap,start);
-
-	  settingsarray[20]--;
-	  printf("ary %d\n",settingsarray[20]);
 
 	}
 	}

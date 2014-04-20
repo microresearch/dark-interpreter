@@ -219,14 +219,10 @@ outside, and in open daylight.
 - how to test filter/leftbuffer effects?
 - re-test hang/unhang in hardware
 
-
+start on settings code etc. see below...
 
 * SUN 20 APR
 
-
-- TODO: chunk movers in simulationDONE-toTEST
-
-//////
 
 - TODO: do we want to use rdst more in audio.c // monobuffer???? we use it for leftbuffer only???
 // so can discard it when we don't use leftbuffer
@@ -235,12 +231,8 @@ outside, and in open daylight.
 
 - TODO: that wraps for sim, ca should always be constrained to 32768
 
-*TODO/ideas*: 
-
 - good to have knob for settings which could replace pull/pop knob (tho
-  makes no sense to mirror) or find somehow way to do this
-
-/////
+  makes no sense to mirror this knob) or find somehow way to do this
 
 - TODO: when wrapper changes we need to redo direction array!!!
 
@@ -248,6 +240,20 @@ outside, and in open daylight.
   all wraps in settingsarray once (as action) *TODO*
 
 - TODO: test fingers with different fingers!
+
+*//DONE:***
+
+- TODOs in each file (check all audio so far) - recheck all TODOs as
+  some are new:
+
+*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcodeTEST
+*CAforstack.c:* buffer constraint in SIR16init-IGNORE!
+*pureleak.c:* hardware tie-in for masque; SPL in corewars
+
+
+- TODO: chunk movers in simulationDONE
+
+- all effectsDONE
 
 * FRI 18 APR
 
@@ -286,11 +292,6 @@ concrete TODO:
 - knob and finger code
 
 - extras like grain spawn mode, mirroring of settings
-- TODOs in each file (check all audio so far) - recheck all TODOs as
-  some are new:
-*CAforstack.c:* buffer constraint in SIR16init
-*pureleak.c:* hardware tie-in for masque; SPL in corewars,; var readins
-*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
 
 [extras]WED/THU/FRI
 

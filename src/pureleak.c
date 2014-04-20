@@ -1,3 +1,5 @@
+
+
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -5,14 +7,21 @@
 #include <string.h>
 #include <sys/time.h>
 #include "CPUint.h"
+#include "settings.h"
 #define randi() rand()
+u16 settingsarray[64];
 #else
 #include <malloc.h>
 #include "CPUint.h"
+#include "settings.h"
 #define randi() (adc_buffer[9])
 //#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
+extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
+extern u16 settingsarray[64];
 #endif
+
+
 
 #include <math.h>
 
@@ -186,10 +195,10 @@ void thread_runnn(u8* buffer, u8 threadnum) {
 
   //  dircalc(biotadir,65536,256);
   //    CPU=16; //16=crash
-    if (++DELC==DELAY){
+      if (++DELC==DELAY){
 #ifdef PCSIM
-    //            printf("CPU: %d\n",CPU);
-    //        printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
+  //            printf("CPU: %d\n",CPU);
+            printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
 #endif
 
   switch(CPU%max_cpus)
@@ -467,7 +476,7 @@ break;
 ///////////////////////////////////////////////////////////////
 
     case 3:
-      // masque red death: add in output???
+      // masque red death:
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(buffer,addr);
@@ -487,7 +496,9 @@ break;
 	if (BIT81==13){
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  y++;
-	  machine_pokeee(buffer,y,machine_p88kkk(buffer,addr)); //READ IN! TODO!
+#ifndef PCSIM
+	  machine_pokeee(buffer,y,audio_buffer[addr%32768]); //READ IN
+#endif
 	  BITADDRHI=y>>8; // hi/lo
 	  BITADDRLO=y&255;
 	  addr++;
@@ -498,22 +509,35 @@ break;
 	BIT81++;
 	if (BIT81==60){
 	  y=((BITADDRHI<<8)+BITADDRLO);
-	  BIT81++;
 	  machine_pokeee(buffer,y,machine_p88kkk(buffer,y)^255);
 	  BIT81=0;
+	  y++;
 	  BITADDRHI=y>>8; // hi/lo
 	  BITADDRLO=y&255;
 	}
 	else addr++;
 	break;
 	case 3:
-	  //	  seven rooms: divide cellspace into 7 - 7 layers with filter each: TODO
+	  //	  seven rooms: divide cellspace into 7 - reduce wrap!!! constrain!!!
+	  temp= addr%7;
+	  LMERWRAP=LMERWRAP>>temp;
+	  MAXIMERWRAP=MAXIMERWRAP>>temp;
+	  F0106ERWRAP=F0106ERWRAP>>temp;
+	  HDGENERWRAP=HDGENERWRAP>>temp;
+	  SAMPLEWRAP=SAMPLEWRAP>>temp;
+	  SAMPLEWRAPREAD=SAMPLEWRAPREAD>>temp;
+	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;
+	  ANYWRAPREAD=ANYWRAPREAD>>temp;
+	  ANYWRAP=ANYWRAP>>temp;
+	  ANYWRAPFILT=ANYWRAPFILT>>temp;
+	  addr++;
 	  break;
 	case 4:
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  machine_pokeee(buffer,y-1,machine_p88kkk(buffer,BIT81-1)^255);
 	  machine_pokeee(buffer,y+1,machine_p88kkk(buffer,BIT81+1)^255);
 	  addr++;
+	  y++;
 	  BITADDRHI=y>>8; // hi/lo
 	  BITADDRLO=y&255;
 	  break;
@@ -527,7 +551,6 @@ break;
 	  break;
 #ifndef PCSIM
 	case 6:
-	  //cells[omem+1]=adcread(3); rEADIN TODO
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  machine_pokeee(buffer,y+2,adc_buffer[(y>>8)%10]);
 #endif
@@ -837,9 +860,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	else addr+=3;
 	break;
       case 26:
-	// SPL
-	//- add new thread at address x
-	//TODO!!!	cpustackpush(buffer,(u16)m->m_memory[addr+1],(u16)m->m_memory[addr+2],6,this->m_del);
+	//- add new thread at address x SPL
+	cpustackpushhh(buffer,machine_peekkk(buffer,addr+1),machine_peekkk(buffer,addr+2),6,0);
+	addr+=3;
 	break;
       case 27:
 	addr+=3;
@@ -855,7 +878,6 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	addr+=3;
 	break;
       }
-      //      printf("%c",addr);
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
       break;    
@@ -912,8 +934,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peekkk(buffer,addr);
       //      printf("instr %d ",instr);
 
-      //      BIT81=biotadir[randi()%8]; // replace with buffer steering TODO or:
-      wormdir=randi()%8;
+      wormdir=(SAMPLEDIRR*2)%8;
       addr=((PCADDRHI<<8)+PCADDRLO);
       y=biotadir[wormdir];
       addr+=y;
@@ -1581,10 +1602,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      if (addr<3) addr=3;
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
-
     }
-
-     }
+}
 }
 
 u16 machine_peekkk(u8* buffer, uint16_t addr) {
@@ -1621,20 +1640,21 @@ int main(void)
   //   u16 threads[MAX_FRED];// or this is also in the buffer! DONE
 
   // inc threadcount, array of offsets
-  for (x=0;x<MAX_FRED;x++){
+  for (x=0;x<MAX_FRED/2;x++){
     addr=randi()%65536;
-    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
-  }
+    //    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
+    cpustackpushhh(buffer,addr,addr+randi()%65536,3,1);//masque, 6=corewars
+}
 
   x=0; 
     while(1) {
-          machine_runnn(buffer);
+      machine_runnn(buffer);
       //    printf("%c",buffer[x++]);
       //      x++;
-	  addr=randi()%65536;
-	  if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
+	  //	  addr=randi()%65536;
+	  /* if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1); */
 
-	  else  			cpustackpoppp(buffer);
+	  /* else  			cpustackpoppp(buffer); */
 		 //  printf("stackposy: %d\n", stack_posy);
 
 

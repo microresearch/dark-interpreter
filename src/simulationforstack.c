@@ -567,7 +567,7 @@ void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 #ifndef PCSIM
 
-#ifdef SUSP | LACH
+#if defined(SUSP) || defined(LACH)
         workingbuffeur[count]=adc_buffer[3]<<4;
     //    printf("%d\n",workingbuffer[count]);
 #else
