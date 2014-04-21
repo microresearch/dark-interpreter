@@ -174,7 +174,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // init machine/datagens
 	 machine *m=(machine *)malloc(sizeof(machine));
-	 machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
+	 //	 machine_create(m,(u8 *)(datagenbuffer)); // this just takes care of pointer to machine and malloc for threads
+
+   m->m_threadcount=0;
+   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
+
+
 
 	 u8 hdgenerdel=0,lmerdel=0,f0106erdel=0,maximerdel=0;
 	 u16 hdgenerpos=0,lmerpos=0,f0106erpos=0,maximerpos=0,wrapper;
@@ -185,7 +190,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 struct stackey stackyy[STACK_SIZE];
 	 struct stackey stackyyy[STACK_SIZE];
 	 u16 *buf16 = (u16*) datagenbuffer;
-	 //	 buf16 = (u16*) audio_buffer; //TESTER!
+	 u8 *audiobuf = (u8*) audio_buffer;
 
  #ifndef LACH
 	 dohardwareswitch(2,0);
@@ -221,7 +226,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 for (x=0; x<100; x++)
 	   {
 	     addr=randi()<<4;
-	     cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	     cpustackpush(m,datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+		     // cpustackpush(m,audiobuf,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
 	   }
 
 	 //pureleak
@@ -246,7 +252,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
@@ -344,11 +350,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //2-push/pop
 	      //knob as 0 to push, 255 to pop with settings divided inbetween
 	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
-	      //also which buffer to attack!
+	      //also which buffer to attack as bitwise option
 
-	      //cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);
-	      // odd one out as can't spec buffer-TODO. redo somehow
-
+	      //cpustackpush(m,buffer,addr,addr+(randi()<<4),randi()%31,1);
 	      //cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
 	      //stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);
 	      //stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);

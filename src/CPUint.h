@@ -42,6 +42,7 @@ typedef uint16_t u16;
 #define INP 24
 
     typedef struct {
+      u8 *m_memory;
       u8 m_CPU;
       u8 m_del,m_delc;
       u8 m_infection;
@@ -86,7 +87,7 @@ void machine_run(machine *t);
 void infectcpu(machine *m, u8 probI, u8 probD, u8 infected);    
 void mutate(machine *m, u8 which, u8 identifier);
 
-void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay);
+void cpustackpush(machine *this, u8 *buffer,u16 address, u16 wrapaddress,u8 cputype, u8 delay);
 void cpustackpop(machine *this);
 
 void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy);

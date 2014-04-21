@@ -76,6 +76,8 @@ struct generik{
 struct chunkey{
   u16 otherstart,otherwrap,othercount;
   u16 start, wrap, count;
+  u8 dirr;
+  int16_t newdir[4];
 };
 
 

@@ -222,34 +222,28 @@ outside, and in open daylight.
 
 TODO:
 
-- redo cpuintrev2 with local buffer assign per cpu
 - real walker with step and dir in simulation
 - add constraints for hardware effects // start and wrap kindof
-
-TESTINGS:
-
-- modulation for eeg/adc across settingsarray/otherarrays... dir
-  directly across all arrays
-
-start on settings code etc:
 
 MON/TUE
 - push and pop/buffer
 - mirror knob: cross-settings option(mirror etc.) 
 - knob and finger code
 
-///more abstract
+///more abstractW/T/F
 
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
   mirroring, constraint, expansion, reduction, remapping
-
+- modulation for eeg/adc across settingsarray/otherarrays... dir
+  directly across all arrays
 
 ** DONE
 - test filter/leftbuffer effects? testing filter!DONE
 - re-test hang/unhang in hardwareDONE
 - filter and effects as walkers (add to settingsarray means we have > 32)DONE. TO TEST!DONE
+- redo cpuintrev2 with local buffer assign per cpuDONE
 
 * SUN 20 APR
 

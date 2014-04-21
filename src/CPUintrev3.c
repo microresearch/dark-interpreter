@@ -80,7 +80,7 @@ Based in part on spork factory by Dave Griffiths.
 
 void leak(machine *m);
 
-void thread_create(thread *this, u16 *buffer,u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
+void thread_create(thread *this, u8 *buffer,u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
   this->m_infection=0;
   this->m_CPU=which;
   this->m_del=delay; this->m_delc=0;
@@ -100,7 +100,7 @@ void thread_create(thread *this, u16 *buffer,u16 address, u16 wrapaddress, uint8
       }
 }
 
-void cpustackpush(machine *this, u16 *buffer, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
+void cpustackpush(machine *this, u8 *buffer, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
   if (this->m_threadcount>=MAX_THREADS) return;
   else {
     thread_create(&this->m_threads[this->m_threadcount], buffer, address, wrapaddress,cputype,delay);// last is CPU type!
@@ -146,7 +146,7 @@ void thread_run(thread* this, machine *m) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-  m->memory=this->m_memory;
+  m->m_memory=this->m_memory;
   if (++this->m_delc==this->m_del){
 
 #ifdef PCSIM
@@ -699,7 +699,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
+	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
 	break;
       case 27:
 	this->m_pc+=3;
@@ -1583,7 +1583,7 @@ u8 settingsarray[64];
   machine *m=(machine *)malloc(sizeof(machine));
   //  machine_create(m,buffer); // this just takes care of pointer to machine and malloc for threads
    m->m_threadcount=0;
-   this->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
+   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
   m->m_leakiness=randi()%255;
   m->m_infectprob=randi()%255;
