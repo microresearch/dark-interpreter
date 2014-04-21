@@ -124,7 +124,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
 	//		SAMPLEWRAPREAD=32767; // TESTER!
 	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
-	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
+	// 	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
+	SAMPLEWRAP=(adc_buffer[3]<<3); // TESTER!
+
 
 	//		SAMPLEWRAP=32767; // TESTER!
 
@@ -132,7 +134,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
 	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
-	EFFECTFILTER=adc_buffer[2]%128;// TESTY!!! 0->128
+	EFFECTFILTER=adc_buffer[2]>>5;// TESTY!!! 0->128
 
 	//	EFFECTREAD=0;
 	//	EFFECTWRITE=0;
@@ -263,7 +265,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	//	EFFECTREAD=0;
       	for (x=0;x<sz/2;x++){
 	  
-	  switch(EFFECTREAD>>3){ //>>3 lowest bit for clip/noclip
+	  switch(EFFECTREAD>>3){ //>>3 lowest bit for clip/noclip 0->15 options
 	  case 0:
 	  default:
 	  *ldst++ = *src++;
@@ -378,12 +380,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  }
-	 
-	  /*	  
-	  *ldst++ = *src++;
-	  *rdst++ = *src; 
-	  firstbuf[sampleposread%32768]=*src++;
-	  */
 
 	  	  if (++delread==SAMPLESPEEDREAD){
 	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
@@ -873,115 +869,144 @@ if (digfilterflag&1){ // TODO
 	// TODO: put this in loop below or????
 	if (EFFECTFILTER&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTFILTER&4) secondbuf=(int16_t*) buf16;
-	else secondbuf=audio_buffer;
 		
 	//	EFFECTFILTER=0;
-      	for (x=0;x<sz/2;x++){
+      	for (x=0;x<sz/2;x++){ 
 	  
-	  switch(EFFECTFILTER>>3){ //>>3 lowest bit for clip/noclip
+	  switch(EFFECTFILTER>>2){ //32options now// lowest bit for clip/noclip 0-15 too many options TODO!
 	  case 0:
 	  default:
 	  *ldst++=firstbuf[sampleposfilt%32768];
 	  break;
-	  case 1:
-	  *ldst++=secondbuf[sampleposfilt%32768];
-	  break;
-
 	  // effects with/without clipping *, +, -, 
+	  case 1:
+	  *ldst++=*rdst++;
+	  break;
 	  case 2:
-	  tmp32=secondbuf[sampleposfilt%32768] * firstbuf[sampleposfilt%32768];
-	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
+	  *ldst++=*rdst++;
 	  break;
 	  case 3:
-	  tmp32=firstbuf[sampleposfilt%32768]+secondbuf[sampleposfilt%32768];
-	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
-	  break;
+	    *ldst++ =0;
+	    break;
+	  ///*
+
 	  case 4:
-	  tmp32=firstbuf[sampleposfilt%32768]-secondbuf[sampleposfilt%32768];
-	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
-	  break;
-	  case 5:
-	  tmp32=secondbuf[sampleposfilt%32768]-firstbuf[sampleposfilt%32768];
-	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
-	  break;
-
-	  /////////////////
-
-	  case 6:
 	  tmp32=firstbuf[sampleposfilt%32768]* *ldst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
+	  case 5:
+	  tmp32=firstbuf[sampleposfilt%32768]* *rdst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 6:
+	  tmp32=*ldst++ * *rdst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+
+	  ///+
+
 	  case 7:
-	    tmp32=firstbuf[sampleposfilt%32768] - *ldst++;
+	  tmp32=firstbuf[sampleposfilt%32768]+ *ldst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
 	  case 8:
-	  tmp32= *(ldst++)-firstbuf[sampleposfilt%32768];
+	  tmp32=firstbuf[sampleposfilt%32768]+ *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
 	  case 9:
-	  tmp32=*(ldst++)+secondbuf[sampleposfilt%32768];
+	  tmp32=*ldst++ + *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
 
-	  ////new
+	  //^
+
 	  case 10:
-	  *ldst++=0;
+	  tmp32=firstbuf[sampleposfilt%32768]^ *ldst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
 	  break;
-
 	  case 11:
-	  tmp32=*rdst++ * *ldst++;
+	  tmp32=firstbuf[sampleposfilt%32768]^ *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
-
 	  case 12:
-	    tmp32=*rdst++ - *ldst++;
+	  tmp32=*ldst++ ^ *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
+
+	  ////|
+
 	  case 13:
-	    tmp32= *(ldst++)- *rdst++;
+	  tmp32=firstbuf[sampleposfilt%32768]| *ldst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
-
 	  case 14:
-	    tmp32=*(ldst++)+*rdst++;
+	  tmp32=firstbuf[sampleposfilt%32768]| *rdst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 15:
+	  tmp32=*ldst++ | *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
 
-	  ////	  //// new2
+	  ////&
 
-	  case 15:
-	  tmp32=firstbuf[sampleposfilt%32768]* *rdst++;
-	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
-	  break;
 	  case 16:
-	    tmp32=firstbuf[sampleposfilt%32768] - *rdst++;
+	  tmp32=firstbuf[sampleposfilt%32768]& *ldst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
+	  *ldst=tmp32;
 	  break;
 	  case 17:
-	  tmp32= *(rdst++)-firstbuf[sampleposfilt%32768];
+	  tmp32=firstbuf[sampleposfilt%32768]& *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
+	  *ldst=tmp32;
 	  break;
 	  case 18:
-	  tmp32=*(rdst++)+secondbuf[sampleposfilt%32768];
+	  tmp32=*ldst++ & *rdst++;
 	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst++=tmp32;
+	  *ldst=tmp32;
+	  break;
+
+	  case 19:
+	  tmp32=firstbuf[sampleposfilt%32768]- *ldst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 20:
+	  tmp32= *ldst++ - firstbuf[sampleposfilt%32768];
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 21:
+	  tmp32=firstbuf[sampleposfilt%32768]- *rdst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 22:
+	  tmp32= *rdst++ - firstbuf[sampleposfilt%32768];
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 23:
+	  tmp32=*ldst++ - *rdst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
+	  break;
+	  case 24:
+	  tmp32=*rdst++ - *ldst++;
+	  if (EFFECTFILTER&1) asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+	  *ldst=tmp32;
 	  break;
 
 
@@ -1037,11 +1062,11 @@ if (digfilterflag&1){ // TODO
  }
 
 
-#endif
+#endif // for LACH
 
 	// 4-out
 	//audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 		audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
-#endif
+#endif // for straight
 
 }

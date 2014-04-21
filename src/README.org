@@ -215,29 +215,41 @@ outside, and in open daylight.
 
 * TO REMEMBER/TODO
 
-- always set define in MAKEFILE!!!
+- always set define for board in MAKEFILE!!!
 
 
 * MON 21 APR
 
-- real walker with step and dir in simulation
-- filter and effects as walkers (add to settingsarray means we have > 32)DONE. TO TEST!
-- how to test filter/leftbuffer effects?
+TODO:
 
-- re-test hang/unhang in hardware/test fingerpoints/fingerADC
-- modulation for eeg/adc across settingsarray/otherarrays... dir directly across all arrays
+- redo cpuintrev2 with local buffer assign per cpu
+- real walker with step and dir in simulation
+- add constraints for hardware effects // start and wrap kindof
+
+TESTINGS:
+
+- modulation for eeg/adc across settingsarray/otherarrays... dir
+  directly across all arrays
 
 start on settings code etc:
 
 MON/TUE
-- push and pop/buffer+swop/datagen settings
+- push and pop/buffer
+- mirror knob: cross-settings option(mirror etc.) 
+- knob and finger code
+
+///more abstract
+
+- extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
   mirroring, constraint, expansion, reduction, remapping
-- mirror knob: cross-settings option(mirror etc.) 
-- knob and finger code
-- swop datagen and audio in main! SETTING or actions! how to trigger actions!
-- extras like grain spawn mode, mirroring of settings
+
+
+** DONE
+- test filter/leftbuffer effects? testing filter!DONE
+- re-test hang/unhang in hardwareDONE
+- filter and effects as walkers (add to settingsarray means we have > 32)DONE. TO TEST!DONE
 
 * SUN 20 APR
 

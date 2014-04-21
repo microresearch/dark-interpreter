@@ -239,7 +239,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);//howmuch,start,wrap 
+	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,rand()%32768);//howmuch,start,wrap 
 	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);//howmuch,start,wrap
 	 }
 
@@ -275,7 +275,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 //	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
 	      cpucount=0;
 
-	      /*	      for (x=0;x<exenums;x++){
+	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
 		  func_runall(stackyy,buf16,stack_pos); // simulations
@@ -301,7 +301,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 		    break;
 		    }
-		    }*/
+		    }
 	      //	    }
 	 
 	    
@@ -321,6 +321,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
 
 
+	      /*
 #ifdef TENE
 	      //0-mirror settings
 
@@ -329,7 +330,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	      //1-hardware
 	      // set hardware for below...
-	      tmphardware=adc_buffer[2]>>5; //7 bits but what of jitter?
+	      tmphardware=adc_buffer[0]>>5; //7 bits but what of jitter?
 	      if (mirror<128 && tmphardware!=effects){
 		hardware=tmphardware;
 	      }
@@ -343,18 +344,21 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //2-push/pop
 	      //knob as 0 to push, 255 to pop with settings divided inbetween
 	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
+	      //also which buffer to attack!
 
 	      //cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);
+	      // odd one out as can't spec buffer-TODO. redo somehow
+
 	      //cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
 	      //stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);
 	      //stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);
 	      //exenums=exestackpush(exenums,exestack,exetype); //exetype=0-3;
 
-	      //3-speed
+	      //3-speed -global action on all speed settings
 
-	      //3-micro-macro
+	      //3-micro-macro - constraints and expansion
 
-	      //4-settings
+	      //4-settings-all finger at 0
 
 	      //4-foldback
 
@@ -375,11 +379,11 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 #endif
 		    
-
+	      */
 #ifndef LACH
 
 	   // 4-hardware operations
-	      
+	      hardware=adc_buffer[2]>>5; // TESTER!!
 	      //	    hardcount++;
 	      //	    if (hardcount>=hardspeed){
 	      	      hardcount=0;
@@ -456,16 +460,18 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	       if (MAXIMERSTEP==0) MAXIMERSTEP=1;
 	    if (++maximerdel==MAXIMERSPEED){
 	      // when wrapper changes we need to redo direction array!!!
-	      	      maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
-	      	      wrapper=MAXIMERWRAP;
+	      maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
+	      wrapper=MAXIMERWRAP;
 		      //	      	      if ((MAXIMERSTART+wrapper)>AUDIO_BUFSZ) wrapper=AUDIO_BUFSZ-MAXIMERSTART;
 	      if (wrapper==0) wrapper=1;
 	      //	      	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768;
 	      x=(MAXIMERSTART+(maximerpos%wrapper))%32768; //to cover all directions
-
-	      	      setmaximpwm(buf16[x]); 
+	      //	      u8 constraint=8;
+	      //	      setmaximpwm(200); 
 	      maximerdel=0;
+	      setmaximpwm(buf16[x]); //TODO add constraints here!!! ><  //TESTER!
 	    }
+
 	  }
 	  //	  } // hardcount
 #endif

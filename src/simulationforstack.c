@@ -593,7 +593,7 @@ void runswapaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     // convert signed to unsigned how? 
 
     temp=(uint16_t)audio_buffer[count];
-    audio_buffer[count%AUDIO_BUFSZ]=(int16_t)workingbuffer[count];
+    audio_buffer[count]=(int16_t)workingbuffer[count];
     workingbuffer[count]=temp;
 #endif
 }
@@ -1717,7 +1717,7 @@ void main(void)
   
 	 u16 tmppp,ooo=4095;
 
-	 tmppp=(ooo>>6)<<9;
+	 tmppp=(ooo>>8);
 	 printf("tmp %d\n",tmppp);
 
 	 //  	              while(1){
