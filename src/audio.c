@@ -148,7 +148,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 
-
       	for (x=0;x<sz/2;x++){
 
 	  switch(EFFECTREAD>>3){ // lowest bit for clip/noclip

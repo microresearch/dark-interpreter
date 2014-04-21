@@ -218,15 +218,16 @@ outside, and in open daylight.
 - always set define for board in MAKEFILE!!!
 
 
-* MON 21 APR
+* TUE 22 APR
 
-MON/TUE
+- finish mirror/settings code
+- test mirror code so far
 - push and pop/buffer
-- mirror knob: cross-settings option(mirror etc.) 
-- knob and finger code
+- knob and finger settings code
 
-///more abstractW/T/F
+///more abstractWed/Thu/Fri
 
+- clean testers
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
@@ -234,8 +235,16 @@ MON/TUE
 - modulation for eeg/adc across settingsarray/otherarrays... dir
   directly across all arrays
 
+[extras]WED/THU/FRI
+
+- tweaking
+- test LACH board only, parts count, recordings/video/manual
+
+* MON 21 APR
+
 ** DONE
 
+- done away with general speeds as we can alter locals
 - add constraints for hardware effects // start and wrap kindofDONE
 - real walker with step and dir in simulationDONE
 - test filter/leftbuffer effects? testing filter!DONE
@@ -299,15 +308,6 @@ leftbuffer
 - assign/map new knobs and all settings re-arranged DONE
 
 * WED 16 APR
-
-[extras]WED/THU/FRI
-
-- excess settings - actions such as read/write mirroring which are one off operations
-- redefine extra knob for LACH (as was edger!): - for LACH replace
-  hardware knobs with 2x start.edge read.write (mirror divides into 4
-  now)
-- tweaking
-- test LACH board only, parts count, recordings/video/documentation
 
 * TUE 15 APR
 

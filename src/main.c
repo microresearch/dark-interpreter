@@ -106,11 +106,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
    // order that all inits and audio_init called seems to be important
    u16 x,addr,tmp;
-   u8 oldhardware,hardware,tmphardware;
+   u8 oldhardware,hardware,tmphardware,tmppushpull,pushpull,Ysettings,tmpspeed,speed,tmpsettings,micromacro,foldback;
    u8 effects;
    u16 speedwrapper=0;
-   u16 genspeed, hardspeed,hardcount;
-   u16 cpuspeed,cpucount;
    u8 exenums=0,machine_count=0,leak_count=0; 
    u8 exestack[MAX_EXE_STACK];
    u8 settings, oldsettings=0,settings_trap=0,setted,settingsindex=0;
@@ -263,23 +261,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	  {
 
 #ifdef TEST_STRAIGHT
-
 	    // nothing???
-
 #else
-
-
-	    //0- speed knob=hardware speed, cpu speed(shift>>)=generic speed, grainsize (>>also)
-	    //	    genspeed=adc_buffer[0]>>5;
- 	    cpuspeed=genspeed; //TODO! tune speeds
-	    hardspeed=genspeed;//<<2; // 14 bits
-	    //	    cpuspeed=1; hardspeed=1;
 	    if (MACHINESPEED==0) MACHINESPEED=1;
 	    if (LEAKSPEED==0) LEAKSPEED=1;
-	    cpucount++;
-
-//	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
-	      cpucount=0;
 
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
@@ -292,7 +277,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 2:
 		  machine_count++;
 		  if (machine_count>=MACHINESPEED){
-		  machine_run(m); //cpu - WRAP own speedTODO
+		  machine_run(m); 
 		  m->m_leakiness=LEAKINESS;
 		  m->m_infectprob=INFECTION;
 		  m->m_mutateprob=MUTATION;
@@ -302,95 +287,156 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 3:
 		  leak_count++;
 		  if (leak_count>=LEAKSPEED){
-		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
+		    machine_runnn(datagenbuffer);
 		    leak_count=0;
 		  }
 		    break;
 		    }
-		    }
-	      //	    }
-	 
-	    
-	      // TODO:3-deal with settingsarray - should this be in slow/speed loop?
-
-	      // KNOBS->>>>
-	      // LACH: NO HARDWARE so need re-assign 
-	      // SUSP (and LACH): 3,0,2,4,1
-	      // TENE: 2,0,3,4,1 
+	      }
+	       
+	      // KKNOBBBSSS
 
 	      // 0-4 top down
-
 	      // 0=mirror left///right selector and ops across all knobbed settings/feedbacks
 	      // 1=hardware///1=filterops/effects
 	      // 2=push///2=pull-datagen ops and actions _or_ 2=settings Y
 	      // 3=speed///3=micro-macro
 	      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
 
-
-	      /*
+	     
 #ifdef TENE
+	      // TENE: 2,0,3,4,1 
 	      //0-mirror settings
-
 	      mirror=adc_buffer[2]>>4; // 8 bits or less?
 	      // how we divide up mirror?
+	      // what are mirror ops and how they make sense?
 
 	      //1-hardware
 	      // set hardware for below...
-	      tmphardware=adc_buffer[0]>>5; //7 bits but what of jitter?
+	      tmphardware=adc_buffer[0]>>5; //7 bits but what of jitter?counter???
 	      if (mirror<128 && tmphardware!=effects){
-		hardware=tmphardware;
+		hardware=tmphardware; // handled all below!
 	      }
-	      else
-	      //1-filterops/effects
-	      if (mirror>=128 && tmphardware!=hardware){
+	      else if (tmphardware!=hardware && tmphardware!=effects){
 		effects=tmphardware;
+	      //1-filterops/effects
+		// EFFECTREAD, EFFECTWRITE, EFFECTFILTER upto 128 each?
+		// ,,, so we have to divide this mirrorside into 3//=42
+		if (mirror<170){
+		  EFFECTREAD=effects;
+		}
+		else if (mirror<212){
+		  EFFECTWRITE=effects;
+		}
+		else {
+		  EFFECTFILTER=effects;
+		}
 	      }
-
 
 	      //2-push/pop
 	      //knob as 0 to push, 255 to pop with settings divided inbetween
 	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
 	      //also which buffer to attack as bitwise option
 
+	      tmppushpull=adc_buffer[3]>>5; //7 bits but what of jitter?counter???
+	      if (mirror<128 && tmppushpull!=Ysettings){
+		pushpull=tmppushpull;
 	      //cpustackpush(m,buffer,addr,addr+(randi()<<4),randi()%31,1);
 	      //cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
 	      //stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);
 	      //stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);
 	      //exenums=exestackpush(exenums,exestack,exetype); //exetype=0-3;
-
+	      }
+	      //2=settings Y
+	      else if (tmppushpull!=pushpull){
+		Ysettings=tmppushpull;
+		settingsarray[settings]=Ysettings;
+	      }
 	      //3-speed -global action on all speed settings
+	      tmpspeed=adc_buffer[4]>>4; //8 bits but what of jitter?counter???
+	      if (mirror<128 && tmpspeed!=micromacro){
+		speed=tmpspeed; // all 8 bit
+	      LMERSPEED=LMERSPEED%speed;
+	      MAXIMERSPEED=MAXIMERSPEED%speed;
+	      F0106ERSPEED=F0106ERSPEED%speed;
+	      HDGENERSPEED=HDGENERSPEED%speed;
+	      SAMPLESPEED=SAMPLESPEED%speed;
+	      SAMPLESPEEDREAD=SAMPLESPEEDREAD%speed;
+	      SAMPLESPEEDFILT=SAMPLESPEEDFILT%speed;
+	      LEAKSPEED=LEAKSPEED%speed;
+	      MACHINESPEED=MACHINESPEED%speed;
+	      }
+	      else if (tmpspeed!=speed && tmpspeed!=micromacro){
+		micromacro=tmpspeed;
+		//3-micro-macro - constraints and expansion actions
 
-	      //3-micro-macro - constraints and expansion
+	      // here also villageread, villagewrite, villagefilt=0-2 = bits alongside?
+	      // constraints
 
+	      /*
+		# define HDGENERCONS (settingsarray[49]) // less than 255
+		# define LMERCONS (settingsarray[51])
+		# define F0106ERCONS (settingsarray[53])
+		# define MAXIMERCONS (settingsarray[55])
+
+		and constrain/expand the wraps:
+		#define LMERWRAP (settingsarray[10])//when wrapper changes we need to redo direction array!!!
+		#define MAXIMERWRAP (settingsarray[11])
+		#define F0106ERWRAP (settingsarray[12])
+		#define HDGENERWRAP (settingsarray[13])
+		#define SAMPLEWRAP (settingsarray[14])
+		#define SAMPLEWRAPREAD (settingsarray[15])
+		#define SAMPLEWRAPFILT (settingsarray[16])
+		#define ANYWRAPREAD (settingsarray[17])
+		#define ANYWRAP (settingsarray[18])
+		#define ANYWRAPFILT (settingsarray[19])
+	      */
+		if (mirror<192){
+		  //expand <<
+
+		}
+		else
+		  {
+		    //constrain %
+
+		  }
+	      }
 	      //4-settings-all finger at 0
+	      tmpsettings=adc_buffer[1]>>5; //7 bits but what of jitter?counter???
 
+	      if (mirror<128 && tmpsettings!=foldback){
+		settings=tmpsettings;
+	      }
+	      else if (tmpsettings!=settings){
 	      //4-foldback
-
+		foldback=tmpsettings;
+	      }
 #endif
 
 #ifdef SUSP
+	      // SUSP (and LACH): 3,0,2,4,1
 	      // as above but different knob alignments
-
-
 #endif
 
 #ifdef LACH
-	     // diff knobs and no hardware
+	      // SUSP (and LACH): 3,0,2,4,1
+	      // there is no hardware!
 
 	      //1- 1-
 	      // depending on quarter mirror as 2x start.edge read.write
-
+	      /*
+		SAMPLESTARTREAD=
+		SAMPLEWRAPREAD=
+		SAMPLEWRAP=
+		SAMPLESTART=
+	       */
 
 #endif
 		    
-	      */
+	      ////////////////////////////////////////////////
 #ifndef LACH
-
+	      /////////////////////////////////////
 	   // 4-hardware operations
-	      hardware=adc_buffer[2]>>5; // TESTER!!
-	      //	    hardcount++;
-	      //	    if (hardcount>=hardspeed){
-	      	      hardcount=0;
 
 	  // do hardware datagen walk into hdgen (8 bit) if flagged
 	    	     if (digfilterflag&16){ // if we use hdgen at all
@@ -478,7 +524,6 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    }
 
 	  }
-	  //	  } // hardcount
 #endif
 #endif
 	 }

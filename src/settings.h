@@ -78,8 +78,8 @@
 #define SAMPLEDIRF (settingsarray[47])
 
 // hardware constraints
-# define HDGENERBASE (settingsarray[48])>>8 // less than 255
-# define HDGENERCONS (settingsarray[49])>>8 // less than 255
+# define HDGENERBASE (settingsarray[48])// less than 255
+# define HDGENERCONS (settingsarray[49])// less than 255
 # define LMERBASE (settingsarray[50])
 # define LMERCONS (settingsarray[51])
 # define F0106ERBASE (settingsarray[52])
@@ -106,7 +106,7 @@
 // mirror read and write heads as an action
 // that grains can set datagen start/wrap settings also (grain spawn mode)
 
-// villageread, villagewrite=0-2
+// villageread, villagewrite,villagefilt=0-2 are in micro-macro
 
 #define EFFECTREAD (settingsarray[61]) 
 //nofilter. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
@@ -114,5 +114,7 @@
 
 #define EFFECTWRITE (settingsarray[62]) 
 #define EFFECTFILTER (settingsarray[63]) 
+
+//TODO: these are seperate but action->mirror also! are they seperate
 
 /////////////////////////////////
