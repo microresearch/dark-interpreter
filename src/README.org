@@ -213,20 +213,37 @@ he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
 
+* TO REMEMBER/TODO
+
+- always set define in MAKEFILE!!!
+
+
 * MON 21 APR
 
+- real walker with step and dir in simulation
 - filter and effects as walkers (add to settingsarray means we have > 32)DONE. TO TEST!
 - how to test filter/leftbuffer effects?
-- re-test hang/unhang in hardware
 
-start on settings code etc. see below...
+- re-test hang/unhang in hardware/test fingerpoints/fingerADC
+- modulation for eeg/adc across settingsarray/otherarrays... dir directly across all arrays
+
+start on settings code etc:
+
+MON/TUE
+- push and pop/buffer+swop/datagen settings
+- new constraints of all datagens and walkers(inc foldback to areas
+  only) under micro-macro -> file under ACTIONS again such as
+  mirroring, constraint, expansion, reduction, remapping
+- mirror knob: cross-settings option(mirror etc.) 
+- knob and finger code
+- swop datagen and audio in main! SETTING or actions! how to trigger actions!
+- extras like grain spawn mode, mirroring of settings
 
 * SUN 20 APR
 
-- TODO: do we want to use rdst more in audio.c // monobuffer???? we use it for leftbuffer only???
-// so can discard it when we don't use leftbuffer
-
-- TODO: look into ssat/usat to replace %32768 ???
+- TODO: do we want to use rdst more in audio.c // monobuffer???? we
+use it for leftbuffer only???  // so can discard it when we don't use
+leftbuffer
 
 - TODO: that all wraps should always be constrained to 32768
 
@@ -235,12 +252,12 @@ start on settings code etc. see below...
 
 - TODO: when wrapper changes we need to redo direction array!!!
 
-- done away with cons (and processing) but simply altering
-  all wraps in settingsarray once (as action) *T
+- TODO: we done away with cons (and processing) but simply altering
+  all wraps in settingsarray once (as action) 
 
 - TODO: test fingers with different fingers!
 
-*//DONE:***
+** //DONE:***
 
 - TODOs in each file (check all audio so far) - recheck all TODOs as
   some are new:
@@ -256,17 +273,16 @@ start on settings code etc. see below...
 
 * FRI 18 APR
 
-///DONE:
+** DONE:
 
-- settingsarray changed to 16bits (if like keep portion as 8 bbit for dirs but...)DONE
+- settingsarray changed to 16bits (if like keep portion as 8 bit for dirs but...)DONE
 - test hardware walkers with start/wrap and cons DONE
 - implement/TEST new walker scheme (audio) and do away with cons...*TEST*
-/// tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
 - check sqrtf code with float and co...DONE
 
 * THU 17 APR
 
-DONE:
+** DONE:
 
 [1day]WED
 - simplify read/write in audio.c - DONE
@@ -282,16 +298,6 @@ DONE:
 
 concrete TODO:
 
-[5/6days]MON/TUE
-- push and pop/buffer+swop/datagen settings
-- new constraints of all datagens and walkers(inc foldback to areas
-  only) under micro-macro -> file under ACTIONS again such as
-  mirroring, constraint, expansion, reduction, remapping
-- mirror knob: cross-settings option(mirror etc.) 
-- knob and finger code
-
-- extras like grain spawn mode, mirroring of settings
-
 [extras]WED/THU/FRI
 
 - excess settings - actions such as read/write mirroring which are one off operations
@@ -306,13 +312,12 @@ concrete TODO:
 *new ideas/TODO:*
 
 - that grains can set datagen start/wrap settings also (grain spawn mode) and vice versa
-
-- macro-chunk operations/feedback like this above???TODO
+- macro-chunk operations/feedback like this above
 - edge/wrap for read/write become part of mirrored list of walker settings
 - new knobs= push inits + pop (as 2 knobs also with swops of buffers,
   other datagen settings);micro-macro
 
-//DONE:
+** DONE:
 
 - add start and wrap for all datagensDONE
 - mirror (or not) READ/WRITE ops in audio.c and abstract out/down to
@@ -322,55 +327,17 @@ concrete TODO:
 
 * MON 14 APR
 
-- revising audio.c! TODO TO TEST and fill out...
-
 *new ideas/more or less DONE?TODO:*
 
-thus TODO: revising complexity in audio.c, walkers and so on!
-
-some kind of compression of data spaces (so we could >>bitshift
-wrap/edge, restrict datagens to certain areas, also as is with cons
-granularity, restrict foldback to areas - ie. expand and contract)
-
-also ways of re-arranging larger chunks, potentially applying multiple
-granularity as part of micro-macro (which could somehow replace
-complexity knob - also how settings work with this - that we can globally
-or locally apply certain settings)
-
-restrict all walkers _and_ all datagens...
-
-but need like simultaneous multiple levels of micro-macro
+some kind of compression of data spaces (so we could restrict datagens
+to certain areas, restrict foldback to areas - ie. expand and
+contract)
 
 * THU 10 APR
 
-- playing with cons as % or >> in audio.c -> % is favoured
-
-TODO:
-
-[- question of villager metaphor/approach/micro-macro operations as complexity?
-larger chunk contagion and movement?]
-
-- TODOs in each file (check all audio so far) - recheck all TODOs as
-  some are new
-
-*main.c:* setup code for machines, sims etc;tune speeds and wraps; all knob code
-*CAforstack.c:* buffer constraint in SIR16init
-*pureleak.c:* hardware tie-in for masque; SPL in corewars,; var readins
-*cpuintrev2.c:* as above; leakiness and co speeds;steering in wormcode?
-
-- test all datagens and stack approach AGAIN
-- swopping between audio and data buffers (should be done in
-  stacks/+machine or as general/global setting?)
-
-- knobs-mirror/settings and new settings
-- fingers
-- fill out extra complexity settings (and bring in more micro-macro cast)
-- filter/leftbuffer effects/mirroring
-- any other effects/morphs not covered by datagen swappery! 
-- tweaks
-
 ** DONE
 
+- playing with cons as % or >> in audio.c -> % is favoured
 - tested edger code...
 - formant code appears to work
 - junked former finger/settings code to main.c.discarded

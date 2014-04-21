@@ -568,7 +568,7 @@ void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 #ifndef PCSIM
 
 #if defined(SUSP) || defined(LACH)
-        workingbuffeur[count]=adc_buffer[3]<<4;
+        workingbuffeur[count]=adc_buffer[3]<<4; // TOP knob in either case!
     //    printf("%d\n",workingbuffer[count]);
 #else
         workingbuffeur[count]=adc_buffer[2]<<4;
@@ -1715,10 +1715,15 @@ void main(void)
 	   stack_pos=func_pushn(stackyy,31,buf16,stack_pos,rand()%32760,0,rand()%32760);
   	 	   }
   
-  	              while(1){
-			func_runall(stackyy,buf16,stack_pos); // simulations
+	 u16 tmppp,ooo=4095;
 
-		      }
+	 tmppp=(ooo>>6)<<9;
+	 printf("tmp %d\n",tmppp);
+
+	 //  	              while(1){
+			//			func_runall(stackyy,buf16,stack_pos); // simulations
+
+	 //	      }
 }
 
 #endif

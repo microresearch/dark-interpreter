@@ -83,7 +83,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
-	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
+  //	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
 	u16 tmp=0,tmper,count;
 	int16_t tmp16;
 	int32_t tmp32;
@@ -121,7 +121,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-		SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
+	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
 	//		SAMPLEWRAPREAD=32767; // TESTER!
 	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
 	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
@@ -132,14 +132,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
 	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
-	
+	EFFECTFILTER=adc_buffer[2]%128;// TESTY!!! 0->128
+
+	//	EFFECTREAD=0;
+	//	EFFECTWRITE=0;
+	//	EFFECTFILTER=0;
 
 #ifdef LACH
 
 	// firstbuf, secondbuf
-	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 
 
@@ -251,9 +255,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  // so ldst *(src-1) becomes possible mixerrr
 	// TODO: put this in loop below or????
-	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	  if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	  if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTREAD=0;
@@ -428,12 +432,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 
 	}
-	else
+	else  // READIN NO DIG FILTER
 	  {
+
 	// TODO: put this in loop below or????
-	if (EFFECTREAD&2) firstbuf=(int16_t*) datagenbuffer;
+	    	if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTREAD=0;
@@ -492,7 +497,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	 
 	  	  if (++delread==SAMPLESPEEDREAD){
-	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	      dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	    //    dirry=1;//TESTER!
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
@@ -547,7 +553,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	// firstbuf, secondbuf
 	if (EFFECTWRITE&2) firstbuf=(int16_t*) datagenbuffer;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) datagenbuffer;
+	if (EFFECTWRITE&4) secondbuf=(int16_t*) datagenbuffer;
 	else secondbuf=audio_buffer;
 
       	for (x=0;x<sz/2;x++){
@@ -754,11 +760,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	}
 	else
-	  {
+	  { /// STRAIGHT SANS FILTEROPSSS!!!
 	// TODO: put this in loop below or????
-	if (EFFECTWRITE&2) firstbuf=(int16_t*) datagenbuffer;
+
+	    
+	if (EFFECTWRITE&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTWRITE&4) secondbuf=(int16_t*) datagenbuffer;
+	if (EFFECTWRITE&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTWRITE=0;
@@ -797,7 +805,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 
 	  	  if (++del==SAMPLESPEED){
-	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+		    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && (samplepos+dirry)>start)
 		  {
@@ -810,7 +819,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		  }
-
 		  else if (villagewrite==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
@@ -839,9 +847,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		}
 	  del=0;
-	  }
+		  }
 	}
-	  }
+	}
 #endif
       
 	///!!!!!!////////////////////////////////END OF WRITEOUTSSS
@@ -863,9 +871,9 @@ if (digfilterflag&1){ // TODO
 	  // so ldst *(src-1) becomes possible mixerrr
 	// now ldst++:
 	// TODO: put this in loop below or????
-	if (EFFECTFILTER&2) firstbuf=(int16_t*) datagenbuffer;
+	if (EFFECTFILTER&2) firstbuf=(int16_t*) buf16;
 	else firstbuf=audio_buffer;
-	if (EFFECTFILTER&4) secondbuf=(int16_t*) datagenbuffer;
+	if (EFFECTFILTER&4) secondbuf=(int16_t*) buf16;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTFILTER=0;
@@ -989,7 +997,7 @@ if (digfilterflag&1){ // TODO
 		  }
 		else {
 		  if (villagefilt==0) {
-		    startfilt=SAMPLESTART;wrapfilt=SAMPLEWRAP;
+		    startfilt=SAMPLESTARTFILT;wrapfilt=SAMPLEWRAPFILT;
 		    newdirf[0]=-180;newdirf[2]=180;
 		    if (SAMPLEDIRF==1 || SAMPLEDIRF==2) sampleposfilt=startfilt; //forwards
 		    else sampleposfilt=startfilt+wrapfilt;
@@ -1005,16 +1013,16 @@ if (digfilterflag&1){ // TODO
 		  }
 		  else {
 		  tmp=ANYSTEPFILT*direction[DATADIRF];
-		  anypos+=tmp;
+		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT; 
 		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  startfilt=buf16[tmp]>>1;
 		  tmp=ANYSTEPFILT*directionf[DATADIRF];
-		  anypos+=tmp;
+		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT;
 		  if (wrapper==0) wrapper=1;
-		  tmp=(ANYSTART+(anyposfilt%wrapper))%32768; //to cover all directions
+		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  wrapfilt=buf16[tmp]>>1;
 		  if (wrapfilt==0) wrapfilt=1;
 		  if (SAMPLEDIRF==1 || SAMPLEDIRF==2) sampleposfilt=startfilt;

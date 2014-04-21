@@ -105,7 +105,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
  {
 
    // order that all inits and audio_init called seems to be important
-   u16 x,addr,tmp,oldhardware,hardware; 
+   u16 x,addr,tmp;
+   u8 oldhardware,hardware,tmphardware;
+   u8 effects;
    u16 speedwrapper=0;
    u16 genspeed, hardspeed,hardcount;
    u16 cpuspeed,cpucount;
@@ -122,12 +124,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
    //   u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
 
 	// set dirs
-   static int16_t hddir[4]={-180,1,180,-1};
-   static int16_t lmdir[4]={-180,1,180,-1};
-   static int16_t mxdir[4]={-180,1,180,-1};
-   static int16_t dir40106[4]={-180,1,180,-1};
+   int16_t hddir[4]={-180,1,180,-1};
+   int16_t lmdir[4]={-180,1,180,-1};
+   int16_t mxdir[4]={-180,1,180,-1};
+   int16_t dir40106[4]={-180,1,180,-1};
 
    u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
+   u8 mirror;
    u8 handleft, handright, oldhandleft,oldhandright,up=0,down=0,left=0,right=0,handcount=0;
 
    inittable(3,4,randi()<<4,table);
@@ -261,7 +264,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 
 	    //0- speed knob=hardware speed, cpu speed(shift>>)=generic speed, grainsize (>>also)
-	    genspeed=adc_buffer[0]>>5;
+	    //	    genspeed=adc_buffer[0]>>5;
  	    cpuspeed=genspeed; //TODO! tune speeds
 	    hardspeed=genspeed;//<<2; // 14 bits
 	    //	    cpuspeed=1; hardspeed=1;
@@ -272,7 +275,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 //	    	    if (cpucount>=cpuspeed){ 	  //TESTER!
 	      cpucount=0;
 
-	      for (x=0;x<exenums;x++){
+	      /*	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
 		  func_runall(stackyy,buf16,stack_pos); // simulations
@@ -298,7 +301,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 		    break;
 		    }
-	      }
+		    }*/
 	      //	    }
 	 
 	    
@@ -313,10 +316,64 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	      // 0=mirror left///right selector and ops across all knobbed settings/feedbacks
 	      // 1=hardware///1=filterops/effects
-	      // 2=push///2=pull-datagen ops and actions
+	      // 2=push///2=pull-datagen ops and actions _or_ 2=settings Y
 	      // 3=speed///3=micro-macro
-	      // 4=settings///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
+	      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
 
+
+#ifdef TENE
+	      //0-mirror settings
+
+	      mirror=adc_buffer[2]>>4; // 8 bits or less?
+	      // how we divide up mirror?
+
+	      //1-hardware
+	      // set hardware for below...
+	      tmphardware=adc_buffer[2]>>5; //7 bits but what of jitter?
+	      if (mirror<128 && tmphardware!=effects){
+		hardware=tmphardware;
+	      }
+	      else
+	      //1-filterops/effects
+	      if (mirror>=128 && tmphardware!=hardware){
+		effects=tmphardware;
+	      }
+
+
+	      //2-push/pop
+	      //knob as 0 to push, 255 to pop with settings divided inbetween
+	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
+
+	      //cpustackpush(m,addr,addr+(randi()<<4),randi()%31,1);
+	      //cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
+	      //stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);
+	      //stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);
+	      //exenums=exestackpush(exenums,exestack,exetype); //exetype=0-3;
+
+	      //3-speed
+
+	      //3-micro-macro
+
+	      //4-settings
+
+	      //4-foldback
+
+#endif
+
+#ifdef SUSP
+	      // as above but different knob alignments
+
+
+#endif
+
+#ifdef LACH
+	     // diff knobs and no hardware
+
+	      //1- 1-
+	      // depending on quarter mirror as 2x start.edge read.write
+
+
+#endif
 		    
 
 #ifndef LACH
@@ -338,14 +395,13 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		      if (wrapper==0) wrapper=1;
 		      //	      	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
 		      tmp=(HDGENERSTART+(hdgenerpos%wrapper))%32768; //to cover all directions
-	      	      dohardwareswitch(adc_buffer[2]>>5,datagenbuffer[tmp]);
+	      	      dohardwareswitch(hardware,datagenbuffer[tmp]);
 		       	      hdgenerdel=0;
 	      	    }
 
      }
 	  else
 	    {
-	    hardware=adc_buffer[2]>>5;
 	    if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	    oldhardware=hardware;
 	    }

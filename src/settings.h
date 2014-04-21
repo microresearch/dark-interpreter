@@ -101,12 +101,12 @@
 
 // villageread, villagewrite=0-2
 
-#define EFFECTREAD (settingsarray[53]) 
+#define EFFECTREAD (settingsarray[54]) 
 //nofilter. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
 // else options = 0-14 = total=128
 
-#define EFFECTWRITE (settingsarray[54]) 
-#define EFFECTFILTER (settingsarray[54]) 
+#define EFFECTWRITE (settingsarray[55]) 
+#define EFFECTFILTER (settingsarray[56]) 
 
 // alter all/some wraps
 
@@ -114,14 +114,14 @@
 
 /////////////////////////////////
 
-///push settings
+///push settings-TODO: if we use these any more?
 
-#define PUSHONE16BIT (settingsarray[54]) // settings for the push <<???
-#define PUSHTWO16BIT (settingsarray[55]) // settings for the push <<???
-#define PUSHONE8BIT (settingsarray[56])
-#define PUSHTWO8BIT (settingsarray[57])
-#define PUSHTHREE8BIT (settingsarray[58])
-#define EXESTACKPUSH (settingsarray[59]) // TYPE so limit to 0-3
+#define PUSHONE16BIT (settingsarray[57]) // settings for the push <<???
+#define PUSHTWO16BIT (settingsarray[58]) // settings for the push <<???
+#define PUSHONE8BIT (settingsarray[59])
+#define PUSHTWO8BIT (settingsarray[60])
+#define PUSHTHREE8BIT (settingsarray[61])
+#define EXESTACKPUSH (settingsarray[62]) // TYPE so limit to 0-3
 
 #define BEFOREDIR  0
 #define BEFORESTACK 0 // limit here
