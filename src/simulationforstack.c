@@ -1722,6 +1722,10 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 
 #ifdef PCSIM
 
+void calltest(u16 caller){
+  printf("callll %d\n",caller);
+}
+
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
@@ -1754,14 +1758,18 @@ void main(void)
 	   stack_pos=func_pushn(stackyy,32,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
   	 	   }
   
-	 u16 tmppp,ooo=4095;
+	 u16 tmppp=64000,ooo=45001;
 
 	 //	 tmppp=(ooo>>8);
 	 //	 printf("tmp %d\n",tmppp);
 
-	 while(1){
+	 //	 call function;
+
+	 calltest(tmppp+ooo);
+
+	 /*	 while(1){
 	   func_runall(stackyy,buf16,stack_pos); // simulations
-	 }
+	   }*/
 }
 
 #endif

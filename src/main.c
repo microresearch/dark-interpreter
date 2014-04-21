@@ -403,9 +403,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		      if (wrapper==0) wrapper=1;
 		      //	      	      tmp=HDGENERSTART+(hdgenerpos%wrapper);
 		      tmp=(HDGENERSTART+(hdgenerpos%wrapper))%32768; //to cover all directions
-	      	      dohardwareswitch(hardware,datagenbuffer[tmp]);
-		       	      hdgenerdel=0;
-	      	    }
+	      	      dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
+		      hdgenerdel=0;
+		       }
 
      }
 	  else
@@ -428,7 +428,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      if (wrapper==0) wrapper=1;
 	      // tmp=F0106ERSTART+(f0106erpos%wrapper);
 	      tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
-	      set40106pwm(buf16[tmp]); 
+	      set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
+
 	      f0106erdel=0;
 	    }
 	  }
@@ -453,7 +454,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //	      tmp=LMERSTART+(lmerpos%wrapper);
 	      tmp=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
 
-	      setlmpwm(buf16[x],buf16[tmp]); 
+	      setlmpwm(LMERBASE+(buf16[x]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
 	      lmerdel=0;
 	    }
 
@@ -473,7 +474,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //	      u8 constraint=8;
 	      //	      setmaximpwm(200); 
 	      maximerdel=0;
-	      setmaximpwm(buf16[x]); //TODO add constraints here!!! ><  //TESTER!
+	      setmaximpwm(MAXIMERBASE+(buf16[tmp]%MAXIMERCONS)); //TODO add constraints here!!! ><  //TESTER!
 	    }
 
 	  }

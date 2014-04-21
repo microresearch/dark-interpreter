@@ -77,19 +77,26 @@
 #define SAMPLEDIRW (settingsarray[46])
 #define SAMPLEDIRF (settingsarray[47])
 
-// CONSTRAINT/micro-macro settings!
-// we just attack wraps directly
+// hardware constraints
+# define HDGENERBASE (settingsarray[48])>>8 // less than 255
+# define HDGENERCONS (settingsarray[49])>>8 // less than 255
+# define LMERBASE (settingsarray[50])
+# define LMERCONS (settingsarray[51])
+# define F0106ERBASE (settingsarray[52])
+# define F0106ERCONS (settingsarray[53])
+# define MAXIMERBASE (settingsarray[54])
+# define MAXIMERCONS (settingsarray[55])
 
 //////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////
 
-#define LEAKSPEED (settingsarray[49])
-#define MACHINESPEED (settingsarray[50])
-#define LEAKINESS (settingsarray[51])
-#define INFECTION (settingsarray[52])
-#define MUTATION (settingsarray[53])
+#define LEAKSPEED (settingsarray[56])
+#define MACHINESPEED (settingsarray[57])
+#define LEAKINESS (settingsarray[58])
+#define INFECTION (settingsarray[59])
+#define MUTATION (settingsarray[60])
 
 //////////////////////////////////
 
@@ -101,28 +108,11 @@
 
 // villageread, villagewrite=0-2
 
-#define EFFECTREAD (settingsarray[54]) 
+#define EFFECTREAD (settingsarray[61]) 
 //nofilter. bit0=clip/noclip; 1=buffer.2=buffer <<3 = 0-6(7 options)= total =63
 // else options = 0-14 = total=128
 
-#define EFFECTWRITE (settingsarray[55]) 
-#define EFFECTFILTER (settingsarray[56]) 
-
-// alter all/some wraps
-
-// when wrapper changes we need to redo direction array!!!
+#define EFFECTWRITE (settingsarray[62]) 
+#define EFFECTFILTER (settingsarray[63]) 
 
 /////////////////////////////////
-
-///push settings-TODO: if we use these any more?
-
-#define PUSHONE16BIT (settingsarray[57]) // settings for the push <<???
-#define PUSHTWO16BIT (settingsarray[58]) // settings for the push <<???
-#define PUSHONE8BIT (settingsarray[59])
-#define PUSHTWO8BIT (settingsarray[60])
-#define PUSHTHREE8BIT (settingsarray[61])
-#define EXESTACKPUSH (settingsarray[62]) // TYPE so limit to 0-3
-
-#define BEFOREDIR  0
-#define BEFORESTACK 0 // limit here
-#define FINALL 0 // end of end = +5 for push and pops

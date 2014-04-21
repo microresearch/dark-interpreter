@@ -220,11 +220,6 @@ outside, and in open daylight.
 
 * MON 21 APR
 
-TODO:
-
-- real walker with step and dir in simulation
-- add constraints for hardware effects // start and wrap kindof
-
 MON/TUE
 - push and pop/buffer
 - mirror knob: cross-settings option(mirror etc.) 
@@ -240,6 +235,9 @@ MON/TUE
   directly across all arrays
 
 ** DONE
+
+- add constraints for hardware effects // start and wrap kindofDONE
+- real walker with step and dir in simulationDONE
 - test filter/leftbuffer effects? testing filter!DONE
 - re-test hang/unhang in hardwareDONE
 - filter and effects as walkers (add to settingsarray means we have > 32)DONE. TO TEST!DONE
@@ -301,8 +299,6 @@ leftbuffer
 - assign/map new knobs and all settings re-arranged DONE
 
 * WED 16 APR
-
-concrete TODO:
 
 [extras]WED/THU/FRI
 
