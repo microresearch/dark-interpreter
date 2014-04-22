@@ -54,6 +54,15 @@ extern int16_t audio_buffer[AUDIO_BUFSZ];
 
 u8* datagenbuffer = (u8*)0x10000000;
 
+
+// set dirs
+int16_t newdir[4];
+int16_t direction[4];
+int16_t newdirf[4];
+int16_t directionf[4];
+int16_t newdirread[4];
+int16_t directionread[4];
+
 extern u8 digfilterflag;
 
 u8 wormdir; // worm direction
@@ -101,17 +110,20 @@ u8 exestackpop(u8 exenum, u8* exestack){
   return exenum;
   }
 
+
  void main(void)
  {
 
    // order that all inits and audio_init called seems to be important
+   u8 which=0,func=0;u16 start=0,wrap=32767,howmany=1;
+   u16 *buf; u8 *buff;
    u16 x,addr,tmp;
-   u8 oldhardware,hardware,tmphardware,tmppushpull,pushpull,Ysettings,tmpspeed,speed,tmpsettings,micromacro,foldback;
-   u8 effects;
+   u8 oldhardware,hardware=0,tmphardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0;
+   u8 effects=0;
    u16 speedwrapper=0;
    u8 exenums=0,machine_count=0,leak_count=0; 
    u8 exestack[MAX_EXE_STACK];
-   u8 settings, oldsettings=0,settings_trap=0,setted,settingsindex=0;
+   u8 settings=0, oldsettings=0,settings_trap=0,setted,settingsindex=0;
    u8 pushypop,pushpopflag=0;
    u8 index=0, finaldel=0;
    u16 finalpos=0;
@@ -126,6 +138,14 @@ u8 exestackpop(u8 exenum, u8* exestack){
    int16_t lmdir[4]={-180,1,180,-1};
    int16_t mxdir[4]={-180,1,180,-1};
    int16_t dir40106[4]={-180,1,180,-1};
+
+   int16_t newdir[4]={-180,1,180,-1};
+   int16_t direction[4]={-180,1,180,-1};
+   int16_t newdirf[4]={-180,1,180,-1};
+   int16_t directionf[4]={-180,1,180,-1};
+   int16_t newdirread[4]={-180,1,180,-1};
+   int16_t directionread[4]={-180,1,180,-1};
+
 
    u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
    u8 mirror;
@@ -188,7 +208,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 struct stackey stackyy[STACK_SIZE];
 	 struct stackey stackyyy[STACK_SIZE];
 	 u16 *buf16 = (u16*) datagenbuffer;
-	 u8 *audiobuf = (u8*) audio_buffer;
+	 u8 *audio_buf = (u8*) audio_buffer;
 
  #ifndef LACH
 	 dohardwareswitch(2,0);
@@ -197,6 +217,8 @@ u8 exestackpop(u8 exenum, u8* exestack){
 ////////////////////TESTCODE_TODO_REMOVE - but do replace with some
 ////////////////////minimal setup code to get started
 	 //TESTER!
+
+	 EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
 
 	 // setup code for walkers
 	 for (x=0;x<10;x++){
@@ -218,6 +240,15 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 for (x=37;x<48;x++){
 	   settingsarray[x]=1;
 	 }//DIR
+
+	 HDGENERBASE=0;
+	 HDGENERCONS=255;
+	 LMERBASE=0;
+	 LMERCONS=32768; // should be TODO 65536????
+	 F0106ERBASE=0; 
+	 F0106ERCONS=32768;
+	 MAXIMERBASE=0;
+	 MAXIMERCONS=32768;
 
 
 	 // CPUintrev2:
@@ -250,7 +281,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // execution stack
 	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
+	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
 	 }
 
 	 exenums=exestackpop(exenums,exestack);
@@ -266,18 +297,18 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (MACHINESPEED==0) MACHINESPEED=1;
 	    if (LEAKSPEED==0) LEAKSPEED=1;
 
-	      for (x=0;x<exenums;x++){
+	    	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
 		  func_runall(stackyy,buf16,stack_pos); // simulations
 		  break;
 		case 1:
-		  ca_runall(stackyyy,datagenbuffer,stack_posy); // CA
+		  ca_runall(stackyyy,stack_posy); // CA
 		  break;
 		case 2:
 		  machine_count++;
 		  if (machine_count>=MACHINESPEED){
-		  machine_run(m); 
+		    machine_run(m); // crashy!!!TODO!!!!
 		  m->m_leakiness=LEAKINESS;
 		  m->m_infectprob=INFECTION;
 		  m->m_mutateprob=MUTATION;
@@ -292,7 +323,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 		    break;
 		    }
-	      }
+		    }
 	       
 	      // KKNOBBBSSS
 
@@ -303,13 +334,14 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      // 3=speed///3=micro-macro
 	      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
 
-	     
+	      	     
 #ifdef TENE
 	      // TENE: 2,0,3,4,1 
 	      //0-mirror settings
 	      mirror=adc_buffer[2]>>4; // 8 bits or less?
 	      // how we divide up mirror?
 	      // what are mirror ops and how they make sense?
+	      // and that these could be in each setting eg. for effects:
 
 	      //1-hardware
 	      // set hardware for below...
@@ -317,22 +349,26 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      if (mirror<128 && tmphardware!=effects){
 		hardware=tmphardware; // handled all below!
 	      }
-	      else if (tmphardware!=hardware && tmphardware!=effects){
+	      else if ((tmphardware!=hardware && tmphardware!=effects) || mirror>=240){
 		effects=tmphardware;
 	      //1-filterops/effects
 		// EFFECTREAD, EFFECTWRITE, EFFECTFILTER upto 128 each?
-		// ,,, so we have to divide this mirrorside into 3//=42
-		if (mirror<170){
+		if (mirror<160){
 		  EFFECTREAD=effects;
 		}
-		else if (mirror<212){
+		else if (mirror<192){
 		  EFFECTWRITE=effects;
 		}
-		else {
+		else if (mirror<224){
 		  EFFECTFILTER=effects;
 		}
+		else if (mirror<240){
+		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
+		}
+		else  {
+		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		}
 	      }
-
 	      //2-push/pop
 	      //knob as 0 to push, 255 to pop with settings divided inbetween
 	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
@@ -341,21 +377,74 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      tmppushpull=adc_buffer[3]>>5; //7 bits but what of jitter?counter???
 	      if (mirror<128 && tmppushpull!=Ysettings){
 		pushpull=tmppushpull;
-	      //cpustackpush(m,buffer,addr,addr+(randi()<<4),randi()%31,1);
-	      //cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
-	      //stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);
-	      //stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,32767);
-	      //exenums=exestackpush(exenums,exestack,exetype); //exetype=0-3;
+				if (pushpull==0) {
+		//cpustackpush=31,hhh=31,numca=9,numfuncs=33,exetype=4 (totals)
+		
+		// first bit of which is buffer indication
+		switch((which>>1)%5){
+		case 0:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		cpustackpush(m,buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		break;
+		case 1:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		cpustackpushhh(buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		break;
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		case 2:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		stack_posy=ca_pushn(stackyyy,func%NUM_CA,buff,stack_posy,howmany,start,start+wrap);
+		break;
+		case 3:
+		if (which&1) buf=audio_buffer;
+		else buf=buf16;
+		stack_pos=func_pushn(stackyy,func%NUM_FUNCS,buf,stack_pos,howmany,start,wrap);
+		break;
+		case 4:
+		exenums=exestackpush(exenums,exestack,func%4); //exetype=0-3;
+		break;
+		}
+		
+		}
+		else if (pushpull==255) {
+		switch(which%5){
+		case 0:
+		cpustackpop(m);
+		break;
+		case 1:
+		if (which&1) buff=(u8*)audio_buffer;
+		else buff=datagenbuffer;
+		cpustackpoppp(buff);
+		break;
+		case 2:
+		stack_posy=ca_pop(stackyyy,stack_posy);
+		break;
+		case 3:
+		stack_pos=func_pop(stackyy,stack_pos);
+		break;
+		case 4:
+		exenums=exestackpop(exenums,exestack);
+		break;
+	       
+		}
+		}
+		// inbetween we have settings by finger?!
+		// for:   u8 which, func;u16 start,wrap,howmany;
 	      }
 	      //2=settings Y
-	      else if (tmppushpull!=pushpull){
+	      else if (tmppushpull!=Ysettings && tmppushpull!=pushpull){
 		Ysettings=tmppushpull;
-		settingsarray[settings]=Ysettings;
+		//		settingsarray[settings]=Ysettings;
 	      }
 	      //3-speed -global action on all speed settings
 	      tmpspeed=adc_buffer[4]>>4; //8 bits but what of jitter?counter???
 	      if (mirror<128 && tmpspeed!=micromacro){
-		speed=tmpspeed; // all 8 bit
+		/*		speed=tmpspeed; // all 8 bit
+		if (speed==0) speed=1;
 	      LMERSPEED=LMERSPEED%speed;
 	      MAXIMERSPEED=MAXIMERSPEED%speed;
 	      F0106ERSPEED=F0106ERSPEED%speed;
@@ -364,8 +453,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      SAMPLESPEEDREAD=SAMPLESPEEDREAD%speed;
 	      SAMPLESPEEDFILT=SAMPLESPEEDFILT%speed;
 	      LEAKSPEED=LEAKSPEED%speed;
-	      MACHINESPEED=MACHINESPEED%speed;
-	      }
+	      MACHINESPEED=MACHINESPEED%speed;*/
+		// TODO: mirror = all speeds // what of expanding speeds
+		}
 	      else if (tmpspeed!=speed && tmpspeed!=micromacro){
 		micromacro=tmpspeed;
 		//3-micro-macro - constraints and expansion actions
@@ -391,6 +481,9 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		#define ANYWRAP (settingsarray[18])
 		#define ANYWRAPFILT (settingsarray[19])
 	      */
+		// TODO: re-eval dirr arrays
+		// TODO: mirror = all wraps
+
 		if (mirror<192){
 		  //expand <<
 
@@ -402,14 +495,18 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  }
 	      }
 	      //4-settings-all finger at 0
-	      tmpsettings=adc_buffer[1]>>5; //7 bits but what of jitter?counter???
+	      tmpsettings=adc_buffer[1]>>6; //6bits ->64settings but what of jitter?counter???
 
 	      if (mirror<128 && tmpsettings!=foldback){
-		settings=tmpsettings;
+		//		settings=tmpsettings;
 	      }
 	      else if (tmpsettings!=settings){
 	      //4-foldback
 		foldback=tmpsettings;
+		// walker for foldback
+		// also adc_buffer[9] across foldback
+		// flatten all
+		// where to place re-eval for dirs
 	      }
 #endif
 

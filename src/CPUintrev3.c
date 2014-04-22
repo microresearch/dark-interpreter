@@ -1373,7 +1373,7 @@ u8 thread_stack_count(thread* this, u8 c) {
 void thread_push(thread* this, u8 data) {
   if (this->m_stack_pos<14) // STACK_SIZE-2
 	{
-	  //		this->m_stack[++this->m_stack_pos]=data;
+	  this->m_stack[++this->m_stack_pos]=data;
 	}
 }
 
@@ -1431,15 +1431,15 @@ void machine_run(machine* this) {
   if (this->m_mutateprob==0) this->m_mutateprob=1;
 
 
-         	if ((randi()%this->m_leakiness)==0) {
-	    	leak(this);
-		}
+  if ((randi()%this->m_leakiness  && this->m_threadcount>0)==0) {
+    leak(this);
+  }
 	
-		if ((randi()%this->m_infectprob)==0) {
-	  infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
-	}
+  if ((randi()%this->m_infectprob)==0 && this->m_threadcount>0) {
+    infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
+  }
 		
-	if ((randi()%this->m_mutateprob)==0) {
+	if ((randi()%this->m_mutateprob)==0  && this->m_threadcount>0) {
 	  mutate(this,randi()%this->m_threadcount,randi()%16);
 	  }
   }
@@ -1496,7 +1496,7 @@ void mutate(machine *m, u8 which, u8 identifier){
   }
 }
 
-void swapcpu(machine *m, u8 which, u8 identifier){
+void swapcpu(machine *m, u8 which, u8 identifier){// never called!
   u8 x,y,temp; u16 tempi;
   x=randi()%m->m_threadcount;
   y=(x+1)%m->m_threadcount;

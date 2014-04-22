@@ -26,7 +26,7 @@ extern u8 table[21];
 #define STACK_SIZE 16
 
 struct stackey{
-void (*functione) (u8 *workingbuffer, u8 howmuch, void * unity);  
+void (*functione) (u8 howmuch, void * unity);  
   u8 howmuch;
   void* unit;
   };
@@ -42,16 +42,18 @@ void hodgeinit(void* unity, u8* cells, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->cells=cells;
   if (unit->k1==0) unit->k1=1;
   if (unit->k2==0) unit->k2=1;
 }
 
-void runhodge(u8 *cells, uint8_t howmuch, void* unity){
+void runhodge(uint8_t howmuch, void* unity){
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i=0;
   struct hodge *unit=unity;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
     y=x-unit->celllen-1;
@@ -115,13 +117,14 @@ void runhodge(u8 *cells, uint8_t howmuch, void* unity){
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-void runhodgenet(u8 *cells, uint8_t howmuch, void* unity){
+void runhodgenet(uint8_t howmuch, void* unity){
 
   struct hodge* unit=unity;
   u8 sum=0, numill=0, numinf=0; u16 place;
   uint16_t y;
   u8 i=0;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -195,14 +198,16 @@ void cainit(void* unity, u8* cells, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->cells=cells;
 }
 
-void runlife(u8 *cells, uint8_t howmuch, void* unity){
+void runlife(uint8_t howmuch, void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
   struct CA* unit=unity;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -259,11 +264,12 @@ void runlife(u8 *cells, uint8_t howmuch, void* unity){
 
 //one dimensional - working line by line through buffer
 
-void runcel(u8 *cells, uint8_t howmuch, void* unity){
+void runcel(uint8_t howmuch, void* unity){
 
   u8 state,i=0; u16 y;
   struct CA* unit=unity;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=1;i<howmuch;i++){
       state = 0;
@@ -321,13 +327,14 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 // 1d with rules
 
-void runcel1d(u8 *cells, uint8_t howmuch, void* unity){
+void runcel1d(uint8_t howmuch, void* unity){
 
   u8 cell,sum; int16_t z,zz;
   u8 k=4, i;//k=states
   struct CA* unit=unity;
   u16 y;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=1;i<howmuch;i++){
     sum=0;
@@ -368,14 +375,16 @@ void fireinit(void* unity, u8* cells,  u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->cells=cells;
 }
 
-void runfire(u8 *cells, uint8_t howmuch,void* unity){
+void runfire(uint8_t howmuch,void* unity){
 
   u8 sum;
   uint16_t y; u8 i=0;
   struct fire* unit=unity;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -446,6 +455,7 @@ void wireinit(void* unity, u8* cells,  u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->cells=cells;
 }
 
 u8 headcount(struct CA* unit,u8 *cells,u16 place){
@@ -470,11 +480,12 @@ u8 headcount(struct CA* unit,u8 *cells,u16 place){
   else return 0;
 }
 
-void runwire(u8 *cells, uint8_t howmuch, void* unity){
+void runwire(uint8_t howmuch, void* unity){
   u8 sum;
   uint16_t y; u8 i=0;
   struct CA* unit=unity;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -530,12 +541,14 @@ void SIRinit(void* unity, u8* cells, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->cells=cells;
 }
 
-void runSIR(u8 *cells, uint8_t howmuch, void* unity){
+void runSIR(uint8_t howmuch, void* unity){
   struct SIR* unit=unity;
   uint16_t y,yy; u8 i=0;
   u16 x= unit->count;
+  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -612,7 +625,7 @@ void SIR16init(void* unity, u8* cells, u16 start, u16 wrap){
 - contact infection=probC
 - recovery=probV
 */
-
+  unit->cells=cells;
   unit->probM=cells[0];
   unit->probR=cells[1];
   unit->probC=cells[2];
@@ -636,12 +649,12 @@ void SIR16init(void* unity, u8* cells, u16 start, u16 wrap){
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
-void runSIR16(u8 *cells, uint8_t howmuch, void* unity){
+void runSIR16(uint8_t howmuch, void* unity){
   u8 i,ii; u16 y,dest,yy;
   u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
   struct SIR16* unit=unity;
   u16 x= unit->count;
-
+  u8 *cells=unit->cells;
 
     // select random cell, for each of ind, select neighbour and move
     // it there based on probability and neighbour not full
@@ -813,11 +826,11 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
   return stack_posy;
 }
 
-void ca_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_posy){
+void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
   static u16 count; u8 i;
   for (i=0;i<stack_posy;i++){
     if (stack[stack_posy].unit!=NULL){
-      stack[i].functione(buffer,stack[i].howmuch,stack[i].unit);
+      stack[i].functione(stack[i].howmuch,stack[i].unit);
         }
   }
 }
@@ -859,14 +872,14 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
       xx=rand()%16000;
-      stack_posy=ca_pushn(stack,rand()%9,buffer, stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
     }
 
     //    printf("stackposy: %d\n", stack_posy);
 
 
                while(1){
-		 ca_runall(stack,buffer,stack_posy);     
+		 ca_runall(stack,stack_posy);     
 
 		 //	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
 		 //	 	 else stack_posy=ca_pop(stack,stack_posy);

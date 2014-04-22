@@ -216,18 +216,24 @@ outside, and in open daylight.
 * TO REMEMBER/TODO
 
 - always set define for board in MAKEFILE!!!
-
+- caps across potis for top-board
 
 * TUE 22 APR
 
-- finish mirror/settings code
-- test mirror code so far
-- push and pop/buffer
-- knob and finger settings code
+- push and pop/buffer and TEST!
+- knob and finger settings codeTEST
+- mirror and TEST!
+- foldback and TEST!
+
+notes:
+- where do we re-write direction arrays?
+- sim,ca need be re-written so can swop buffers for each stacked item
+- pureleak running needs buffer swap
 
 ///more abstractWed/Thu/Fri
 
-- clean testers
+- clean testcode out
+- more tests
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as

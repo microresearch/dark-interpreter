@@ -22,9 +22,15 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
 extern __IO uint16_t adc_buffer[10];
 extern u8 wormdir;
 extern u16 settingsarray[64];
-
+extern int16_t newdir[4];
+extern int16_t direction[4];
+extern int16_t newdirf[4];
+extern int16_t directionf[4];
+extern int16_t newdirread[4];
+extern int16_t directionread[4];
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
+
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
@@ -107,34 +113,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	//	int16_t *buf16int =(int16_t*) datagenbuffer;
 	int16_t *firstbuf, *secondbuf;
 
-	// set dirs
-	static int16_t newdir[4]={-180,1,180,-1};
-	static int16_t direction[4]={-180,1,180,-1};
-	static int16_t newdirf[4]={-180,1,180,-1};
-	static int16_t directionf[4]={-180,1,180,-1};
-	static int16_t newdirread[4]={-180,1,180,-1};
-	static int16_t directionread[4]={-180,1,180,-1};
-
 	///	///	///	///
 
 	// readin villager processing of left into left and right into audio_buffer
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
+	//	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
 	//		SAMPLEWRAPREAD=32767; // TESTER!
 	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
 	// 	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
-	SAMPLEWRAP=(adc_buffer[3]<<3); // TESTER!
+	//	SAMPLEWRAP=(adc_buffer[3]<<3); // TESTER!
 
 
 	//		SAMPLEWRAP=32767; // TESTER!
 
 	/////////////////////////////LACH
 
-	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
-	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
-	EFFECTFILTER=adc_buffer[2]>>5;// TESTY!!! 0->128
+	//	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
+	//	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
+	//	EFFECTFILTER=adc_buffer[2]>>5;// TESTY!!! 0->128
 
 	//	EFFECTREAD=0;
 	//	EFFECTWRITE=0;
