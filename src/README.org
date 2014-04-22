@@ -220,15 +220,19 @@ outside, and in open daylight.
 
 * TUE 22 APR
 
-- push and pop/buffer and TEST!
+- solution for push/pop values and some kind of window into stack settings
+- solution for mirror and hardware jitter/all jitter or keep hardware as one setting
+
 - knob and finger settings codeTEST
 - mirror and TEST!
 - foldback and TEST!
 
 notes:
 - where do we re-write direction arrays?
-- sim,ca need be re-written so can swop buffers for each stacked item
+- where do we set villageread,write,filt?-> in micro-macro
 - pureleak running needs buffer swap
+- lack of transparency in push/pop settings// also unknown crash
+- restrict howmany for pushes
 
 ///more abstractWed/Thu/Fri
 
@@ -245,6 +249,11 @@ notes:
 
 - tweaking
 - test LACH board only, parts count, recordings/video/manual
+
+** DONE
+
+- sim,ca need be re-written so can swop buffers for each stacked itemDONE
+- push and pop/buffer and TEST! - ok-ish
 
 * MON 21 APR
 

@@ -16,8 +16,7 @@ LINEIN/OUTL-filter
 
 #define STEREO_BUFSZ (BUFF_LEN/2)
 #define MONO_BUFSZ (STEREO_BUFSZ/2)
-int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ],
-		mono_buffer[MONO_BUFSZ];
+int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 
 extern __IO uint16_t adc_buffer[10];
 extern u8 wormdir;
@@ -108,6 +107,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 #else
+
+	/*#ifdef TEST_STRAIGHT
+	static u16 pos;
+	int16_t *buf16 = (int16_t*) datagenbuffer;
+	
+      	for (x=0;x<sz/2;x++){
+	  mono_buffer[x]=buf16[pos%32768];
+	  pos=pos++;
+	}
+
+	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+	#else*/
 
 	u16 *buf16 = (u16*) datagenbuffer;
 	//	int16_t *buf16int =(int16_t*) datagenbuffer;

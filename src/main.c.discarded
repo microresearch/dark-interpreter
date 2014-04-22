@@ -1,3 +1,65 @@
+	    // crashtest
+	    which=randi()%16;
+	    //	  which=randi()%16;
+		    
+	  switch(which>>1){
+		case 0:
+		cpustackpop(m);
+		break;
+		case 1:
+		if (which&1) buff=(u8*)audio_buffer;
+		else buff=datagenbuffer;
+		cpustackpoppp(buff);
+		break;
+		case 2:
+		stack_posy=ca_pop(stackyyy,stack_posy);
+		break;
+		case 3:
+		stack_pos=func_pop(stackyy,stack_pos);
+		break;
+		  case 4:
+		  default:
+		exenums=exestackpop(exenums,exestack);
+		break;
+	       
+		}
+
+	    switch(which>>1){ // 3 bits
+		case 0:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		cpustackpush(m,buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		break;
+		case 1:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		cpustackpushhh(buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		break;
+		case 2:
+		if (which&1) buff=audio_buf;
+		else buff=datagenbuffer;
+		stack_posy=ca_pushn(stackyyy,func%NUM_CA,buff,stack_posy,howmany,start,start+wrap);
+		break;
+		case 3:
+		if (which&1) buf=audio_buffer;
+		else buf=buf16;
+		stack_pos=func_pushn(stackyy,func%NUM_FUNCS,buf,stack_pos,howmany,start,start+wrap);
+		break;
+		case 4:
+		exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
+		break;
+		case 5:
+		exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
+		break;
+		case 6:
+		exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
+		break;
+		case 7:
+		exenums=exestackpush(exenums,exestack,3); //exetype=0-3;
+		break;
+	    }
+		
+	   
 	    settings=adc_buffer[4]>>6; // we have 64 settings or so!
 	    
 	    /*	    	    if (settings>=FINALL){
@@ -43,6 +105,7 @@
 		  // for upper makes sense with up/down as 6/8 left/right 5/7 TODO as ifdefs 
 
 		  if (settingsindex<BEFOREDIR){ 
+
 		    // up- as long as [6] > lastupsetting increment value
 		    handup=adc_buffer[6]>>8; //4 bits //adc6???
 		    if (handup>oldhandup) sstt++;
@@ -61,9 +124,9 @@
 		      ttss=0;
 		      tempsetting--;
 		    }
-
 		    oldhanddown=handdown;
 		    settingsarray[settingsindex]=tempsetting; //8 bits
+////		    
 		  }
 		  else if (settingsindex<BEFORESTACK){ 
 		  // directions - find a winner

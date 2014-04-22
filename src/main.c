@@ -36,11 +36,17 @@
 #include "CA.h"
 #include "settings.h"
 
-#define MAX_EXE_STACK 8
+#define MAX_EXE_STACK 16
+
+//#define which (pushsetting[1])
+#define func (pushsetting[0])
+#define start (pushsetting[1])
+#define wrap (pushsetting[2])
+#define howmany (pushsetting[3])
 
 //#define randi() (adc_buffer[9])
 //#define randi() rand()
-#define randi() (datagenbuffer[adc_buffer[9]<<4])
+#define randi() (datagenbuffer[adc_buffer[9]<<3]) // 15 bits
 
  /* DMA buffers for I2S */
  __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -115,15 +121,14 @@ u8 exestackpop(u8 exenum, u8* exestack){
  {
 
    // order that all inits and audio_init called seems to be important
-   u8 which=0,func=0;u16 start=0,wrap=32767,howmany=1;
    u16 *buf; u8 *buff;
    u16 x,addr,tmp;
-   u8 oldhardware,hardware=0,tmphardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0;
+   u8 oldhardware,hardware=0,tmphardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0,which=0;
    u8 effects=0;
    u16 speedwrapper=0;
    u8 exenums=0,machine_count=0,leak_count=0; 
    u8 exestack[MAX_EXE_STACK];
-   u8 settings=0, oldsettings=0,settings_trap=0,setted,settingsindex=0;
+   u8 settings=0, oldsettings=0,settings_trap=0,setted=0,pushsetted=0,settingsindex=0;
    u8 pushypop,pushpopflag=0;
    u8 index=0, finaldel=0;
    u16 finalpos=0;
@@ -132,6 +137,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
    //   u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
    //   u16 direction8bit[8]={65279,65280,1,257,256,255,65534,65278}; // for 8 bits into counter
+
+   // push
+   u16 pushsetting[4]={0,0,32767,10}; // ignore first value
+   //   func=0;u16 start=0,wrap=32767,howmany=1;
 
 	// set dirs
    int16_t hddir[4]={-180,1,180,-1};
@@ -147,11 +156,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
    int16_t directionread[4]={-180,1,180,-1};
 
 
-   u8 sstt=0,ttss=0,tempsetting=0,handup, oldhandup, handdown, oldhanddown;
+   u8 sstt=0,ttss=0,handup, oldhandup, handdown, oldhanddown;
+   u16 tempsetting=0;
    u8 mirror;
    u8 handleft, handright, oldhandleft,oldhandright,up=0,down=0,left=0,right=0,handcount=0;
 
-   inittable(3,4,randi()<<4,table);
+   inittable(3,4,randi(),table);
 
   float pi= 3.141592;
   float w;
@@ -249,42 +259,41 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	 F0106ERCONS=32768;
 	 MAXIMERBASE=0;
 	 MAXIMERCONS=32768;
-
-
+	 LEAKSPEED=1;MACHINESPEED=1;
+	 
 	 // CPUintrev2:
 	 for (x=0; x<100; x++)
 	   {
-	     addr=randi()<<4;
-	     cpustackpush(m,datagenbuffer,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
-		     // cpustackpush(m,audiobuf,addr,addr+(randi()<<4),randi()%31,1);//randi()%255);
+	     addr=randi();
+	     cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
 	   }
 
 	 //pureleak
 
   for (x=0;x<MAX_FRED;x++){
     addr=randi()%65536;
-    cpustackpushhh(datagenbuffer,addr,addr+randi()%65536,randi()%31,1);
+    cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
   }
 
 	 // CA
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,rand()%NUM_CA,datagenbuffer,stack_posy,100,0,32767);//howmuch,start,wrap 
+	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi());//howmuch,start,wrap 
 	   }
 
 
 	 	 //simulationforstack:	
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_pos=func_pushn(stackyy,rand()%NUM_FUNCS,buf16,stack_pos,10,0,rand()%32768);//howmuch,start,wrap 
+	   stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10,0,randi()%32768);//howmuch,start,wrap 
 	   //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);//howmuch,start,wrap
 	 }
-
+	
 
 	 // execution stack
-	 for (x=0;x<MAX_EXE_STACK;x++){
-	   exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
+	 	 for (x=0;x<MAX_EXE_STACK;x++){
+		   exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3;
 	 }
 
-	 exenums=exestackpop(exenums,exestack);
+//	 exenums=exestackpop(exenums,exestack);
 
 ///////////////////////////
 
@@ -297,7 +306,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    if (MACHINESPEED==0) MACHINESPEED=1;
 	    if (LEAKSPEED==0) LEAKSPEED=1;
 
-	    	      for (x=0;x<exenums;x++){
+	    for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
 		  func_runall(stackyy,stack_pos); // simulations
@@ -308,7 +317,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 2:
 		  machine_count++;
 		  if (machine_count>=MACHINESPEED){
-		    machine_run(m); // crashy!!!TODO!!!!
+		    machine_run(m);
 		  m->m_leakiness=LEAKINESS;
 		  m->m_infectprob=INFECTION;
 		  m->m_mutateprob=MUTATION;
@@ -318,13 +327,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 3:
 		  leak_count++;
 		  if (leak_count>=LEAKSPEED){
-		    machine_runnn(datagenbuffer);
+		    machine_runnn(datagenbuffer); // TODO: swap here if we can/should?
 		    leak_count=0;
 		  }
-		    break;
 		    }
 		    }
-	       
+	     
 	      // KKNOBBBSSS
 
 	      // 0-4 top down
@@ -334,10 +342,16 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      // 3=speed///3=micro-macro
 	      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
 
+	    // and if we keep 1 as only hardware and move effects????TODO???
+
+	    u16 hw; u8 hwcount;
+
 	      	     
 #ifdef TENE
+
 	      // TENE: 2,0,3,4,1 
 	      //0-mirror settings
+	    // smoothing
 	      mirror=adc_buffer[2]>>4; // 8 bits or less?
 	      // how we divide up mirror?
 	      // what are mirror ops and how they make sense?
@@ -345,11 +359,19 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	      //1-hardware
 	      // set hardware for below...
-	      tmphardware=adc_buffer[0]>>5; //7 bits but what of jitter?counter???
+	      hw+=adc_buffer[0]>>5; //7 bits but what of jitter?counter???
+	      hwcount++;
+	      if (hwcount>128){
+		hwcount=0;
+		tmphardware=hw/128;
+		hw=0;
+		
 	      if (mirror<128 && tmphardware!=effects){
-		hardware=tmphardware; // handled all below!
-	      }
-	      else if ((tmphardware!=hardware && tmphardware!=effects) || mirror>=240){
+		//		hardware=tmphardware; // handled all below 
+		//TODO: but is change when move mirror just down to jitter?
+		hardware=tmphardware;
+	    }
+	      else if (tmphardware!=hardware && tmphardware!=effects){
 		effects=tmphardware;
 	      //1-filterops/effects
 		// EFFECTREAD, EFFECTWRITE, EFFECTFILTER upto 128 each?
@@ -369,19 +391,26 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
 		}
 	      }
+	      }
+   
+	      ////////////
 	      //2-push/pop
 	      //knob as 0 to push, 255 to pop with settings divided inbetween
 	      //type(which,func,exetype)//howmuch//start//wrap(check>???) 	   	   
 	      //also which buffer to attack as bitwise option
-
-	      tmppushpull=adc_buffer[3]>>5; //7 bits but what of jitter?counter???
-	      if (mirror<128 && tmppushpull!=Ysettings){
+	      
+		 /*	      tmppushpull=adc_buffer[3]>>5; //7 bits but what of jitter?counter???
+	      if (mirror<128){// && tmppushpull!=Ysettings && pushpull!=tmppushpull){
 		pushpull=tmppushpull;
-				if (pushpull==0) {
+		which=mirror>>3; // 4 bits as less than 128
+		func=randi(); // TESTY!
+		//		start=randi();
+		//		wrap=randi();
+		if (pushpull<16) {
 		//cpustackpush=31,hhh=31,numca=9,numfuncs=33,exetype=4 (totals)
-		
 		// first bit of which is buffer indication
-		switch((which>>1)%5){
+		  //		  which=which^1;
+		  switch(which>>1){ // 3 bits
 		case 0:
 		if (which&1) buff=audio_buf;
 		else buff=datagenbuffer;
@@ -392,8 +421,6 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		else buff=datagenbuffer;
 		cpustackpushhh(buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
 		break;
-		if (which&1) buff=audio_buf;
-		else buff=datagenbuffer;
 		case 2:
 		if (which&1) buff=audio_buf;
 		else buff=datagenbuffer;
@@ -402,16 +429,24 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 3:
 		if (which&1) buf=audio_buffer;
 		else buf=buf16;
-		stack_pos=func_pushn(stackyy,func%NUM_FUNCS,buf,stack_pos,howmany,start,wrap);
+		stack_pos=func_pushn(stackyy,func%NUM_FUNCS,buf,stack_pos,howmany,start,start+wrap);
 		break;
 		case 4:
-		exenums=exestackpush(exenums,exestack,func%4); //exetype=0-3;
+		exenums=exestackpush(exenums,exestack,0); //exetype=0-3;
 		break;
+		case 5:
+		exenums=exestackpush(exenums,exestack,1); //exetype=0-3;
+		break;
+		case 6:
+		exenums=exestackpush(exenums,exestack,2); //exetype=0-3;
+		break;
+		case 7:
+		exenums=exestackpush(exenums,exestack,3); //exetype=0-3;
 		}
-		
 		}
-		else if (pushpull==255) {
-		switch(which%5){
+		else if (pushpull>112) {
+		which=mirror>>3; // 4 bits as less than 128
+		switch(which>>1){//3 bits
 		case 0:
 		cpustackpop(m);
 		break;
@@ -426,20 +461,44 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 3:
 		stack_pos=func_pop(stackyy,stack_pos);
 		break;
-		case 4:
+		  case 4:
+		  default:
 		exenums=exestackpop(exenums,exestack);
-		break;
 	       
 		}
 		}
-		// inbetween we have settings by finger?!
+				else{
+		  		pushsetted=(pushpull>>5);
+		  handup=adc_buffer[6]>>8; //4 bits //adc6???
+		    if (handup>oldhandup) sstt++;
+		    else sstt=0;
+		    if (sstt>2){
+		      sstt=0;
+		      tempsetting++;
+		    }
+		    oldhandup=handup;
+
+		    // down- as long as [8] > lastdownsetting decrement value
+		    handdown=adc_buffer[8]>>8; //4 bits
+		    if (handdown>oldhanddown) ttss++;
+		    else ttss=0;
+		    if (ttss>2){
+		      ttss=0;
+		      tempsetting--;
+		    }
+		    oldhanddown=handdown;
+		    pushsetting[pushsetted]=tempsetting;
+		    }
+
+				
+	// inbetween we have settings by finger?!
 		// for:   u8 which, func;u16 start,wrap,howmany;
 	      }
 	      //2=settings Y
 	      else if (tmppushpull!=Ysettings && tmppushpull!=pushpull){
 		Ysettings=tmppushpull;
 		//		settingsarray[settings]=Ysettings;
-	      }
+		}*/
 	      //3-speed -global action on all speed settings
 	      tmpspeed=adc_buffer[4]>>4; //8 bits but what of jitter?counter???
 	      if (mirror<128 && tmpspeed!=micromacro){
@@ -617,7 +676,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	      //	      u8 constraint=8;
 	      //	      setmaximpwm(200); 
 	      maximerdel=0;
-	      setmaximpwm(MAXIMERBASE+(buf16[tmp]%MAXIMERCONS)); //TODO add constraints here!!! ><  //TESTER!
+	      setmaximpwm(MAXIMERBASE+(buf16[x]%MAXIMERCONS)); //TODO add constraints here!!! ><  //TESTER!
 	    }
 
 	  }

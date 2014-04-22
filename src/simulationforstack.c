@@ -1757,10 +1757,14 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
  	if (stack_pos>0)
 	{
 	  stack_pos--;
-	  free(stack[stack_pos].unit);
+	  //	  free(stack[stack_pos].unit);
+	  // if (stack[stack_pos].unit!=NULL){
+	    free(stack[stack_pos].unit);
+	    //	    stack[stack_pos].unit=NULL;
+	    //	}
 	}
 	return stack_pos;
-}
+	}
 
 #ifdef PCSIM
 
@@ -1797,21 +1801,27 @@ void main(void)
   	 for (x=0;x<STACK_SIZE;x++){
 	   //  	   stack_pos=func_pushn(stackyy,rand()%29,buf16,stack_pos,10,rand()%32,32+rand()%3);//howmuch,start,wrap 
 	   //	     stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap //29-32
-	   stack_pos=func_pushn(stackyy,32,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
+
   	 	   }
   
-	 u16 tmppp=64000,ooo=45001;
+	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which;
 
-	 //	 tmppp=(ooo>>8);
-	 //	 printf("tmp %d\n",tmppp);
+	 tmppp=(ooo>>5);
+	 	 printf("tmp %d\n",tmppp);
 
 	 //	 call function;
 
 	 //	 calltest(tmppp+ooo);
 
-	 	 while(1){
-	   func_runall(stackyy,stack_pos); // simulations
-	   }
+		 //	 	 	 while(1){
+			   /*			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
+			   else stack_pos=func_pop(stackyy,stack_pos);
+
+			   func_runall(stackyy,stack_pos); // simulations*/
+
+
+
+		 //	 	   }
 }
 
 #endif

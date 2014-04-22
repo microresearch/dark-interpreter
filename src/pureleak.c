@@ -1652,9 +1652,9 @@ int main(void)
       //    printf("%c",buffer[x++]);
       //      x++;
 	  //	  addr=randi()%65536;
-	  /* if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1); */
+	   if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1); 
 
-	  /* else  			cpustackpoppp(buffer); */
+	   else  			cpustackpoppp(buffer); 
 		 //  printf("stackposy: %d\n", stack_posy);
 
 

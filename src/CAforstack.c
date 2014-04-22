@@ -839,10 +839,10 @@ signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
  	if (stack_posy>0)
 	{
 	  stack_posy--;
-	  //	  	  if (stack[stack_posy].unit!=NULL){
+	  //	  if (stack[stack_posy].unit!=NULL){
 	  	  free(stack[stack_posy].unit);
-	  //	  stack[stack_posy].unit=NULL;
-	  //	  }
+		  //	  stack[stack_posy].unit=NULL;
+		  //	  	  }
 	  //	  stack_posy--;
 	}
   return stack_posy;
@@ -872,7 +872,7 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
       xx=rand()%16000;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
+      //      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
     }
 
     //    printf("stackposy: %d\n", stack_posy);
@@ -881,9 +881,10 @@ int main(void)
                while(1){
 		 ca_runall(stack,stack_posy);     
 
-		 //	 	 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer, stack_posy,2,100); // last as delay,howmany
-		 //	 	 else stack_posy=ca_pop(stack,stack_posy);
+		 if ((rand()%2)==1) stack_posy=ca_pushn(stack,4,buffer,stack_posy,100,0,32767); // last as delay,howmany
+		 	 	 else stack_posy=ca_pop(stack,stack_posy);
 		 //	 printf("stackposy: %d\n", stack_posy);
+		 //signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
 
     	 }
 
