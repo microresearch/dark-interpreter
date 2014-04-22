@@ -247,6 +247,20 @@ outside, and in open daylight.
 
 * TUE 22 APR
 
+rewrite as series of embedded stacks mirroring each other: audiostack, settingsstack
+
+-push/pull walk across all stack settings
+-what push and pull can also depend on
+-add extra village audio settings to be set from main.c (set by sim and ca stacks)
+
+(hardware start/wrap can also be set to stacks but how do we know which stack is executed)
+
+-exestack is somehow wrong as idea but works to re-order execution
+
+mirror left/right is more settings/ops on settings division/foldback
+
+////
+
 - solution for mirror and hardware jitter/all jitter or keep hardware
   as one setting and redo knobs(where to put effects - have settings only by hand)
 
@@ -261,9 +275,12 @@ http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 
 *stacks are:*
 
-- exestack: list of stacks to run (list of types 0-3) MAX of 16 (reduce?)
+[- exestack: list of stacks to run (list of types 0-3) MAX of 16 (reduce?)]
+
 - cpustack: this->m_threads[this->m_threadcount] with variables MAX 120
-- pureleak: as above but all stored in buffer... (leave as is)
+- pureleak: as above but all stored in buffer...
+///vs...
+// these we can access stacks:
 - simulation: stack[stack_pos] with variables... MAX 16
 - CAforstack: stack[stack_posy] with variables... MAX 16
 

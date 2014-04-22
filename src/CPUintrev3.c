@@ -151,7 +151,7 @@ void thread_run(thread* this, machine *m) {
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
-    printf("%c",machine_peek(m,this->m_pc));
+    //    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
     //    this->m_CPU=5;
@@ -1592,7 +1592,7 @@ u8 settingsarray[64];
   u8 flag,other;
   int16_t right_buffer[64]; u8 sz=128;
 
-	for (unsigned char n=0; n<10; n++)
+	for (unsigned char n=0; n<100; n++)
 	{
 	  addr=randi()%65536;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
@@ -1623,6 +1623,8 @@ u8 settingsarray[64];
 
 	while(1) {
 	  machine_run(m); //cpu - WRAP own speedTODO
+	  	  printf("%c",buffer[x]);
+	  x++;
 
 	}
 	}
