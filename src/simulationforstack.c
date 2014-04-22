@@ -1802,7 +1802,7 @@ void main(void)
   	 for (x=0;x<2;x++){
 	   u16 addr=rand()%32768;
 	   u8 which=rand()%29;
-	   printf("which: %d\n",which);
+	   //	   printf("which: %d\n",which);
 	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap 
 	   //	     stack_pos=func_pushn(stackyy,0,buf16,stack_pos,10,0,32767);//howmuch,start,wrap //29-32
 
