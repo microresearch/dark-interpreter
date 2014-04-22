@@ -21,8 +21,6 @@ extern u8 table[21];
 
 //////////////////////////////////////////
 
-
-
 #define STACK_SIZE 16
 
 struct stackey{
@@ -630,7 +628,7 @@ void SIR16init(void* unity, u8* cells, u16 start, u16 wrap){
   unit->probR=cells[1];
   unit->probC=cells[2];
   unit->probV=cells[3];
-  // TODO** fix this constraint!
+  // TODO/IGNORE fix this constraint!
   // distribute totals and SIR - total must be sum of S.I.R in other bits
   /*  for (i=0;i<65534;i+=2){
     total=(cells[i]>>4)|1;

@@ -1,4 +1,51 @@
+	//	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
+	//		SAMPLEWRAPREAD=32767; // TESTER!
+	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
+	// 	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
+	//	SAMPLEWRAP=(adc_buffer[3]<<3); // TESTER!
+
+
+	//		SAMPLEWRAP=32767; // TESTER!
+
+	/////////////////////////////LACH
+
+	//	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
+	//	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
+	//	EFFECTFILTER=adc_buffer[2]>>5;// TESTY!!! 0->128
+
+	//	EFFECTREAD=0;
+	//	EFFECTWRITE=0;
+	//	EFFECTFILTER=0;
+
+
+void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
+{ // TESTY!!!
+  static u16 count=0; 
+  	while(sz)
+	{
+		*ldst++ = *src++;
+		sz--;
+		*rdst++ = *src;
+		count+=1;
+ 		if (count>=AUDIO_BUFSZ) count=0;
+		audio_buffer[count] = *src++;
+		sz--;
+	}
+}
+
 /////////////////////////////////////////////
+
+	/*#ifdef TEST_STRAIGHT
+	static u16 pos;
+	int16_t *buf16 = (int16_t*) datagenbuffer;
+	
+      	for (x=0;x<sz/2;x++){
+	  mono_buffer[x]=buf16[pos%32768];
+	  pos=pos++;
+	}
+
+	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+	#else*/
 
 //former WRITE code!!!!!!!!!!!TODO!!!!!NOTE!!!!!
 // writeout villager processing  into mono_buffer

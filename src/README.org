@@ -221,8 +221,12 @@ outside, and in open daylight.
 
 * WED 23 APR
 
-- jitter/smooth see below!
-- stack see below
+- do we smooth jitter - see below!
+- stack ops - see below
+- audio sample/any settings to be set from stacks (ca and sim)
+  (step/start/wrap set by sim and ca stacks)
+
+
 - knob and finger settings codeTEST
 - mirror and TEST!
 - foldback and TEST!
@@ -231,13 +235,13 @@ outside, and in open daylight.
 ///more abstractWed/Thu/Fri
 
 - clean testcode out
-- more tests
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
   mirroring, constraint, expansion, reduction, remapping
 - modulation for eeg/adc across settingsarray/otherarrays... dir
   directly across all arrays
+- wormdir and all TODO
 
 [extras]WED/THU/FRI
 
@@ -247,22 +251,19 @@ outside, and in open daylight.
 
 * TUE 22 APR
 
+TODO:
+
 rewrite as series of embedded stacks mirroring each other: audiostack, settingsstack
 
 -push/pull walk across all stack settings
--what push and pull can also depend on
--add extra village audio settings to be set from main.c (set by sim and ca stacks)
+-what push and pull can also depend on/be triggered by
 
-(hardware start/wrap can also be set to stacks but how do we know which stack is executed)
+(hardware start/wrap can also be set to stacks)
 
--exestack is somehow wrong as idea but works to re-order execution
-
-mirror left/right is more settings/ops on settings division/foldback
+mirror left/right is more about settings/ops on settings division/foldback-see main comments
 
 ////
-
-- solution for mirror and hardware jitter/all jitter or keep hardware
-  as one setting and redo knobs(where to put effects - have settings only by hand)
+SMOOTHY:
 
 [smoothing: My solution for STM ADC is: take 8 samples, get rid of the 2 highest
 values and the 2 lowest values and average the 4 remaining]
@@ -271,7 +272,7 @@ or running average in adc.c DMA2_Stream0_IRQHandler
 
 http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 
-- solution for push/pop values and some kind of window into stack settings
+** notes:
 
 *stacks are:*
 
@@ -284,19 +285,15 @@ http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 - simulation: stack[stack_pos] with variables... MAX 16
 - CAforstack: stack[stack_posy] with variables... MAX 16
 
-TODO---- to open up stack settings, to be able to say match grains
-start/wrap to audio start/wrap (in micro-macro)
-
-** notes:
-
 - where do we re-write direction arrays?
 - where do we set villageread,write,filt?-> in micro-macro
 - pureleak running needs buffer swap
-- lack of transparency in push/pop settings// also unknown crash???
 - restrict howmany for pushes
 
 ** DONE
 
+- lack of transparency in push/pop settings// also unknown crash???FIXED?
+-exestack is somehow wrong as idea but works to re-order execution DONE
 - sim,ca need be re-written so can swop buffers for each stacked itemDONE
 - push and pop/buffer and TEST! - ok-ish
 
@@ -318,15 +315,7 @@ start/wrap to audio start/wrap (in micro-macro)
 use it for leftbuffer only???  // so can discard it when we don't use
 leftbuffer
 
-- TODO: that all wraps should always be constrained to 32768
-
-- good to have knob for settings which could replace pull/pop knob (tho
-  makes no sense to mirror this knob) or find somehow way to do this
-
 - TODO: when wrapper changes we need to redo direction array!!!
-
-- TODO: we done away with cons (and processing) but simply altering
-  all wraps in settingsarray once (as action) 
 
 - TODO: test fingers with different fingers!
 

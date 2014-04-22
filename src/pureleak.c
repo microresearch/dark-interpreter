@@ -1,5 +1,3 @@
-
-
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -20,8 +18,6 @@ extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
 extern u16 settingsarray[64];
 #endif
-
-
 
 #include <math.h>
 
@@ -82,7 +78,6 @@ void thread_createee(u8 *buffer, u16 address, u16 wrapaddress,u8 which, u8 delay
   buffer[offset+11]=randi()%255;
   buffer[offset+12]=randi()%255;
   buffer[offset+13]=14; // stack_pos -1????
-  //  printf("createe: offset%d which%d\n",offset,buffer[offset]);
 }
 
 u16 machine_peekkk(u8* buffer, uint16_t addr);
@@ -165,7 +160,6 @@ u8 thread_toppp(u8 *buffer, u16 offset) {
 	return 0;
 }
 
-
 void thread_runnn(u8* buffer, u8 threadnum) {
   u8 instr,temp;
   u16 y,addr,temprr;
@@ -205,9 +199,6 @@ void thread_runnn(u8* buffer, u8 threadnum) {
     {
 
     case 0: // :LEAKY STACK! - working!
-      //       this->m_pc++; PCADDRHI and LO!
-
-
       addr=((PCADDRHI<<8)+PCADDRLO);
       instr=machine_p88kkk(buffer,addr);
       addr++;

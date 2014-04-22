@@ -1,10 +1,6 @@
 /*
  * audio.c - just the callback 
 
-#define BUFF_LEN 128 - but is 64 for each left/right
-
-- audio hardware
-
 LINEIN/OUTR-main IO
 LINEIN/OUTL-filter
 
@@ -59,22 +55,6 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 	}
 }
 
-void di_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
-{ // TESTY!!!
-  static u16 count=0; 
-  	while(sz)
-	{
-		*ldst++ = *src++;
-		sz--;
-		*rdst++ = *src;
-		count+=1;
- 		if (count>=AUDIO_BUFSZ) count=0;
-		audio_buffer[count] = *src++;
-		sz--;
-	}
-}
-
-
 void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 {
 	while(sz)
@@ -102,26 +82,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
 	static u8 delread=0,villageread=0,villagefilt=0;  // TODO village in settinsg
 	u16 wrapper; 
-	// TODO:find a place in settings for these
+
 #ifdef TEST_STRAIGHT
 	audio_split_stereo(sz, src, left_buffer, right_buffer);
 	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 #else
 
-	/*#ifdef TEST_STRAIGHT
-	static u16 pos;
-	int16_t *buf16 = (int16_t*) datagenbuffer;
-	
-      	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=buf16[pos%32768];
-	  pos=pos++;
-	}
-
-	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
-	#else*/
-
 	u16 *buf16 = (u16*) datagenbuffer;
-	//	int16_t *buf16int =(int16_t*) datagenbuffer;
+	int16_t *buf16int =(int16_t*) datagenbuffer;
 	int16_t *firstbuf, *secondbuf;
 
 	///	///	///	///
@@ -130,31 +98,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
-	//	SAMPLEWRAPREAD=(adc_buffer[0]>>6)<<9; // TESTER!
-	//		SAMPLEWRAPREAD=32767; // TESTER!
-	//	SAMPLEWRAP=adc_buffer[3]<<3; // TESTER!
-	// 	SAMPLEWRAP=(adc_buffer[3]>>6)<<9; // TESTER!
-	//	SAMPLEWRAP=(adc_buffer[3]<<3); // TESTER!
-
-
-	//		SAMPLEWRAP=32767; // TESTER!
-
-	/////////////////////////////LACH
-
-	//	EFFECTREAD=adc_buffer[4]>>5;// TESTY!!! 0->128
-	//	EFFECTWRITE=adc_buffer[1]>>5;// TESTY!!! 0->128
-	//	EFFECTFILTER=adc_buffer[2]>>5;// TESTY!!! 0->128
-
-	//	EFFECTREAD=0;
-	//	EFFECTWRITE=0;
-	//	EFFECTFILTER=0;
 
 #ifdef LACH
 
 	// firstbuf, secondbuf
-	if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
+	if (EFFECTREAD&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
+	if (EFFECTREAD&4) secondbuf=buf16int;
 	else secondbuf=audio_buffer;
 
       	for (x=0;x<sz/2;x++){
@@ -263,14 +213,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  // so ldst *(src-1) becomes possible mixerrr
 	// TODO: put this in loop below or????
-	  if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
+	  if (EFFECTREAD&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-	  if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
+	  if (EFFECTREAD&4) secondbuf=buf16int;
 	else secondbuf=audio_buffer;
-		
-	//	EFFECTREAD=0;
       	for (x=0;x<sz/2;x++){
 	  
 	  switch(EFFECTREAD>>3){ //>>3 lowest bit for clip/noclip 0->15 options
@@ -438,11 +385,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-
 	// TODO: put this in loop below or????
-	    	if (EFFECTREAD&2) firstbuf=(int16_t*) buf16;
+	    	if (EFFECTREAD&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-	if (EFFECTREAD&4) secondbuf=(int16_t*) buf16;
+	if (EFFECTREAD&4) secondbuf=buf16int;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTREAD=0;
@@ -648,8 +594,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  // so ldst *(src-1) becomes possible mixerrr
-	// now ldst++:
 	// TODO: put this in loop below or????
 	if (EFFECTWRITE&2) firstbuf=(int16_t*) datagenbuffer;
 	else firstbuf=audio_buffer;
@@ -766,11 +710,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
 	// TODO: put this in loop below or????
-
 	    
-	if (EFFECTWRITE&2) firstbuf=(int16_t*) buf16;
+	if (EFFECTWRITE&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-	if (EFFECTWRITE&4) secondbuf=(int16_t*) buf16;
+	if (EFFECTWRITE&4) secondbuf=buf16int;
 	else secondbuf=audio_buffer;
 		
 	//	EFFECTWRITE=0;
@@ -862,26 +805,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 #ifndef LACH // as we have no filter!
 
-if (digfilterflag&1){ // TODO
-	  // 3- any processing of left buffer into left buffer
-	  //!!!! COPY walker from above and select ops for mix/multiply/morph/whatever
-	  // also zero as effect action (actions also above with y/write)!!!
+if (digfilterflag&1){ 
 
 	int16_t * ldst=left_buffer;
 	int16_t * rdst=right_buffer;
 
 	  ////////////////////////////////////LDST effects also...
-
-	  // so ldst *(src-1) becomes possible mixerrr
-	// now ldst++:
 	// TODO: put this in loop below or????
-	if (EFFECTFILTER&2) firstbuf=(int16_t*) buf16;
+	if (EFFECTFILTER&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-		
-	//	EFFECTFILTER=0;
       	for (x=0;x<sz/2;x++){ 
 	  
-	  switch(EFFECTFILTER>>2){ //32options now// lowest bit for clip/noclip 0-15 too many options TODO!
+	  switch(EFFECTFILTER>>2){ //32options now
 	  case 0:
 	  default:
 	  *ldst++=firstbuf[sampleposfilt%32768];
@@ -1068,7 +1003,6 @@ if (digfilterflag&1){ // TODO
 	}
 
  }
-
 
 #endif // for LACH
 

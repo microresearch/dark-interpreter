@@ -6,20 +6,6 @@
 
 //+ inc,dec,left,right and so on
 
-
-/* TODO:
-
-/////resolved/////
-
-[- fix misunderstanding (as we want 64k with buffer so buffer is 32768
-  samples long with u16) DONE]
-[- somehow declare offset for settings, or we store this somewhere]
-[- should howmuch be int or is u8 ok? probably leave as u8]
-[- return count+i or i? - count+i in all cases]
-
-*/
-
-
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -1811,23 +1797,24 @@ void main(void)
 	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which;
 
 	 tmppp=(ooo>>5);
-	 	 printf("tmp %d\n",tmppp);
-
+	 //printf("tmp %d\n",tmppp);
+		 u8 stak=0;
 	 //	 call function;
 
 	 //	 calltest(tmppp+ooo);
 
-		 while(1){
-	   /*			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
-				   else stack_pos=func_pop(stackyy,stack_pos);*/
+		 /*		 while(1){
+	   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
+	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
 		     func_runall(stackyy,stack_pos); // simulations
 		     printf("%c",buf16[x%32768]>>8);
 		     which=buf16[x%32768]>>8;
-		   x++;
+		     x++;*/
+		 for (x=0;x<stak;x++){printf("xxxxx");}
 
 
-			 	   }
+		 //   }
 }
 
 #endif

@@ -1622,8 +1622,8 @@ u8 settingsarray[64];
 	wrap=0;start=0;
 
 	while(1) {
-	  machine_run(m); //cpu - WRAP own speedTODO
-	  	  printf("%c",buffer[x]);
+	  machine_run(m); //cpu - WRAP own speed
+	  printf("%c",buffer[x]);
 	  x++;
 
 	}
