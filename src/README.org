@@ -218,21 +218,15 @@ outside, and in open daylight.
 - always set define for board in MAKEFILE!!!
 - caps across potis for top-board
 
-* TUE 22 APR
 
-- solution for push/pop values and some kind of window into stack settings
-- solution for mirror and hardware jitter/all jitter or keep hardware as one setting
+* WED 23 APR
 
+- jitter/smooth see below!
+- stack see below
 - knob and finger settings codeTEST
 - mirror and TEST!
 - foldback and TEST!
 
-notes:
-- where do we re-write direction arrays?
-- where do we set villageread,write,filt?-> in micro-macro
-- pureleak running needs buffer swap
-- lack of transparency in push/pop settings// also unknown crash
-- restrict howmany for pushes
 
 ///more abstractWed/Thu/Fri
 
@@ -249,6 +243,40 @@ notes:
 
 - tweaking
 - test LACH board only, parts count, recordings/video/manual
+
+
+* TUE 22 APR
+
+- solution for mirror and hardware jitter/all jitter or keep hardware
+  as one setting and redo knobs(where to put effects - have settings only by hand)
+
+[smoothing: My solution for STM ADC is: take 8 samples, get rid of the 2 highest
+values and the 2 lowest values and average the 4 remaining]
+
+or running average in adc.c DMA2_Stream0_IRQHandler
+
+http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
+
+- solution for push/pop values and some kind of window into stack settings
+
+*stacks are:*
+
+- exestack: list of stacks to run (list of types 0-3) MAX of 16 (reduce?)
+- cpustack: this->m_threads[this->m_threadcount] with variables MAX 120
+- pureleak: as above but all stored in buffer... (leave as is)
+- simulation: stack[stack_pos] with variables... MAX 16
+- CAforstack: stack[stack_posy] with variables... MAX 16
+
+TODO---- to open up stack settings, to be able to say match grains
+start/wrap to audio start/wrap (in micro-macro)
+
+** notes:
+
+- where do we re-write direction arrays?
+- where do we set villageread,write,filt?-> in micro-macro
+- pureleak running needs buffer swap
+- lack of transparency in push/pop settings// also unknown crash???
+- restrict howmany for pushes
 
 ** DONE
 

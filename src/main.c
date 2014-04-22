@@ -277,7 +277,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	 // CA
 	 for (x=0;x<STACK_SIZE;x++){
-	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi());//howmuch,start,wrap 
+	   stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi()%32768);//howmuch,start,wrap 
 	   }
 
 
@@ -359,12 +359,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 
 	      //1-hardware
 	      // set hardware for below...
-	      hw+=adc_buffer[0]>>5; //7 bits but what of jitter?counter???
-	      hwcount++;
-	      if (hwcount>128){
-		hwcount=0;
-		tmphardware=hw/128;
-		hw=0;
+	      hardware=adc_buffer[0]>>5; //7 bits but what of jitter?counter???
 		
 	      if (mirror<128 && tmphardware!=effects){
 		//		hardware=tmphardware; // handled all below 
@@ -414,12 +409,12 @@ u8 exestackpop(u8 exenum, u8* exestack){
 		case 0:
 		if (which&1) buff=audio_buf;
 		else buff=datagenbuffer;
-		cpustackpush(m,buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		cpustackpush(m,buff,start,(start+wrap)%32768,func%31,howmany); // in this case delay is howmany
 		break;
 		case 1:
 		if (which&1) buff=audio_buf;
 		else buff=datagenbuffer;
-		cpustackpushhh(buff,start,start+wrap,func%31,howmany); // in this case delay is howmany
+		cpustackpushhh(buff,start,(start+wrap)%32768,func%31,howmany); // in this case delay is howmany
 		break;
 		case 2:
 		if (which&1) buff=audio_buf;
