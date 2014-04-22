@@ -300,7 +300,7 @@ u8 exestackpop(u8 exenum, u8* exestack){
 	    	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
-		  func_runall(stackyy,buf16,stack_pos); // simulations
+		  func_runall(stackyy,stack_pos); // simulations
 		  break;
 		case 1:
 		  ca_runall(stackyyy,stack_posy); // CA

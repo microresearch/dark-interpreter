@@ -66,7 +66,7 @@ extern u16 sin_data[256];
 
 // formantz
 
-void forminit(void* unity, u8 *workingbuffer, u16 start, u16 wrap){
+void forminit(void* unity, u16 *workingbuffer, u16 start, u16 wrap){
   struct FORM* unit=unity;
   unit->freq[0]=(u8)workingbuffer[0];
   unit->freq[1]=(u8)workingbuffer[1];
@@ -77,6 +77,7 @@ void forminit(void* unity, u8 *workingbuffer, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->buffer=(u16*)workingbuffer;
 }
 
 const u16 SAMPLE_FREQUENCY = 48000;
@@ -85,9 +86,10 @@ const float PI_2 = 6.28318531f;
 
 //////////////////////////////////////////////////////////SPEED!
 
-void runform(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runform(uint8_t howmuch, void* unity){
 
   struct FORM *unit=unity; u16 tmp;
+  u8 *workingbuffer=(u8 *)unit->buffer;
   float buff[255]; float x; 
   // samples to float
   //  u16 count=unit->count;
@@ -136,16 +138,17 @@ void convinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unit->c0=(float)workingbuffer[0]/16384.0;
   unit->c1=(float)workingbuffer[1]/16384.0;
   unit->c2=(float)workingbuffer[2]/16384.0;
-
+  unit->buffer=workingbuffer;
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
 }
 
 
-void runconv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runconv(uint8_t howmuch, void* unity){
   u8 i=0; u16 y,tmp;
   struct CONV *unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -179,11 +182,13 @@ void sineinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->buffer=workingbuffer;
 }
 
-void runsine(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsine(uint8_t howmuch, void* unity){
   u8 i=0;
   struct siney *unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
 
   for (i=0; i<howmuch; i++) {
@@ -209,6 +214,7 @@ void runsine(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 void chunkinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct chunkey* unit=unity; u16 tmp;
+  unit->buffer=workingbuffer;
   unit->otherstart=workingbuffer[0]>>1;
   unit->otherwrap=workingbuffer[1]>>1;
   unit->dirr=workingbuffer[2]%4;
@@ -227,9 +233,10 @@ void chunkinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unit->newdir[3]=-1;
 }
 
-void runchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runchunk(uint8_t howmuch, void* unity){
   u8 i=0;
   struct chunkey* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   u16 othercount=unit->othercount;
 
@@ -252,9 +259,10 @@ void runchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   unit->othercount=othercount;
 }
 
-void runderefchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runderefchunk(uint8_t howmuch, void* unity){
   u8 i=0;
   struct chunkey* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   u16 othercount=unit->othercount;
 
@@ -277,9 +285,10 @@ void runderefchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 }
 
 
-void runwalkerchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runwalkerchunk(uint8_t howmuch, void* unity){
   u8 i=0;
   struct chunkey* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count; u16 tmp;
   u16 othercount=unit->othercount;
 
@@ -314,9 +323,10 @@ void runwalkerchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 }
 
 
-void runswapchunk(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runswapchunk(uint8_t howmuch, void* unity){
   u8 i=0;
   struct chunkey* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count; u16 tmp;
   u16 othercount=unit->othercount;
 
@@ -364,11 +374,13 @@ void geninit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unit->start=start;
   unit->wrap=wrap;
   unit->count=start;
+  unit->buffer=workingbuffer;
 }
 
-void runinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runinc(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
 
   for (i=0; i<howmuch; i++) {
@@ -384,9 +396,10 @@ void runinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   unit->count=count;
 }
 
-void rundec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void rundec(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -400,9 +413,10 @@ void rundec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   unit->count=count;
 }
 
-void runleft(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runleft(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -417,9 +431,10 @@ void runleft(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   unit->count=count;
 }
 
-void runright(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runright(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -434,9 +449,10 @@ void runright(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runswap(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runswap(uint8_t howmuch, void* unity){
   u8 i=0; u16 temp,yy;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -453,9 +469,10 @@ void runswap(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runnextinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextinc(uint8_t howmuch, void* unity){
   u8 i=0; u16 yy;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++; 
@@ -471,9 +488,10 @@ void runnextinc(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runnextdec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextdec(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;  for (i=0; i<howmuch; i++) {
     count++;
     //    if (count>=32766) count=0;
@@ -488,9 +506,10 @@ void runnextdec(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runnextmult(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextmult(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -506,9 +525,10 @@ void runnextmult(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runnextdiv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runnextdiv(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -525,9 +545,10 @@ void runnextdiv(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 }
 
 
-void runcopy(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runcopy(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++; 
@@ -543,9 +564,10 @@ void runcopy(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runzero(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runzero(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -560,9 +582,10 @@ void runzero(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runfull(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runfull(uint8_t howmuch, void* unity){
   u8 i=0;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -577,10 +600,11 @@ void runfull(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
     unit->count=count;
 }
 
-void runrand(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runrand(uint8_t howmuch, void* unity){
   u8 i=0;
-  u8 *workingbuffeur=(u8 *)workingbuffer;
+  //  u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
+  u8 *workingbuffeur=(u8 *)unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch*2; i++) {
     count++;
@@ -589,16 +613,16 @@ void runrand(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
            workingbuffeur[count]=randi()%255;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[count]);
-	       printf("%c", workingbuffer[count]);
+	       printf("%c", workingbuffeur[count]);
 #endif
   }
     unit->count=count;
 }
 
-void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runknob(uint8_t howmuch, void* unity){
   u8 i=0;
-  u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
+  u8 *workingbuffeur=(u8 *)unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch*2; i++) {
     count++;
@@ -620,9 +644,10 @@ void runknob(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 //////////////////////////////////////////////////////////
 // swap datagen 16 bits to and from audio buffer
 
-void runswapaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runswapaudio(uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -642,9 +667,10 @@ void runswapaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 //////////////////////////////////////////////////////////
 // OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
 
-void runORaudio(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runORaudio(uint8_t howmuch, void* unity){
   u8 i=0; u16 temp;
   struct generik* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
       for (i=0; i<howmuch; i++) {
     count++;
@@ -759,6 +785,7 @@ void Runge_Kutta(struct simpleSIR* unit)
 void simplesirinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct simpleSIR* unit=unity;
   //  unit->t=0;
+  unit->buffer=workingbuffer;
 
   //  unit->beta=520.0/365.0;
   //  unit->gamm=1.0/7.0;
@@ -774,10 +801,11 @@ void simplesirinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unit->count=start;
 }
 
-void runsimplesir(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsimplesir(uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct simpleSIR* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -801,6 +829,7 @@ void runsimplesir(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 void seirinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   unsigned char i;
   struct SEIR* unit=unity;
+  unit->buffer=workingbuffer;
   //unit->beta=17/5;
   //unit->gamm=1.0/13;
   unit->beta=(float)workingbuffer[0]/65536.0;
@@ -900,10 +929,11 @@ void seir_Runge_Kutta(struct SEIR* unit)
 }
 
 
-void runseir(uint16_t *workingbuffer, uint8_t howmuch,void* unity){
+void runseir(uint8_t howmuch,void* unity){
 
   u8 i=0;
   struct SEIR* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -929,6 +959,7 @@ void sicrinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
 //unit->gamm=1.0/100.0;
 //unit->Gamm=1.0/1000.0;
   struct SICR* unit=unity;
+  unit->buffer=workingbuffer;
 unit->beta=(float)workingbuffer[0]/65536.0;
 unit->epsilon=(float)workingbuffer[1]/655360.0;
 unit->gamm=(float)workingbuffer[2]/655360.0;
@@ -1002,10 +1033,11 @@ void sicr_Runge_Kutta(struct SICR* unit)
   return;
 }
 
-void runsicr(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsicr(uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct SICR* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   u16 count=unit->count;
   for (i=0; i<howmuch; i++) {
     count++;
@@ -1032,6 +1064,7 @@ void ifsinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   u8 i,iter;
   u8 column = 6, row = 4;
   struct IFS* unit=unity;
+  unit->buffer=workingbuffer;
   unit->p1.x=0.1;
   unit->p1.y=0.1;         
 
@@ -1063,12 +1096,13 @@ void ifsinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
 
 }
 
-void runifs(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runifs(uint8_t howmuch, void* unity){
 
   float randiom_num;
   u8 iter,i,it,x;
   u8 column = 6, row = 4;
   struct IFS* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   /*  ifs->prob[0]=0.0;
   ifs->prob[1]=0.85; 
   ifs->prob[2]=0.92; 
@@ -1126,6 +1160,7 @@ void rosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   unit->b = 0.2;
   unit->c = 5.8;*/
   struct Rossler* unit=unity;
+  unit->buffer=workingbuffer;
   unit->h = (float)workingbuffer[0]/120536.0;
   unit->a = (float)workingbuffer[1]/122536.0;
   unit->b = (float)workingbuffer[2]/100536.0;
@@ -1138,11 +1173,12 @@ void rosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
 
 }
 
-void runrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runrossler(uint8_t howmuch, void* unity){
   float lx0,ly0,lz0,lx1,ly1,lz1;
   //  float h,a,b,c;
   u8 i=0;
   struct Rossler* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   /* which unit to vary according to workingbuffer */
   // leave as so!
 
@@ -1185,6 +1221,7 @@ void runrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 void secondrosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap){
   struct secondRossler* unit=unity;
+  unit->buffer=workingbuffer;
   unit->a = (float)workingbuffer[0]/65536.0;
   unit->b = (float)workingbuffer[1]/65536.0;
   unit->c = (float)workingbuffer[2]/65536.0;
@@ -1198,11 +1235,11 @@ void secondrosslerinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap
 
   }
 
-void runsecondrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runsecondrossler(uint8_t howmuch, void* unity){
 
   u8 i=0;
   struct secondRossler* unit=unity;
-    
+      u16 *workingbuffer=unit->buffer;
     float a=unit->a;
     float b=unit->b;
     float c=unit->b;
@@ -1290,7 +1327,7 @@ void runsecondrossler(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 void brusselinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Brussel* unit=unity;   
-
+  unit->buffer=workingbuffer;
   unit->x = 0.5f; 
   unit->y = 0.5f; 
   unit->delta = (float)workingbuffer[0]/65536.0;
@@ -1301,12 +1338,13 @@ void brusselinit(void* unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   unit->count=start;
 }
 
-void runbrussel(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runbrussel(uint8_t howmuch, void* unity){
     
   float dx, dy; 
   
   u8 i=0;
   struct Brussel* unit=unity;
+  u16 *workingbuffer=unit->buffer;
   float muplusone = 1.0f+unit->mu; 
   float x= unit->x; 
   float y= unit->y;  
@@ -1340,7 +1378,8 @@ void runbrussel(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 // spruceworm
 
 void spruceinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
-    struct Spruce* unit=unity;
+  struct Spruce* unit=unity;
+  unit->buffer=workingbuffer;
   unit->x = 0.9f; 
   unit->y = 0.1f; 
   unit->k1 = (float)workingbuffer[0]/65536.0;
@@ -1355,11 +1394,12 @@ void spruceinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   unit->count=start;
 }
 
-void runspruce(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runspruce(uint8_t howmuch, void* unity){
 
   float dx, dy; 
   u8 i=0;
   struct Spruce* unit=unity;
+  u16 *workingbuffer=unit->buffer;
     float x= unit->x; 
     float y= unit->y;  
   u16 count=unit->count;
@@ -1395,7 +1435,8 @@ void runspruce(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 void oregoninit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Oregon* unit=unity;
-    unit->x = 0.5f; 
+  unit->buffer=workingbuffer;
+  unit->x = 0.5f; 
     unit->y = 0.5f; 
     unit->z = 0.5f; 
     unit->delta = (float)workingbuffer[0]/65536.0;
@@ -1408,12 +1449,12 @@ void oregoninit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
 
 }
 
-void runoregon(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runoregon(uint8_t howmuch, void* unity){
   
   float dx, dy, dz; 
   u8 i=0;
   struct Oregon* unit=unity;
-
+  u16 *workingbuffer=unit->buffer;
   float x= unit->x; 
   float y= unit->y; 
   float z= unit->z; 
@@ -1453,6 +1494,7 @@ void runoregon(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
 
 void fitzinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
   struct Fitz* unit=unity;
+  unit->buffer=workingbuffer;
   unit->u=0.0;
   unit->w=0.0;
   		unit->b0= 1.4;
@@ -1465,7 +1507,7 @@ void fitzinit(void *unity, uint16_t *workingbuffer, u16 start, u16 wrap) {
 
 }
 
-void runfitz(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
+void runfitz(uint8_t howmuch, void* unity){
 
   /* SETTINGS */
 
@@ -1474,7 +1516,7 @@ void runfitz(uint16_t *workingbuffer, uint8_t howmuch, void* unity){
   float u,w;
   u8 x;
   struct Fitz* unit=unity;
-
+  u16 *workingbuffer=unit->buffer;
   u=unit->u;
   w=unit->w;
   u16 count=unit->count;
@@ -1703,11 +1745,11 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 }
 
 
-void func_runall(struct stackey stack[STACK_SIZE], u16* buffer, u8 stack_pos){
+void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 
   static u16 count; char i; signed char x;
       for (i=0;i<stack_pos;i++){
-      stack[i].functione(buffer,stack[i].howmuch,stack[i].unit);// set howmuch in struct!
+      stack[i].functione(stack[i].howmuch,stack[i].unit);// set howmuch in struct!
         }
 }
 
@@ -1765,11 +1807,11 @@ void main(void)
 
 	 //	 call function;
 
-	 calltest(tmppp+ooo);
+	 //	 calltest(tmppp+ooo);
 
-	 /*	 while(1){
-	   func_runall(stackyy,buf16,stack_pos); // simulations
-	   }*/
+	 	 while(1){
+	   func_runall(stackyy,stack_pos); // simulations
+	   }
 }
 
 #endif
