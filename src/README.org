@@ -221,20 +221,37 @@ outside, and in open daylight.
 
 * WED 23 APR
 
-- do we smooth jitter - see below!
+- test diff smoothing (also align knobs across versions) and top knob
+  for hardware//solution
+
+
+- abstract out finger code and test
+- knob scheme and mirroring (on paper)
+- what settings and actions remain to be sorted?
+
+////
+NOTES:
+
+- hardware knob (in LACH replaced)
+- mirror-constrain-expand-shift_start walkers/settings/datagens/stacks/foldback
+- operations on walkers/settings/datagens/stacks/foldback=foldback
+
+but like keep mirror knob (as settings/ops on settings)
+
+1-hardware
+2-set1
+3-set2
+4-ops
+5-ops2
+
+////
+
 - stack ops - see below
 - audio sample/any settings to be set from stacks (ca and sim)
   (step/start/wrap set by sim and ca stacks)
 
-
-- knob and finger settings codeTEST
-- mirror and TEST!
-- foldback and TEST!
-
-
 ///more abstractWed/Thu/Fri
 
-- clean testcode out
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
