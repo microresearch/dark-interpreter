@@ -1765,10 +1765,14 @@ void main(void)
 	   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-		     func_runall(stackyy,stack_pos); // simulations
-		     printf("%c",buf16[x%3276]>>8);
+				   //		     func_runall(stackyy,stack_pos); // simulations
+				   //		     printf("%c",buf16[x%3276]>>8);
 		     //    which=buf16[x%32768]>>8;
 		     x++;
+
+		     tmppp=(x&24)>>3;
+		     printf("test %d",tmppp);
+
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
 
 		    }

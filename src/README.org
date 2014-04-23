@@ -221,6 +221,8 @@ outside, and in open daylight.
 
 RELEASE THU 1 MAY
 
+TODO:
+
 - potential new knob scheme and mirroring:
 
 0/mirror/->/mirror of mirrors/foldback/fingers as micro/macro
@@ -234,8 +236,7 @@ mirror_on_to_a_section,mirror_axcross,constrain,expand,shift,copy(eg.eeg),contag
 
 4/spare setting knob for stacks and/or mirror right extra
 
--should be also make hardware less complex with single walker
--reduce effects in audio.c and add in villagewriteetc..
+/////
 
 //what settings need to be limited within a range (say 255) and where?
 //where we change wrap->directions arrays?
@@ -270,6 +271,11 @@ but we would need to re-write so variables are in the stack TODO!done for both T
   recordings/video/manual
 
 ** DONE
+
+-should be also make hardware less complex with single walkerDONE
+
+-reduce effects in audio.c and add in villagewriteetcDOING - but extra
+village setting to exploit!
 
 - why does settingsarray settings not go into audio.c//line 450tests -
   most likely from redroom code? CHANGE or KEEP?. removed from pureleak but still in CPU! TODO?
@@ -328,7 +334,7 @@ http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 
 * SUN 20 APR
 
-- TODO: do we want to use rdst more in audio.c // monobuffer???? we
+- DONE: do we want to use rdst more in audio.c // monobuffer???? we
 use it for leftbuffer only???  // so can discard it when we don't use
 leftbuffer
 
