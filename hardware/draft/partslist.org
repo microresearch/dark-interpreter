@@ -5,56 +5,56 @@
 330Rx1bulk
 1Kx3bulk
 4.7Kx2bulk
-5.6Kx4->have
+5.6Kx4->have103
 10K xmanybulk
-33Kx1->have
+33Kx1->have76
 100K x1-bulk
-200K x2->have
-390K x1->have
-470Kx4-have
+200K x2->have60
+390K x1->have60
+470Kx4-have100
 1Mx1bulk
-10Mx2->have
+10Mx2(top)->have57
 
 ** Caps
 
 18pF/22pF x2bulk
-220pFx1->have
+220pFx1->have17
 1nFx3bulk
 10nF x2bulk
-100nF xMANY
-470nF x1->havefew(SEGOR)!
+100nF xMANY bulk
+470nF x1->(SEGOR)have49
 1uFx2bulk
-2.2uFx2
-4.7uFx1
-10uFx7SEGORalltantals
+2.2uFx2 have50
+4.7uFx1 have42
+10uFx7bulk
 
 ** Active
 
-LEDx1 
-AD620 -top (have)ORDER
-DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R)
-OP337  x3 -top (mouser)
-HCT40106x1 (have hcf)-works
-CD74HCT4053M96x1
-HCT4066x3 (have)
-LM13700MX/NOPB (mouser/reichelt) have
-LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser)
-LM1117-5Vx1  DT-5(mouser)
-LM358x1 (reichelt)
-MAX7400x1 (mouser/reichelt) have
-STM32F405RGT6x1 (mouser)
-8 MHz XTAL (SMD HC49)x1 (reichelt)
-WM8731 audio codec
+LEDx1 have15
+AD620 x1 -top - have 5
+DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have35
+OP337  x3 -top (mouser) have 22
+HCT40106x1 (have hcf)-works-have30
+CD74HCT4053M96x1 have28
+HCT4066x3 have19
+LM13700MX/NOPB (mouser/reichelt) have21
+LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
+LM1117-5Vx1  DT-5(mouser) have12
+LM358x1 (reichelt) bulk
+MAX7400x1 (mouser/reichelt) have5
+STM32F405RGT6x1 (mouser) have9
+8 MHz XTAL (SMD HC49)x1 (reichelt) have18
+WM8731 audio codec have17
 
 ** other
 
-inductorx1: 81-BLM18BD252SN1D (mouser)
-JACKSx2 (Banzai)
-switchx1 (ebay supplier)
-connectorx2 (REICHELT: BL 2X25G8 2,54)
-connectorx1 (REICHELT: SL 2X25G 2,54)
-2.1mm DC socketx1 (SEGOR)
-(offsets DA 20mm, screws?, bolts?)
-potis
-battery holder 9vx1 534-1294 (mouser)
+POTIS: RK09K1130A5R XXX
+inductorx1: 81-BLM18BD252SN1D (mouser) have118
+JACKSx2 (Banzai) XXX
+switchx1 (ebay supplier) XXX
+connectorx2 (REICHELT: BL 2X25G8 2,54) x22
+connectorx1 (REICHELT: SL 2X25G 2,54) x11
+2.1mm DC socketx1 (SEGOR) -have25
+(offsets DA 20mm have72, screws?NON, bolts?have7)
+battery holder 9vx1 534-1294 (mouser) have3
 
