@@ -511,7 +511,7 @@ break;
 	case 3:
 	  //	  seven rooms: divide cellspace into 7 - reduce wrap!!! constrain!!!
 	  temp= addr%7;
-	  LMERWRAP=LMERWRAP>>temp;
+	  /*	  LMERWRAP=LMERWRAP>>temp;
 	  MAXIMERWRAP=MAXIMERWRAP>>temp;
 	  F0106ERWRAP=F0106ERWRAP>>temp;
 	  HDGENERWRAP=HDGENERWRAP>>temp;
@@ -520,7 +520,7 @@ break;
 	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;
 	  ANYWRAPREAD=ANYWRAPREAD>>temp;
 	  ANYWRAP=ANYWRAP>>temp;
-	  ANYWRAPFILT=ANYWRAPFILT>>temp;
+	  ANYWRAPFILT=ANYWRAPFILT>>temp;*/ //TODO: removed from pureleak! 
 	  addr++;
 	  break;
 	case 4:

@@ -147,7 +147,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   */
 
-  //  res=0; 	  //TESTER!
+    res=0; 	  //TESTER!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -183,7 +183,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  //    res2=2; 	  //TESTER! 30->filter->digital no distort
+     res2=0; 	  //TESTER! 30->filter->digital no distort
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 

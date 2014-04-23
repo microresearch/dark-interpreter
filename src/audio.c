@@ -160,8 +160,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  }
 	  /////
-	  	  if (++delread==SAMPLESPEEDREAD){
-	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	  if (++delread>=SAMPLESPEEDREAD){
+	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
@@ -336,8 +336,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  }
 
-	  	  if (++delread==SAMPLESPEEDREAD){
-	    dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	  	  if (++delread>=SAMPLESPEEDREAD){
+		    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
@@ -445,10 +445,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  }
+
+	  // what doesn't make it?
+	  //	  SAMPLEDIRR=1;
+	  //SAMPLESTARTREAD=0;
+	  SAMPLEWRAPREAD=32767; 
+	  //SAMPLESTEPREAD=1;SAMPLESPEEDREAD=1;//TESTY!
 	 
-	  	  if (++delread==SAMPLESPEEDREAD){
-	      dirry=(int16_t)newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    //    dirry=1;//TESTER!
+	  if (++delread>=SAMPLESPEEDREAD){
+	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
@@ -511,7 +516,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  switch(EFFECTWRITE>>3){ // lowest bit for clip/noclip
 	  case 0:
 	  default:
-	  mono_buffer[x]=firstbuf[samplepos%32768];
+	    	  mono_buffer[x]=firstbuf[samplepos%32768];
 	  break;
 	  case 1:
 	  mono_buffer[x]=secondbuf[samplepos%32768];
@@ -540,8 +545,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  }
 	  /////
-	  	  if (++del==SAMPLESPEEDWRITE){
-	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEPWRITE;
+
+	  	  if (++del>=SAMPLESPEED){
+	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && (samplepos+dirry)>start)
 		  {
@@ -599,14 +605,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	else firstbuf=audio_buffer;
 	if (EFFECTWRITE&4) secondbuf=(int16_t*) datagenbuffer;
 	else secondbuf=audio_buffer;
-		
+
+
 	//	EFFECTWRITE=0;
       	for (x=0;x<sz/2;x++){
 	  
 	  switch(EFFECTWRITE>>3){ //>>3 lowest bit for clip/noclip
 	  case 0:
 	  default:
-	  mono_buffer[x]=firstbuf[samplepos%32768];
+	    mono_buffer[x]=firstbuf[samplepos%32768];
 	  break;
 	  case 1:
 	  mono_buffer[x]=secondbuf[samplepos%32768];
@@ -660,8 +667,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  }
 	  ////////////////////////--->>>>
-	  	  if (++del==SAMPLESPEED){
-	    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+
+
+	  	  if (++del>=SAMPLESPEED){
+	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && (samplepos+dirry)>start)
 		  {
@@ -710,7 +719,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
 	// TODO: put this in loop below or????
-	    
 	if (EFFECTWRITE&2) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
 	if (EFFECTWRITE&4) secondbuf=buf16int;
@@ -722,7 +730,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  switch(EFFECTWRITE>>3){ //>>3 lowest bit for clip/noclip
 	  case 0:
 	  default:
-	  mono_buffer[x]=firstbuf[samplepos%32768];
+	    mono_buffer[x]=firstbuf[samplepos%32768];
 	  break;
 	  case 1:
 	  mono_buffer[x]=secondbuf[samplepos%32768];
@@ -751,9 +759,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  }
 
-	  	  if (++del==SAMPLESPEED){
-		    dirry=(int16_t)newdir[SAMPLEDIRW]*SAMPLESTEP;
+	  SAMPLESTART=0;SAMPLEWRAP=adc_buffer[0]<<3; SAMPLESTEP=1;SAMPLESPEED=1;//TESTY!
 
+	  if (++del>=SAMPLESPEED){
+	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && (samplepos+dirry)>start)
 		  {
@@ -957,7 +966,7 @@ if (digfilterflag&1){
 	  ///	  HERE////////////////////////--->>>>
 
 	  	  if (++delf==SAMPLESPEEDFILT){
-	    dirry=(int16_t)newdirf[SAMPLEDIRF]*SAMPLESTEPFILT;
+	    dirry=newdirf[SAMPLEDIRF]*SAMPLESTEPFILT;
 	    count=((sampleposfilt-startfilt)+dirry);
 	    if (count<wrapfilt && (sampleposfilt+dirry)>startfilt)
 		  {
@@ -1008,7 +1017,7 @@ if (digfilterflag&1){
 
 	// 4-out
 	//audio_comb_stereo(sz, dst, left_buffer, right_buffer);
-		audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+ audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #endif // for straight
 
 }

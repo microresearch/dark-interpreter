@@ -31,16 +31,19 @@
 #include "CA.h"
 #include "settings.h"
 
+int16_t newdir[4]={-180,1,180,-1};
+int16_t direction[4]={-180,1,180,-1};
+int16_t newdirf[4]={-180,1,180,-1};
+int16_t directionf[4]={-180,1,180,-1};
+int16_t newdirread[4]={-180,1,180,-1};
+int16_t directionread[4]={-180,1,180,-1};
+
 #define delay()						 do {	\
     register unsigned int i;					\
     for (i = 0; i < 1000000; ++i)				\
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
-#define func (pushsetting[0])
-#define start (pushsetting[1])
-#define wrap (pushsetting[2])
-#define howmany (pushsetting[3])
 
 #define randi() (datagenbuffer[adc_buffer[9]<<3]) // 15 bits
 
@@ -63,6 +66,7 @@ int16_t directionread[4];
 
 extern u8 digfilterflag;
 
+u8 testdirection;
 u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
@@ -73,12 +77,82 @@ struct dgenwalker{
   u16 pos;
 };
 
+
+u8 fingerdir(void){
+
+  // TODO: cycle here or run through as statics????
+  u8 handleft, handright, up=0,down=0,left=0,right=0,handcount=0;
+  u8 handupp, handdown;
+  static u8 result;
+
+  for (u8 x=0;x<16;x++){
+    // could re-org for lower board TODO!
+  handupp=adc_buffer[6]>>8; 
+  handdown=adc_buffer[8]>>8;
+  handleft=adc_buffer[5]>>8;
+  handright=adc_buffer[7]>>8;
+  if (handupp>8) up++; //TODO: TWEAKING but seems okay...
+  if (handdown>8) down++;
+  if (handleft>8) left++;
+  if (handright>8) right++;
+  //  handcount++;
+  if (up>8 && up>down && up>left && up>right) {
+    // up=0;down=0;left=0;right=0;
+    result=0;
+  }
+  else if (down>8 && down>left && down>right) {
+    //    up=0;down=0;left=0;right=0;
+    result=2; 
+      //int16_t hddir[4]={-180,1,180,-1};
+  }
+  else if (left>8 && left>right) {
+    //    up=0;down=0;left=0;right=0;
+    result=3;
+  }
+  else if (right>8) {
+    //    up=0;down=0;left=0;right=0;
+    result=1;
+  }
+  }
+  return result;
+  /*  if (handcount>9){
+    handcount=0;up=0;down=0;left=0;right=0;
+    }*/
+}
+
+u16 fingerval(void){
+  static u8 oldhandup=0,handup,handdown,oldhanddown=0;
+  static u8 ttss=0,sstt=0;
+  static u8 tmpsetting=0;
+  // could re-org 6/8 as 5/6 for lower board TODO!
+
+  handup=adc_buffer[6]>>8;
+  if (handup>oldhandup) sstt++;// else sstt=0;
+
+  if (sstt>64){ // TODO: tune this figure or have as parameter but in principle works
+    sstt=0;
+    tmpsetting++;
+  }
+
+  oldhandup=handup;
+
+  handdown=adc_buffer[8]>>8;
+  if (handdown>oldhanddown) ttss++;//  else ttss=0;
+  if (ttss>64){
+    ttss=0;
+    tmpsetting--;
+    }
+    oldhanddown=handdown;
+  return tmpsetting;
+}
+
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 *buf; u8 *buff;
   u16 x,addr,tmp;
-  u8 oldhardware,hardware=0,tmphardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0,which=0;
+  u8 hardware=0; u16 tmphardware;
+  u8 oldhardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0,which=0;
   u8 effects=0;
   u16 speedwrapper=0;
   u8 machine_count=0,leak_count=0; 
@@ -94,18 +168,8 @@ void main(void)
   int16_t lmdir[4]={-180,1,180,-1};
   int16_t mxdir[4]={-180,1,180,-1};
   int16_t dir40106[4]={-180,1,180,-1};
-
-  int16_t newdir[4]={-180,1,180,-1};
-  int16_t direction[4]={-180,1,180,-1};
-  int16_t newdirf[4]={-180,1,180,-1};
-  int16_t directionf[4]={-180,1,180,-1};
-  int16_t newdirread[4]={-180,1,180,-1};
-  int16_t directionread[4]={-180,1,180,-1};
-
-  u8 sstt=0,ttss=0,handup, oldhandup, handdown, oldhanddown;
   u16 tempsetting=0;
   u8 mirror;
-  u8 handleft, handright, oldhandleft,oldhandright,up=0,down=0,left=0,right=0,handcount=0;
 
   inittable(3,4,randi(),table);
 
@@ -166,7 +230,7 @@ void main(void)
   ////////////////////minimal setup code to get started
   //TESTER!
 
-  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0; // TESTY!
 
   // setup code for walkers
   for (x=0;x<10;x++){
@@ -226,9 +290,14 @@ void main(void)
 
   ///////////////////////////
 
+  //  SAMPLEWRAP=32767;SAMPLEWRAPREAD=32767;
+
   while(1)
     {
 
+      //      SAMPLEDIRW=fingerdir();  //TESTY!
+      //      SAMPLEDIRW=2;
+      //testdirection=0;
 #ifdef TEST_STRAIGHT
       // nothing???
 #else
@@ -265,12 +334,7 @@ void main(void)
       /////////////////////////////
       // KKNOBBBSSS TODO!!!
 
-      // 0-4 top down
-      // 0=mirror left///right selector and ops across all knobbed settings/feedbacks
-      // 1=hardware///1=filterops/effects
-      // 2=push///2=pull-datagen ops and actions _or_ 2=settings Y
-      // 3=speed///3=micro-macro
-      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
+      // TENE: 2,0,3,4,1 
 
       // revise as settings//select ops on related settings (only when changes?)
       // also maintain oldsetting on left side  	     
@@ -281,7 +345,48 @@ void main(void)
       //3-speed/micro-macro combined //+// walk stacks into sample params//data
       //4-all settings up/down
 
-		    
+      // finger tests
+      //      hardware=fingerval();//>>9; // 16 bits ideally to 7
+      hardware=adc_buffer[2]>>5;
+      /// use this smoothing for hardware(only?)
+      /*      tmphardware=0;
+      for (x=0;x<256;x++){
+	tmphardware+=adc_buffer[0]>>5; // 7 bits
+      }
+      tmphardware=tmphardware>>8;*/
+      //      u8 hh; u8 hard[64];u16 thardware;
+      // moving average- write into circular buffer say 64
+      /*hard[hh%64]=adc_buffer[0]>>5;
+	hh++;
+	for (x=0;x<64;x++){thardware+=hard[x];}
+	tmphardware=thardware>>8; // divide by 64
+	thardware=0;*/
+
+       // this mirroring kind of works!
+      /*            mirror=adc_buffer[2]>>4; // 8 bits or less?
+      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
+	hardware=tmphardware; // handled all below 
+	    }
+	      else if (mirror >128 && tmphardware!=hardware && tmphardware!=hardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
+		effects=tmphardware;
+		if (mirror<160){
+		  EFFECTREAD=effects;
+		}
+		else if (mirror<192){
+		  EFFECTWRITE=effects;
+		}
+		else if (mirror<224){
+		  EFFECTFILTER=effects;
+		}
+		else if (mirror<240){
+		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
+		}
+		else  {
+		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		}
+		}*/
+      	
+    
       ////////////////////////////////////////////////
 #ifndef LACH
       /////////////////////////////////////

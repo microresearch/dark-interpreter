@@ -218,19 +218,16 @@ outside, and in open daylight.
 - always set define for board in MAKEFILE!!!
 - caps across potis for top-board
 
-
 * WED 23 APR
 
-- test diff smoothing (also align knobs across versions) and top knob
-  for hardware//solution
+- mirroring kind of works but need new knob scheme perhaps still!!
 
-
-- abstract out finger code and test
 - knob scheme and mirroring (on paper)
 - what settings and actions remain to be sorted?
+- how to access arrays/stacks?
 
 ////
-NOTES:
+KNOB NOTES:
 
 - hardware knob (in LACH replaced)
 - mirror-constrain-expand-shift_start walkers/settings/datagens/stacks/foldback
@@ -244,13 +241,15 @@ but like keep mirror knob (as settings/ops on settings)
 4-ops
 5-ops2
 
-////
+(and then where is push/pop?)
+
+///////
 
 - stack ops - see below
 - audio sample/any settings to be set from stacks (ca and sim)
   (step/start/wrap set by sim and ca stacks)
 
-///more abstractWed/Thu/Fri
+///more abstractThu/Fri
 
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
@@ -260,11 +259,20 @@ but like keep mirror knob (as settings/ops on settings)
   directly across all arrays
 - wormdir and all TODO
 
-[extras]WED/THU/FRI
+[extras]THU/FRI
 
 - tweaking
 - test LACH board only, parts count, recordings/video/manual
 
+** DONE
+
+- why does settingsarray settings not go into audio.c//line 450tests -
+  most likely from redroom code? CHANGE or KEEP?. removed from pureleak but still in CPU! TODO?
+
+- test finger code directionsDONE-working
+- smoothing tests doneTESTED
+- abstract out finger code and test-up/down is working!
+- fixed dire issues in audio.c
 
 * TUE 22 APR
 
@@ -279,6 +287,8 @@ rewrite as series of embedded stacks mirroring each other: audiostack, settingss
 
 mirror left/right is more about settings/ops on settings division/foldback-see main comments
 
+** notes:
+
 ////
 SMOOTHY:
 
@@ -289,7 +299,6 @@ or running average in adc.c DMA2_Stream0_IRQHandler
 
 http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 
-** notes:
 
 *stacks are:*
 

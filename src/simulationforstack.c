@@ -1754,6 +1754,35 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 
 #ifdef PCSIM
 
+u16 fingerval(void){
+  // TODO: cycle here or run through as statics????
+  static u16 oldhandup=0,handup,handdown,oldhanddown=0;
+  static u8 ttss=0,sstt=0;
+  static u16 tmpsetting=0;
+    // could re-org 6/8 for lower board TODO!
+  
+  //  handup=adc_buffer[6]>>10;
+  handup=(randi()%4096)>>8;
+
+  if (handup>oldhandup) sstt++;
+  else sstt=0;
+  if (sstt>2){
+    sstt=0;
+    tmpsetting++;
+  }
+  oldhandup=handup;
+
+  handdown=(randi()%4096)>>8;
+  if (handdown>oldhanddown) ttss++;
+  else ttss=0;
+  if (ttss>2){
+    ttss=0;
+    tmpsetting--;
+  }
+  oldhanddown=handdown;
+  return tmpsetting;
+}
+
 void calltest(u16 caller){
   printf("callll %d\n",caller);
 }
@@ -1811,8 +1840,12 @@ void main(void)
 		     printf("%c",buf16[x%32768]>>8);
 		     which=buf16[x%32768]>>8;
 		     x++;*/
-		 for (x=0;x<stak;x++){printf("xxxxx");}
-
+		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
+		 tmppp=32512;
+		 while(1){
+		   tmppp=fingerval();  
+		 printf("ttt %d\n",tmppp%128);
+		 }
 
 		 //   }
 }

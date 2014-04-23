@@ -1,3 +1,12 @@
+
+      // 0-4 top down
+      // 0=mirror left///right selector and ops across all knobbed settings/feedbacks
+      // 1=hardware///1=filterops/effects
+      // 2=push///2=pull-datagen ops and actions _or_ 2=settings Y
+      // 3=speed///3=micro-macro
+      // 4=settingsX///fingers on 0/dir//4=ops on settings array/foldbacks/feedbacks
+
+
 #ifdef TENE
 
 	      // TENE: 2,0,3,4,1 
