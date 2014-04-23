@@ -74,13 +74,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	int32_t tmp32;
 	u8 x;
 	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-	static u8 del=0,delf=0,villagewrite=0; // TODO village in settings
-
+	static u8 del=0,delf=0; // TODO village in settings
+	u8 VILLAGEREAD=0,VILLAGEWRITE=0,VILLAGEFILT=0;
 	int16_t dirry=1;
 	float temp;
 
 	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
-	static u8 delread=0,villageread=0,villagefilt=0;  // TODO village in settinsg
+	static u8 delread=0;
 	u16 wrapper; 
 
 #ifdef TEST_STRAIGHT
@@ -168,14 +168,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    sampleposread+=dirry;//)%32768;
 		  }
 		else {
-		  if (villageread==0) {
+		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
 		    newdirread[0]=-180;newdirread[2]=180;
 		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
 
-		  else if (villageread==1) {
+		  else if (VILLAGEREAD==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
@@ -344,14 +344,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    sampleposread+=dirry;//)%32768;
 		  }
 		else {
-		  if (villageread==0) {
+		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
 		    newdirread[0]=-180;newdirread[2]=180;
 		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
 
-		  else if (villageread==1) {
+		  else if (VILLAGEREAD==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
@@ -460,14 +460,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    sampleposread+=dirry;//)%32768;
 		  }
 		else {
-		  if (villageread==0) {
+		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
 		    newdirread[0]=-180;newdirread[2]=180;
 		    if (SAMPLEDIRR==1 || SAMPLEDIRR==2) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
 
-		  else if (villageread==1) {
+		  else if (VILLAGEREAD==1) {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
@@ -554,14 +554,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
-		  if (villagewrite==0) {
+		  if (VILLAGEWRITE==0) {
 		    start=SAMPLESTART;wrap=SAMPLEWRAP;
 		    newdir[0]=-180;newdir[2]=180;
 		    if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		  }
 
-		  else if (villagewrite==1) {
+		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
@@ -677,14 +677,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
-		  if (villagewrite==0) {
+		  if (VILLAGEWRITE==0) {
 		    start=SAMPLESTART;wrap=SAMPLEWRAP;
 		    newdir[0]=-180;newdir[2]=180;
 		    if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		  }
 
-		  else if (villagewrite==1) {
+		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
@@ -769,13 +769,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
-		  if (villagewrite==0) {
+		  if (VILLAGEWRITE==0) {
 		    start=SAMPLESTART;wrap=SAMPLEWRAP;
 		    newdir[0]=-180;newdir[2]=180;
 		    if (SAMPLEDIRW==1 || SAMPLEDIRW==2) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		  }
-		  else if (villagewrite==1) {
+		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
@@ -973,14 +973,14 @@ if (digfilterflag&1){
 		    sampleposfilt+=dirry;//)%32768;
 		  }
 		else {
-		  if (villagefilt==0) {
+		  if (VILLAGEFILT==0) {
 		    startfilt=SAMPLESTARTFILT;wrapfilt=SAMPLEWRAPFILT;
 		    newdirf[0]=-180;newdirf[2]=180;
 		    if (SAMPLEDIRF==1 || SAMPLEDIRF==2) sampleposfilt=startfilt; //forwards
 		    else sampleposfilt=startfilt+wrapfilt;
 		  }
 
-		  else if (villagefilt==1) {
+		  else if (VILLAGEFILT==1) {
 		  tmp=ANYSTEPFILT*direction[DATADIRF];
 		  anyposfilt+=tmp;
 		  tmp=(ANYSTARTFILT+(anyposfilt%ANYWRAPFILT))%32768; //to cover all directions

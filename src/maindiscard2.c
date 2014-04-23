@@ -1,3 +1,79 @@
+///former hardware
+      /////////////////////////////////////
+      // 4-hardware operations
+      // do hardware datagen walk into hdgen (8 bit) if flagged
+      if (digfilterflag&16){ // if we use hdgen at all
+	if (HDGENERSPEED==0) HDGENERSPEED=1;
+	if (HDGENERSTEP==0) HDGENERSTEP=1;
+	if (++hdgenerdel==HDGENERSPEED){
+	  hdgenerpos+=(HDGENERSTEP*hddir[HDGENERDIR]);
+	  wrapper=HDGENERWRAP; // can go 65536
+	  if (wrapper==0) wrapper=1;
+	  tmp=(HDGENERSTART+(hdgenerpos%wrapper))%32768; //to cover all directions
+	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
+	  hdgenerdel=0;
+	}
+
+      }
+      else
+	{
+	  if (hardware!=oldhardware) dohardwareswitch(hardware,0);
+	  oldhardware=hardware;
+	}
+	     		   
+      // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we		     		     
+      if (digfilterflag&2){
+	if (F0106ERSPEED==0) F0106ERSPEED=1;
+	if (F0106ERSTEP==0) F0106ERSTEP=1;
+	if (++f0106erdel==F0106ERSPEED){
+	  // when wrapper changes we need to redo direction array!!!
+	  f0106erpos+=(F0106ERSTEP*dir40106[F0106ERDIR]);
+	  wrapper=F0106ERWRAP;
+	  if (wrapper==0) wrapper=1;
+	  tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
+	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
+
+	  f0106erdel=0;
+	}
+      }
+	  
+      if (digfilterflag&4){
+	if (LMERSPEED==0) LMERSPEED=1;
+	if (LMERSTEP==0) LMERSTEP=1;
+	if (++lmerdel==LMERSPEED){
+	  // when wrapper changes we need to redo direction array!!!
+	  lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
+	  wrapper=LMERWRAP;
+	  if (wrapper==0) wrapper=1;
+	  x=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
+
+	  lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
+	  wrapper=LMERWRAP;
+	  if (wrapper==0) wrapper=1;
+	  tmp=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
+	  setlmpwm(LMERBASE+(buf16[x]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
+	  lmerdel=0;
+	}
+
+      }
+	  
+      if (digfilterflag&8){
+	if (MAXIMERSPEED==0) MAXIMERSPEED=1;
+	if (MAXIMERSTEP==0) MAXIMERSTEP=1;
+	if (++maximerdel==MAXIMERSPEED){
+	  // when wrapper changes we need to redo direction array!!!
+	  maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
+	  wrapper=MAXIMERWRAP;
+	  if (wrapper==0) wrapper=1;
+	  x=(MAXIMERSTART+(maximerpos%wrapper))%32768; //to cover all directions
+	  maximerdel=0;
+	  setmaximpwm(MAXIMERBASE+(buf16[x]%MAXIMERCONS));
+	}
+      }
+
+
+///////
+
 
       // 0-4 top down
       // 0=mirror left///right selector and ops across all knobbed settings/feedbacks

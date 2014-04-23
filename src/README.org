@@ -212,7 +212,6 @@ again in a further stage of my opium experience; and I warn him that
 he will not always be found sitting inside my dreams, but at times
 outside, and in open daylight.
 
-
 * TO REMEMBER/TODO
 
 - always set define for board in MAKEFILE!!!
@@ -220,49 +219,55 @@ outside, and in open daylight.
 
 * WED 23 APR
 
-- mirroring kind of works but need new knob scheme perhaps still!!
+RELEASE THU 1 MAY
 
-- knob scheme and mirroring (on paper)
-- what settings and actions remain to be sorted?
-- how to access arrays/stacks?
+- potential new knob scheme and mirroring:
+
+0/mirror/->/mirror of mirrors/foldback/fingers as micro/macro
+
+1/hardware/->/effects
+
+2/settingsarray/->/ops on this =
+mirror_on_to_a_section,mirror_axcross,constrain,expand,shift,copy(eg.eeg),contagion
+
+3/stacks(but how to set-withknob?)and how push/pop/->/ops on this as above
+
+4/spare setting knob for stacks and/or mirror right extra
+
+-should be also make hardware less complex with single walker
+-reduce effects in audio.c and add in villagewriteetc..
+
+//what settings need to be limited within a range (say 255) and where?
+//where we change wrap->directions arrays?
+//wormdir?
+//how to approach stacks:
+
+push and pop with settings...
+
+operations on sim and CA: max 16x: 
+
+- simulation: stack[stack_pos] with variables... MAX 16
+- CAforstack: stack[stack_posy] with variables... MAX 16
+
+but we would need to re-write so variables are in the stack TODO!done for both TEST!
 
 ////
-KNOB NOTES:
 
-- hardware knob (in LACH replaced)
-- mirror-constrain-expand-shift_start walkers/settings/datagens/stacks/foldback
-- operations on walkers/settings/datagens/stacks/foldback=foldback
+///oldernotes/more abstractThu/Fri
 
-but like keep mirror knob (as settings/ops on settings)
-
-1-hardware
-2-set1
-3-set2
-4-ops
-5-ops2
-
-(and then where is push/pop?)
-
-///////
-
-- stack ops - see below
-- audio sample/any settings to be set from stacks (ca and sim)
-  (step/start/wrap set by sim and ca stacks)
-
-///more abstractThu/Fri
-
+-
 - extras like grain spawn mode, mirroring of settings
 - new constraints of all datagens and walkers(inc foldback to areas
   only) under micro-macro -> file under ACTIONS again such as
-  mirroring, constraint, expansion, reduction, remapping
+  mirroring, constraint, expansion, reduction
 - modulation for eeg/adc across settingsarray/otherarrays... dir
   directly across all arrays
 - wormdir and all TODO
 
 [extras]THU/FRI
 
-- tweaking
-- test LACH board only, parts count, recordings/video/manual
+- test LACH board only(remember HW knob change but we still need effects), parts count,
+  recordings/video/manual
 
 ** DONE
 
@@ -276,16 +281,7 @@ but like keep mirror knob (as settings/ops on settings)
 
 * TUE 22 APR
 
-TODO:
-
 rewrite as series of embedded stacks mirroring each other: audiostack, settingsstack
-
--push/pull walk across all stack settings
--what push and pull can also depend on/be triggered by
-
-(hardware start/wrap can also be set to stacks)
-
-mirror left/right is more about settings/ops on settings division/foldback-see main comments
 
 ** notes:
 
@@ -310,11 +306,6 @@ http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 // these we can access stacks:
 - simulation: stack[stack_pos] with variables... MAX 16
 - CAforstack: stack[stack_posy] with variables... MAX 16
-
-- where do we re-write direction arrays?
-- where do we set villageread,write,filt?-> in micro-macro
-- pureleak running needs buffer swap
-- restrict howmany for pushes
 
 ** DONE
 

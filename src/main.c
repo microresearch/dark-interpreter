@@ -80,7 +80,6 @@ struct dgenwalker{
 
 u8 fingerdir(void){
 
-  // TODO: cycle here or run through as statics????
   u8 handleft, handright, up=0,down=0,left=0,right=0,handcount=0;
   u8 handupp, handdown;
   static u8 result;
@@ -120,10 +119,9 @@ u8 fingerdir(void){
     }*/
 }
 
-u16 fingerval(void){
+u8 fingerval(u8 tmpsetting){
   static u8 oldhandup=0,handup,handdown,oldhanddown=0;
   static u8 ttss=0,sstt=0;
-  static u8 tmpsetting=0;
   // could re-org 6/8 as 5/6 for lower board TODO!
 
   handup=adc_buffer[6]>>8;
@@ -160,14 +158,11 @@ void main(void)
   u8 pushypop,pushpopflag=0;
   u8 index=0, finaldel=0;
   u16 finalpos=0;
-  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; u8 exespot=0;
+  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
 
   u16 pushsetting[4]={0,0,32767,10}; 
 
-  int16_t hddir[4]={-180,1,180,-1};
-  int16_t lmdir[4]={-180,1,180,-1};
-  int16_t mxdir[4]={-180,1,180,-1};
-  int16_t dir40106[4]={-180,1,180,-1};
+  int16_t hwdir[4]={-180,1,180,-1};
   u16 tempsetting=0;
   u8 mirror;
 
@@ -211,8 +206,8 @@ void main(void)
   m->m_threadcount=0;
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
-  u8 hdgenerdel=0,lmerdel=0,f0106erdel=0,maximerdel=0;
-  u16 hdgenerpos=0,lmerpos=0,f0106erpos=0,maximerpos=0,wrapper;
+  u8 hwdel=0;
+  u16 hwpos=0,wrapper;
 	 
   u8 stack_pos=0;
   u8 stack_posy=0;
@@ -306,7 +301,7 @@ void main(void)
       if (LEAKSPEED==0) LEAKSPEED=1;
 
       for (x=0;x<4;x++){
-	switch(exeperms[((exespot%22)*4)+x]){
+	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
 	  func_runall(stackyy,stack_pos); // simulations
 	  break;
@@ -326,7 +321,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    machine_runnn(datagenbuffer); // TODO: swap here - in 2 below
+	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -346,7 +341,7 @@ void main(void)
       //4-all settings up/down
 
       // finger tests
-      //      hardware=fingerval();//>>9; // 16 bits ideally to 7
+      //      hardware=fingerval(hardware);//>>9; // 16 bits ideally to 7
       hardware=adc_buffer[2]>>5;
       /// use this smoothing for hardware(only?)
       /*      tmphardware=0;
@@ -391,19 +386,21 @@ void main(void)
 #ifndef LACH
       /////////////////////////////////////
       // 4-hardware operations
-      // do hardware datagen walk into hdgen (8 bit) if flagged
-      if (digfilterflag&16){ // if we use hdgen at all
-	if (HDGENERSPEED==0) HDGENERSPEED=1;
-	if (HDGENERSTEP==0) HDGENERSTEP=1;
-	if (++hdgenerdel==HDGENERSPEED){
-	  hdgenerpos+=(HDGENERSTEP*hddir[HDGENERDIR]);
-	  wrapper=HDGENERWRAP; // can go 65536
+
+      /// general HW walk in/as tmp
+
+	if (HWSPEED==0) HWSPEED=1;
+	if (++hwdel>=HWSPEED){
+	  // when wrapper changes we need to redo direction array!!!
+	  hwpos+=(HWSTEP*hwdir[HWDIR]);
+	  wrapper=HWWRAP;
 	  if (wrapper==0) wrapper=1;
-	  tmp=(HDGENERSTART+(hdgenerpos%wrapper))%32768; //to cover all directions
-	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
-	  hdgenerdel=0;
+	  tmp=(HWSTART+(hwpos%wrapper))%32768; //to cover all directions
+	  hwdel=0;
 	}
 
+      if (digfilterflag&16){ // if we use hdgen at all
+	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
       }
       else
 	{
@@ -413,53 +410,26 @@ void main(void)
 	     		   
       // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we		     		     
       if (digfilterflag&2){
-	if (F0106ERSPEED==0) F0106ERSPEED=1;
-	if (F0106ERSTEP==0) F0106ERSTEP=1;
-	if (++f0106erdel==F0106ERSPEED){
-	  // when wrapper changes we need to redo direction array!!!
-	  f0106erpos+=(F0106ERSTEP*dir40106[F0106ERDIR]);
-	  wrapper=F0106ERWRAP;
-	  if (wrapper==0) wrapper=1;
-	  tmp=(F0106ERSTART+(f0106erpos%wrapper))%32768; //to cover all directions
 	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
-
-	  f0106erdel=0;
-	}
       }
 	  
+
       if (digfilterflag&4){
-	if (LMERSPEED==0) LMERSPEED=1;
-	if (LMERSTEP==0) LMERSTEP=1;
-	if (++lmerdel==LMERSPEED){
+	if (++hwdel>=HWSPEED){
 	  // when wrapper changes we need to redo direction array!!!
-	  lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
-	  wrapper=LMERWRAP;
+	  hwpos+=(HWSTEP*hwdir[HWDIR]);
+	  wrapper=HWWRAP;
 	  if (wrapper==0) wrapper=1;
-	  x=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
-
-	  lmerpos+=(LMERSTEP*lmdir[LMERDIR]);
-	  wrapper=LMERWRAP;
-	  if (wrapper==0) wrapper=1;
-	  tmp=(LMERSTART+(lmerpos%wrapper))%32768; //to cover all directions
-	  setlmpwm(LMERBASE+(buf16[x]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
-	  lmerdel=0;
+	  x=(HWSTART+(hwpos%wrapper))%32768; //to cover all directions
+	  hwdel=0;
 	}
-
+	  setlmpwm(LMERBASE+(buf16[x]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
       }
 	  
       if (digfilterflag&8){
-	if (MAXIMERSPEED==0) MAXIMERSPEED=1;
-	if (MAXIMERSTEP==0) MAXIMERSTEP=1;
-	if (++maximerdel==MAXIMERSPEED){
-	  // when wrapper changes we need to redo direction array!!!
-	  maximerpos+=(MAXIMERSTEP*mxdir[MAXIMERDIR]);
-	  wrapper=MAXIMERWRAP;
-	  if (wrapper==0) wrapper=1;
-	  x=(MAXIMERSTART+(maximerpos%wrapper))%32768; //to cover all directions
-	  maximerdel=0;
 	  setmaximpwm(MAXIMERBASE+(buf16[x]%MAXIMERCONS));
-	}
       }
+
 #endif
 #endif
     }
