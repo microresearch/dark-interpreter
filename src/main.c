@@ -498,7 +498,7 @@ for (x=0;x<1;x++){
     }
 
       // FIFTH KNOB is spare - use instead of finger up/down = override if changes
-      // on mirror we use as mirror/foldback settings with finger up/down
+      // on mirror we use as mirror/foldback settings with finger up/down - see below
       // with mirror we also have free finger left/right to use 
 
 

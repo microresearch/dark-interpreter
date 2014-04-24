@@ -223,11 +223,10 @@ outside, and in open daylight.
 
 - re-arrange settings to change easily increment for fingersDONE-TEST!
 - test 40106 if leaks and run continuous if not leaky
-- stacks
+- stacks and villager as stack handling
+
 - finish knobs and ops as below
 - check all TESTYs and TESTERs, cleanups, tests
-- so far forgot what to do with villager[x][x] array for grains - work into stacks!
-- need to make push/pull for this
 
 * THU 24 APR
 
@@ -249,6 +248,7 @@ MON++ -tweak/record/document/manual
 
 ** DONE:
 
+- so far forgot what to do with villager[x][x] array for grains - work into stacks!DONE
 - we need to make sure all wraps are non-zero (inc overflow)DONE
 - do ifdefs for all changes of ADCs DONE
 - test new integration of villages into EFFECTREAD/WRITE/FILT-DONE
