@@ -16,6 +16,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFS
 
 extern __IO uint16_t adc_buffer[10];
 extern u8 wormdir;
+extern u8 villagestackpos;
 extern u16 settingsarray[64];
 extern u16 villager[64][2];
 extern int16_t newdir[4];
@@ -189,7 +190,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*villagedirection[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%64; //to cover all directions
+		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
 		    startread=villager[tmp][0];
 		    wrapread=villager[tmp][1]%SAMPLEWRAPREAD;
 		    if (wrapread==0) wrapread=1;
@@ -368,7 +369,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*villagedirection[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%64; //to cover all directions
+		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
 		    startread=villager[tmp][0];
 		    wrapread=villager[tmp][1]%SAMPLEWRAPREAD;
 		    if (wrapread==0) wrapread=1;
@@ -484,7 +485,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*villagedirection[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%64; //to cover all directions
+		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
 		    startread=villager[tmp][0];
 		    wrapread=villager[tmp][1]%SAMPLEWRAPREAD;
 		    if (wrapread==0) wrapread=1;
@@ -597,7 +598,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*villagedirectionw[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%64; //to cover all directions
+		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%villagestackpos; //to cover all directions
 		    start=villager[tmp][0];
 		    wrap=villager[tmp][1];
 		    if (wrap==0) wrap=1;
@@ -716,7 +717,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*villagedirectionw[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%64; //to cover all directions
+		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%villagestackpos; //to cover all directions
 		    start=villager[tmp][0];
 		    wrap=villager[tmp][1];
 		    if (wrap==0) wrap=1;
@@ -830,7 +831,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*villagedirectionw[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%64; //to cover all directions
+		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))%villagestackpos; //to cover all directions
 		    start=villager[tmp][0];
 		    wrap=villager[tmp][1];
 		    if (wrap==0) wrap=1;
@@ -991,7 +992,7 @@ if (digfilterflag&1){
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEFSTEP*villagedirectionf[VILLAGEFDIR];
 		    villagefpos+=tmp;
-		    tmp=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP))%64; //to cover all directions
+		    tmp=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP))%villagestackpos; //to cover all directions
 		    startfilt=villager[tmp][0];
 		    wrapfilt=villager[tmp][1];
 		    if (wrapfilt==0) wrapfilt=1;

@@ -67,6 +67,7 @@ int16_t directionf[4]={-180,1,180,-1};
 int16_t newdirread[4]={-180,1,180,-1};
 int16_t directionread[4]={-180,1,180,-1};
 
+u8 villagestackpos=0;
 u16 villager[64][2];
 
 #define delay()						 do {	\
@@ -108,6 +109,25 @@ struct dgenwalker{
   u16 pos;
 };
 
+#define VILLAGE_SIZE 64
+
+u8 villagepush(u8 villagepos, u16 start, u16 wrap){
+  if (villagepos<VILLAGE_SIZE)
+    {
+      villager[villagepos][0]=start;
+      villager[villagepos][0]=wrap;
+      villagepos++;
+}
+  return villagepos;
+}
+
+u8 villagepop(u8 villagepos){
+  if (villagepos>0)
+    {
+      villagepos--;
+    }
+  return villagepos;
+}
 
 u8 fingerdir(void){
 
@@ -279,10 +299,11 @@ void main(void)
 
   //   EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0; // TESTY!
 
-
+  villagestackpos=0;
   // TESTY for villager:
-for (x=0;x<64;x++){
-  villager[x][0]=0;villager[x][1]=32767;
+for (x=0;x<1;x++){
+  //  villager[x][0]=0;villager[x][1]=32767;
+  villagestackpos=villagepush(0,villagestackpos,32767);
   }
 
   // setup code for walkers
@@ -454,19 +475,20 @@ for (x=0;x<64;x++){
       if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
 	stack=tmpstack;
 
+	///KEY!!!TODO!!!
 	// finger up/down to choose stack and value
 	// tmpstack changes value - or vice versa
 
 	// STACKSTART, STACKWRAP, STACKMUCH
 	// ((stack_pos+stack_posy)*3) = maximum 32x3=96
+	// +villager (max 64)
 
 	// push/pop (push<x pop>x) and set which CPU/grain is pushed or
 	// popped [and with what buffer and settings?]
 	// previous code was based on mirror to choose which (setting we can inherit from settings.h)
 	//- simulation: stack[max=stack_pos]: start, wrap, howmuch
 	//- CAforstack: stack[max=stack_posy]: start, wrap, howmuch
-
-	//- so far forgot what to do with villager[x][x] array for grains - work into stacks
+	//- villager: start, wrap [][]
 
 	    }
       else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
