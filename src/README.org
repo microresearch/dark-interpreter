@@ -218,20 +218,30 @@ outside, and in open daylight.
 - caps across potis for top-board
 - make clean after changes to settingsarray
 
+
+* FRI 25 APR
+
+- re-arrange settings to change easily increment for fingersDONE-TEST!
+- test 40106 if leaks and run continuous if not leaky
+- stacks
+- finish knobs and ops as below
+- check all TESTYs and TESTERs, cleanups, tests
+- so far forgot what to do with villager[x][x] array for grains - work into stacks!
+- need to make push/pull for this
+
 * THU 24 APR
+
 
 - do new knob scheme as below-IN PROGRESS
 
 - where to constrain settings 32768/256 with >> (in defines or?)DONE
 but then constrained settings like speeds and so on move too fast 
 (inc as argument to fingerval DONE - but arrange settings so easy to
-diff this or make inc changed by user)
+diff this or make inc changed by user)-TO TEST
 
 - see main.c for stack notes: 
 
 [[file:main.c][file:~/collect2012-4/dark-interpreter/src/main.c]]
-
-- check all TESTYs and TESTERs
 
 PLAN:
 FRI-finish basics

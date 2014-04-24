@@ -203,20 +203,19 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 *buf; u8 *buff;
-  u16 x,addr,tmp; 
+  u16 x,addr,tmp;
+  u8 tmper;
+  u16 hdtmp;
   u8 hardware=0; u16 tmphardware, HWSPEEDY, HDGENERCONSY;
   u8 oldhardware;
   u8 effects=0;
   u8 machine_count=0,leak_count=0; 
-  u8 index=0, finaldel=0;
   u8 tmpsettings, settings, settingsops;
   u16 setted;
   u8 tmpstack, stack, stackops;
-  u16 finalpos=0;
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
 
   int16_t hwdir[4]={-180,1,180,-1};
-  u16 tempsetting=0;
   u8 mirror;
 
   inittable(3,4,randi(),table);
@@ -287,77 +286,58 @@ for (x=0;x<64;x++){
   }
 
   // setup code for walkers
-  for (x=0;x<10;x++){
+  for (x=0;x<11;x++){
     settingsarray[x]=0;
   }//start
 
-  for (x=10;x<20;x++){
+  for (x=11;x<25;x++){
     settingsarray[x]=32767;
   }//wrap
 
-  for (x=20;x<30;x++){
+  for (x=25;x<35;x++){
     settingsarray[x]=1;
   }//step
 
-  for (x=30;x<36;x++){
+  for (x=35;x<41;x++){
     settingsarray[x]=1;
   }//speed
 
-  for (x=36;x<46;x++){
+  for (x=41;x<51;x++){
     settingsarray[x]=1;
   }//DIR
-
-  //  HDGENERBASE=0;
-  //  HDGENERCONS=255;
-  //  LMERBASE=0;
-  //  LMERCONS=32767; // should be TODO 65536????
-  //  F0106ERBASE=0; 
-  //  F0106ERCONS=32767;
-  //  MAXIMERBASE=0;
-  //  MAXIMERCONS=32767;
-  //  LEAKSPEED=1;MACHINESPEED=1;
 	 
   // CPUintrev2:
   for (x=0; x<1; x++) // was 100
     {
-      //      addr=randi(); // need to push one or CRASH?TODO-check?
-            cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
+      addr=randi()<<3;
+      cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
     }
 
   //pureleak
 
   for (x=0;x<1;x++){
-    //    addr=randi()%65536;
+    addr=randi()<<3;
         cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
   }
 
   // CA
   for (x=0;x<STACK_SIZE;x++){
-    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi()%32768);//howmuch,start,wrap 
+    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi()<<3);//howmuch,start,wrap 
   }
 
   //simulationforstack:	
   for (x=0;x<STACK_SIZE;x++){
-    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10,0,randi()%32768);//howmuch,start,wrap 
-    //	   stack_pos=func_pushn(stackyy,28,buf16,stack_pos,10,0,32767);//howmuch,start,wrap
+    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,10,0,randi()<<3);//howmuch,start,wrap 
   }
 
   ///////////////////////////
 
-  //  SAMPLEWRAP=32767;SAMPLEWRAPREAD=32767;
-
   while(1)
     {
 
-      //      SAMPLEDIRW=fingerdir();  //TESTY!
-      //      SAMPLEDIRW=2;
-      //testdirection=0;
 #ifdef TEST_STRAIGHT
-      // nothing???
+      // do nothing
 #else
-
-      //      if (MACHINESPEED==0) MACHINESPEED=1;
-      //      if (LEAKSPEED==0) LEAKSPEED=1;
 
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
@@ -389,13 +369,12 @@ for (x=0;x<64;x++){
       // KKNOBBBSSS TODO!!!
 
       /// MIRROR!
-
       mirror=adc_buffer[FIRST]>>4; // 8 bits or less?
 
 #ifdef TENE
       /// HARDWARE SMOOTHING!
       hardware=adc_buffer[2];// TESTY!
-      /*      tmphardware=0;
+      /*      tmphardware=0; //TESTY!uncomment!
       for (x=0;x<256;x++){
 	tmphardware+=adc_buffer[SECOND]>>5; // 7 bits
       }
@@ -413,8 +392,7 @@ for (x=0;x<64;x++){
 		  EFFECTWRITE=effects;
 		}
 		else if (mirror<224){
-		  EFFECTFILTER=effects;
-		}
+		  EFFECTFILTER=effects;		}
 		else if (mirror<240){
 		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
 		}
@@ -444,7 +422,8 @@ for (x=0;x<64;x++){
 		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
 		}
 		else  {
-		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		  //		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		  EFFECTREAD=effects;EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTREAD;
 		}
 	      }
 #endif      	
@@ -454,42 +433,70 @@ for (x=0;x<64;x++){
 
       if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
 	settings=tmpsettings; 
-	setted=fingervalup(settingsarray[settings],8);
+
+	// TODO: if is 0 we use fingers left/right!
+	// but then we also need to set 0 settings - [settings-1]
+	if (settings<25) tmper=8; else tmper=1;
+	setted=fingervalup(settingsarray[settings],tmper);
 	settingsarray[settings]=setted; 
 	// TODO: what of directions???
 	    }
       else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
 	settingsops=tmpsettings; // 0-64???
       // operations which are set and act continuously elsewhere
-      // operations which just take place here
+      // operations which just take place here: contract, expand, shift a region, the region
     }
 
       // BLACK STACKS AND EXTRA KNOB
 
-      tmpstack=adc_buffer[FOURTH]>>6; // 0-64
+      tmpstack=adc_buffer[FOURTH]>>6; // 0-64???
 
       if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
 	stack=tmpstack;
 
-	// which stack do we change with adc_buffer[FIFTH] and in stack=
-	// or FIFTH as spare knob???
-	// so which of x stacks from CA or sim...
-	// and which value?
-	// finger up/down to choose stack?
-	// knob to change value
-	// how to push/pop and set which is pushed?
+	// finger up/down to choose stack and value
+	// tmpstack changes value - or vice versa
 
+	// STACKSTART, STACKWRAP, STACKMUCH
+	// ((stack_pos+stack_posy)*3) = maximum 32x3=96
+
+	// push/pop (push<x pop>x) and set which CPU/grain is pushed or
+	// popped [and with what buffer and settings?]
+	// previous code was based on mirror to choose which (setting we can inherit from settings.h)
 	//- simulation: stack[max=stack_pos]: start, wrap, howmuch
 	//- CAforstack: stack[max=stack_posy]: start, wrap, howmuch
 
+	//- so far forgot what to do with villager[x][x] array for grains - work into stacks
 
 	    }
       else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
 	stackops=tmpstack; //0-64???
       // operations which are set and act continuously elsewhere
-      // operations which just take place here
+      // operations which just take place here: contract, expand, shift a region, the region
     }
-    
+
+      // FIFTH KNOB is spare - use instead of finger up/down = override if changes
+      // on mirror we use as mirror/foldback settings with finger up/down
+      // with mirror we also have free finger left/right to use 
+
+
+      /////////// TODO: maintain those operations flagged above
+      // and where we have these settings from = finger and fifth knob as above
+
+      //       // ops on region of settingsarray:    
+      // none
+      // mirror from stack(region), from datagen to region
+      // infect, randi across (if TENE)
+
+      // srcstart,srcwrap, deststart,destwrap, speed, buffer
+      // none
+      //      // ops on region of stacks:    
+      // mirror from settings(region), from datagen to region
+      // infect,  randi across (if TENE)
+
+      // srcstart,srcwrap, deststart,destwrap, speed, buffer
+
+
       ////////////////////////////////////////////////
 #ifndef LACH
       /////////////////////////////////////
@@ -508,9 +515,10 @@ for (x=0;x<64;x++){
 	  hwdel=0;
 	}
 
-      if (digfilterflag&16){ // if we use hdgen at all
+      if (digfilterflag&16){
 	if (HDGENERCONS==0) HDGENERCONSY=1;
-	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONSY));
+	  hdtmp=(HWSTART+(hwpos%wrapper)); 
+	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONSY));
       }
       else
 	{
@@ -518,7 +526,10 @@ for (x=0;x<64;x++){
 	  oldhardware=hardware;
 	}
 	     		   
-      // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we		     		     
+      // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
+
+      // TODO: do we just leave this running?
+		     		     
       if (digfilterflag&2){
 	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
       }
