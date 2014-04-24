@@ -1768,10 +1768,10 @@ void main(void)
 				   //		     func_runall(stackyy,stack_pos); // simulations
 				   //		     printf("%c",buf16[x%3276]>>8);
 		     //    which=buf16[x%32768]>>8;
-		     x++;
-
-		     tmppp=(x&24)>>3;
-		     printf("test %d",tmppp);
+		     x+=1;
+		     u8 testerrr;
+		     testerrr=x>>8;
+		     printf("test %d\n",testerrr);
 
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
 

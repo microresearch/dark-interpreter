@@ -395,10 +395,7 @@ void thread_run(thread* this, machine *m) {
 	case 3:
 	  //	  seven rooms: 
 	  temp= (this->m_pc)%7;
-	  LMERWRAP=LMERWRAP>>temp;
-	  MAXIMERWRAP=MAXIMERWRAP>>temp;
-	  F0106ERWRAP=F0106ERWRAP>>temp;
-	  HDGENERWRAP=HDGENERWRAP>>temp;
+	  HWWRAP=HWWRAP>>temp;
 	  SAMPLEWRAP=SAMPLEWRAP>>temp;
 	  SAMPLEWRAPREAD=SAMPLEWRAPREAD>>temp;
 	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;

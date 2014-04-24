@@ -1,3 +1,18 @@
+      //      u8 hh; u8 hard[64];u16 thardware;
+      // moving average- write into circular buffer say 64
+      /*hard[hh%64]=adc_buffer[0]>>5;
+	hh++;
+	for (x=0;x<64;x++){thardware+=hard[x];}
+	tmphardware=thardware>>8; // divide by 64
+	thardware=0;*/
+      //      hardware=tmphardware;
+       // this mirroring kind of works!
+
+      // finger tests
+      //      hardware=fingerval(hardware);//>>9; // 16 bits ideally to 7
+      //      hardware=adc_buffer[2]>>5;
+
+
 ///former hardware
       /////////////////////////////////////
       // 4-hardware operations

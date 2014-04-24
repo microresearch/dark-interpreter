@@ -147,7 +147,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   */
 
-    res=0; 	  //TESTER!
+  res=0; 	  //TESTY!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -183,7 +183,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-     res2=0; 	  //TESTER! 30->filter->digital no distort
+  //  res2=0; 	  //TESTY! 30->filter->digital no distort
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -197,6 +197,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL = (1<<2) | (1<<8);// | (1<<9);// this gets rid of hum
     GPIOC->BSRRL= (1<<10);
+    digfilterflag=0;
    break;
   case 2:
    //1-straightout with filtermix-straight

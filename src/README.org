@@ -216,6 +216,41 @@ outside, and in open daylight.
 
 - always set define for board in MAKEFILE!!!
 - caps across potis for top-board
+- make clean after changes to settingsarray
+
+* THU 24 APR
+
+- do new knob scheme as below-IN PROGRESS
+
+- where to constrain settings 32768/256 with >> (in defines or?)DONE
+but then constrained settings like speeds and so on move too fast 
+(inc as argument to fingerval DONE - but arrange settings so easy to
+diff this or make inc changed by user)
+
+- see main.c for stack notes: 
+
+[[file:main.c][file:~/collect2012-4/dark-interpreter/src/main.c]]
+
+- check all TESTYs and TESTERs
+
+PLAN:
+FRI-finish basics
+MON++ -tweak/record/document/manual 
+
+** DONE:
+
+- we need to make sure all wraps are non-zero (inc overflow)DONE
+- do ifdefs for all changes of ADCs DONE
+- test new integration of villages into EFFECTREAD/WRITE/FILT-DONE
+-fixed one issue with second/firstbuf and can add extra effects to
+16 or keep as 128 as LIMIT?TODO?
+-added SAMPLEWRAP as constraint on other grainers
+-digfilterflag zeroes in hardware.c IMPORTANT!
+- test new CA and simulation on ARM DONE
+- test new hardware reduction DONE
+- add in new village option with array of START/WRAPS (array for read,
+  write, filt or one array and set walk-through for read/write/filt)
+  DONE_TO TESTED!
 
 * WED 23 APR
 
@@ -223,7 +258,9 @@ RELEASE THU 1 MAY
 
 TODO:
 
-- potential new knob scheme and mirroring:
+- if we use 40106 as control then should do pwm on this all the time???
+
+*potential new knob scheme and mirroring:*
 
 0/mirror/->/mirror of mirrors/foldback/fingers as micro/macro
 
@@ -241,7 +278,8 @@ mirror_on_to_a_section,mirror_axcross,constrain,expand,shift,copy(eg.eeg),contag
 //what settings need to be limited within a range (say 255) and where?
 //where we change wrap->directions arrays?
 //wormdir?
-//how to approach stacks:
+
+//stacks:
 
 push and pop with settings...
 
@@ -274,7 +312,7 @@ but we would need to re-write so variables are in the stack TODO!done for both T
 
 -should be also make hardware less complex with single walkerDONE
 
--reduce effects in audio.c and add in villagewriteetcDOING - but extra
+-reduce effects in audio.c and add in villagewriteetcDONE - but extra
 village setting to exploit!
 
 - why does settingsarray settings not go into audio.c//line 450tests -

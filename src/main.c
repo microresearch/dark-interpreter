@@ -31,12 +31,43 @@
 #include "CA.h"
 #include "settings.h"
 
+// for knobwork
+// TENE: 2,0,3,4,1 
+// else: 3,0,2,4,1
+
+#ifdef TENE
+#define FIRST 2
+#define SECOND 0
+#define THIRD 3
+#define FOURTH 4
+#define FIFTH 1
+#define UP 6
+#define DOWN 8
+#define LEFT 5
+#define RIGHT 7
+#else
+#define FIRST 3
+#define SECOND 0
+#define THIRD 2
+#define FOURTH 4
+#define FIFTH 1
+#define UP 5
+#define DOWN 6
+#define LEFT 8
+#define RIGHT 7
+#endif
+
 int16_t newdir[4]={-180,1,180,-1};
 int16_t direction[4]={-180,1,180,-1};
+int16_t villagedirection[4]={-180,1,180,-1};
+int16_t villagedirectionf[4]={-180,1,180,-1};
+int16_t villagedirectionw[4]={-180,1,180,-1};
 int16_t newdirf[4]={-180,1,180,-1};
 int16_t directionf[4]={-180,1,180,-1};
 int16_t newdirread[4]={-180,1,180,-1};
 int16_t directionread[4]={-180,1,180,-1};
+
+u16 villager[64][2];
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -85,11 +116,10 @@ u8 fingerdir(void){
   static u8 result;
 
   for (u8 x=0;x<16;x++){
-    // could re-org for lower board TODO!
-  handupp=adc_buffer[6]>>8; 
-  handdown=adc_buffer[8]>>8;
-  handleft=adc_buffer[5]>>8;
-  handright=adc_buffer[7]>>8;
+  handupp=adc_buffer[UP]>>8; 
+  handdown=adc_buffer[DOWN]>>8;
+  handleft=adc_buffer[LEFT]>>8;
+  handright=adc_buffer[RIGHT]>>8;
   if (handupp>8) up++; //TODO: TWEAKING but seems okay...
   if (handdown>8) down++;
   if (handleft>8) left++;
@@ -119,26 +149,51 @@ u8 fingerdir(void){
     }*/
 }
 
-u8 fingerval(u8 tmpsetting){
-  static u8 oldhandup=0,handup,handdown,oldhanddown=0;
+u16 fingervalup(u16 tmpsetting, u8 inc){
+  static u8 oldhandup=0,oldhanddown=0;
+  u8 handup,handdown;
   static u8 ttss=0,sstt=0;
-  // could re-org 6/8 as 5/6 for lower board TODO!
 
-  handup=adc_buffer[6]>>8;
-  if (handup>oldhandup) sstt++;// else sstt=0;
+  handup=adc_buffer[UP]>>8;
+  if (handup>oldhanddown) sstt++; else sstt=0;
 
-  if (sstt>64){ // TODO: tune this figure or have as parameter but in principle works
+  if (sstt>8){ // TODO: tune this figure or have as parameter but in principle works
     sstt=0;
-    tmpsetting++;
+    tmpsetting+=inc;
   }
 
   oldhandup=handup;
 
-  handdown=adc_buffer[8]>>8;
-  if (handdown>oldhanddown) ttss++;//  else ttss=0;
-  if (ttss>64){
+  handdown=adc_buffer[DOWN]>>8;
+  if (handdown>oldhandup) ttss++; else ttss=0;
+  if (ttss>8){
     ttss=0;
-    tmpsetting--;
+    tmpsetting-=inc;
+    }
+    oldhanddown=handdown;
+  return tmpsetting;
+}
+
+u16 fingervalleft(u16 tmpsetting, u8 inc){
+  static u8 oldhandup=0,oldhanddown=0;
+  u8 handup,handdown;
+  static u8 ttss=0,sstt=0;
+
+  handup=adc_buffer[RIGHT]>>8;
+  if (handup>oldhanddown) sstt++; else sstt=0;
+
+  if (sstt>8){ // TODO: tune this figure or have as parameter but in principle works
+    sstt=0;
+    tmpsetting+=inc;
+  }
+
+  oldhandup=handup;
+
+  handdown=adc_buffer[LEFT]>>8;
+  if (handdown>oldhandup) ttss++; else ttss=0;
+  if (ttss>8){
+    ttss=0;
+    tmpsetting-=inc;
     }
     oldhanddown=handdown;
   return tmpsetting;
@@ -148,19 +203,17 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 *buf; u8 *buff;
-  u16 x,addr,tmp;
-  u8 hardware=0; u16 tmphardware;
-  u8 oldhardware,tmppushpull,pushpull=0,Ysettings,tmpspeed,speed=0,tmpsettings,micromacro=0,foldback=0,which=0;
+  u16 x,addr,tmp; 
+  u8 hardware=0; u16 tmphardware, HWSPEEDY, HDGENERCONSY;
+  u8 oldhardware;
   u8 effects=0;
-  u16 speedwrapper=0;
   u8 machine_count=0,leak_count=0; 
-  u8 settings=0, oldsettings=0,settings_trap=0,setted=0,pushsetted=0,settingsindex=0;
-  u8 pushypop,pushpopflag=0;
   u8 index=0, finaldel=0;
+  u8 tmpsettings, settings, settingsops;
+  u16 setted;
+  u8 tmpstack, stack, stackops;
   u16 finalpos=0;
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
-
-  u16 pushsetting[4]={0,0,32767,10}; 
 
   int16_t hwdir[4]={-180,1,180,-1};
   u16 tempsetting=0;
@@ -225,7 +278,13 @@ void main(void)
   ////////////////////minimal setup code to get started
   //TESTER!
 
-  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0; // TESTY!
+  //   EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0; // TESTY!
+
+
+  // TESTY for villager:
+for (x=0;x<64;x++){
+  villager[x][0]=0;villager[x][1]=32767;
+  }
 
   // setup code for walkers
   for (x=0;x<10;x++){
@@ -240,36 +299,36 @@ void main(void)
     settingsarray[x]=1;
   }//step
 
-  for (x=30;x<37;x++){
+  for (x=30;x<36;x++){
     settingsarray[x]=1;
   }//speed
 
-  for (x=37;x<48;x++){
+  for (x=36;x<46;x++){
     settingsarray[x]=1;
   }//DIR
 
-  HDGENERBASE=0;
-  HDGENERCONS=255;
-  LMERBASE=0;
-  LMERCONS=32768; // should be TODO 65536????
-  F0106ERBASE=0; 
-  F0106ERCONS=32768;
-  MAXIMERBASE=0;
-  MAXIMERCONS=32768;
-  LEAKSPEED=1;MACHINESPEED=1;
+  //  HDGENERBASE=0;
+  //  HDGENERCONS=255;
+  //  LMERBASE=0;
+  //  LMERCONS=32767; // should be TODO 65536????
+  //  F0106ERBASE=0; 
+  //  F0106ERCONS=32767;
+  //  MAXIMERBASE=0;
+  //  MAXIMERCONS=32767;
+  //  LEAKSPEED=1;MACHINESPEED=1;
 	 
   // CPUintrev2:
-  for (x=0; x<10; x++) // was 100
+  for (x=0; x<1; x++) // was 100
     {
-      addr=randi();
-      cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
+      //      addr=randi(); // need to push one or CRASH?TODO-check?
+            cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
     }
 
   //pureleak
 
-  for (x=0;x<MAX_FRED;x++){
-    addr=randi()%65536;
-    cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
+  for (x=0;x<1;x++){
+    //    addr=randi()%65536;
+        cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
   }
 
   // CA
@@ -297,8 +356,8 @@ void main(void)
       // nothing???
 #else
 
-      if (MACHINESPEED==0) MACHINESPEED=1;
-      if (LEAKSPEED==0) LEAKSPEED=1;
+      //      if (MACHINESPEED==0) MACHINESPEED=1;
+      //      if (LEAKSPEED==0) LEAKSPEED=1;
 
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
@@ -329,36 +388,19 @@ void main(void)
       /////////////////////////////
       // KKNOBBBSSS TODO!!!
 
-      // TENE: 2,0,3,4,1 
+      /// MIRROR!
 
-      // revise as settings//select ops on related settings (only when changes?)
-      // also maintain oldsetting on left side  	     
-	    
-      //0-mirror -- mirror of mirror  of mirror!!
-      //1-hardware //+// walk stacks into hardware params//data///swop datagen/audio 
-      //2-stacks/push/pull //inc swap data/audio for cpu ops//exespot
-      //3-speed/micro-macro combined //+// walk stacks into sample params//data
-      //4-all settings up/down
+      mirror=adc_buffer[FIRST]>>4; // 8 bits or less?
 
-      // finger tests
-      //      hardware=fingerval(hardware);//>>9; // 16 bits ideally to 7
-      hardware=adc_buffer[2]>>5;
-      /// use this smoothing for hardware(only?)
+#ifdef TENE
+      /// HARDWARE SMOOTHING!
+      hardware=adc_buffer[2];// TESTY!
       /*      tmphardware=0;
       for (x=0;x<256;x++){
-	tmphardware+=adc_buffer[0]>>5; // 7 bits
+	tmphardware+=adc_buffer[SECOND]>>5; // 7 bits
       }
-      tmphardware=tmphardware>>8;*/
-      //      u8 hh; u8 hard[64];u16 thardware;
-      // moving average- write into circular buffer say 64
-      /*hard[hh%64]=adc_buffer[0]>>5;
-	hh++;
-	for (x=0;x<64;x++){thardware+=hard[x];}
-	tmphardware=thardware>>8; // divide by 64
-	thardware=0;*/
+      tmphardware=tmphardware>>8;
 
-       // this mirroring kind of works!
-      /*            mirror=adc_buffer[2]>>4; // 8 bits or less?
       if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
 	hardware=tmphardware; // handled all below 
 	    }
@@ -380,7 +422,73 @@ void main(void)
 		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
 		}
 		}*/
-      	
+#else
+      // TESTY as might need to SMOOTH!
+      //      tmphardware=tmphardware<<3; // 15 bits
+      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
+	SAMPLEWRAP=tmphardware<<3; // handled all below 
+	hardware=tmphardware;
+	    }
+	      else if (mirror >128 && tmphardware!=hardware && tmphardware!=hardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
+		effects=tmphardware;
+		if (mirror<160){
+		  EFFECTREAD=effects;
+		}
+		else if (mirror<192){
+		  EFFECTWRITE=effects;
+		}
+		else if (mirror<224){
+		  EFFECTFILTER=effects;
+		}
+		else if (mirror<240){
+		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
+		}
+		else  {
+		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		}
+	      }
+#endif      	
+      // HERE!
+      // SETTINGSARRAY
+      tmpsettings=adc_buffer[THIRD]>>6; // 0-64 ???
+
+      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
+	settings=tmpsettings; 
+	setted=fingervalup(settingsarray[settings],8);
+	settingsarray[settings]=setted; 
+	// TODO: what of directions???
+	    }
+      else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
+	settingsops=tmpsettings; // 0-64???
+      // operations which are set and act continuously elsewhere
+      // operations which just take place here
+    }
+
+      // BLACK STACKS AND EXTRA KNOB
+
+      tmpstack=adc_buffer[FOURTH]>>6; // 0-64
+
+      if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
+	stack=tmpstack;
+
+	// which stack do we change with adc_buffer[FIFTH] and in stack=
+	// or FIFTH as spare knob???
+	// so which of x stacks from CA or sim...
+	// and which value?
+	// finger up/down to choose stack?
+	// knob to change value
+	// how to push/pop and set which is pushed?
+
+	//- simulation: stack[max=stack_pos]: start, wrap, howmuch
+	//- CAforstack: stack[max=stack_posy]: start, wrap, howmuch
+
+
+	    }
+      else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
+	stackops=tmpstack; //0-64???
+      // operations which are set and act continuously elsewhere
+      // operations which just take place here
+    }
     
       ////////////////////////////////////////////////
 #ifndef LACH
@@ -389,8 +497,9 @@ void main(void)
 
       /// general HW walk in/as tmp
 
-	if (HWSPEED==0) HWSPEED=1;
-	if (++hwdel>=HWSPEED){
+      //	if (HWSPEED==0) HWSPEED=1;
+      if (HWSPEEDY==0) HWSPEEDY=1;
+	if (++hwdel>=HWSPEEDY){
 	  // when wrapper changes we need to redo direction array!!!
 	  hwpos+=(HWSTEP*hwdir[HWDIR]);
 	  wrapper=HWWRAP;
@@ -400,7 +509,8 @@ void main(void)
 	}
 
       if (digfilterflag&16){ // if we use hdgen at all
-	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
+	if (HDGENERCONS==0) HDGENERCONSY=1;
+	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONSY));
       }
       else
 	{
