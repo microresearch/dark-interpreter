@@ -221,12 +221,11 @@ outside, and in open daylight.
 
 * FRI 25 APR
 
-
-- push simultaneous stack and villager (or not)
-
+- flatten stacks and villager to single arraysDONE-to test///and fixed problems in CA and sim!
 - re-arrange settings to change easily increment for fingersDONE-TEST!
 - test 40106 if leaks and run continuous if not leaky
 - stacks and villager as stack handling
+- push simultaneous stack and villager (or not)
 
 - finish knobs and ops as below
 - check all TESTYs and TESTERs, cleanups, tests
@@ -236,9 +235,6 @@ FRI-finish basics
 MON++ /test basic brds/tweak/record/document/manual 
 
 ** DONE
-
-- flatten stacks and villager to single arraysDONEand fixed problems in CA and sim!
-
 
 * THU 24 APR
 

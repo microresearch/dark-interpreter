@@ -154,6 +154,7 @@
 		//		wrap=randi();
 		if (pushpull<16) {
 		//cpustackpush=31,hhh=31,numca=9,numfuncs=33,exetype=4 (totals)
+
 		// first bit of which is buffer indication
 		  //		  which=which^1;
 		  switch(which>>1){ // 3 bits

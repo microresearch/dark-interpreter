@@ -1475,7 +1475,6 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
     {
 
       if (howmuch==0) howmuch=1;
-
       u8 tmp=stack_pos<<2;
       stacker[tmp]=start;
       stacker[tmp+1]=start;
