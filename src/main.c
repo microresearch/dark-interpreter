@@ -193,34 +193,21 @@ u16 fingervalup(u16 tmpsetting, u8 inc){
   return tmpsetting;
 }
 
-u16 fingervalleft(u16 tmpsetting, u8 inc){
-  static u8 oldhandup=0,oldhanddown=0;
+u16 fingervalright(u16 tmpsetting, u8 inc){
   u8 handup,handdown;
-  static u8 ttss=0,sstt=0;u8 x;
-  
-  handup=adc_buffer[RIGHT]>>8;
-  if (handup>oldhanddown) sstt++; else sstt=0;
-  if (sstt>4){ // TODO: tune this figure or have as parameter but in principle works
-    sstt=0;
-    tmpsetting+=inc;
-    oldhanddown=handdown;
-    oldhandup=handup;
-  return tmpsetting;
-  }
+  u8 ttss=0,sstt=0;u8 x;
 
+  for (x=0;x<16;x++){
+  handup=adc_buffer[RIGHT]>>8;
   handdown=adc_buffer[LEFT]>>8;
-  if (handdown>oldhandup) ttss++; else ttss=0;
-  if (ttss>4){
-    ttss=0;
-    tmpsetting-=inc;
-    oldhanddown=handdown;
-    oldhandup=handup;
+  if (handup>8) ttss++;
+  else if (handdown>8) sstt++;
+  }
+  if (ttss>sstt) tmpsetting+=inc;
+  else if (ttss<sstt) tmpsetting-=inc;
   return tmpsetting;
-    }
-    oldhanddown=handdown;
-    oldhandup=handup;
-    return tmpsetting;
 }
+
 
 void main(void)
 {
