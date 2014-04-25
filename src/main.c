@@ -68,7 +68,10 @@ int16_t newdirread[4]={-180,1,180,-1};
 int16_t directionread[4]={-180,1,180,-1};
 
 u8 villagestackpos=0;
-u16 villager[64][2];
+u16 villager[129];
+
+extern u16 stackery[64]; // 16*4 MAX
+extern u16 stacker[64]; // 16*4 MAX
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -109,22 +112,22 @@ struct dgenwalker{
   u16 pos;
 };
 
-#define VILLAGE_SIZE 64
+#define VILLAGE_SIZE 128 // 64 *2
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   if (villagepos<VILLAGE_SIZE)
     {
-      villager[villagepos][0]=start;
-      villager[villagepos][0]=wrap;
-      villagepos++;
+      villager[villagepos]=start;
+      villager[villagepos+1]=wrap;
+      villagepos+=2;
 }
   return villagepos;
 }
 
 u8 villagepop(u8 villagepos){
-  if (villagepos>0)
+  if (villagepos>2)
     {
-      villagepos--;
+      villagepos-=2;
     }
   return villagepos;
 }

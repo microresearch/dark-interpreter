@@ -221,7 +221,6 @@ outside, and in open daylight.
 
 * FRI 25 APR
 
-- flatten stacks and villager to single arrays
 
 - push simultaneous stack and villager (or not)
 
@@ -235,6 +234,11 @@ outside, and in open daylight.
 PLAN:
 FRI-finish basics
 MON++ /test basic brds/tweak/record/document/manual 
+
+** DONE
+
+- flatten stacks and villager to single arraysDONEand fixed problems in CA and sim!
+
 
 * THU 24 APR
 
