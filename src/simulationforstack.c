@@ -1718,27 +1718,34 @@ void main(void)
   	 	   }
   
 	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which;
-
-	 tmppp=(ooo>>5);
-	 //printf("tmp %d\n",tmppp);
+	 ooo=8192;
+	 //	 tmppp=(ooo>>13);
+	 //	 printf("tmp %d\n",tmppp);
 		 u8 stak=0;
 	 //	 call function;
 
 	 //	 calltest(tmppp+ooo);
 
-		 for (x=0;x<5000000;x++){
+		 //		 while(1){
+		   // stak=1;
+		 //		   tmppp+=64;
+		 which=511>>8;
+		 tmppp=1<<14;
+		   printf("tmp %d\n",tmppp);
+		   //		 }
+		 //		 for (x=0;x<5000000;x++){
 		 //		 		 while(1){
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-		   func_runall(stackyy,stack_pos); // simulations
-		   printf("%c",buf16[x%32768]>>8);
+		 //		   func_runall(stackyy,stack_pos); // simulations
+		 //		   printf("%c",buf16[x%32768]>>8);
 				   //				   x++;
 		     //    which=buf16[x%32768]>>8;
 
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
 
-		    }
+		 //		    }
 }
 
 #endif

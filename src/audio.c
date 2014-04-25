@@ -859,7 +859,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  }
 		}
 	  del=0;
-		  }
+	  }
 	}
 	}
 #endif

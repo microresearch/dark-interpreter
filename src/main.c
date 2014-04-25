@@ -79,6 +79,12 @@ extern u16 stacker[64]; // 16*4 MAX
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
+#define delayxx()						 do {	\
+    register unsigned int i;					\
+    for (i = 0; i < 1000; ++i)				\
+      __asm__ __volatile__ ("nop\n\t":::"memory");		\
+  } while (0)
+
 
 #define randi() (datagenbuffer[adc_buffer[9]<<3]) // 15 bits
 
@@ -173,53 +179,47 @@ u8 fingerdir(void){
 }
 
 u16 fingervalup(u16 tmpsetting, u8 inc){
-  static u8 oldhandup=0,oldhanddown=0;
   u8 handup,handdown;
-  static u8 ttss=0,sstt=0;
+  u8 ttss=0,sstt=0;u8 x;
 
+  for (x=0;x<16;x++){
   handup=adc_buffer[UP]>>8;
-  if (handup>oldhanddown) sstt++; else sstt=0;
-
-  if (sstt>8){ // TODO: tune this figure or have as parameter but in principle works
-    sstt=0;
-    tmpsetting+=inc;
-  }
-
-  oldhandup=handup;
-
   handdown=adc_buffer[DOWN]>>8;
-  if (handdown>oldhandup) ttss++; else ttss=0;
-  if (ttss>8){
-    ttss=0;
-    tmpsetting-=inc;
-    }
-    oldhanddown=handdown;
+  if (handup>8) ttss++;
+  else if (handdown>8) sstt++;
+  }
+  if (ttss>sstt) tmpsetting+=inc;
+  else if (ttss<sstt) tmpsetting-=inc;
   return tmpsetting;
 }
 
 u16 fingervalleft(u16 tmpsetting, u8 inc){
   static u8 oldhandup=0,oldhanddown=0;
   u8 handup,handdown;
-  static u8 ttss=0,sstt=0;
-
+  static u8 ttss=0,sstt=0;u8 x;
+  
   handup=adc_buffer[RIGHT]>>8;
   if (handup>oldhanddown) sstt++; else sstt=0;
-
-  if (sstt>8){ // TODO: tune this figure or have as parameter but in principle works
+  if (sstt>4){ // TODO: tune this figure or have as parameter but in principle works
     sstt=0;
     tmpsetting+=inc;
+    oldhanddown=handdown;
+    oldhandup=handup;
+  return tmpsetting;
   }
-
-  oldhandup=handup;
 
   handdown=adc_buffer[LEFT]>>8;
   if (handdown>oldhandup) ttss++; else ttss=0;
-  if (ttss>8){
+  if (ttss>4){
     ttss=0;
     tmpsetting-=inc;
+    oldhanddown=handdown;
+    oldhandup=handup;
+  return tmpsetting;
     }
     oldhanddown=handdown;
-  return tmpsetting;
+    oldhandup=handup;
+    return tmpsetting;
 }
 
 void main(void)
@@ -233,7 +233,7 @@ void main(void)
   u8 oldhardware;
   u8 effects=0;
   u8 machine_count=0,leak_count=0; 
-  u8 tmpsettings, settings, settingsops;
+  u8 tmpsettings, settings=0, settingsops=0;
   u16 setted;
   u8 tmpstack, stack, stackops;
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
@@ -306,7 +306,7 @@ void main(void)
   // TESTY for villager:
 for (x=0;x<1;x++){
   //  villager[x][0]=0;villager[x][1]=32767;
-  villagestackpos=villagepush(0,villagestackpos,32767);
+  villagestackpos=villagepush(villagestackpos,0,32767);//pos/start/wrap
   }
 
   // setup code for walkers
@@ -315,20 +315,24 @@ for (x=0;x<1;x++){
   }//start
 
   for (x=11;x<25;x++){
-    settingsarray[x]=32767;
+    settingsarray[x]=65535;
   }//wrap
 
   for (x=25;x<35;x++){
-    settingsarray[x]=1;
+    settingsarray[x]=511; //>>8
   }//step
 
   for (x=35;x<41;x++){
-    settingsarray[x]=1;
+    settingsarray[x]=511;
   }//speed
 
-  for (x=41;x<51;x++){
-    settingsarray[x]=1;
+  for (x=54;x<64;x++){
+    settingsarray[x]=16384;//>>14
   }//DIR
+
+  settingsarray[51]=0; //EFFECTS
+  settingsarray[52]=0;
+  settingsarray[53]=0;
 	 
   // CPUintrev2:
   for (x=0; x<1; x++) // was 100
@@ -384,7 +388,7 @@ for (x=0;x<1;x++){
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    machine_runnn(datagenbuffer);
+	    //	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -397,7 +401,6 @@ for (x=0;x<1;x++){
 
 #ifdef TENE
       /// HARDWARE SMOOTHING!
-      hardware=adc_buffer[2];// TESTY!
       /*      tmphardware=0; //TESTY!uncomment!
       for (x=0;x<256;x++){
 	tmphardware+=adc_buffer[SECOND]>>5; // 7 bits
@@ -453,18 +456,35 @@ for (x=0;x<1;x++){
 #endif      	
       // HERE!
       // SETTINGSARRAY
+      hardware=adc_buffer[FIRST]>>5; //TESTY!!
       tmpsettings=adc_buffer[THIRD]>>6; // 0-64 ???
+      tmper=64;settings=36; // TESTY!!
+      setted=fingervalup(settingsarray[settings],tmper);
+      settingsarray[settings]=setted; 
+      //tmper=64;settings=12; // TESTY!!
+      //      setted=fingervalup(settingsarray[settings],tmper);
+      //      settingsarray[settings]=setted; 
 
-      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
+      //      EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;//TESTER!
+      settingsops=77;//TESTER!
+      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){ //TODO: fix gap when we go near settingsops????
 	settings=tmpsettings; 
-
 	// TODO: if is 0 we use fingers left/right!
 	// but then we also need to set 0 settings - [settings-1]
-	if (settings<25) tmper=8; else tmper=1;
-	setted=fingervalup(settingsarray[settings],tmper);
-	settingsarray[settings]=setted; 
+	//	if (settings<25) tmper=8; else tmper=2;//?????
+
+	if (settings<46){ // TESTY was 54
+	  //	  	  tmper=64;settings=36; // TESTY!!
+	  //TODO: wrap here means that we get 16 bits coming in
+	  //	  setted=fingervalup(settingsarray[settings],tmper);
+	  //	  settingsarray[settings]=setted; 
+	  //	  settingsarray[settings]=adc_buffer[FIFTH];
+	}
+	else
+	  {
 	// TODO: what of directions???
-	    }
+	  }
+      }
       else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
 	settingsops=tmpsettings; // 0-64???
       // operations which are set and act continuously elsewhere
@@ -553,11 +573,11 @@ for (x=0;x<1;x++){
 	     		   
       // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
 
-      // TODO: do we just leave this running?
+      // just leave this running
 		     		     
-      if (digfilterflag&2){
+      //      if (digfilterflag&2){
 	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
-      }
+	  //      }
 	  
 
       if (digfilterflag&4){

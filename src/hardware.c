@@ -147,7 +147,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   */
 
-  res=0; 	  //TESTY!
+    res=0; 	  //TESTY!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);

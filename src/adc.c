@@ -193,7 +193,6 @@ void DMA2_Stream0_IRQHandler(void)
 	{
 		/* Clear the Interrupt flag */
 		DMA_ClearFlag(DMA2_Stream0, DMA_FLAG_TCIF0);
-		
 		/* Start ADC1 Software Conversion */
 		ADC_SoftwareStartConv(ADC1);
 	}

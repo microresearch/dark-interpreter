@@ -395,13 +395,14 @@ void thread_run(thread* this, machine *m) {
 	case 3:
 	  //	  seven rooms: 
 	  temp= (this->m_pc)%7;
-	  HWWRAP=HWWRAP>>temp;
+	  //      TODO: constrain these
+	  /*	  HWWRAP=HWWRAP>>temp;
 	  SAMPLEWRAP=SAMPLEWRAP>>temp;
 	  SAMPLEWRAPREAD=SAMPLEWRAPREAD>>temp;
 	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;
 	  ANYWRAPREAD=ANYWRAPREAD>>temp;
 	  ANYWRAP=ANYWRAP>>temp;
-	  ANYWRAPFILT=ANYWRAPFILT>>temp;
+	  ANYWRAPFILT=ANYWRAPFILT>>temp;*/
 	  this->m_pc++;
 	  break;
 	case 4:

@@ -218,13 +218,12 @@ outside, and in open daylight.
 - caps across potis for top-board
 - make clean after changes to settingsarray
 
-
 * FRI 25 APR
 
-- flatten stacks and villager to single arraysDONE-to test///and fixed problems in CA and sim!
-- re-arrange settings to change easily increment for fingersDONE-TEST!
-- test 40106 if leaks and run continuous if not leaky
-- stacks and villager as stack handling
+- fix mirror transitions so is not gap round mirrored setting
+- fix 16 bit settings of settingsarrayDONE-almost?TEST
+
+- stacks and villager also as stack handling
 - push simultaneous stack and villager (or not)
 
 - finish knobs and ops as below
@@ -232,9 +231,15 @@ outside, and in open daylight.
 
 PLAN:
 FRI-finish basics
-MON++ /test basic brds/tweak/record/document/manual 
+MON-THU /test basic brds/tweak/record/document/build
 
 ** DONE
+
+- somewhere we lose audio in settingsarray! - try to find problem- was
+  in SPEED settings to restrict
+- test 40106 if leaks and run continuous if not leakyDONE
+- flatten stacks and villager to single arraysDONE///and fixed problems in CA and sim!
+- re-arrange settings to change easily increment for fingersDONE-TEST!
 
 * THU 24 APR
 
