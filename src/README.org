@@ -221,6 +221,10 @@ outside, and in open daylight.
 
 * FRI 25 APR
 
+- flatten stacks and villager to single arrays
+
+- push simultaneous stack and villager (or not)
+
 - re-arrange settings to change easily increment for fingersDONE-TEST!
 - test 40106 if leaks and run continuous if not leaky
 - stacks and villager as stack handling
@@ -228,8 +232,11 @@ outside, and in open daylight.
 - finish knobs and ops as below
 - check all TESTYs and TESTERs, cleanups, tests
 
-* THU 24 APR
+PLAN:
+FRI-finish basics
+MON++ /test basic brds/tweak/record/document/manual 
 
+* THU 24 APR
 
 - do new knob scheme as below-IN PROGRESS
 
@@ -241,10 +248,6 @@ diff this or make inc changed by user)-TO TEST
 - see main.c for stack notes: 
 
 [[file:main.c][file:~/collect2012-4/dark-interpreter/src/main.c]]
-
-PLAN:
-FRI-finish basics
-MON++ -tweak/record/document/manual 
 
 ** DONE:
 

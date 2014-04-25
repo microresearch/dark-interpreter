@@ -48,6 +48,8 @@ extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 extern u16 sin_data[256];
 #endif
 
+u16 stacker[64]; // 16*4 MAX
+
 //////////////////////////////////////////////////////////
 
 // formantz
@@ -283,7 +285,7 @@ u16 runwalkerchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap)
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+unit->otherstart)%32768];
 
 #ifdef PCSIM
-        printf("%c",workingbuffer[(count+start)%32768]);
+    //        printf("%c",workingbuffer[(count+start)%32768]);
     //    if (count>32767) printf("CONVCRASH%d\n",count);
 
 #endif
@@ -369,7 +371,6 @@ u16 rundec(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-
     workingbuffer[(count+start)%32768]=unit->cop--;
 #ifdef PCSIM
     //        printf("%c",workingbuffer[(count+start)%32768]);
@@ -385,7 +386,6 @@ u16 runleft(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-
     workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]<<=1;
 #ifdef PCSIM
     //    printf("%d %d\n",count,workingbuffer[(count+start)%32768]);
@@ -402,7 +402,6 @@ u16 runright(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-
     workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]>>=1;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -421,8 +420,8 @@ u16 runswap(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
     if (count>=(wrap-1)) count=start;
     temp=workingbuffer[(count+start)%32768];
     yy=count+1;
-    workingbuffer[(count+start)%32768]=workingbuffer[yy];
-    workingbuffer[yy]=temp;
+    workingbuffer[(count+start)%32768]=workingbuffer[yy%32768];
+    workingbuffer[yy%32768]=temp;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
     //        printf("%c", workingbuffer[(count+start)%32768]);
@@ -437,9 +436,7 @@ u16 runnextinc(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   u16 *workingbuffer=unit->buffer;
   for (i=0; i<howmuch; i++) {
     count++; 
-    //    if (count>=32766) count=0;
-    //    if (count>=(wrap-1)) count=start;
-
+    if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+1+start)%32768]+1;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -456,8 +453,7 @@ u16 runnextdec(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     //    if (count>=32766) count=0;
-    //    if (count>=(wrap-1)) count=start;
-
+    if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+1+start)%32768]-1;
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -474,8 +470,7 @@ u16 runnextmult(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     //    if (count>=32766) count=0;
-    //    if (count>=(wrap-1)) count=start;
-
+    if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]*=workingbuffer[(count+1+start)%32768];
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -492,8 +487,7 @@ u16 runnextdiv(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     //    if (count>=32766) count=0;
-    //    if (count>=(wrap-1)) count=start;
-
+    if (count>=(wrap-1)) count=0;
     if ((workingbuffer[(count+1+start)%32768])>0)   workingbuffer[(count+start)%32768]/=workingbuffer[(count+1+start)%32768];
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -511,8 +505,7 @@ u16 runcopy(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++; 
     //    if (count>=32766) count=0;
-    //    if (count>=(wrap-1)) count=start;
-
+    if (count>=(wrap-1)) count=0;
     workingbuffer[(count+1+start)%32768]=workingbuffer[(count+start)%32768];
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -557,7 +550,7 @@ u16 runfull(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 }
 
 u16 runrand(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
-  u8 i=0;
+  u16 i=0;
   //  u8 *workingbuffeur=(u8 *)workingbuffer;
   struct generik* unit=unity;
   u8 *workingbuffeur=(u8 *)unit->buffer;
@@ -575,7 +568,7 @@ u16 runrand(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 }
 
 u16 runknob(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
-  u8 i=0;
+  u16 i=0;
   struct generik* unit=unity;
   u8 *workingbuffeur=(u8 *)unit->buffer;
   for (i=0; i<howmuch*2; i++) {
@@ -825,7 +818,7 @@ void seirDiff(struct SEIR* unit,float Pop[MAX_GROUPS+1])
 
 void seir_Runge_Kutta(struct SEIR* unit)
 {
-  int i;
+  u8 i;
   float dPop1[MAX_GROUPS], dPop2[MAX_GROUPS], dPop3[MAX_GROUPS], dPop4[MAX_GROUPS];
   float tmpPop[MAX_GROUPS],InitialPop[MAX_GROUPS];
 
@@ -1477,15 +1470,22 @@ void passingarraytest(uint8_t *buffer) {
 
 #endif
 
-
 signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap){
   if (stack_pos<STACK_SIZE)
     {
-      stack[stack_pos].howmuch=howmuch;
-      if (stack[stack_pos].howmuch==0) stack[stack_pos].howmuch=1;
-      stack[stack_pos].count=start;
+
+      if (howmuch==0) howmuch=1;
+
+      u8 tmp=stack_pos<<2;
+      stacker[tmp]=start;
+      stacker[tmp+1]=start;
+      stacker[tmp+2]=howmuch;
+      stacker[tmp+3]=wrap;
+
+      /*      stack[stack_pos].howmuch=howmuch;
       stack[stack_pos].start=start;
-      stack[stack_pos].wrap=wrap;
+      stack[stack_pos].count=start;
+      stack[stack_pos].wrap=wrap;*/
 
       switch(typerr){
       case CONVY:
@@ -1663,8 +1663,10 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 
   static u16 count; char i; signed char x;
       for (i=0;i<stack_pos;i++){
-	//      stack[i].functione(stack[i].howmuch,stack[i].unit);// set howmuch in struct!
-      stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
+	u8 tmp=i<<2;
+	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
+
+	stacker[tmp]=stack[i].functione(stacker[tmp+2],stack[i].unit,stacker[tmp],stacker[tmp+1],stacker[tmp+3]);
         }
 }
 
@@ -1672,54 +1674,17 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
  	if (stack_pos>0)
 	{
 	  stack_pos--;
-	  //	  free(stack[stack_pos].unit);
-	  // if (stack[stack_pos].unit!=NULL){
 	    free(stack[stack_pos].unit);
-	    //	    stack[stack_pos].unit=NULL;
-	    //	}
 	}
 	return stack_pos;
 	}
 
 #ifdef PCSIM
 
-u16 fingerval(void){
-  // TODO: cycle here or run through as statics????
-  static u16 oldhandup=0,handup,handdown,oldhanddown=0;
-  static u8 ttss=0,sstt=0;
-  static u16 tmpsetting=0;
-    // could re-org 6/8 for lower board TODO!
-  
-  //  handup=adc_buffer[6]>>10;
-  handup=(randi()%4096)>>8;
-
-  if (handup>oldhandup) sstt++;
-  else sstt=0;
-  if (sstt>2){
-    sstt=0;
-    tmpsetting++;
-  }
-  oldhandup=handup;
-
-  handdown=(randi()%4096)>>8;
-  if (handdown>oldhanddown) ttss++;
-  else ttss=0;
-  if (ttss>2){
-    ttss=0;
-    tmpsetting--;
-  }
-  oldhanddown=handdown;
-  return tmpsetting;
-}
-
-void calltest(u16 caller){
-  printf("callll %d\n",caller);
-}
-
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
-  u16 x; u16 count=0;
+  unsigned int x; u16 count=0;
   u8 howmuch,i;
   //   uint16_t xxx[MAX_SAM];
      u8 xxx[65536];
@@ -1743,12 +1708,13 @@ void main(void)
   //  forminit(unity, xxx,0,3);
 
   //  printf("test%d\n",256<<7);
-  	 for (x=0;x<1;x++){
+  	 for (x=0;x<16;x++){
 	   u16 addr=rand()%32768;
-	   u8 which=rand()%29;
+	   u8 which=rand()%NUM_FUNCS;
+	   //	   u8 which=rand()%9;
 	   //	   printf("which: %d\n",which);
 	   //	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap 
-	   	     stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,0,3276);//howmuch,start,wrap //29-32
+	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,1,0,addr);//howmuch,start,wrap //29-32
 
   	 	   }
   
@@ -1761,17 +1727,15 @@ void main(void)
 
 	 //	 calltest(tmppp+ooo);
 
-		 		 while(1){
-	   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
+		 for (x=0;x<5000000;x++){
+		 //		 		 while(1){
+				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-				   //		     func_runall(stackyy,stack_pos); // simulations
-				   //		     printf("%c",buf16[x%3276]>>8);
+		   func_runall(stackyy,stack_pos); // simulations
+		   printf("%c",buf16[x%32768]>>8);
+				   //				   x++;
 		     //    which=buf16[x%32768]>>8;
-		     x+=1;
-		     u8 testerrr;
-		     testerrr=x>>8;
-		     printf("test %d\n",testerrr);
 
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
 
