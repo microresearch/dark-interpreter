@@ -66,9 +66,9 @@
 
 /////////// BELOW is set by mirror!
 
-#define EFFECTREAD (settingsarray[51])>>8 ///<255
-#define EFFECTWRITE (settingsarray[52])>>8 
-#define EFFECTFILTER (settingsarray[53])>>8 
+#define EFFECTREAD (settingsarray[51])>>9 /// 7 bits
+#define EFFECTWRITE (settingsarray[52])>>9 
+#define EFFECTFILTER (settingsarray[53])>>9 
 
 #define HWDIR (settingsarray[54])>>14 // restricted to 2 bits
 #define DATADIRR (settingsarray[55])>>14

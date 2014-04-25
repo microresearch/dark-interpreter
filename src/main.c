@@ -216,11 +216,11 @@ void main(void)
   u16 x,addr,tmp;
   u8 tmper;
   u16 hdtmp;
-  u8 hardware=0; u16 tmphardware, HWSPEEDY, HDGENERCONSY;
+  u8 hardware=0, thardware=200; u16 tmphardware, HWSPEEDY, HDGENERCONSY;
   u8 oldhardware;
-  u8 effects=0;
+  u8 effects=200;
   u8 machine_count=0,leak_count=0; 
-  u8 tmpsettings, settings=0, settingsops=0;
+  u8 tmpsettings, settings=0, settingsops=200;
   u16 setted;
   u8 tmpstack, stack, stackops;
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
@@ -388,41 +388,51 @@ for (x=0;x<1;x++){
 
 #ifdef TENE
       /// HARDWARE SMOOTHING!
-      /*      tmphardware=0; //TESTY!uncomment!
+            tmphardware=0; //TESTY!uncomment!
       for (x=0;x<256;x++){
 	tmphardware+=adc_buffer[SECOND]>>5; // 7 bits
       }
-      tmphardware=tmphardware>>8;
+      tmphardware=tmphardware>>8; //average
 
       if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
 	hardware=tmphardware; // handled all below 
+	thardware=tmphardware;
+	effects=200; // never near but set to avoid gap...
 	    }
-	      else if (mirror >128 && tmphardware!=hardware && tmphardware!=hardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
-		effects=tmphardware;
+	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=thardware+1 && tmphardware!=effects){
+		effects=tmphardware; //7 bits
+		thardware=200;
 		if (mirror<160){
-		  EFFECTREAD=effects;
+		  settingsarray[51]=effects<<9; // EFFECTREAD
 		}
 		else if (mirror<192){
-		  EFFECTWRITE=effects;
+		  settingsarray[52]=effects<<9; // EFFECTWRITE
 		}
 		else if (mirror<224){
-		  EFFECTFILTER=effects;		}
+		  settingsarray[53]=effects<<9; // EFFECTFILT
+		}
 		else if (mirror<240){
-		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
+		  settingsarray[51]=settingsarray[52];settingsarray[53]=settingsarray[52];
 		}
 		else  {
-		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		  settingsarray[51]=0;
+		  settingsarray[52]=0;
+		  settingsarray[53]=0;
 		}
-		}*/
+		}
 #else
+      // TODO: REDO THIS as above when have tested!
       // TESTY as might need to SMOOTH!
       //      tmphardware=tmphardware<<3; // 15 bits
-      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
+      /*      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
 	SAMPLEWRAP=tmphardware<<3; // handled all below 
 	hardware=tmphardware;
+	thardware=tmphardware;
+	effects=200; // never near but set to avoid gap...
 	    }
-	      else if (mirror >128 && tmphardware!=hardware && tmphardware!=hardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
+	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
 		effects=tmphardware;
+		thardware=200;
 		if (mirror<160){
 		  EFFECTREAD=effects;
 		}
@@ -439,7 +449,7 @@ for (x=0;x<1;x++){
 		  //		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
 		  EFFECTREAD=effects;EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTREAD;
 		}
-	      }
+		}*/
 #endif      	
       // HERE!
       // SETTINGSARRAY
@@ -453,9 +463,9 @@ for (x=0;x<1;x++){
       //      settingsarray[settings]=setted; 
 
       //      EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;//TESTER!
-      settingsops=77;//TESTER!
-      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){ //TODO: fix gap when we go near settingsops????
+      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
 	settings=tmpsettings; 
+	settingsops=200;
 	// TODO: if is 0 we use fingers left/right!
 	// but then we also need to set 0 settings - [settings-1]
 	//	if (settings<25) tmper=8; else tmper=2;//?????
@@ -474,6 +484,7 @@ for (x=0;x<1;x++){
       }
       else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
 	settingsops=tmpsettings; // 0-64???
+	settings=200;
       // operations which are set and act continuously elsewhere
       // operations which just take place here: contract, expand, shift a region, the region
     }
@@ -484,6 +495,7 @@ for (x=0;x<1;x++){
 
       if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
 	stack=tmpstack;
+	stackops=200;
 
 	///KEY!!!TODO!!!
 	// finger up/down to choose stack and value
@@ -503,6 +515,7 @@ for (x=0;x<1;x++){
 	    }
       else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
 	stackops=tmpstack; //0-64???
+	stack=200;
       // operations which are set and act continuously elsewhere
       // operations which just take place here: contract, expand, shift a region, the region
     }

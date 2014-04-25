@@ -220,8 +220,8 @@ outside, and in open daylight.
 
 * FRI 25 APR
 
-- fix mirror transitions so is not gap round mirrored setting
-- fix 16 bit settings of settingsarrayDONE-almost?TEST
+- fix mirror transitions so is not gap round mirrored settingDONE- TEST
+- fix 16 bit settings of settingsarrayDONE-TEST
 
 - stacks and villager also as stack handling
 - push simultaneous stack and villager (or not)
@@ -230,8 +230,7 @@ outside, and in open daylight.
 - check all TESTYs and TESTERs, cleanups, tests
 
 PLAN:
-FRI-finish basics
-MON-THU /test basic brds/tweak/record/document/build
+MON-basics/T/W/THU/test basic brds/tweak/record/document/build
 
 ** DONE
 
