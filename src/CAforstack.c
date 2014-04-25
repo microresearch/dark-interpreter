@@ -23,12 +23,10 @@ extern u8 table[21];
 
 #define STACK_SIZE 16
 
+u16 stackery[64]; // 16*4 MAX
+
 struct stackey{
   u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
-  u8 howmuch;
-  u16 count;
-  u16 start;
-  u16 wrap;
   void* unit;
   };
 
@@ -744,10 +742,17 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
   if (stack_posy<STACK_SIZE)
     {
       //      //   printf("%d\n",stack_posy);
-      stack[stack_posy].howmuch=howmuch;
+      /*      stack[stack_posy].howmuch=howmuch;
       stack[stack_posy].count=start;
       stack[stack_posy].start=start;
-      stack[stack_posy].wrap=wrap;
+      stack[stack_posy].wrap=wrap;*/
+
+      if (howmuch==0) howmuch=1;
+      u8 tmp=stack_posy<<2;
+      stackery[tmp]=start;
+      stackery[tmp+1]=start;
+      stackery[tmp+2]=howmuch;
+      stackery[tmp+3]=wrap;
 
       switch(typerr){
       case HODGEY:
@@ -804,9 +809,14 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
 void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
   static u16 count; u8 i;
   for (i=0;i<stack_posy;i++){
-    if (stack[stack_posy].unit!=NULL){
-      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
-        }
+    //    if (stack[stack_posy].unit!=NULL){
+      //      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
+      //  }
+	u8 tmp=i<<2;
+	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
+
+	stackery[tmp]=stack[i].functione(stackery[tmp+2],stack[i].unit,stackery[tmp],stackery[tmp+1],stackery[tmp+3]);
+
   }
 }
 
@@ -847,7 +857,7 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
       xx=rand()%32768;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,100,xx,xx+rand()%16000); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,10,xx,xx+rand()%16000); // last as howmany, start.,wrap
     }
 
     //    //    printf("stackposy: %d\n", stack_posy);
@@ -859,7 +869,7 @@ int main(void)
   //		 	 	 else stack_posy=ca_pop(stack,stack_posy);
 		 //	 printf("stackposy: %d\n", stack_posy);
 		 //signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
-		 		     printf("%c",buffer[x%32768]>>8);
+		 printf("%c",buffer[x%32768]>>8);
 		     //		     which=buf16[x%32768]>>8;
 		   x++;
 
