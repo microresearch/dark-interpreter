@@ -218,6 +218,33 @@ outside, and in open daylight.
 - caps across potis for top-board
 - make clean after changes to settingsarray
 
+
+* MON 28 APR
+
+new ideas:
+- adc9 -> datagenbuffer
+- simplify direction and wormcode 1, -1
+- speed also on second effects knob
+- setting by hands/setted by hand (last two knobs can also be setted and setting)
+
+- also bare finger entry into settings...
+
+1-mirror
+2-hardware/effects/speed
+3-push/pull
+4-finger->what to set, knob sets//foldback
+5-what to set//foldback settings
+
+
+TEXT:
+
+two necessarily entwined processes: the simulation of plague and
+contagion within a small, medieval village and the actions of virus
+and leakage on the digital apparatus, the computer which is generating
+this simulation. There can be no better description of reality, aside
+from the dark interpreter.
+
+
 * FRI 25 APR
 
 - fix mirror transitions so is not gap round mirrored settingDONE- TEST
@@ -230,15 +257,14 @@ outside, and in open daylight.
 - check all TESTYs and TESTERs, cleanups, tests
 
 PLAN:
-MON-basics/T/W/THU/test basic brds/tweak/record/document/build
+MON-basics/T/W/THU/test basic brds/tweak/record/document/build more!!
 
 ** DONE
 
-- somewhere we lose audio in settingsarray! - try to find problem- was
-  in SPEED settings to restrict
+- somewhere we lose audio in settingsarray! - try to find problem- was in SPEED - DONErestrict
 - test 40106 if leaks and run continuous if not leakyDONE
 - flatten stacks and villager to single arraysDONE///and fixed problems in CA and sim!
-- re-arrange settings to change easily increment for fingersDONE-TEST!
+- re-arrange settings to change easily increment for fingersDONE
 
 * THU 24 APR
 
