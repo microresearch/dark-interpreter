@@ -221,26 +221,29 @@ outside, and in open daylight.
 
 * MON 28 APR
 
-- check 5th adc buffer
+- check bits for audio.c EFFECTREAD, WRITE, FILT and in main.c! - only
+  0-7 settings!! FIX!!
+
 - test hardware
-- check bits for audio.c EFFECTREAD, WRITE, FILT and in main.c!
+- look at samplespeed
 - test 40106 voltages and code
-- where is annoying high-pitch from?
+- where is high-pitch from in effects
 
 TODO:
 
-- foldback onto foldback!
+- foldback onto foldback-TEST!
 - foldback TEST // FULL TESTS, isolated tests...
-- check all TESTYs and TESTERs, cleanups, tests
+- check all TESTYs and TESTERs, cleanups
 
 NOTES:
 
+shifted machine_count wrapper
 effectmod is bits 1,2,4
 fingervalup16bits
 3rd knob 8-16 is push/pop
 
 PLAN:
-MON-basics/T/W/THU/test basic brds/tweak/record/document/build more!!
+T/W/THU/test basic brds/tweak/record/document/build more!!
 
 tweakS!:
 - adc9 -> datagenbuffer
@@ -258,8 +261,8 @@ new knob scheme:
 
 - crash in stackery/stacker-appears fixed but some strangeness
 - simplify direction and wormcode 1, -1 DONE
-- fix 16 bit settings of settingsarray DONEbut not TESTED!
-- stack/knob/foldback code TO TEST
+- fix 16 bit settings of settingsarray DONE
+- stack/knob/foldback code 
 - fixed randi() mismatch in main!
 - added in mirrorspeed
 

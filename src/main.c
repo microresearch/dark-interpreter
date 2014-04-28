@@ -358,7 +358,7 @@ for (x=0;x<64;x++){
   settingsarray[53]=0;
 	 
   // CPUintrev2:
-  for (x=0; x<1; x++) // was 100
+  for (x=0; x<100; x++) // was 100
     {
       addr=randi()<<3;
       cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,1);//randi()%255);
@@ -366,14 +366,14 @@ for (x=0;x<64;x++){
 
   //pureleak
 
-  for (x=0;x<1;x++){
+  for (x=0;x<100;x++){
     addr=randi()<<3;
     cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
   }
 
   // CA
   for (x=0;x<STACK_SIZE;x++){
-    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,100,0,randi()<<3);//howmuch,start,wrap 
+    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,10,0,randi()<<3);//howmuch,start,wrap 
   }
 
   //simulationforstack:	
@@ -390,6 +390,9 @@ for (x=0;x<64;x++){
       // do nothing
 #else
 
+	  machine_count++;
+	  if (machine_count>=MACHINESPEED){
+
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
@@ -399,12 +402,9 @@ for (x=0;x<64;x++){
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  machine_count++;
-	  if (machine_count>=MACHINESPEED){
 	    machine_run(m);
 	    m->m_leakiness=LEAKINESS;
 	    m->m_infectprob=INFECTION;
-	    //	    m->m_mutateprob=MUTATION;
 	    machine_count=0;
 	  }
 	  break;
@@ -415,18 +415,18 @@ for (x=0;x<64;x++){
 	    leak_count=0;
 	  }
 	}
-      }
+	  }
       /////////////////////////////
       // KKNOBBBSSS
       /// HARDWARE SMOOTHING!
       tmphardware=0;
-      for (x=0;x<256;x++){
+      for (x=0;x<128;x++){ // was 256
 	tmphardware+=adc_buffer[FIRST]>>5; // 7 bits
       }
-      hardware=tmphardware>>8; //average
+      hardware=tmphardware>>7; //average was >>8
 
 #ifdef TENE
-      effects=adc_buffer[SECOND]>>5;
+      effects=adc_buffer[SECOND]>>5;  // 7 bits
 
       //      effectmod=1; // TESTY!
 
@@ -443,7 +443,7 @@ for (x=0;x<64;x++){
       // 1-mod effectmod 0-7
       //      fingermod=45; // TESTY!!!
       if (fingermod<8){
-	effectmod=(fingervalright(effectmod)%7);
+	effectmod=(fingervalright(effectmod)%8);
       }
       // 2-push/pop with template settings and type fronm left/right
       else if (fingermod<16){
@@ -510,7 +510,6 @@ for (x=0;x<64;x++){
       // 5-micro-macro - expand or contract
       else if (fingermod<40){
 	// change wraps [11-24]
-	//#define HWWRAP ((settingsarray[11]>>1)+1)
 	constrain=fingervalup16bits(constrain,32);
 	for (x=0;x<14;x++){
 	  settingsarray[11+x]=constrain; // 16 bit value
@@ -629,8 +628,10 @@ for (x=0;x<64;x++){
 
 	if (fingermod==64 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
-	for (x=0;x<FOLDSWRAP;x++){
-	  //	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+	  // TODO! FOLDBACK INTO FOLDBACK
+	for (x=0;x<7;x++){
+
+	  settingsarray[x+64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
 		}
 	}	
 
@@ -642,11 +643,10 @@ for (x=0;x<64;x++){
       //////// KNOB FOURTH - settings X and KNOB FIFTH - settings Y // foldback settings?
       // TODO; not q right... maybe averaging or???
       setted=adc_buffer[FOURTH]>>6; // 64
-      setted=35;
+      setted=35; // TESTY!!!
       settings=adc_buffer[FIFTH]>>4;// 8 bits
 	
       if (settings!=oldsettings && settings!=oldsettings+1 && settings!=oldsettings-1){
-	// set it
 	settingsarray[setted]=settings<<8;
       }
       oldsettings=settings;
@@ -656,8 +656,7 @@ for (x=0;x<64;x++){
 
       if (++mirrordel>=FOLDSPEED){
 
-	//      mirror=1; // TESTY!
-	mirror=0;
+	mirror=0;// TESTY!!!
       if (mirror&1){
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];

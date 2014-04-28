@@ -1739,11 +1739,11 @@ void main(void)
 	  //	  else stacker[tmper-48]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
 
 		 //		 while(1){
-		 tmper=4095;
-		   settings=tmper>>4;// 8 bits
+		 tmper=65535;
+		 tmper=tmper>>1;// 8 bits
 	
-		   tmper=settings<<8;
-		   printf("fff %d\n",tmper>>8);
+		 //		   tmper=settings<<8;
+		   printf("fff %d\n",tmper);
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
