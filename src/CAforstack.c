@@ -23,11 +23,12 @@ extern u8 table[21];
 
 #define STACK_SIZE 16
 
-u16 stackery[64]; // 16*4 MAX
+extern u16 stackery[48]; // 16*3 MAX
 
 struct stackey{
   u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
   void* unit;
+  u16 count;
   };
 
 //////////////////////////////////////////
@@ -741,18 +742,13 @@ u16 runSIR16(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
 signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
   if (stack_posy<STACK_SIZE)
     {
-      //      //   printf("%d\n",stack_posy);
-      /*      stack[stack_posy].howmuch=howmuch;
-      stack[stack_posy].count=start;
-      stack[stack_posy].start=start;
-      stack[stack_posy].wrap=wrap;*/
 
       if (howmuch==0) howmuch=1;
       u8 tmp=stack_posy<<2;
       stackery[tmp]=start;
-      stackery[tmp+1]=start;
-      stackery[tmp+2]=howmuch;
-      stackery[tmp+3]=wrap;
+      stack[stack_posy].count=start;
+      stackery[tmp+1]=howmuch;
+      stackery[tmp+2]=wrap;
 
       switch(typerr){
       case HODGEY:
@@ -812,10 +808,10 @@ void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
     //    if (stack[stack_posy].unit!=NULL){
       //      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
       //  }
-	u8 tmp=i<<2;
+	u8 tmp=i*3;
 	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
 
-	stackery[tmp]=stack[i].functione(stackery[tmp+2],stack[i].unit,stackery[tmp],stackery[tmp+1],stackery[tmp+3]);
+	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].unit,stack[i].count,stackery[tmp],stackery[tmp+2]);
 
   }
 }

@@ -7,7 +7,7 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-u16 settingsarray[64];
+u16 settingsarray[71];
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -16,7 +16,7 @@ u16 settingsarray[64];
 //#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
-extern u16 settingsarray[64];
+extern u16 settingsarray[71];
 #endif
 
 #include <math.h>

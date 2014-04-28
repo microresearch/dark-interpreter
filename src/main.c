@@ -57,21 +57,20 @@
 #define RIGHT 7
 #endif
 
-int16_t newdir[4]={-180,1,180,-1};
-int16_t direction[4]={-180,1,180,-1};
-int16_t villagedirection[4]={-180,1,180,-1};
-int16_t villagedirectionf[4]={-180,1,180,-1};
-int16_t villagedirectionw[4]={-180,1,180,-1};
-int16_t newdirf[4]={-180,1,180,-1};
-int16_t directionf[4]={-180,1,180,-1};
-int16_t newdirread[4]={-180,1,180,-1};
-int16_t directionread[4]={-180,1,180,-1};
+int16_t newdir[4]={-1,1};
+int16_t direction[4]={-1,1};
+int16_t villagedirection[4]={-1,1};
+int16_t villagedirectionf[4]={-1,1};
+int16_t villagedirectionw[4]={-1,1};
+int16_t newdirf[4]={-1,1};
+int16_t directionf[4]={-1,1};
+int16_t newdirread[4]={-1,1};
+int16_t directionread[4]={-1,1};
 
 u8 villagestackpos=0;
 u16 villager[129];
-
-extern u16 stackery[64]; // 16*4 MAX
-extern u16 stacker[64]; // 16*4 MAX
+u16 stackery[48]; // 16*3 MAX
+u16 stacker[48]; // 16*3 MAX
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -86,7 +85,7 @@ extern u16 stacker[64]; // 16*4 MAX
   } while (0)
 
 
-#define randi() (datagenbuffer[adc_buffer[9]<<3]) // 15 bits
+#define randi() (adc_buffer[9]) // 12 bits
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -97,21 +96,13 @@ __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 
 u8* datagenbuffer = (u8*)0x10000000;
-
-int16_t newdir[4];
-int16_t direction[4];
-int16_t newdirf[4];
-int16_t directionf[4];
-int16_t newdirread[4];
-int16_t directionread[4];
-
 extern u8 digfilterflag;
 
 u8 testdirection;
 u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
-u16 settingsarray[64];
+u16 settingsarray[71];
 
 struct dgenwalker{
   u8 step,dir,speed,del,wormflag;
@@ -140,45 +131,82 @@ u8 villagepop(u8 villagepos){
 
 u8 fingerdir(void){
 
-  u8 handleft, handright, up=0,down=0,left=0,right=0,handcount=0;
+  u8 handleft, handright, up=0,down=0,left=0,right=0;
   u8 handupp, handdown;
-  static u8 result;
+  u8 result;
 
   for (u8 x=0;x<16;x++){
   handupp=adc_buffer[UP]>>8; 
   handdown=adc_buffer[DOWN]>>8;
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
-  if (handupp>8) up++; //TODO: TWEAKING but seems okay...
+  if (handupp>8) up++;
   if (handdown>8) down++;
   if (handleft>8) left++;
   if (handright>8) right++;
-  //  handcount++;
   if (up>8 && up>down && up>left && up>right) {
-    // up=0;down=0;left=0;right=0;
     result=0;
   }
   else if (down>8 && down>left && down>right) {
-    //    up=0;down=0;left=0;right=0;
     result=2; 
-      //int16_t hddir[4]={-180,1,180,-1};
   }
   else if (left>8 && left>right) {
-    //    up=0;down=0;left=0;right=0;
     result=3;
   }
   else if (right>8) {
+    result=1;
+  }
+  }
+  return result;
+}
+
+u8 fingerdirleftright(void){
+
+  u8 handleft, handright, left=0,right=0;
+  u8 result=2;
+
+  for (u8 x=0;x<16;x++){
+  handleft=adc_buffer[LEFT]>>8;
+  handright=adc_buffer[RIGHT]>>8;
+  if (handleft>8) left++;
+  if (handright>8) right++;
+  //  handcount++;
+  if (left>8 && left>right) {
+    //    up=0;down=0;left=0;right=0;
+    result=0;
+  }
+  else if (right>8 && right>left) {
     //    up=0;down=0;left=0;right=0;
     result=1;
   }
   }
   return result;
-  /*  if (handcount>9){
-    handcount=0;up=0;down=0;left=0;right=0;
-    }*/
 }
 
-u16 fingervalup(u16 tmpsetting, u8 inc){
+u8 fingerdirupdown(void){
+
+  u8 handleft, handright, left=0,right=0;
+  u8 result=2;
+
+  for (u8 x=0;x<16;x++){
+  handleft=adc_buffer[UP]>>8;
+  handright=adc_buffer[DOWN]>>8;
+  if (handleft>8) left++;
+  if (handright>8) right++;
+  //  handcount++;
+  if (left>8 && left>right) {
+    //    up=0;down=0;left=0;right=0;
+    result=0;
+  }
+  else if (right>8 && right>left) {
+    //    up=0;down=0;left=0;right=0;
+    result=1;
+  }
+  }
+  return result;
+}
+
+u16 fingervalup16bits(u16 tmpsetting, u8 inc){
   u8 handup,handdown;
   u8 ttss=0,sstt=0;u8 x;
 
@@ -193,7 +221,22 @@ u16 fingervalup(u16 tmpsetting, u8 inc){
   return tmpsetting;
 }
 
-u16 fingervalright(u16 tmpsetting, u8 inc){
+u8 fingervalup(u8 tmpsetting){
+  u8 handup,handdown;
+  u8 ttss=0,sstt=0;u8 x;
+
+  for (x=0;x<16;x++){
+  handup=adc_buffer[UP]>>8;
+  handdown=adc_buffer[DOWN]>>8;
+  if (handup>8) ttss++;
+  else if (handdown>8) sstt++;
+  }
+  if (ttss>sstt) tmpsetting+=1;
+  else if (ttss<sstt) tmpsetting-=1;
+  return tmpsetting;
+}
+
+u8 fingervalright(u8 tmpsetting){
   u8 handup,handdown;
   u8 ttss=0,sstt=0;u8 x;
 
@@ -203,8 +246,8 @@ u16 fingervalright(u16 tmpsetting, u8 inc){
   if (handup>8) ttss++;
   else if (handdown>8) sstt++;
   }
-  if (ttss>sstt) tmpsetting+=inc;
-  else if (ttss<sstt) tmpsetting-=inc;
+  if (ttss>sstt) tmpsetting+=1;
+  else if (ttss<sstt) tmpsetting-=1;
   return tmpsetting;
 }
 
@@ -213,20 +256,15 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 *buf; u8 *buff;
-  u16 x,addr,tmp;
-  u8 tmper;
-  u16 hdtmp;
-  u8 hardware=0, thardware=200; u16 tmphardware, HWSPEEDY, HDGENERCONSY;
-  u8 oldhardware;
-  u8 effects=200;
+  u16 x,addr,tmp,tmppp,hdtmp,tmphardware;
+  u8 settings,setted,oldsettings,tmper;
+  u8 hardware=0,mirror=0,mirrordel=0, oldhardware,fingermod,oldfingermod,whichdir,whichdiritis,speed,whichspeed,foldback; 
+  u16 constrain,foldbackset;
+  u8 effects,effectmod=0;
   u8 machine_count=0,leak_count=0; 
-  u8 tmpsettings, settings=0, settingsops=200;
-  u16 setted;
-  u8 tmpstack, stack, stackops;
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
 
-  int16_t hwdir[4]={-180,1,180,-1};
-  u8 mirror;
+  int16_t hwdir[2]={1,-1};
 
   inittable(3,4,randi(),table);
 
@@ -269,10 +307,11 @@ void main(void)
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
   u8 hwdel=0;
-  u16 hwpos=0,wrapper;
+    u16 hwpos=0,hwposss,wrapper;
 	 
   u8 stack_pos=0;
   u8 stack_posy=0;
+  u8 whichstack=0;
 
   struct stackey stackyy[STACK_SIZE];
   struct stackey stackyyy[STACK_SIZE];
@@ -287,12 +326,9 @@ void main(void)
   ////////////////////minimal setup code to get started
   //TESTER!
 
-  //   EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0; // TESTY!
-
   villagestackpos=0;
   // TESTY for villager:
-for (x=0;x<1;x++){
-  //  villager[x][0]=0;villager[x][1]=32767;
+for (x=0;x<64;x++){
   villagestackpos=villagepush(villagestackpos,0,32767);//pos/start/wrap
   }
 
@@ -314,7 +350,7 @@ for (x=0;x<1;x++){
   }//speed
 
   for (x=54;x<64;x++){
-    settingsarray[x]=16384;//>>14
+    settingsarray[x]=32768;//>>15
   }//DIR
 
   settingsarray[51]=0; //EFFECTS
@@ -332,7 +368,7 @@ for (x=0;x<1;x++){
 
   for (x=0;x<1;x++){
     addr=randi()<<3;
-        cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
+    cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,1);
   }
 
   // CA
@@ -368,179 +404,333 @@ for (x=0;x<1;x++){
 	    machine_run(m);
 	    m->m_leakiness=LEAKINESS;
 	    m->m_infectprob=INFECTION;
-	    m->m_mutateprob=MUTATION;
+	    //	    m->m_mutateprob=MUTATION;
 	    machine_count=0;
 	  }
 	  break;
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    //	    machine_runnn(datagenbuffer);
+	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
       }
       /////////////////////////////
-      // KKNOBBBSSS TODO!!!
-
-      /// MIRROR!
-      mirror=adc_buffer[FIRST]>>4; // 8 bits or less?
+      // KKNOBBBSSS
+      /// HARDWARE SMOOTHING!
+      tmphardware=0;
+      for (x=0;x<256;x++){
+	tmphardware+=adc_buffer[FIRST]>>5; // 7 bits
+      }
+      hardware=tmphardware>>8; //average
 
 #ifdef TENE
-      /// HARDWARE SMOOTHING!
-            tmphardware=0; //TESTY!uncomment!
-      for (x=0;x<256;x++){
-	tmphardware+=adc_buffer[SECOND]>>5; // 7 bits
-      }
-      tmphardware=tmphardware>>8; //average
+      effects=adc_buffer[SECOND]>>5;
 
-      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
-	hardware=tmphardware; // handled all below 
-	thardware=tmphardware;
-	effects=200; // never near but set to avoid gap...
-	    }
-	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=thardware+1 && tmphardware!=effects){
-		effects=tmphardware; //7 bits
-		thardware=200;
-		if (mirror<160){
-		  settingsarray[51]=effects<<9; // EFFECTREAD
-		}
-		else if (mirror<192){
-		  settingsarray[52]=effects<<9; // EFFECTWRITE
-		}
-		else if (mirror<224){
-		  settingsarray[53]=effects<<9; // EFFECTFILT
-		}
-		else if (mirror<240){
-		  settingsarray[51]=settingsarray[52];settingsarray[53]=settingsarray[52];
-		}
-		else  {
-		  settingsarray[51]=0;
-		  settingsarray[52]=0;
-		  settingsarray[53]=0;
-		}
-		}
+      //      effectmod=1; // TESTY!
+
+      if (effectmod&1) settingsarray[51]=effects<<9; // READ IN 
+      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
+      if (effectmod&4) settingsarray[53]=effects<<9; // FILTER
 #else
-      // TODO: REDO THIS as above when have tested!
-      // TESTY as might need to SMOOTH!
-      //      tmphardware=tmphardware<<3; // 15 bits
-      /*      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
-	SAMPLEWRAP=tmphardware<<3; // handled all below 
-	hardware=tmphardware;
-	thardware=tmphardware;
-	effects=200; // never near but set to avoid gap...
-	    }
-	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
-		effects=tmphardware;
-		thardware=200;
-		if (mirror<160){
-		  EFFECTREAD=effects;
-		}
-		else if (mirror<192){
-		  EFFECTWRITE=effects;
-		}
-		else if (mirror<224){
-		  EFFECTFILTER=effects;
-		}
-		else if (mirror<240){
-		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
-		}
-		else  {
-		  //		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
-		  EFFECTREAD=effects;EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTREAD;
-		}
-		}*/
-#endif      	
-      // HERE!
-      // SETTINGSARRAY
-      hardware=adc_buffer[FIRST]>>5; //TESTY!!
-      tmpsettings=adc_buffer[THIRD]>>6; // 0-64 ???
-      tmper=64;settings=36; // TESTY!!
-      setted=fingervalup(settingsarray[settings],tmper);
-      settingsarray[settings]=setted; 
-      //tmper=64;settings=12; // TESTY!!
-      //      setted=fingervalup(settingsarray[settings],tmper);
-      //      settingsarray[settings]=setted; 
+      settingsarray[12]=adc_buffer[SECOND]<<4;//SAMPLEWRAP (out-play) TO TEST!!
+#endif
+      
+      ////// KNOB THIRD - mod for fingers // foldback
+      fingermod=adc_buffer[THIRD]>>6; // 64
 
-      //      EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;//TESTER!
-      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
-	settings=tmpsettings; 
-	settingsops=200;
-	// TODO: if is 0 we use fingers left/right!
-	// but then we also need to set 0 settings - [settings-1]
-	//	if (settings<25) tmper=8; else tmper=2;//?????
-
-	if (settings<46){ // TESTY was 54
-	  //	  	  tmper=64;settings=36; // TESTY!!
-	  //TODO: wrap here means that we get 16 bits coming in
-	  //	  setted=fingervalup(settingsarray[settings],tmper);
-	  //	  settingsarray[settings]=setted; 
-	  //	  settingsarray[settings]=adc_buffer[FIFTH];
-	}
-	else
-	  {
-	// TODO: what of directions???
-	  }
+      // 1-mod effectmod 0-7
+      //      fingermod=45; // TESTY!!!
+      if (fingermod<8){
+	effectmod=(fingervalright(effectmod)%7);
       }
-      else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
-	settingsops=tmpsettings; // 0-64???
-	settings=200;
-      // operations which are set and act continuously elsewhere
-      // operations which just take place here: contract, expand, shift a region, the region
-    }
+      // 2-push/pop with template settings and type fronm left/right
+      else if (fingermod<16){
 
-      // BLACK STACKS AND EXTRA KNOB
+	whichstack=(fingervalright(whichstack)%5);
+       
+	if (fingerdirupdown()==1) 
+	  switch (whichstack){ // which stack to push=0-4
+	  case 0:
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
+	    break;
+	  case 1:
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
+	    break;
+	  case 2:
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    break;
+	  case 3:
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    break;
+	  case 4:
+	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
+	    break;
+	  }
+	else if (fingerdirupdown()==0) 
+	  switch (whichstack%3){ // which stack to pop=0-
+	  case 0:
+	    stack_posy=ca_pop(stackyyy,stack_posy);
+	    break;
+	  case 1:
+	    stack_pos=func_pop(stackyy,stack_pos);
+	    break;
+	  case 2:
+	    villagestackpos=villagepop(villagestackpos);
+      }
+      }
 
-      tmpstack=adc_buffer[FOURTH]>>6; // 0-64???
+      // 3-directions???
+      // up/down selects and other sets dir or other way round here?
+      else if (fingermod<24){
+	//54])>>15 directions are 54 to 65==12
+	whichdir=(fingervalright(whichdir)%12);//
+	whichdiritis=(fingervalup(whichdiritis)%2); // was UP
+	settingsarray[54+whichdir]=whichdiritis<<15;  //<<1 bit to 16
+      }
 
-      if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
-	stack=tmpstack;
-	stackops=200;
+      // 4-speed
+      // select and expand or contract
+      else if (fingermod<28){
+	// speeds are: 35->40==6
+	whichspeed=(fingervalright(whichspeed)%6);
+	speed=fingervalup(speed);
+	settingsarray[35+whichspeed]=speed<<8; // 8 bits to 16
+      }
 
-	///KEY!!!TODO!!!
-	// finger up/down to choose stack and value
-	// tmpstack changes value - or vice versa
+      else if (fingermod<32){
+	// second half is group expand and contract
+	speed=fingervalup(speed);
+	for (x=0;x<6;x++){
+	settingsarray[35+x]=speed<<8;
+	}
+      }
 
-	// STACKSTART, STACKWRAP, STACKMUCH
-	// ((stack_pos+stack_posy)*3) = maximum 32x3=96
-	// +villager (max 64)
+      // 5-micro-macro - expand or contract
+      else if (fingermod<40){
+	// change wraps [11-24]
+	//#define HWWRAP ((settingsarray[11]>>1)+1)
+	constrain=fingervalup16bits(constrain,32);
+	for (x=0;x<14;x++){
+	  settingsarray[11+x]=constrain; // 16 bit value
+      }
+      }
+      // 6-is foldback with finger settings - MIRROR!!!!
+      else {
+	// foldback 
+	// operations which are set and act continuously elsewhere
+	// operations which just take place here: contract, expand, shift a region, the region
+	// action is from knob 40-64
+	// finger-> foldback settings 66-70
 
-	// push/pop (push<x pop>x) and set which CPU/grain is pushed or
-	// popped [and with what buffer and settings?]
-	// previous code was based on mirror to choose which (setting we can inherit from settings.h)
-	//- simulation: stack[max=stack_pos]: start, wrap, howmuch
-	//- CAforstack: stack[max=stack_posy]: start, wrap, howmuch
-	//- villager: start, wrap [][]
+	foldback=(fingervalright(foldback)%5);
+	foldbackset=fingervalup16bits(foldbackset, 32);	
+	settingsarray[66+foldback]=foldbackset;
+	//      mirror: - all as action and one off toggle on off
 
-	    }
-      else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
-	stackops=tmpstack; //0-64???
-	stack=200;
-      // operations which are set and act continuously elsewhere
-      // operations which just take place here: contract, expand, shift a region, the region
-    }
+	// 1-datagen to region of stack:
+	//copy region of datagen to settings
+	if (fingermod<43 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+			}
+	mirror^=1;
+	}	
+	// 2-datagen to region of stack:
+	if (fingermod<46 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 64- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+		}
+	}
+	mirror^=2;
+	}
+	
+	// 3-adc_buffer[9] to region of settings:// no ifdef!
+	if (fingermod<49 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<3;
+			}
+	mirror^=4;
+	}	
+	// 4-adc_buffer[9] to region of stack:
 
-      // FIFTH KNOB is spare - use instead of finger up/down = override if changes
-      // on mirror we use as mirror/foldback settings with finger up/down - see below
-      // with mirror we also have free finger left/right to use 
+	if (fingermod<52 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 64- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=randi()<<3;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=randi();
+	  }
+		}
+	mirror^=8;
+	}	
+
+	//      5-inc a region of settings:
+	if (fingermod<55 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
+			}
+	mirror^=16;
+	}	
+
+	//      6-inc a region of stack:
+	if (fingermod<58 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 64- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=stackery[tmper]+8;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=stacker[tmper]+8;
+		}
+	}
+	mirror^=32;
+	}	
+
+	//      7-reduce a region of settings:
+	if (fingermod<61 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
+			}
+	mirror^=64;
+	}	
+
+	//      8-reduce a region of stack:
+
+	if (fingermod<64 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 64- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=stackery[tmper]+8;
+	  else 
+	    {
+	    tmper=tmper-48;
+	    stacker[tmper]=stacker[tmper]+8;
+	}
+		}
+	mirror^=128;
+	}	
+
+	if (fingermod==64 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	
+	for (x=0;x<FOLDSWRAP;x++){
+	  //	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+		}
+	}	
 
 
-      /////////// TODO: maintain those operations flagged above
-      // and where we have these settings from = finger and fifth knob as above
 
-      //       // ops on region of settingsarray:    
-      // none
-      // mirror from stack(region), from datagen to region
-      // infect, randi across (if TENE)
+      }
+      oldfingermod=fingermod;
+     
+      //////// KNOB FOURTH - settings X and KNOB FIFTH - settings Y // foldback settings?
+      // TODO; not q right... maybe averaging or???
+      setted=adc_buffer[FOURTH]>>6; // 64
+      setted=35;
+      settings=adc_buffer[FIFTH]>>4;// 8 bits
+	
+      if (settings!=oldsettings && settings!=oldsettings+1 && settings!=oldsettings-1){
+	// set it
+	settingsarray[setted]=settings<<8;
+      }
+      oldsettings=settings;
 
-      // srcstart,srcwrap, deststart,destwrap, speed, buffer
-      // none
-      //      // ops on region of stacks:    
-      // mirror from settings(region), from datagen to region
-      // infect,  randi across (if TENE)
 
-      // srcstart,srcwrap, deststart,destwrap, speed, buffer
+      ////////////////////////////////////////////////////////////////////////////////////
 
+      if (++mirrordel>=FOLDSPEED){
+
+	//      mirror=1; // TESTY!
+	mirror=0;
+      if (mirror&1){
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+			}
+      }
+
+      if (mirror&2){
+	for (x=0;x<FOLDSWRAP;x++){
+ 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 48- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)]>>1;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)]>>1;
+	  }
+	}
+      }
+
+      if (mirror&4){
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<3;;
+			}
+	}	
+
+      if (mirror&8){	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 48- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=randi()<<3;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=randi()<<3;
+	  }
+		}
+	}	
+
+      if (mirror&16){	
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
+			}
+      }
+
+      if (mirror&32){	
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 48- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]+8)%32768;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=(stacker[tmper]+8)%32768;
+	  }
+		}
+	}	
+
+      if (mirror&64){
+	for (x=0;x<FOLDSWRAP;x++){
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
+			}
+	}	
+
+      if (mirror&128){
+	for (x=0;x<FOLDSWRAP;x++){
+	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	  // into stackery stacker (both 48- so just wrap on 96)
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]+8)%32768;
+	  else {
+	    tmper=tmper-48;
+	    stacker[tmper]=(stacker[tmper]+8)%32768;
+		}
+	}
+      }
+      mirrordel=0;
+      }
 
       ////////////////////////////////////////////////
 #ifndef LACH
@@ -548,22 +738,17 @@ for (x=0;x<1;x++){
       // 4-hardware operations
 
       /// general HW walk in/as tmp
-
-      //	if (HWSPEED==0) HWSPEED=1;
-      if (HWSPEEDY==0) HWSPEEDY=1;
-	if (++hwdel>=HWSPEEDY){
-	  // when wrapper changes we need to redo direction array!!!
+      if (++hwdel>=HWSPEED){
 	  hwpos+=(HWSTEP*hwdir[HWDIR]);
-	  wrapper=HWWRAP;
-	  if (wrapper==0) wrapper=1;
-	  tmp=(HWSTART+(hwpos%wrapper))%32768; //to cover all directions
+	  tmp=(HWSTART+(hwpos%HWWRAP))%32768; //to cover all directions
 	  hwdel=0;
-	}
+	  hwposss+=(HWSTEP*hwdir[HWDIR]);
+	  tmppp=(HWSTART+(hwposss%HWWRAP))%32768; //to cover all directions
+	  }// or speed at end
 
       if (digfilterflag&16){
-	if (HDGENERCONS==0) HDGENERCONSY=1;
-	  hdtmp=(HWSTART+(hwpos%wrapper)); 
-	  dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONSY));
+	hdtmp=(HWSTART+(hwpos%wrapper)); 
+	dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONS));
       }
       else
 	{
@@ -576,26 +761,17 @@ for (x=0;x<1;x++){
       // just leave this running
 		     		     
       //      if (digfilterflag&2){
-	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
+            	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
 	  //      }
 	  
 
       if (digfilterflag&4){
-	if (++hwdel>=HWSPEED){
-	  // when wrapper changes we need to redo direction array!!!
-	  hwpos+=(HWSTEP*hwdir[HWDIR]);
-	  wrapper=HWWRAP;
-	  if (wrapper==0) wrapper=1;
-	  x=(HWSTART+(hwpos%wrapper))%32768; //to cover all directions
-	  hwdel=0;
-	}
-	  setlmpwm(LMERBASE+(buf16[x]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
+		  setlmpwm(LMERBASE+(buf16[tmppp]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
       }
 	  
       if (digfilterflag&8){
-	  setmaximpwm(MAXIMERBASE+(buf16[x]%MAXIMERCONS));
-      }
-
+		  setmaximpwm(MAXIMERBASE+(buf16[tmp]%MAXIMERCONS));
+	  }
 #endif
 #endif
     }

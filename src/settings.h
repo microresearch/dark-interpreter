@@ -12,7 +12,7 @@
 #define F0106ERBASE ((settingsarray[9])>>1)
 #define MAXIMERBASE ((settingsarray[10])>>1) 
 
-#define HWWRAP ((settingsarray[11]>>1)+1)//when wrapper changes we need to redo direction array!!!
+#define HWWRAP ((settingsarray[11]>>1)+1)
 #define SAMPLEWRAP ((settingsarray[12]>>1)+1)
 #define SAMPLEWRAPREAD ((settingsarray[13]>>1)+1)
 #define SAMPLEWRAPFILT ((settingsarray[14]>>1)+1)
@@ -39,7 +39,7 @@
 #define VILLAGERSTEP (settingsarray[33])>>8
 #define VILLAGEFSTEP (settingsarray[34])>>8
 
-#define HWSPEED (settingsarray[35])>>8
+#define HWSPEED (settingsarray[35])>>8 // 8 bits
 #define SAMPLESPEED (settingsarray[36])>>13 // 16 bits to 3 bits
 #define SAMPLESPEEDREAD (settingsarray[37])>>13
 #define SAMPLESPEEDFILT (settingsarray[38])>>13
@@ -61,7 +61,7 @@
 
 #define LEAKINESS (settingsarray[47])>>8
 #define INFECTION (settingsarray[48])>>8
-#define MUTATION (settingsarray[49])>>8
+#define STACKFUNC (settingsarray[49])>>11
 #define EXESPOT (settingsarray[50])>>11  // execution order setting already constrained upto22
 
 /////////// BELOW is set by mirror!
@@ -70,15 +70,26 @@
 #define EFFECTWRITE (settingsarray[52])>>9 
 #define EFFECTFILTER (settingsarray[53])>>9 
 
-#define HWDIR (settingsarray[54])>>14 // restricted to 2 bits
-#define DATADIRR (settingsarray[55])>>14
-#define DATADIRW (settingsarray[56])>>14
-#define DATADIRF (settingsarray[57])>>14
-#define SAMPLEDIRR (settingsarray[58])>>14
-#define SAMPLEDIRW (settingsarray[59])>>14
-#define SAMPLEDIRF (settingsarray[60])>>14
-#define VILLAGEWDIR (settingsarray[61])>>14
-#define VILLAGERDIR (settingsarray[62])>>14
-#define VILLAGEFDIR (settingsarray[63])>>14
+#define HWDIR (settingsarray[54])>>15 // restricted to 1 bit
+#define DATADIRR (settingsarray[55])>>15
+#define DATADIRW (settingsarray[56])>>15
+#define DATADIRF (settingsarray[57])>>15
+#define SAMPLEDIRR (settingsarray[58])>>15
+#define SAMPLEDIRW (settingsarray[59])>>15
+#define SAMPLEDIRF (settingsarray[60])>>15
+#define VILLAGEWDIR (settingsarray[61])>>15
+#define VILLAGERDIR (settingsarray[62])>>15
+#define VILLAGEFDIR (settingsarray[63])>>15
 
-// 64!!!!!!!!!!!!!!!
+//foldback settings
+
+#define FOLDSDIR (settingsarray[64])>>15
+#define FOLDDDIR (settingsarray[65])>>15
+
+#define FOLDSSTART ((settingsarray[66]>>1)) 
+#define FOLDSWRAP ((settingsarray[67]>>10)+1)// 6 bits 
+#define FOLDDSTART ((settingsarray[68])>>10) // 6 bits
+#define FOLDDWRAP ((settingsarray[69]>>10)+1)
+#define FOLDSPEED (settingsarray[70])>>13
+
+//71

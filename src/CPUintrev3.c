@@ -10,7 +10,7 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-u16 settingsarray[64];
+u16 settingsarray[71];
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -469,7 +469,7 @@ void thread_run(thread* this, machine *m) {
 
       }
       if (machine_p88k(m,this->m_pc)==255) this->m_reg8bit2+=4;
-	wormdir=this->m_reg8bit2%8;
+      	wormdir=this->m_reg8bit2%8;
 	//      printf("%c",this->m_pc);
       break;    
 	
@@ -1426,7 +1426,7 @@ void machine_run(machine* this) {
     thrcount=0;
   if (this->m_leakiness==0) this->m_leakiness=1;
   if (this->m_infectprob==0) this->m_infectprob=1;
-  if (this->m_mutateprob==0) this->m_mutateprob=1;
+  //  if (this->m_mutateprob==0) this->m_mutateprob=1;
 
 
   if ((randi()%this->m_leakiness  && this->m_threadcount>0)==0) {
@@ -1437,9 +1437,6 @@ void machine_run(machine* this) {
     infectcpu(this,randi()%16,randi()%16,randi()%this->m_threadcount);
   }
 		
-	if ((randi()%this->m_mutateprob)==0  && this->m_threadcount>0) {
-	  mutate(this,randi()%this->m_threadcount,randi()%16);
-	  }
   }
 
   	for (unsigned char n=0; n<this->m_threadcount; n++) {

@@ -1,3 +1,160 @@
+/////////////////////////////
+
+latest knob business:
+
+
+      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
+	hardware=tmphardware; // handled all below 
+	thardware=tmphardware;
+	effects=200; // never near but set to avoid gap...
+	    }
+	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=thardware+1 && tmphardware!=effects){
+		effects=tmphardware; //7 bits
+		thardware=200;
+		if (mirror<160){
+		  settingsarray[51]=effects<<9; // EFFECTREAD
+		}
+		else if (mirror<192){
+		  settingsarray[52]=effects<<9; // EFFECTWRITE
+		}
+		else if (mirror<224){
+		  settingsarray[53]=effects<<9; // EFFECTFILT
+		}
+		else if (mirror<240){
+		  settingsarray[51]=settingsarray[52];settingsarray[53]=settingsarray[52];
+		}
+		else  {
+		  settingsarray[51]=0;
+		  settingsarray[52]=0;
+		  settingsarray[53]=0;
+		}
+		}
+#else
+      // TODO: REDO THIS as above when have tested!
+      // TESTY as might need to SMOOTH!
+      //      tmphardware=tmphardware<<3; // 15 bits
+      /*      if (mirror<128 && tmphardware!=effects && tmphardware!=effects-1 && tmphardware!=effects+1){
+	SAMPLEWRAP=tmphardware<<3; // handled all below 
+	hardware=tmphardware;
+	thardware=tmphardware;
+	effects=200; // never near but set to avoid gap...
+	    }
+	      else if (mirror >128 && tmphardware!=thardware && tmphardware!=thardware-1 && tmphardware!=hardware+1 && tmphardware!=effects){
+		effects=tmphardware;
+		thardware=200;
+		if (mirror<160){
+		  EFFECTREAD=effects;
+		}
+		else if (mirror<192){
+		  EFFECTWRITE=effects;
+		}
+		else if (mirror<224){
+		  EFFECTFILTER=effects;
+		}
+		else if (mirror<240){
+		  EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTWRITE;
+		}
+		else  {
+		  //		  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
+		  EFFECTREAD=effects;EFFECTREAD=EFFECTWRITE;EFFECTFILTER=EFFECTREAD;
+		}
+		}*/
+#endif      	
+      // HERE!
+      // SETTINGSARRAY
+      hardware=adc_buffer[FIRST]>>5; //TESTY!!
+      tmpsettings=adc_buffer[THIRD]>>6; // 0-64 ???
+      tmper=64;settings=36; // TESTY!!
+      setted=fingervalup(settingsarray[settings],tmper);
+      settingsarray[settings]=setted; 
+      //tmper=64;settings=12; // TESTY!!
+      //      setted=fingervalup(settingsarray[settings],tmper);
+      //      settingsarray[settings]=setted; 
+
+      //      EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;//TESTER!
+      if (mirror<128 && tmpsettings!=settingsops && tmpsettings!=settingsops-1 && tmpsettings!=settingsops+1){
+	settings=tmpsettings; 
+	settingsops=200;
+	// TODO: if is 0 we use fingers left/right!
+	// but then we also need to set 0 settings - [settings-1]
+	//	if (settings<25) tmper=8; else tmper=2;//?????
+
+	if (settings<46){ // TESTY was 54
+	  //	  	  tmper=64;settings=36; // TESTY!!
+	  //TODO: wrap here means that we get 16 bits coming in
+	  //	  setted=fingervalup(settingsarray[settings],tmper);
+	  //	  settingsarray[settings]=setted; 
+	  //	  settingsarray[settings]=adc_buffer[FIFTH];
+	}
+	else
+	  {
+	// TODO: what of directions???
+	  }
+      }
+      else if (mirror>128 && tmpsettings!=settings && tmpsettings!=settings-1 && tmpsettings!=settings+1){
+	settingsops=tmpsettings; // 0-64???
+	settings=200;
+      // operations which are set and act continuously elsewhere
+      // operations which just take place here: contract, expand, shift a region, the region
+    }
+
+      // BLACK STACKS AND EXTRA KNOB
+
+      tmpstack=adc_buffer[FOURTH]>>6; // 0-64???
+
+      if (mirror<128 && tmpstack!=stackops && tmpstack!=stackops-1 && tmpstack!=stackops+1){
+	stack=tmpstack;
+	stackops=200;
+
+	///KEY!!!TODO!!!
+	// finger up/down to choose stack and value
+	// tmpstack changes value - or vice versa
+
+	// STACKSTART, STACKWRAP, STACKMUCH
+	// ((stack_pos+stack_posy)*3) = maximum 32x3=96
+	// +villager (max 64)
+
+	// push/pop (push<x pop>x) and set which CPU/grain is pushed or
+	// popped [and with what buffer and settings?]
+	// previous code was based on mirror to choose which (setting we can inherit from settings.h)
+	//- simulation: stack[max=stack_pos]: start, wrap, howmuch
+	//- CAforstack: stack[max=stack_posy]: start, wrap, howmuch
+	//- villager: start, wrap [][]
+
+	    }
+      else if (mirror>128 && tmpstack!=stack && tmpstack!=stack-1 && tmpstack!=stack+1){
+	stackops=tmpstack; //0-64???
+	stack=200;
+      // operations which are set and act continuously elsewhere
+      // operations which just take place here: contract, expand, shift a region, the region
+    }
+
+      // FIFTH KNOB is spare - use instead of finger up/down = override if changes
+      // on mirror we use as mirror/foldback settings with finger up/down - see below
+      // with mirror we also have free finger left/right to use 
+
+
+      /////////// TODO: maintain those operations flagged above
+      // and where we have these settings from = finger and fifth knob as above
+
+      //       // ops on region of settingsarray:    
+      // none
+      // mirror from stack(region), from datagen to region
+      // infect, randi across (if TENE)
+
+      // srcstart,srcwrap, deststart,destwrap, speed, buffer
+      // none
+      //      // ops on region of stacks:    
+      // mirror from settings(region), from datagen to region
+      // infect,  randi across (if TENE)
+
+      // srcstart,srcwrap, deststart,destwrap, speed, buffer
+
+
+
+
+/////////////////////////////
+
       //      u8 hh; u8 hard[64];u16 thardware;
       // moving average- write into circular buffer say 64
       /*hard[hh%64]=adc_buffer[0]>>5;

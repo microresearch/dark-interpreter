@@ -184,6 +184,7 @@ void inittable(u8 r, u8 k, int rule, u8 *table);
 struct stackey{
   u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
   u8 howmuch;
+  u16 count;
   void* unit;
   };
 

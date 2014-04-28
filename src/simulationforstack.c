@@ -37,6 +37,7 @@ Based in part on SLUGens by Nicholas Collins.
 #include <malloc.h>
 #define randi() rand()
 u16 sin_data[256];
+u16 stacker[48]; // 16*3 MAX
 #else
 #include "simulation.h"
 #include <malloc.h>
@@ -46,9 +47,10 @@ u16 sin_data[256];
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 extern u16 sin_data[256];
+extern u16 stacker[48]; // 16*3 MAX
 #endif
 
-u16 stacker[64]; // 16*4 MAX
+
 
 //////////////////////////////////////////////////////////
 
@@ -1477,14 +1479,9 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
       if (howmuch==0) howmuch=1;
       u8 tmp=stack_pos<<2;
       stacker[tmp]=start;
-      stacker[tmp+1]=start;
-      stacker[tmp+2]=howmuch;
-      stacker[tmp+3]=wrap;
-
-      /*      stack[stack_pos].howmuch=howmuch;
-      stack[stack_pos].start=start;
       stack[stack_pos].count=start;
-      stack[stack_pos].wrap=wrap;*/
+      stacker[tmp+1]=howmuch;
+      stacker[tmp+2]=wrap;
 
       switch(typerr){
       case CONVY:
@@ -1662,10 +1659,10 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 
   static u16 count; char i; signed char x;
       for (i=0;i<stack_pos;i++){
-	u8 tmp=i<<2;
+	u8 tmp=i*3;
 	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
 
-	stacker[tmp]=stack[i].functione(stacker[tmp+2],stack[i].unit,stacker[tmp],stacker[tmp+1],stacker[tmp+3]);
+	stack[i].count=stack[i].functione(stacker[tmp+1],stack[i].unit,stack[i].count,stacker[tmp],stacker[tmp+2]);
         }
 }
 
@@ -1729,23 +1726,35 @@ void main(void)
 		 //		 while(1){
 		   // stak=1;
 		 //		   tmppp+=64;
-		 which=511>>8;
-		 tmppp=1<<14;
-		   printf("tmp %d\n",tmppp);
+		 
+		 tmppp=1;
+		 //	   printf("tmp %d\n",tmppp<<15);
 		   //		 }
 		 //		 for (x=0;x<5000000;x++){
-		 //		 		 while(1){
+
+		 u8 settings;
+		 u16 tmper, FOLDDSTART, FOLDDWRAP, FOLDSSTART,FOLDSWRAP;
+
+	  //	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
+	  //	  else stacker[tmper-48]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
+
+		 //		 while(1){
+		 tmper=4095;
+		   settings=tmper>>4;// 8 bits
+	
+		   tmper=settings<<8;
+		   printf("fff %d\n",tmper>>8);
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-		 //		   func_runall(stackyy,stack_pos); // simulations
+						   //		 		   func_runall(stackyy,stack_pos); // simulations
 		 //		   printf("%c",buf16[x%32768]>>8);
 				   //				   x++;
 		     //    which=buf16[x%32768]>>8;
 
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
-
-		 //		    }
+	//
+	//	 		    }
 }
 
 #endif

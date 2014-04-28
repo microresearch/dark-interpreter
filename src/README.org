@@ -221,22 +221,49 @@ outside, and in open daylight.
 
 * MON 28 APR
 
-new ideas:
+- check 5th adc buffer
+- test hardware
+- check bits for audio.c EFFECTREAD, WRITE, FILT and in main.c!
+- test 40106 voltages and code
+- where is annoying high-pitch from?
+
+TODO:
+
+- foldback onto foldback!
+- foldback TEST // FULL TESTS, isolated tests...
+- check all TESTYs and TESTERs, cleanups, tests
+
+NOTES:
+
+effectmod is bits 1,2,4
+fingervalup16bits
+3rd knob 8-16 is push/pop
+
+PLAN:
+MON-basics/T/W/THU/test basic brds/tweak/record/document/build more!!
+
+tweakS!:
 - adc9 -> datagenbuffer
-- simplify direction and wormcode 1, -1
-- speed also on second effects knob
-- setting by hands/setted by hand (last two knobs can also be setted and setting)
+- bare finger entry into settings/datagen
 
-- also bare finger entry into settings...
+new knob scheme:
 
-1-mirror
-2-hardware/effects/speed
-3-push/pull
-4-finger->what to set, knob sets//foldback
-5-what to set//foldback settings
+1-hardwareDONE
+2-effects-test jitter (effectmod also from below)DONE
+3-mod for up/down/left/right and foldback (mirror)
+4-settings X
+5-settings Y
 
+** DONE
 
-TEXT:
+- crash in stackery/stacker-appears fixed but some strangeness
+- simplify direction and wormcode 1, -1 DONE
+- fix 16 bit settings of settingsarray DONEbut not TESTED!
+- stack/knob/foldback code TO TEST
+- fixed randi() mismatch in main!
+- added in mirrorspeed
+
+** TEXT:
 
 two necessarily entwined processes: the simulation of plague and
 contagion within a small, medieval village and the actions of virus
@@ -246,18 +273,6 @@ from the dark interpreter.
 
 
 * FRI 25 APR
-
-- fix mirror transitions so is not gap round mirrored settingDONE- TEST
-- fix 16 bit settings of settingsarrayDONE-TEST
-
-- stacks and villager also as stack handling
-- push simultaneous stack and villager (or not)
-
-- finish knobs and ops as below
-- check all TESTYs and TESTERs, cleanups, tests
-
-PLAN:
-MON-basics/T/W/THU/test basic brds/tweak/record/document/build more!!
 
 ** DONE
 
