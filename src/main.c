@@ -32,8 +32,7 @@
 #include "settings.h"
 
 // for knobwork
-// TENE: 2,0,3,4,1 
-// else: 3,0,2,4,1
+// TENE: 2,0,3,4,1 // else: 3,0,2,4,1
 
 #ifdef TENE
 #define FIRST 2
@@ -71,6 +70,8 @@ u8 villagestackpos=0;
 u16 villager[129];
 u16 stackery[48]; // 16*3 MAX
 u16 stacker[48]; // 16*3 MAX
+u8 ww[3]={12,15,0};
+  u8 freqy[3]={10,10,0};
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -326,6 +327,16 @@ void main(void)
   ////////////////////minimal setup code to get started
   //TESTER!
 
+  // set up for formant
+
+  //extern u8 ww[3],freqy[3];
+
+  /*
+  for (x=0;x<3;x++){
+    ww[x]=randi()%255;
+    freqy[x]=randi()%255;
+    }*/
+
   villagestackpos=0;
   // TESTY for villager:
 for (x=0;x<64;x++){
@@ -419,26 +430,33 @@ for (x=0;x<64;x++){
       /////////////////////////////
       // KKNOBBBSSS
       /// HARDWARE SMOOTHING!
+
+#ifdef LACH
+	  //      settingsarray[12]=adc_buffer[FIRST]<<4;//SAMPLEWRAP (out-play) TO TEST!!
+
+	  for (x=0;x<14;x++){
+	    settingsarray[11+x]=adc_buffer[FIRST]<<4; // 16 bit value
+	  }
+
+      effects=adc_buffer[SECOND]>>5;  // 7 bits
+      //      effectmod=1; // TESTY!
+      if (effectmod&1) settingsarray[51]=effects<<9; // READ IN 
+      if (effectmod&2 || effectmod&4) settingsarray[52]=effects<<9; // WRITE=PLAY
+#else
       tmphardware=0;
-      for (x=0;x<128;x++){ // was 256
+      for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIRST]>>5; // 7 bits
       }
-      hardware=tmphardware>>7; //average was >>8
-
-#ifdef TENE
+      hardware=tmphardware>>8; //average was >>8
       effects=adc_buffer[SECOND]>>5;  // 7 bits
-
       //      effectmod=1; // TESTY!
-
       if (effectmod&1) settingsarray[51]=effects<<9; // READ IN 
       if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
       if (effectmod&4) settingsarray[53]=effects<<9; // FILTER
-#else
-      settingsarray[12]=adc_buffer[SECOND]<<4;//SAMPLEWRAP (out-play) TO TEST!!
 #endif
       
       ////// KNOB THIRD - mod for fingers // foldback
-      fingermod=adc_buffer[THIRD]>>6; // 64
+      fingermod=adc_buffer[THIRD]>>6; // 64=6 bits
 
       // 1-mod effectmod 0-7
       //      fingermod=45; // TESTY!!!
@@ -530,7 +548,7 @@ for (x=0;x<64;x++){
 
 	// 1-datagen to region of stack:
 	//copy region of datagen to settings
-	if (fingermod<43 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<42 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
@@ -538,7 +556,7 @@ for (x=0;x<64;x++){
 	mirror^=1;
 	}	
 	// 2-datagen to region of stack:
-	if (fingermod<46 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<44 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -553,7 +571,7 @@ for (x=0;x<64;x++){
 	}
 	
 	// 3-adc_buffer[9] to region of settings:// no ifdef!
-	if (fingermod<49 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<46 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<3;
@@ -562,7 +580,7 @@ for (x=0;x<64;x++){
 	}	
 	// 4-adc_buffer[9] to region of stack:
 
-	if (fingermod<52 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<48 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -577,7 +595,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      5-inc a region of settings:
-	if (fingermod<55 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<50 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
@@ -586,7 +604,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      6-inc a region of stack:
-	if (fingermod<58 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<52 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -601,7 +619,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      7-reduce a region of settings:
-	if (fingermod<61 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<54 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
@@ -611,7 +629,7 @@ for (x=0;x<64;x++){
 
 	//      8-reduce a region of stack:
 
-	if (fingermod<64 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<56 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -626,7 +644,8 @@ for (x=0;x<64;x++){
 	mirror^=128;
 	}	
 
-	if (fingermod==64 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	//	fingermod=64; mirror=1;// TESTY!!!
+	else if (fingermod>55){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	  // TODO! FOLDBACK INTO FOLDBACK
 	for (x=0;x<7;x++){
@@ -643,9 +662,11 @@ for (x=0;x<64;x++){
       //////// KNOB FOURTH - settings X and KNOB FIFTH - settings Y // foldback settings?
       // TODO; not q right... maybe averaging or???
       setted=adc_buffer[FOURTH]>>6; // 64
-      setted=35; // TESTY!!!
-      settings=adc_buffer[FIFTH]>>4;// 8 bits
+      //      setted=12; // TESTY!!! samplewrap=12,hwspeed=35,machinespeed=40
+      settings=adc_buffer[FIFTH]>>4;// 8 bits averaging???
 	
+      //      settingsarray[setted]=settings<<8; // TESTY!!!
+
       if (settings!=oldsettings && settings!=oldsettings+1 && settings!=oldsettings-1){
 	settingsarray[setted]=settings<<8;
       }
@@ -656,7 +677,7 @@ for (x=0;x<64;x++){
 
       if (++mirrordel>=FOLDSPEED){
 
-	mirror=0;// TESTY!!!
+	//	mirror=0;// TESTY!!!
       if (mirror&1){
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
@@ -760,7 +781,8 @@ for (x=0;x<64;x++){
       // just leave this running
 		     		     
       //      if (digfilterflag&2){
-            	  set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
+            set40106pwm(F0106ERBASE+(buf16[tmp]%F0106ERCONS)); // constrain all to base+constraint
+      //      set40106pwm(32768);
 	  //      }
 	  
 

@@ -67,7 +67,7 @@ void forminit(void* unity, u16 *workingbuffer){
   unit->buffer=(u16*)workingbuffer;
 }
 
-const u16 SAMPLE_FREQUENCY = 48000;
+const u16 SAMPLE_FREQUENCY = 16000;
 const float Pi = 3.1415926535f;
 const float PI_2 = 6.28318531f;
 
@@ -81,7 +81,7 @@ u16 runform(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   // samples to float
   //  u16 count=count;
 
-  for (int f = 0; f < 3; f++ ) {
+  for (u8 f = 0; f < 3; f++ ) {
   u8 ff = unit->freq[f]; // the three freqs
 
   float freq = (float)ff*(50.0f/SAMPLE_FREQUENCY);
@@ -1714,7 +1714,7 @@ void main(void)
 
   	 	   }
   
-	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which;
+	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which,whiche;
 	 ooo=8192;
 	 //	 tmppp=(ooo>>13);
 	 //	 printf("tmp %d\n",tmppp);
@@ -1730,20 +1730,26 @@ void main(void)
 		 tmppp=1;
 		 //	   printf("tmp %d\n",tmppp<<15);
 		   //		 }
-		 //		 for (x=0;x<5000000;x++){
 
 		 u8 settings;
 		 u16 tmper, FOLDDSTART, FOLDDWRAP, FOLDSSTART,FOLDSWRAP;
 
 	  //	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
 	  //	  else stacker[tmper-48]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
+		 tmper=4096;
+		 printf("tttt %d\n",tmper>>6);
 
-		 //		 while(1){
-		 tmper=65535;
-		 tmper=tmper>>1;// 8 bits
-	
-		 //		   tmper=settings<<8;
-		   printf("fff %d\n",tmper);
+		 //		 		 while(1){
+
+		 //		 for (x=0;x<1000000000;x++){
+
+		   //		   printf("fff %d %d\n",which, whiche);
+
+
+		   //	  switch((EFFECTREAD&63)>>2){ //TODO make 16 // or ((EFFECTREAD>>2)&15)
+		 //		   u16 EFFECTREAD=rand()%255;
+		   //	   tmper=(EFFECTREAD&63)>>2;
+		   //tmper=(EFFECTREAD>>2)&15;
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
@@ -1754,7 +1760,7 @@ void main(void)
 
 		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
 	//
-	//	 		    }
+		 //	    }
 }
 
 #endif

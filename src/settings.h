@@ -43,8 +43,8 @@
 #define SAMPLESPEED (settingsarray[36]>>13) // 16 bits to 3 bits
 #define SAMPLESPEEDREAD (settingsarray[37]>>13)
 #define SAMPLESPEEDFILT (settingsarray[38]>>13)
-#define LEAKSPEED (settingsarray[39]>>13)
-#define MACHINESPEED (settingsarray[40]>>13)
+#define LEAKSPEED (settingsarray[39]>>8)
+#define MACHINESPEED (settingsarray[40]>>8)
 
 // hardware constraints - real walkers - don't have to mirror!
 #define HDGENERBASE (settingsarray[41]>>8)// less than 255

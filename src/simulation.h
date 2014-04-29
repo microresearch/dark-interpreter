@@ -54,13 +54,11 @@ typedef uint16_t u16;
 struct siney{
   u16 sin_data[256];  // sine LUT Array
   u16 cc;
-
   u16* buffer;
 };
 
 struct CONV{
 float c0, c1, c2;
-
   u16* buffer;
 };
 

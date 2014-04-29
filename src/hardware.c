@@ -116,8 +116,8 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   //PC8 is feedback switch
   //jitter???
 
-  res= modder&3; // 12 bits now lose 5 = 7 bits=128 2 bottom bits =5 bits=32!
-  res2=modder>>2; // //
+  res= modder>>5; // top 2 bits
+  res2=modder&31; // //
   // **DONE: maybe res2 as >>2 so we have 32 options
   // as res=0-4 * 32 = 128 which is modder>>5 which comes in 
 
@@ -142,12 +142,12 @@ RES: feedback on/off - jackin-> - lm358in->
 0-feedoff jackin xx
 1-feedoff xx     lmin
 2-feedon 
-3-feedon xx     lmin ??? makes no sense
+3-feedon xx     lmin ??? makes no sense replaced with clock unhang
 
 
   */
 
-  //    res=0; 	  //TESTY!
+  //  res=0; 	  //TESTY!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -165,10 +165,9 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRH = (1<<13); //
    break;
  case 3:
-   /*   GPIOB->BSRRL = (1<<7);
-   GPIOC->BSRRL = (1<<8); 
-   GPIOC->BSRRH = (1<<13); // irrelevant */ 
-
+   GPIOB->BSRRH = (1<<7);
+   GPIOC->BSRRH = (1<<8); // was H!
+   GPIOC->BSRRL = (1<<13);
    // add unhang for clocks? DONE! 
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
@@ -183,7 +182,7 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  //  res2=0; 	  //TESTY! 30->filter->digital no distort
+  //   res2=31; 	  //TESTY! 30->filter->digital no distort
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 

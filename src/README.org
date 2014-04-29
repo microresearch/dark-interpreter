@@ -86,7 +86,7 @@ you must suffer me to make you acquainted.
 
 The Dark Interpreter operates as contagious sample granulator,
 distortion, and unique sound generator based on a speedy ARM32F4
-processor with Wolfram audio codec allowing 16 bit sampling at 48KHz.
+processor with Wolfram audio codec allowing 16 bit sampling at 16KHz.
 
 The Dark Interpreter is delivered in three versions fully assembled,
 and features high quality ALPS potentiometers, optional BOSS style 9v
@@ -219,38 +219,102 @@ outside, and in open daylight.
 - make clean after changes to settingsarray
 
 
-* MON?TUE 28/29 APR
+* MANUAL IN PROGRESS
 
-- EFFECTREAD, WRITE, FILT audio.c! - only 0-7 settings!! FIX!!  other
-  option is to remove clipping and put into cases so can expand to 16
-  options
+** basic operation/theory/background
 
-- shifted machine_count wrapperTEST
+notes from notebook
 
-- test hardware all cases and speeds
-- look at samplespeed
-- test 40106 voltages and code
-- where is high-pitch from in effects
+The Dark Interpreter is _not_ to be controlled. It is a dark
+electronic mirror, the skin itself.
+
+the 3 boards and how they differ and can be used
+
+differences between the three synths
+
+*** Mater Lachrymarum 
+
+No analogue processing hardware so all settings which relate to
+hardware are redundant. The first knob, for hardware routing and
+setting, is now repurposed as a constraint on all
+villagers/grains. Finger/skin controls are as on the Mater Suspiriorum.
+
+*** Mater Suspiriorum and Mater Tenebrarum
+
+
+
+These both share the same analogue processing hardware. Mater
+Tenebrarum adds a new head, earth, skin and finger board which breaks
+out for flesh world most of the important digital and analogue signal
+paths and settings. This last synth also adds the crude
+EEG/micro-voltage fanged amplifier. All knob controls are the same for
+both synths, although the layout is different. Finger controls are
+also different.
+
+** knobs from top down and left to right (diagram for each)
+
+1-The first knob strictly controls the hardware operations and signal
+routing, including opening up of routes, and settings to the skin (we
+call this unhanging of hardware options). Here we can set the signal
+path through analogue filters, digital filters and various
+distortions. We also control feedback of input to output and use of
+one finger pad as an input for other electrical impulses.
+
+2-The second knob controls audio effects acting on the incoming audio,
+the output audio signal and the digital filter (when selected). Thi8s
+knob sets the effect parameters (type of effect, use of data buffer or
+audio, village/grain orientation). Effects can also be placed under
+the control of plague generation (see foldback/mirror below). The effect
+parameters are applied to one of the three signals (in, out, filter)
+according to the setting of the third knob and the directional finger
+pads (see fingerpads below).
+
+3-The third knob is a modifier which sets the behaviour of the four
+finger pads in setting and unsetting various control parameters such
+as effects:
+
+effects
+push and pop on the black stack of operations
+directions of villagers
+speed
+constraint
+foldback settings. about foldback/mirror
+
+4 and 5. 4 selects what parameter to set and 5 what the setting is
+
+** fingerpoints (2 diagrams)
+
+*** Mater Lachrymarum and Mater Suspiriorum
+
+
+
+*** Mater Tenebrarum
+
+
+* MON/TUE 28/29 APR
+
+samples: 473,
 
 TODO:
 
-- foldback onto foldback-TEST!
-- foldback TEST // FULL TESTS, isolated tests...
+- finish write knob layout above for manual
+- full tests for each knob and fix settings X and Y somehow
 - check all TESTYs and TESTERs, cleanups
+- tweaks as below//FINAL TESTS/tests for simple boards
 
 NOTES:
-
 
 effectmod is bits 1,2,4
 fingervalup16bits
 3rd knob 8-16 is push/pop
 
 PLAN:
-T/W/THU/test basic brds/tweak/record/document/build more!!
+W/THU/test basic brds/tweak/record/document
 
 tweakS!:
 - adc9 -> datagenbuffer
 - bare finger entry into settings/datagen
+- some kind of foldback for hardware settings
 
 new knob scheme:
 
@@ -262,6 +326,24 @@ new knob scheme:
 
 ** DONE
 
+- foldback onto foldback-TEST!
+
+- tested with fixed effectmod
+
+- port formant, fill in all effects and TEST!
+
+formant: [[file:~/Downloads/Tiny%20Speech%20Synth/TinySynth.h][file:~/Downloads/Tiny Speech Synth/TinySynth.h]]
+
+- EFFECTREAD, WRITE, FILT audio.c! - only 0-7 settings!! FIX!!  other
+  option is to remove clipping and put into cases so can expand to 16
+  options - do and test...
+
+EFFECTXXXX: lowest 2 bits are VILLAGE/GRAIN selection, next is effect, top bit is buffer 
+
+- samplespeed as 16K - TESTED and decide with granulation tests
+- re-organised hardware settings so top bits now set inout 
+- test hardware all cases and speeds//all tested
+- shifted machine_count wrapper
 - crash in stackery/stacker-appears fixed but some strangeness
 - simplify direction and wormcode 1, -1 DONE
 - fix 16 bit settings of settingsarray DONE
