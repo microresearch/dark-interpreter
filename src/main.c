@@ -464,7 +464,7 @@ for (x=0;x<64;x++){
 	effectmod=(fingervalright(effectmod)%8);
       }
       // 2-push/pop with template settings and type fronm left/right
-      else if (fingermod<16){
+      else if (fingermod<16){ // TODO: move stack to first position above
 
 	whichstack=(fingervalright(whichstack)%5);
        
@@ -535,9 +535,6 @@ for (x=0;x<64;x++){
       }
       // 6-is foldback with finger settings - MIRROR!!!!
       else {
-	// foldback 
-	// operations which are set and act continuously elsewhere
-	// operations which just take place here: contract, expand, shift a region, the region
 	// action is from knob 40-64
 	// finger-> foldback settings 66-70
 
@@ -545,10 +542,10 @@ for (x=0;x<64;x++){
 	foldbackset=fingervalup16bits(foldbackset, 32);	
 	settingsarray[66+foldback]=foldbackset;
 	//      mirror: - all as action and one off toggle on off
-
+	if (oldfingermod!=fingermod){
 	// 1-datagen to region of stack:
 	//copy region of datagen to settings
-	if (fingermod<42 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	if (fingermod<42){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
@@ -556,7 +553,7 @@ for (x=0;x<64;x++){
 	mirror^=1;
 	}	
 	// 2-datagen to region of stack:
-	if (fingermod<44 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<44){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -571,7 +568,7 @@ for (x=0;x<64;x++){
 	}
 	
 	// 3-adc_buffer[9] to region of settings:// no ifdef!
-	if (fingermod<46 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<46){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<3;
@@ -580,7 +577,7 @@ for (x=0;x<64;x++){
 	}	
 	// 4-adc_buffer[9] to region of stack:
 
-	if (fingermod<48 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<48){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -595,7 +592,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      5-inc a region of settings:
-	if (fingermod<50 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<50){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
@@ -604,7 +601,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      6-inc a region of stack:
-	if (fingermod<52 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<52){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -619,7 +616,7 @@ for (x=0;x<64;x++){
 	}	
 
 	//      7-reduce a region of settings:
-	if (fingermod<54 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<54){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
@@ -629,7 +626,7 @@ for (x=0;x<64;x++){
 
 	//      8-reduce a region of stack:
 
-	if (fingermod<56 && oldfingermod!=fingermod){ // TODO TEST/jitter??? maybe +-1 also?
+	else if (fingermod<56){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
@@ -653,9 +650,7 @@ for (x=0;x<64;x++){
 	  settingsarray[x+64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
 		}
 	}	
-
-
-
+      }
       }
       oldfingermod=fingermod;
      

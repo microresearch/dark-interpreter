@@ -297,10 +297,11 @@ samples: 473,
 
 TODO:
 
-- finish write knob layout above for manual
+- check datagens (maybe move push/pull)
 - full tests for each knob and fix settings X and Y somehow
 - check all TESTYs and TESTERs, cleanups
 - tweaks as below//FINAL TESTS/tests for simple boards
+- finish write knob layout above for manual
 
 NOTES:
 
@@ -312,9 +313,9 @@ PLAN:
 W/THU/test basic brds/tweak/record/document
 
 tweakS!:
-- adc9 -> datagenbuffer
+- adc9 -> datagenbuffer (at start or?)
 - bare finger entry into settings/datagen
-- some kind of foldback for hardware settings
+- some kind of foldback for hardware setting
 
 new knob scheme:
 

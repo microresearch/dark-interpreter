@@ -196,17 +196,11 @@ void chunkinit(void* unity, uint16_t *workingbuffer){
   unit->buffer=workingbuffer;
   unit->otherstart=workingbuffer[0]>>1;
   unit->otherwrap=workingbuffer[1]>>1;
-  unit->dirr=workingbuffer[2]%4;
-  if (unit->otherstart>unit->otherwrap) {
-    u16 tmp=unit->otherstart;
-    unit->otherstart=unit->otherwrap;
-    unit->otherwrap=tmp;
-  }
-  if (unit->dirr==1 || unit->dirr==2)  unit->othercount=unit->otherstart;
-  else unit->othercount=unit->otherwrap;
-  tmp=sqrtf((float)unit->otherwrap);unit->newdir[0]=-tmp;unit->newdir[2]=tmp;
-  unit->newdir[1]=1;
-  unit->newdir[3]=-1;
+  unit->dirr=workingbuffer[2]&1;
+  unit->newdir[0]=1;
+  unit->newdir[1]=-1;
+    if (unit->dirr==1)  unit->othercount=0;
+    else unit->othercount=unit->otherwrap;
 }
 
 u16 runchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
@@ -218,17 +212,15 @@ u16 runchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-
     othercount+=unit->newdir[unit->dirr];
-    if (unit->dirr==1 || unit->dirr==2)    { if (othercount>unit->otherwrap) othercount=0;}
-      else if (othercount<=unit->otherstart || othercount>unit->otherwrap) othercount=unit->otherwrap;
+
+    if (othercount<unit->otherwrap && othercount>0){
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+unit->otherstart)%32768];
-
-#ifdef PCSIM
-    //          printf("%c",workingbuffer[(count+start)%32768]);
-    //        if (count>32767) printf("CONVCRASH%d\n",count);
-
-#endif
+    }
+    else {
+    if (unit->dirr==1)  unit->othercount=0;
+    else unit->othercount=unit->otherwrap;
+    }
   }
   unit->othercount=othercount;
   return count;
@@ -244,15 +236,14 @@ u16 runderefchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
     count++;
     if (count>=wrap) count=0;
     othercount+=unit->newdir[unit->dirr];
-    if (unit->dirr==1 || unit->dirr==2)   {  if (othercount>=unit->otherwrap) othercount=0;
+    if (othercount<unit->otherwrap && othercount>0){
+      workingbuffer[(count+start)%32768]=workingbuffer[workingbuffer[(othercount+unit->otherstart)%32768]>>1];
+      //      printf("%c",workingbuffer[(count+start)%32768]);
     }
-      else if (othercount<=unit->otherstart || othercount>unit->otherwrap) othercount=unit->otherwrap;
-    workingbuffer[(count+start)%32768]=workingbuffer[workingbuffer[(othercount+unit->otherstart)%32768]>>1];
-#ifdef PCSIM
-    //        printf("%c",workingbuffer[(count+start)%32768]);
-    //    if (count>32767) printf("CONVCRASH%d\n",count);
-
-#endif
+    else {
+    if (unit->dirr==1)  unit->othercount=0;
+    else unit->othercount=unit->otherwrap;
+    }
   }
   unit->othercount=othercount;
   return count;
@@ -260,7 +251,7 @@ u16 runderefchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 
 
 u16 runwalkerchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
-  u8 i=0;
+  u8 i;
   struct chunkey* unit=unity;
   u16 *workingbuffer=unit->buffer;
   u16 tmp;
@@ -270,27 +261,16 @@ u16 runwalkerchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap)
     count++;
     if (count>=wrap) count=0;
     othercount+=unit->newdir[unit->dirr];
-    if (othercount>unit->otherwrap || othercount<unit->otherstart){
+    /*    if (othercount>unit->otherwrap || othercount<1){
       // get new start and wrap - from where? would need other counter
       unit->otherstart=workingbuffer[0]>>1;
       unit->otherwrap=workingbuffer[1]>>1;
-      unit->dirr=workingbuffer[2]%4;
-  if (unit->otherstart>unit->otherwrap) {
-    u16 tmp=unit->otherstart;
-    unit->otherstart=unit->otherwrap;
-    unit->otherwrap=tmp;
-  }
-  if (unit->dirr==1 || unit->dirr==2)  othercount=0;
+      unit->dirr=workingbuffer[2]&1;
+  if (unit->dirr==1)  othercount=0;
   else othercount=unit->otherwrap;
-  tmp=sqrtf((float)unit->otherwrap);unit->newdir[0]=-tmp;unit->newdir[2]=tmp;
-    }
+  }*/
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+unit->otherstart)%32768];
 
-#ifdef PCSIM
-    //        printf("%c",workingbuffer[(count+start)%32768]);
-    //    if (count>32767) printf("CONVCRASH%d\n",count);
-
-#endif
   }
   unit->othercount=othercount;
   return count;
@@ -308,19 +288,12 @@ u16 runswapchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
     count++;
     if (count>=wrap) count=0;
     othercount+=unit->newdir[unit->dirr];
-    if (othercount>unit->otherwrap || othercount<unit->otherstart){
-      // get new start and wrap - from where? would need other counter
+    if (othercount>unit->otherwrap || othercount<1){
       unit->otherstart=workingbuffer[0]>>1;
       unit->otherwrap=workingbuffer[1]>>1;
-      unit->dirr=workingbuffer[2]%4;
-  if (unit->otherstart>unit->otherwrap) {
-    u16 tmp=unit->otherstart;
-    unit->otherstart=unit->otherwrap;
-    unit->otherwrap=tmp;
-  }
-  if (unit->dirr==1 || unit->dirr==2)  othercount=0;
+      unit->dirr=workingbuffer[2]&1;
+  if (unit->dirr==1)  othercount=0;
   else othercount=unit->otherwrap;
-  tmp=sqrtf((float)unit->otherwrap);unit->newdir[0]=-tmp;unit->newdir[2]=tmp;
     }
 
     tmp=workingbuffer[(count+start)%32768];
@@ -388,7 +361,7 @@ u16 runleft(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]<<=1;
+    workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]<<1;
 #ifdef PCSIM
     //    printf("%d %d\n",count,workingbuffer[(count+start)%32768]);
     //      printf("%c", workingbuffer[(count+start)%32768]);
@@ -472,7 +445,7 @@ u16 runnextmult(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   for (i=0; i<howmuch; i++) {
     count++;
     //    if (count>=32766) count=0;
-    if (count>=(wrap-1)) count=0;
+        if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]*=workingbuffer[(count+1+start)%32768];
 #ifdef PCSIM
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
@@ -754,8 +727,8 @@ u16 runsimplesir(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
     count++;
         if (count>=wrap) count=0;
 
-    Runge_Kutta(unit);//  unit->t+=step;
-        workingbuffer[(count+start)%32768]=unit->I;
+	//    Runge_Kutta(unit);//  unit->t+=step;
+	workingbuffer[(count+start)%32768]=unit->I;
 #ifdef PCSIM
 	//        printf("%c",unit->I);
 	//if (count>32767) printf("SIRCRASH%d\n",count);
@@ -1477,7 +1450,7 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
     {
 
       if (howmuch==0) howmuch=1;
-      u8 tmp=stack_pos<<2;
+      u8 tmp=stack_pos*3;
       stacker[tmp]=start;
       stack[stack_pos].count=start;
       stacker[tmp+1]=howmuch;
@@ -1680,8 +1653,8 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
-  unsigned int x; u16 count=0;
-  u8 howmuch,i;
+  u16 x; u16 count=0;
+  u16 howmuch,i;
   //   uint16_t xxx[MAX_SAM];
      u8 xxx[65536];
      srand(time(NULL)*rand());
@@ -1697,6 +1670,22 @@ void main(void)
     xxx[x]=randi()%65536;
   }
 
+  float pi= 3.141592;
+  float w;
+  float yi;
+  float phase;
+  int sign_samp;
+  w= 2*pi;
+  w= w/256;
+  for (i = 0; i <= 256; i++)
+    {
+      yi= 16383*sinf(phase); // was 2047
+      phase=phase+w;
+      sign_samp=16383+yi;     // dc offset translated for a 12 bit DAC - but is 16 bit?
+      sin_data[i]=sign_samp; // write value into array
+    }
+
+
   u16 *buf16 = (u16*) xxx;
   
   //  struct FORM *unity=malloc(sizeof(struct FORM));
@@ -1706,61 +1695,21 @@ void main(void)
   //  printf("test%d\n",256<<7);
   	 for (x=0;x<16;x++){
 	   u16 addr=rand()%32768;
-	   u8 which=rand()%NUM_FUNCS;
-	   //	   u8 which=rand()%9;
-	   //	   printf("which: %d\n",which);
-	   //	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap 
-	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,1,0,addr);//howmuch,start,wrap //29-32
-
+	   //	   u8 which=rand()%26;
+	   //	   u8 which=23;//18,19,20,22,23
+	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
   	 	   }
   
-	 u16 tmppp=4094,ooo=4096;u16 mirror,tmppushpull; u8 which,whiche;
-	 ooo=8192;
-	 //	 tmppp=(ooo>>13);
-	 //	 printf("tmp %d\n",tmppp);
-		 u8 stak=0;
-	 //	 call function;
 
-	 //	 calltest(tmppp+ooo);
+	 while(1){
 
-		 //		 while(1){
-		   // stak=1;
-		 //		   tmppp+=64;
-		 
-		 tmppp=1;
-		 //	   printf("tmp %d\n",tmppp<<15);
-		   //		 }
-
-		 u8 settings;
-		 u16 tmper, FOLDDSTART, FOLDDWRAP, FOLDSSTART,FOLDSWRAP;
-
-	  //	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
-	  //	  else stacker[tmper-48]=buf16[(FOLDSSTART+(x%FOLDSWRAP)%32768)];
-		 tmper=4096;
-		 printf("tttt %d\n",tmper>>6);
-
-		 //		 		 while(1){
-
-		 //		 for (x=0;x<1000000000;x++){
-
-		   //		   printf("fff %d %d\n",which, whiche);
-
-
-		   //	  switch((EFFECTREAD&63)>>2){ //TODO make 16 // or ((EFFECTREAD>>2)&15)
-		 //		   u16 EFFECTREAD=rand()%255;
-		   //	   tmper=(EFFECTREAD&63)>>2;
-		   //tmper=(EFFECTREAD>>2)&15;
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-						   //		 		   func_runall(stackyy,stack_pos); // simulations
-		 //		   printf("%c",buf16[x%32768]>>8);
-				   //				   x++;
-		     //    which=buf16[x%32768]>>8;
-
-		 //		 for (x=0;x<stak;x++){printf("xxxxx");}
-	//
-		 //	    }
+	   func_runall(stackyy,stack_pos); // simulations
+	   printf("%d\n",buf16[x%32768]>>8);
+	   x++;
+	 }
 }
 
 #endif
