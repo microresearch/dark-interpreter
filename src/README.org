@@ -219,12 +219,15 @@ outside, and in open daylight.
 - make clean after changes to settingsarray
 
 
-* MON 28 APR
+* MON?TUE 28/29 APR
 
-- check bits for audio.c EFFECTREAD, WRITE, FILT and in main.c! - only
-  0-7 settings!! FIX!!
+- EFFECTREAD, WRITE, FILT audio.c! - only 0-7 settings!! FIX!!  other
+  option is to remove clipping and put into cases so can expand to 16
+  options
 
-- test hardware
+- shifted machine_count wrapperTEST
+
+- test hardware all cases and speeds
 - look at samplespeed
 - test 40106 voltages and code
 - where is high-pitch from in effects
@@ -237,7 +240,7 @@ TODO:
 
 NOTES:
 
-shifted machine_count wrapper
+
 effectmod is bits 1,2,4
 fingervalup16bits
 3rd knob 8-16 is push/pop

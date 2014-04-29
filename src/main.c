@@ -292,7 +292,7 @@ void main(void)
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000); // was 48000
+  Codec_Init(8000); // was 48000
   delay();
 
 #ifndef LACH
@@ -406,7 +406,6 @@ for (x=0;x<64;x++){
 	    m->m_leakiness=LEAKINESS;
 	    m->m_infectprob=INFECTION;
 	    machine_count=0;
-	  }
 	  break;
 	case 3:
 	  leak_count++;
@@ -415,7 +414,8 @@ for (x=0;x<64;x++){
 	    leak_count=0;
 	  }
 	}
-	  }
+      }
+      	  } // end of machine count
       /////////////////////////////
       // KKNOBBBSSS
       /// HARDWARE SMOOTHING!
