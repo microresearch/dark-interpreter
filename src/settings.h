@@ -49,7 +49,7 @@
 // hardware constraints - real walkers - don't have to mirror!
 #define HDGENERBASE (settingsarray[41]>>8)// less than 255
 #define HDGENERCONS (settingsarray[42]>>8)// less than 255
-#define VILLAGEWSTART (settingsarray[43])>>10
+#define VILLAGEWSTART (settingsarray[43])>>10 /64
 #define VILLAGERSTART (settingsarray[44])>>10
 #define VILLAGEFSTART (settingsarray[45])>>10
 

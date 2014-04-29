@@ -120,8 +120,8 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
   //	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
-  u16 tmp,tmper,count;
-  int16_t tmp16;
+  u16 tmp,tmper;
+  int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
 	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,villagefpos=0,villagewpos=0,villagerpos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
@@ -248,11 +248,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  /////
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
+	    ///
 	    count=((sampleposread-startread)+dirry);
 	    if (count<wrapread && (sampleposread+dirry)>startread)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
+	    ////
 		else {
 		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
@@ -421,11 +423,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	  	  if (++delread>=SAMPLESPEEDREAD){
 		    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    count=((sampleposread-startread)+dirry);
-	    if (count<wrapread && (sampleposread+dirry)>startread)
-		  {
-		    sampleposread+=dirry;//)%32768;
-		  }
+		    count=((sampleposread-startread)+dirry);
+		    //if (count<wrapread && (sampleposread+dirry)>startread)
+		    if (count<wrapread && count>0)
+		      {
+			sampleposread+=dirry;//)%32768;
+		      }
 		else {
 		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
@@ -697,9 +700,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
-	    count=((samplepos-start)+dirry);
+	    //	    count=((samplepos-start)+dirry);// samplepos is start or start+wrap++
+	    //if go forwards is start... else is wrap backwards
+	    count+=dirry;
 	    if (count<wrap && (samplepos+dirry)>start)
-		  {
+	      {
 		    samplepos+=dirry;//)%32768;
 		  }
 		else {
@@ -707,6 +712,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		    start=SAMPLESTART;wrap=SAMPLEWRAP;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
+		    count=samplepos;
 		  }
 
 		  else if (VILLAGEWRITE==1) {

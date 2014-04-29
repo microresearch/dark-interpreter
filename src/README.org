@@ -297,6 +297,10 @@ samples: 473,
 
 TODO:
 
+- any improvements to audio.c walkers - see 427 TEST - count as signed
+
+
+- check villager max number.... in main init add all datagens _and_ villagers. TEST
 - check datagens (maybe move push/pull)
 - full tests for each knob and fix settings X and Y somehow
 - check all TESTYs and TESTERs, cleanups

@@ -12,18 +12,18 @@
 #include "CA.h"
 #define randi() rand()
 u8 table[21];
+u16 stackery[48]; // 16*3 MAX
 #else
 #include "CA.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 extern u8 table[21];
+extern u16 stackery[48]; // 16*3 MAX
 #endif
 
 //////////////////////////////////////////
 
 #define STACK_SIZE 16
-
-extern u16 stackery[48]; // 16*3 MAX
 
 struct stackey{
   u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
@@ -852,8 +852,8 @@ int main(void)
   inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
 
     for (x=0;x<STACK_SIZE;x++){
-      xx=rand()%32768;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,10,xx,xx+rand()%16000); // last as howmany, start.,wrap
+      xx=rand()%65536;
+      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,10,xx,xx+rand()%65536); // last as howmany, start.,wrap
     }
 
     //    //    printf("stackposy: %d\n", stack_posy);
@@ -865,7 +865,7 @@ int main(void)
   //		 	 	 else stack_posy=ca_pop(stack,stack_posy);
 		 //	 printf("stackposy: %d\n", stack_posy);
 		 //signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
-		 printf("%c",buffer[x%32768]>>8);
+		 printf("%c",buffer[x]>>8);
 		     //		     which=buf16[x%32768]>>8;
 		   x++;
 
