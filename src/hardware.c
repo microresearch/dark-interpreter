@@ -126,7 +126,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
     reset_switches();
   }
 
-  if (res!=1 && clockhangflag==1){
+  if (res!=3 && clockhangflag==1){
     clockhangflag=0;
     reset_clocks();
     }
@@ -136,6 +136,7 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
       //    res2=0; // testing now!
   //#endif // TEST_STRAIGHT
 
+  //  res=2;
   /*
 RES: feedback on/off - jackin-> - lm358in->
 
@@ -204,7 +205,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8);
     GPIOB->BSRRL = (1<<2) | (1<<9);//
     GPIOC->BSRRL= (1<<10) | (1<<11);
-    digfilterflag=40;
+    if (clockhangflag==0) digfilterflag=40;
+    else digfilterflag=32;
    break;
   case 3:
    //1-straightout with filtermix-distort
@@ -213,7 +215,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<2) | (1<<9);//
     GPIOC->BSRRH= (1<<10);
     GPIOC->BSRRL= (1<<11);
-    if (clockhangflag==0) digfilterflag=42;
+    if (clockhangflag==0) digfilterflag=40;
     else digfilterflag=32;
    break;
   case 4:
@@ -223,7 +225,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<0) |(1<<2) | (1<<5) | (1<<9);//
     GPIOC->BSRRH= (1<<11);
     GPIOC->BSRRL= (1<<10);
-    if (clockhangflag==0) digfilterflag=42;
+    if (clockhangflag==0) digfilterflag=40;
     else digfilterflag=32;
    break;
   case 5:
@@ -232,7 +234,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<3) | (1<<4) | (1<<6) | (1<<8);
     GPIOB->BSRRL = (1<<0) | (1<<2) | (1<<5) | (1<<9);//
     GPIOC->BSRRH= (1<<11) | (1<<10);
-    if (clockhangflag==0) digfilterflag=42;
+    if (clockhangflag==0) digfilterflag=40;
     else digfilterflag=32;
    break;
   case 6:
@@ -240,8 +242,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<10) | (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6);
-    if (clockhangflag==0) digfilterflag=2;
-    else digfilterflag=0;
+    digfilterflag=0;
     break;
   case 7:
     //3-just40106 - filtermix no distort
@@ -386,7 +387,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL= (1<<11);
     // straight to filter and unhang filter options
     hangflag=1;
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
        GPIO_InitStructure.GPIO_Mode = 0x04;
        GPIO_Init(GPIOB, &GPIO_InitStructure);
        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;

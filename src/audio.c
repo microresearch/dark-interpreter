@@ -18,7 +18,7 @@ extern __IO uint16_t adc_buffer[10];
 //extern u8 wormdir;
 extern u8 villagestackpos;
 extern u16 settingsarray[71];
-extern u16 villager[129];
+extern u16 villager[130];
 extern int16_t newdir[2];
 extern int16_t direction[2];
 extern int16_t villagedirection[2];
@@ -124,8 +124,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
   int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
-	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,villagefpos=0,villagewpos=0,villagerpos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-	static u8 del=0,delf=0;
+	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
+	static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0;
 	u8 VILLAGEREAD=0,VILLAGEWRITE=0,VILLAGEFILT=0;
 	int16_t dirry=1;
 	float w0,w1,w2;
@@ -147,8 +147,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	// readin villager processing of left into left and right into audio_buffer
 
-	int16_t * ldst=left_buffer;
-	int16_t * rdst=right_buffer;
+	int16_t *ldst=left_buffer;
+	int16_t *rdst=right_buffer;
 
 #ifdef LACH
 
@@ -199,18 +199,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 7:
 	  *src++;
-	  tmp32=(*src++)-secondbuf[sampleposread%32768];
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=(*src++)-secondbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
 	  *src++;
-	  tmp32=secondbuf[sampleposread%32768]-(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=secondbuf[sampleposread%32768]-(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 9:
 	  *src++;
-	  tmp32=secondbuf[sampleposread%32768]^(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=secondbuf[sampleposread%32768]^(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 10:
 	  *src++;
@@ -220,18 +220,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 11:
 	  *src++;
-	  tmp32=(*src++)-firstbuf[sampleposread%32768];
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=(*src++)-firstbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 12:
 	  *src++;
-	  tmp32=firstbuf[sampleposread%32768]-(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=firstbuf[sampleposread%32768]-(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 13:
 	  *src++;
-	  tmp32=firstbuf[sampleposread%32768]^(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=firstbuf[sampleposread%32768]^(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 14:
 	  *src++;
@@ -274,8 +274,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  else if (VILLAGEREAD==2) {
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*villagedirection[VILLAGERDIR];
-		    villagerpos+=(tmp*2);
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
+
+
 		    startread=villager[tmp];
 		    wrapread=villager[tmp+1];
 		    if (wrapread==0) wrapread=1;
@@ -358,14 +358,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  case 6:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  tmp32=(*src++)-firstbuf[sampleposread%32768];
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=(*src++)-firstbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 7:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  tmp32=firstbuf[sampleposread%32768]-(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=firstbuf[sampleposread%32768]-(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  // start of *(src-1)
 	  case 8:
@@ -393,7 +393,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  tmp32=firstbuf[samplepos%32768]* *src++;
 	  *rdst++ = *src++; 
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *src++;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 12:
@@ -411,10 +410,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 14:
 	  *ldst++ = *src;
-	  tmp32=*src++ ^ *src++;
+	  tmp16=*src++ ^ *src++;
 	  *rdst++ = *src; 
-	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  firstbuf[sampleposread%32768]=tmp32;
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
  	  case 15:
 	  *ldst++ = *src;
@@ -497,7 +495,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  secondbuf[sampleposread%32768]=*src++;
 	  break;	    
 	  case 2:
-	  *src++;
+	    //*src++;
 	  tmp16=secondbuf[sampleposread%32768];
 	  secondbuf[sampleposread%32768]=firstbuf[sampleposread%32768];
 	  firstbuf[sampleposread%32768]=tmp16;
@@ -528,18 +526,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 7:
 	  *src++;
-	  tmp32=(*src++)-secondbuf[sampleposread%32768];
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=(*src++)-secondbuf[sampleposread%32768];
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
 	  *src++;
-	  tmp32=secondbuf[sampleposread%32768]-(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=secondbuf[sampleposread%32768]-(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 9:
 	  *src++;
-	  tmp32=secondbuf[sampleposread%32768]^(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=secondbuf[sampleposread%32768]^(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 10:
 	  *src++;
@@ -565,14 +563,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 14:
 	  *src++;
-	  tmp32=firstbuf[sampleposread%32768]-(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=firstbuf[sampleposread%32768]-(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 15:
 	  *src++;
-	  tmp32=firstbuf[sampleposread%32768]^(*src++);
-	  firstbuf[sampleposread%32768]=tmp32;
+	  tmp16=firstbuf[sampleposread%32768]^(*src++);
+	  firstbuf[sampleposread%32768]=tmp16;
 	  }
+	  //	  	  VILLAGEREAD=0; // TESTY!
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
@@ -592,20 +591,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
-		  tmper=buf16[tmp]>>1;	
+		  tmper=buf16[tmp]>>1;
 		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
-		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*villagedirection[VILLAGERDIR];
+		    //tmp=1; // TSTER!!
 		    villagerpos+=(tmp*2);
 		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
 		    startread=villager[tmp];
 		    wrapread=villager[tmp+1];
 		    if (wrapread==0) wrapread=1;
-		    if (SAMPLEDIRR==1) samplepos=start;
-		    else samplepos=startread+wrapread;
+		    if (SAMPLEDIRR==1) sampleposread=startread;
+		    else sampleposread=startread+wrapread;
 		  }
 		  else {
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
@@ -672,29 +671,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	  tmp32=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
-	  tmp32=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 8:
-	  tmp32=secondbuf[samplepos%32768]^firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768]^firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 9:
-	  tmp32=secondbuf[samplepos%32768]&firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768]&firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
 	  mono_buffer[x]=adc_buffer[9]<<3;
 	  break;
 	  case 11:
-	  mono_buffer[x]=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
-	  mono_buffer[x]=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
  	  default:
 	    temp_buffer[x]=firstbuf[samplepos%32768];
@@ -763,12 +764,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[samplepos]/65536;w1=buf16[(samplepos+1)%32768]/65536;w0=buf16[(samplepos+2)%32768]/65536;
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,0.5,0.5,0.5);
+	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
-	      // port of formant but how do we set this up?
-	      //void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
 	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
 	  }
@@ -813,12 +812,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
-	  tmp32=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 6:
-	  tmp32=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
 	  tmp32=firstbuf[samplepos%32768]* *ldst++;
@@ -830,8 +829,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 9:
-	    tmp32=firstbuf[samplepos%32768] - *ldst++;
-	  mono_buffer[x]=tmp32;
+	    tmp16=firstbuf[samplepos%32768] - *ldst++;
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
 	  tmp32=*(ldst++)+secondbuf[samplepos%32768];
@@ -846,14 +845,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=adc_buffer[9]<<3;
 	  break;
 	  case 13:
-	  mono_buffer[x]=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
 	  case 14:
-	  mono_buffer[x]=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
  	  default:
 	    temp_buffer[x]=firstbuf[samplepos%32768];
-	  //	  TODO:
 	  }
 	  ////////////////////////--->>>>
 
@@ -915,8 +915,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp==15){
 	      // 3 floats!
-	      w0=buf16[samplepos]/65536;w1=buf16[(samplepos+1)%32768]/65536;w0=buf16[(samplepos+2)%32768]/65536;
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,0.5,0.5,0.5);
+	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	      runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	  } // end of tmpp==15
 
 
@@ -926,11 +926,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
 
-	  if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
-	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
+	    	  if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
+	    	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
+	    //	    firstbuf=buf16int; //TESTY!
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  tmpp=(EFFECTWRITE&63)>>2;
-	  //	  tmpp=15; // TESTYYYY!!!
+	  //	  tmpp=0; // TESTYYYY!!!
       	for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
@@ -959,35 +960,37 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	  tmp32=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=firstbuf[samplepos%32768]-secondbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
-	  tmp32=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768]-firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 8:
-	  tmp32=secondbuf[samplepos%32768] ^ firstbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=secondbuf[samplepos%32768] ^ firstbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 9:
-	  tmp32=firstbuf[samplepos%32768] & secondbuf[samplepos%32768];
-	  mono_buffer[x]=tmp32;
+	  tmp16=firstbuf[samplepos%32768] & secondbuf[samplepos%32768];
+	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
 	  mono_buffer[x]=adc_buffer[9]<<3;
 	  break;
 	  case 11:
-	  mono_buffer[x]=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]+adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
-	  mono_buffer[x]=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    tmp32=firstbuf[samplepos%32768]*adc_buffer[9]<<3;
+	    mono_buffer[x]=tmp32;
 	  break;
  	  default:
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	 	  }
 
-	  //	  VILLAGEWRITE=3; // TESTER!!!!
+	  //	  VILLAGEWRITE=0; // TESTY!!!!
  
 	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
@@ -1051,12 +1054,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[samplepos]/65536;w1=buf16[(samplepos+1)%32768]/65536;w0=buf16[(samplepos+2)%32768]/65536;
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,0.5,0.5,0.5);
+	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
-	      // port of formant but how do we set this up?
-	      //void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
 	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
 	  }
@@ -1104,17 +1105,15 @@ if (digfilterflag&1){
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  *ldst=tmp32;
 	  break;
-
 	  case 5:
 	  tmp32=firstbuf[sampleposfilt%32768]* *rdst++;
-	  *ldst=tmp32;
+	  *ldst++=tmp32;
 	  break;
 	  case 6:
 	  tmp32=firstbuf[sampleposfilt%32768]* *rdst++;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst=tmp32;
+	  *ldst++=tmp32;
 	  break;
-
 	  case 7:
 	  tmp32=*ldst++ * *rdst++;
 	  *ldst=tmp32;
@@ -1135,12 +1134,12 @@ if (digfilterflag&1){
 	  break;
 	  case 11:
 	  tmp32=firstbuf[sampleposfilt%32768]+ *rdst++;
-	  *ldst=tmp32;
+	  *ldst++=tmp32;
 	  break;
 	  case 12:
 	  tmp32=firstbuf[sampleposfilt%32768]+ *rdst++;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-	  *ldst=tmp32;
+	  *ldst++=tmp32;
 	  break;
 	  case 13:
 	  tmp32=*ldst++ + *rdst++;
@@ -1189,7 +1188,7 @@ if (digfilterflag&1){
 		    startfilt=villager[tmp];
 		    wrapfilt=villager[tmp+1];
 		    if (wrapfilt==0) wrapfilt=1;
-		    if (SAMPLEDIRW==1) sampleposfilt=startfilt;
+		    if (SAMPLEDIRF==1) sampleposfilt=startfilt;
 		    else sampleposfilt=startfilt+wrapfilt;
 		  }
 		  else {

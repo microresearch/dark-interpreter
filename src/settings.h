@@ -19,10 +19,10 @@
 #define ANYWRAPREAD ((settingsarray[15]>>1)+1)
 #define ANYWRAP ((settingsarray[16]>>1)+1)
 #define ANYWRAPFILT ((settingsarray[17]>>1)+1)
-#define VILLAGEWWRAP ((settingsarray[18]>>1)+1)
-#define VILLAGERWRAP ((settingsarray[19]>>1)+1)
-#define VILLAGEFWRAP ((settingsarray[20]>>1)+1)
-#define STACKWRAP ((settingsarray[21]>>1)+1)
+#define VILLAGEWWRAP ((settingsarray[18]>>10)+1) // 8 BITs
+#define VILLAGERWRAP ((settingsarray[19]>>10)+1) // 8 bits
+#define VILLAGEFWRAP ((settingsarray[20]>>10)+1) // 8 BITS
+#define STACKWRAP ((settingsarray[21]>>9)+1) //???
 
 #define LMERCONS ((settingsarray[22]>>1)+1)
 #define F0106ERCONS ((settingsarray[23]>>1)+1)
@@ -49,9 +49,9 @@
 // hardware constraints - real walkers - don't have to mirror!
 #define HDGENERBASE (settingsarray[41]>>8)// less than 255
 #define HDGENERCONS (settingsarray[42]>>8)// less than 255
-#define VILLAGEWSTART (settingsarray[43])>>10 /64
-#define VILLAGERSTART (settingsarray[44])>>10
-#define VILLAGEFSTART (settingsarray[45])>>10
+#define VILLAGEWSTART (settingsarray[43]>>10) //64
+#define VILLAGERSTART (settingsarray[44]>>10)
+#define VILLAGEFSTART (settingsarray[45]>>10)
 
 #define STACKMUCH (settingsarray[46]>>8)
 
@@ -83,7 +83,7 @@
 
 //foldback settings
 
-#define FOLDSDIR (settingsarray[64]>>15)
+#define FOLDSDIR (settingsarray[64]>>15) // both unused i think
 #define FOLDDDIR (settingsarray[65]>>15)
 
 #define FOLDSSTART ((settingsarray[66]>>1)) 

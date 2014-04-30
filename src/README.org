@@ -291,22 +291,37 @@ foldback settings. about foldback/mirror
 *** Mater Tenebrarum
 
 
-* MON/TUE 28/29 APR
+* THU 1 MAY/FRI 2 MAY
 
-samples: 473,
+provisional release:
+
+- tweaks as below//FINAL TESTS/tests for simple boards
+- finish write knob layout above for manual
+- video and more samples...
+
+* WED 30 APR-FINISH
 
 TODO:
 
-- improvements to audio.c walkers - see 427 - count now as signedTESTall walker settings
-- volume for feedbackTEST in codec.c
+- fix settings X and Y somehow - averaging and kind of works
+- move or not stack
+- check all TODO, TESTYs and TESTERs, cleanups
 
-- check villager max number.... in main init add all datagens _and_ villagers. TODO>TEST
-- check datagens (maybe move push/pull earlier)
-- full tests for each knob and fix settings X and Y somehow
+** DONE/NOTES:
 
-- check all TESTYs and TESTERs, cleanups
-- tweaks as below//FINAL TESTS/tests for simple boards
-- finish write knob layout above for manual
+- crash - still unknown but stopped now 
+- small fixes to mistakes in audio.c
+- in main init add all datagens _and_ villagers. TODO>TEST
+- crash tests- could be in stacker(which must be restricted - stackery
+  is ok as refers to 8bits), fixed but still crash//could be
+  villager>>1fixedNON... //enlarged audio_buffer by a margin seems
+  some kind of fixNON
+- volume for feedbackTEST in codec.c - DONE
+- settings with knob is now after mirroring
+
+* MON/TUE 28/29 APR
+
+samples: 473
 
 NOTES:
 
@@ -318,6 +333,7 @@ PLAN:
 W/THU/test basic brds/tweak/record/document
 
 tweakS!:
+- villager max number?
 - adc9 -> datagenbuffer (at start or?)
 - bare finger entry into settings/datagen
 - some kind of foldback for hardware setting
@@ -332,10 +348,12 @@ new knob scheme:
 
 ** DONE
 
+- mirror/writing into villager array-TEST and test all mirrorings
+- figure out clockhangflag bits in hardware.cDONEand fixed
+- improvements to audio.c walkers - count now as signedTESTall walker settings
+- fixed if/else problem with mirrorings
 - foldback onto foldback-TEST!
-
 - tested with fixed effectmod
-
 - port formant, fill in all effects and TEST!
 
 formant: [[file:~/Downloads/Tiny%20Speech%20Synth/TinySynth.h][file:~/Downloads/Tiny Speech Synth/TinySynth.h]]

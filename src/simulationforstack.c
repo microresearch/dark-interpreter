@@ -1723,24 +1723,34 @@ void main(void)
   //  printf("test%d\n",256<<7);
   	 for (x=0;x<16;x++){
 	   u16 addr=rand()%32768;
-	   //	   u8 which=rand()%26;
+	   	   u8 which=rand()%31;
 	   //	   u8 which=23;//18,19,20,22,23
-	   //	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
+	   	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
   	 	   }
   
 
-	 int count,dirry; u16 sampleposread=100, startread=100,wrapread=200, SAMPLESTARTREAD=100, SAMPLEWRAPREAD=200; 
-	 //	 while(1){
-	 for (x=0;x<500000000;x++){
-	   tester(rand()%2);
+	 int count,dirry; u16 sampleposread=100, startread=100,wrapread=200, SAMPLESTARTREAD=100, SAMPLEWRAPREAD=200; u8 d=0;
+	 d-=1;
+	 sampleposread=d<<15;
+	 printf("%d\n",sampleposread>>15);
 
-				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
-	//			   else stack_pos=func_pop(stackyy,stack_pos);
+ 
+	 /*	 	 while(1){
+
+		   if ((rand()%20)<10){			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,rand()%32768,rand()%32768);//29-32
+		     //		     printf("pusn %d\n",stack_pos);
+		   }
+			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-	   //	   func_runall(stackyy,stack_pos); // simulations
+	   	   func_runall(stackyy,stack_pos); // simulations
+
+		   for(x=0;x<48;x++){
+		     stacker[x]=rand()%32768;
+		   }
+
 	   //	   printf("%d\n",buf16[x%32768]>>8);
 	   //	   x++;
-	 }
+	   }*/
 }
 
 #endif

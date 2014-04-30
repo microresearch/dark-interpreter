@@ -192,7 +192,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
       if (++DELC==DELAY){
 #ifdef PCSIM
   //            printf("CPU: %d\n",CPU);
-            printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
+	//            printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
 #endif
 
   switch(CPU%max_cpus)

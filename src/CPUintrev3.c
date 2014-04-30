@@ -1429,7 +1429,7 @@ void machine_run(machine* this) {
   //  if (this->m_mutateprob==0) this->m_mutateprob=1;
 
 
-  if ((randi()%this->m_leakiness  && this->m_threadcount>0)==0) {
+  if ((randi()%this->m_leakiness)==0  && this->m_threadcount>0) {
     leak(this);
   }
 	
@@ -1553,15 +1553,7 @@ void killcpu(machine *m, u8 killed){
   m->m_threadcount--;}
 }
 
-
-
-
 #ifdef PCSIM
-
-#define HSE_VALUE    ((uint32_t)8000000) 
-#define  RCC_PLLI2SCFGR_PLLI2SN              ((uint32_t)0x00007FC0)
-#define  RCC_PLLI2SCFGR_PLLI2SR              ((uint32_t)0x70000000)
-#define  RCC_PLLCFGR_PLLM                    ((uint32_t)0x0000003F)
 
 int main(void)
 {
@@ -1618,8 +1610,11 @@ u8 settingsarray[64];
 
 	while(1) {
 	  machine_run(m); //cpu - WRAP own speed
-	  printf("%c",buffer[x]);
+	  //	  printf("%c",buffer[x]);
 	  x++;
+
+	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
+	  else cpustackpop(m);
 
 	}
 	}

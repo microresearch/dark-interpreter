@@ -163,7 +163,7 @@ u16 runhodgenet(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
   if(cells[x] == 0)
     cells[y] = floorf(numinf / unit->k1) + floorf(numill / unit->k2);
   else if(cells[x] < unit->q)
-    cells[y] = floorf(sum / (numinf + 1)) + unit->g;
+    {    if ((numinf+1)!=0)    cells[y] = floorf(sum / (numinf + 1)) + unit->g;}
   else
     cells[y] = 0;
 
@@ -333,7 +333,7 @@ u16 runcel1d(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
       zz=x+i+z;
       if (zz>=unit->celllen) zz=zz-unit->celllen;
       if (zz<0) zz=unit->celllen+zz;
-            sum+=(cells[(u16)zz]>>4)%4; // crash here?
+            sum+=(cells[zz]>>4)%4; // crash here?
     }
 
     y=x+i+unit->celllen;
@@ -853,7 +853,7 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
       xx=rand()%65536;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,10,xx,xx+rand()%65536); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%255,xx,xx+rand()%65536); // last as howmany, start.,wrap
     }
 
     //    //    printf("stackposy: %d\n", stack_posy);
@@ -862,12 +862,18 @@ int main(void)
                while(1){
 		 ca_runall(stack,stack_posy);     
 
-  //		 	 	 else stack_posy=ca_pop(stack,stack_posy);
-		 //	 printf("stackposy: %d\n", stack_posy);
-		 //signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
-		 printf("%c",buffer[x]>>8);
-		     //		     which=buf16[x%32768]>>8;
-		   x++;
+		 if ((rand()%20)<10){stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%65536,rand()%65536,rand()%65536);//29-32
+		     //		     printf("pusn %d\n",stack_pos);
+		 }
+		 	   else stack_posy=ca_pop(stack,stack_posy);
+		
+
+		   		   for(x=0;x<48;x++){
+				     stackery[x]=rand()%65536;
+		   }
+
+
+		 //		 printf("%c",buffer[x]>>8);
 
     	 }
 
