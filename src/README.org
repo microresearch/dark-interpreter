@@ -297,12 +297,13 @@ samples: 473,
 
 TODO:
 
-- any improvements to audio.c walkers - see 427 TEST - count as signed
+- improvements to audio.c walkers - see 427 - count now as signedTESTall walker settings
+- volume for feedbackTEST in codec.c
 
-
-- check villager max number.... in main init add all datagens _and_ villagers. TEST
-- check datagens (maybe move push/pull)
+- check villager max number.... in main init add all datagens _and_ villagers. TODO>TEST
+- check datagens (maybe move push/pull earlier)
 - full tests for each knob and fix settings X and Y somehow
+
 - check all TESTYs and TESTERs, cleanups
 - tweaks as below//FINAL TESTS/tests for simple boards
 - finish write knob layout above for manual

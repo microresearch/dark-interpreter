@@ -40,6 +40,7 @@
 #define W8731_ADDR_1 0x1B
 #define W8731_NUM_REGS 10
 
+// bottom 5 bits of 00 is gain - default was 10111 =0x17 11111fullvol=0x1F
 const uint16_t w8731_init_data[] = 
 {
 	0x01A,			// Reg 00: Left Line In (0dB, mute off)-INCGAIN!!was 0x017

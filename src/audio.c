@@ -249,8 +249,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    ///
-	    count=((sampleposread-startread)+dirry);
-	    if (count<wrapread && (sampleposread+dirry)>startread)
+	    count=((sampleposread-startread)+dirry); //TODO: could also just be static count
+	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
+		    if (count<wrapread && count>0)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
@@ -575,7 +576,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
-	    if (count<wrapread && (sampleposread+dirry)>startread)
+	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
+		    if (count<wrapread && count>0)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
@@ -700,10 +702,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 
 	  	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
-	    //	    count=((samplepos-start)+dirry);// samplepos is start or start+wrap++
-	    //if go forwards is start... else is wrap backwards
-	    count+=dirry;
-	    if (count<wrap && (samplepos+dirry)>start)
+	    count=((samplepos-start)+dirry);// samplepos is start or start+wrap++
+		    if (count<wrapread && count>0)
 	      {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -861,7 +861,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
-	    if (count<wrap && (samplepos+dirry)>start)
+	    //	    if (count<wrap && (samplepos+dirry)>start)
+	    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -991,7 +992,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;
 	    count=((samplepos-start)+dirry);
-	    if (count<wrap && (samplepos+dirry)>start)
+	    //	    if (count<wrap && (samplepos+dirry)>start)
+		    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
 		  }
@@ -1159,7 +1161,8 @@ if (digfilterflag&1){
 	  	  if (++delf==SAMPLESPEEDFILT){
 	    dirry=newdirf[SAMPLEDIRF]*SAMPLESTEPFILT;
 	    count=((sampleposfilt-startfilt)+dirry);
-	    if (count<wrapfilt && (sampleposfilt+dirry)>startfilt)
+	    //	    if (count<wrapfilt && (sampleposfilt+dirry)>startfilt)
+		    if (count<wrapfilt && count>0)
 		  {
 		    sampleposfilt+=dirry;//)%32768;
 		  }

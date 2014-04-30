@@ -1650,10 +1650,38 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 
 #ifdef PCSIM
 
+
+void tester(u8 SAMPLEDIRR){
+  int count=0; int dirry; static u16 sampleposread=100; u16 startread=100,wrapread=200, SAMPLESTARTREAD=100, SAMPLEWRAPREAD=200; 
+  int dir[2]={-1,1};
+
+ dirry=dir[SAMPLEDIRR]*10;
+ // count+=dirry;
+ count=((sampleposread-startread)+dirry);
+ if (count<wrapread && count>0)
+   {
+     sampleposread+=dirry;//)%32768;
+   }
+ else {
+   startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+   if (SAMPLEDIRR==1) {
+     sampleposread=startread; //forwards
+     //   count=0;
+   }
+   else {
+     sampleposread=startread+wrapread;
+     //     count=wrapread;
+   }
+   //   sampleposread=startread;//+wrapread;
+   //   count=0;
+ }
+ // printf("pos: %d\n", sampleposread);
+}
+
 void main(void)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
-  u16 x; u16 count=0;
+  int x; 
   u16 howmuch,i;
   //   uint16_t xxx[MAX_SAM];
      u8 xxx[65536];
@@ -1697,18 +1725,21 @@ void main(void)
 	   u16 addr=rand()%32768;
 	   //	   u8 which=rand()%26;
 	   //	   u8 which=23;//18,19,20,22,23
-	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
+	   //	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
   	 	   }
   
 
-	 while(1){
+	 int count,dirry; u16 sampleposread=100, startread=100,wrapread=200, SAMPLESTARTREAD=100, SAMPLEWRAPREAD=200; 
+	 //	 while(1){
+	 for (x=0;x<500000000;x++){
+	   tester(rand()%2);
 
 				   //			   if ((rand()%15)<10)			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,0,rand()%32760);//29-32
 	//			   else stack_pos=func_pop(stackyy,stack_pos);
 		
-	   func_runall(stackyy,stack_pos); // simulations
-	   printf("%d\n",buf16[x%32768]>>8);
-	   x++;
+	   //	   func_runall(stackyy,stack_pos); // simulations
+	   //	   printf("%d\n",buf16[x%32768]>>8);
+	   //	   x++;
 	 }
 }
 
