@@ -1,49 +1,12 @@
 /* switching signal paths and hardware setup */
 
-/* TODO:
-
-///older:::
-
-test leave all hanging= GPIO_Mode_IN_FLOATING
-
-- maybe do all hardware init/setup in one go - as maybe problem with so many
-- structures try also with BSRR or with GPIO_WriteBit(GPIO_TypeDef*
-- GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
-
-- lmpwm is ringing (1-1000)
-
-- clean up for functions below and test all combinations:
-
-  functions:
-- justfilter
-- justdistortion
-- filterthendistortion
-- distortionthenfilter
-- distortioninfilter on/off (could be done fast also)
-- setfiltfeedbackpath - digital/lm13700
-- feedback 
-- setfloating (enum list)
-- setallfloating (or how to set diff ones but not just one)
-
-- setlmpwm- setmaximpwm
-- set40106power
-
-////
-
-- test leave all hanging= GPIO_Mode_IN_FLOATING
-
-*/
-
 #include "hardware.h"
 #include "misc.h"
 #include "stm32f4xx_tim.h"
 #include "stm32f4xx_pwr.h"
 
-//extern __IO uint16_t adc_buffer[10];
-
 u8 digfilterflag;
 
-//int duty_cycle;
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure;
 uint16_t CCR4_Val = 333;
@@ -86,18 +49,6 @@ A-PB7=switchesX
 B-PB8=Y
 C-PB9=Z
 
-are any of these swapped???
-
-*/
-
-#define JACKOUT (1 << 2) /* port B, pin 2 */
-#define FILTIN (1 << 4) /* port B, pin 4 */
-#define LINEINN (1 << 7) /* port B, pin 7 */
-
-/*
-
-all clocks set in datagens/elsewhere
-
 */
 
 void reset_switches(void);
@@ -108,18 +59,11 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   static uint8_t hangflag=0, clockhangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
-  //#define JACKOUT (1 << 2) /* port B, pin 2 */
-  //#define FILTIN (1 << 4) /* port B, pin 4 */
-  //#define LINEINN (1 << 7) /* port B, pin 7 */
-
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
   //PC8 is feedback switch
-  //jitter???
 
   res= modder>>5; // top 2 bits
   res2=modder&31; // //
-  // **DONE: maybe res2 as >>2 so we have 32 options
-  // as res=0-4 * 32 = 128 which is modder>>5 which comes in 
 
   if ((res2>16 || res2<9) && hangflag==1){ // new hangers=9->16
     hangflag=0;
@@ -145,10 +89,8 @@ RES: feedback on/off - jackin-> - lm358in->
 2-feedon 
 3-feedon xx     lmin ??? makes no sense replaced with clock unhang
 
-
   */
 
-  //  res=0; 	  //TESTY!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7);
@@ -169,7 +111,7 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOB->BSRRH = (1<<7);
    GPIOC->BSRRH = (1<<8); // was H!
    GPIOC->BSRRL = (1<<13);
-   // add unhang for clocks? DONE! 
+   // add unhang for clocks- DONE! 
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
    GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -183,7 +125,6 @@ RES: feedback on/off - jackin-> - lm358in->
    break;
  }
 
-  //   res2=31; 	  //TESTY! 30->filter->digital no distort
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -192,7 +133,6 @@ RES: feedback on/off - jackin-> - lm358in->
   case 0:
   case 1:
    //1-straightout
-    // clear other options up here:
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6);// | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL = (1<<2) | (1<<8);// | (1<<9);// this gets rid of hum
@@ -535,21 +475,6 @@ RES: feedback on/off - jackin-> - lm358in->
     else digfilterflag=1;
     break;
   }
-}
-
-void switch_jack(void)
-{
-  // clear first 3 and JACKOUT is on
-
-  //  GPIO_SetBits(GPIOB, GPIO_Pin_2); 
-
-  //  GPIO_SetBits(GPIOC, GPIO_Pin_8); // feedback on PC8
-
-  //  GPIOC->ODR = 0; // should clear more than this?
-  GPIOB->ODR = JACKOUT;// | LINEINN;// lineinn should be zero - toggle lineinn for 4053=lm358in
-  //  GPIOC->ODR |= (1<<10);
-
-
 }
 
 void reset_clocks(void)

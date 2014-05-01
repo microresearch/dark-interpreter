@@ -237,8 +237,9 @@ u8 fingervalup(u8 tmpsetting){
   return tmpsetting;
 }
 
-u8 fingervalright(u8 tmpsetting){
+u8 fingervalright(u8 tmpsetting, u8 wrap){
   u8 handup,handdown;
+  int16_t tmps;
   u8 ttss=0,sstt=0;u8 x;
 
   for (x=0;x<16;x++){
@@ -247,11 +248,16 @@ u8 fingervalright(u8 tmpsetting){
   if (handup>8) ttss++;
   else if (handdown>8) sstt++;
   }
-  if (ttss>sstt) tmpsetting+=1;
-  else if (ttss<sstt) tmpsetting-=1;
+  if (ttss>sstt) {
+    tmpsetting+=1;
+    tmpsetting=tmpsetting%wrap;
+  }
+  else if (ttss<sstt) {
+tmpsetting-=1;
+ if (tmpsetting==255) tmpsetting=wrap-1;
+  }
   return tmpsetting;
 }
-
 
 void main(void)
 {
@@ -260,7 +266,7 @@ void main(void)
   u16 x,addr,tmp,tmppp,hdtmp,tmphardware;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper;
-  u8 hardware=0,mirror=0,villagemirror=0,mirrordel=0, oldhardware,fingermod,oldfingermod,whichdir,whichdiritis,speed,whichspeed,foldback; 
+  u8 mirror=0,villagemirror=0,mirrordel=0, fingermod,oldfingermod,whichdir,whichdiritis,speed,whichspeed,foldback; 
   u16 constrain,foldbackset;
   u8 effects,effectmod=0;
   u8 machine_count=0,leak_count=0; 
@@ -325,26 +331,6 @@ void main(void)
   dohardwareswitch(2,0);
 #endif
 
-  ////////////////////TESTCODE_TODO_REMOVE - but do replace with some
-  ////////////////////minimal setup code to get started
-  //TESTER!
-
-  // set up for formant - fixed above
-
-  //extern u8 ww[3],freqy[3];
-
-  /*
-  for (x=0;x<3;x++){
-    ww[x]=randi()%255;
-    freqy[x]=randi()%255;
-    }*/
-
-  villagestackpos=0;
-  // TESTY for villager:
-  //for (x=0;x<64;x++){
-
-  //  }
-
   // setup code for walkers
   for (x=0;x<11;x++){
     settingsarray[x]=0;
@@ -374,7 +360,7 @@ void main(void)
   for (x=0; x<100; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,randi()%100);//randi()%255);
+      cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,randi()%100);
     }
 
   //pureleak
@@ -389,7 +375,7 @@ void main(void)
     start=randi()<<3;
     wrap=randi()<3;
     stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%100,start,wrap); 
-    villagestackpos=villagepush(villagestackpos,start,wrap);//TESTY!!!//pos/start/wrap
+    villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   //simulationforstack:	
@@ -397,7 +383,7 @@ void main(void)
     start=randi()<<3;
     wrap=randi()<3;
     stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%100,start,wrap);
-    villagestackpos=villagepush(villagestackpos,start,wrap);//TESTY!!!//pos/start/wrap
+    villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   ///////////////////////////
@@ -437,7 +423,6 @@ void main(void)
       	  } // end of machine count
       /////////////////////////////
       // KKNOBBBSSS
-      /// HARDWARE SMOOTHING!
 
 #ifdef LACH
 	  //SAMPLEWRAP (out-play) TO TEST!!
@@ -455,7 +440,7 @@ void main(void)
       for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIRST]>>5; // 7 bits
       }
-            hardware=tmphardware>>8; //average was >>8 // TESTY!
+            settingsarray[64]=tmphardware<<1; //was >>8 // TESTY!
       //      hardware=rand()%127; // TESTY!
             effects=adc_buffer[SECOND]>>5;  // 7 bits
 	    //      effects=rand()%128;
@@ -466,20 +451,17 @@ void main(void)
 #endif
       
       ////// KNOB THIRD - mod for fingers // foldback
-            fingermod=adc_buffer[THIRD]>>6; // 64=6 bits//TESTY!
-      //            fingermod=rand()%64; // TESTY FORCRASH!
-
+      fingermod=adc_buffer[THIRD]>>6; // 64=6 bits//TESTY!
+      // fingermod=rand()%64; // TESTY FORCRASH!
       // 1-mod effectmod 0-7
-      //fingermod=45; // TESTY!!!
       if (fingermod<8){
-	effectmod=(fingervalright(effectmod)%8);
+	effectmod=fingervalright(effectmod,8);
       }
       // 2-push/pop with template settings and type fronm left/right
                   else if (fingermod<16){ // TODO: move stack to first position above
-
-		    	whichstack=(fingervalright(whichstack)%5);
+		    whichstack=fingervalright(whichstack,5);
 		    //		    whichstack=rand()%5; TESTY
-		    if (fingerdirupdown()==1) 
+		    if (fingerdirupdown()==1) {
 		      //if ((rand()%2)==1){
 		  	  switch (whichstack){ // which stack to push=0-4
 	  case 0:
@@ -499,6 +481,7 @@ void main(void)
 	    break;
 			  }
 		    }
+		  }
 		  else if (fingerdirupdown()==0){
 			  //else {
 	  switch (whichstack%3){ // which stack to pop=0-
@@ -518,7 +501,7 @@ void main(void)
       // up/down selects and other sets dir or other way round here?
       else if (fingermod<24){
 	//54])>>15 directions are 54 to 65==12
-	whichdir=(fingervalright(whichdir)%12);//
+	whichdir=fingervalright(whichdir,12);//
 	whichdiritis=(fingerdirupdown()); // was UP
 	settingsarray[54+whichdir]=whichdiritis<<15;  //<<1 bit to 16
       }
@@ -527,7 +510,7 @@ void main(void)
       // select and expand or contract
       else if (fingermod<28){
 	// speeds are: 35->40==6
-	whichspeed=(fingervalright(whichspeed)%6);
+	whichspeed=fingervalright(whichspeed,6);
 	speed=fingervalup(speed);
 	settingsarray[35+whichspeed]=speed<<8; // 8 bits to 16
       }
@@ -553,7 +536,7 @@ void main(void)
 	// action is from knob 40-64
 	// finger-> foldback settings 66-70
 
-	foldback=(fingervalright(foldback)%5);
+	      foldback=fingervalright(foldback,5);
 	foldbackset=fingervalup16bits(foldbackset, 32);	
 	settingsarray[66+foldback]=foldbackset;
 	//      mirror: - all as action and one off toggle on off
@@ -696,7 +679,7 @@ void main(void)
 
       ////////////////////////////////////////////////////////////////////////////////////
       
-            if (++mirrordel>=FOLDSPEED){//TESTY!
+            if (++mirrordel>=FOLDSPEED){
 
       if (mirror&1){
 	for (x=0;x<FOLDSWRAP;x++){
@@ -825,11 +808,11 @@ for (x=0;x<FOLDSWRAP;x++){
 
       if (digfilterflag&16){
 	hdtmp=(HWSTART+(hwpos%wrapper)); 
-	dohardwareswitch(hardware,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONS));
+	dohardwareswitch(HARDWARE,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONS));
       }
       else
 	{
-	  dohardwareswitch(hardware,0);
+	  dohardwareswitch(HARDWARE,0);
 	  //	  if (hardware!=oldhardware) dohardwareswitch(hardware,0);
 	  //	  oldhardware=hardware;
 	}

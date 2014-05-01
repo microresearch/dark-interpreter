@@ -395,14 +395,9 @@ void thread_run(thread* this, machine *m) {
 	case 3:
 	  //	  seven rooms: 
 	  temp= (this->m_pc)%7;
-	  //      TODO: constrain these
-	  /*	  HWWRAP=HWWRAP>>temp;
-	  SAMPLEWRAP=SAMPLEWRAP>>temp;
-	  SAMPLEWRAPREAD=SAMPLEWRAPREAD>>temp;
-	  SAMPLEWRAPFILT=SAMPLEWRAPFILT>>temp;
-	  ANYWRAPREAD=ANYWRAPREAD>>temp;
-	  ANYWRAP=ANYWRAP>>temp;
-	  ANYWRAPFILT=ANYWRAPFILT>>temp;*/
+	  for (u8 x=11;x<22;x++){//11-21
+	    settingsarray[x]=settingsarray[x]>>temp;
+	  } // CONSTRAINT
 	  this->m_pc++;
 	  break;
 	case 4:
@@ -719,7 +714,6 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 ///////////////////////////////////////////////////////////////
 
     case 7:
-      // SIR: add in input and output??? untested for audio but...
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);

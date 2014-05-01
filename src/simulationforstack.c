@@ -1729,15 +1729,25 @@ void main(void)
   	 	   }
   
 
-	 int count,dirry; u16 sampleposread=100, startread=100,wrapread=200, SAMPLESTARTREAD=100, SAMPLEWRAPREAD=200; u8 d=0;
-	 d-=1;
-	 sampleposread=d<<15;
-	 printf("%d\n",sampleposread>>15);
-
+	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdir[2]={-1,1};
  
-	 /*	 	 while(1){
+	  	 while(1){
+		   SAMPLEDIRW=rand()%2;
+	    dirry=newdir[SAMPLEDIRW]*1;
+	    count=((samplepos-start)+dirry);
+	    //	    if (count<wrap && (samplepos+dirry)>start)
+		    if (count<wrap && count>0)
+		  {
+		    samplepos+=dirry;//)%32768;
+		  }
+		else {
+		    start=SAMPLESTART;wrap=SAMPLEWRAP;
+		    if (SAMPLEDIRW==1) samplepos=start; //forwards
+		    else samplepos=start+wrap;
+		  }
+		    printf("%d\n",samplepos);
 
-		   if ((rand()%20)<10){			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,rand()%32768,rand()%32768);//29-32
+		   /*	   if ((rand()%20)<10){			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,rand()%32768,rand()%32768);//29-32
 		     //		     printf("pusn %d\n",stack_pos);
 		   }
 			   else stack_pos=func_pop(stackyy,stack_pos);
@@ -1746,11 +1756,12 @@ void main(void)
 
 		   for(x=0;x<48;x++){
 		     stacker[x]=rand()%32768;
-		   }
+		     }*/
 
-	   //	   printf("%d\n",buf16[x%32768]>>8);
+		   //	settingsarray[66+foldback]=foldbackset;
+		   //	   	   printf("%d\n",buf16[x%32768]>>8);
 	   //	   x++;
-	   }*/
+	   }
 }
 
 #endif

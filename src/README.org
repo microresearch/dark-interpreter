@@ -1,4 +1,4 @@
-`Oh, eternity with outstretched wings, that broodest over the secret
+,`Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
 organ!
@@ -295,23 +295,34 @@ foldback settings. about foldback/mirror
 
 provisional release:
 
-- tweaks as below//FINAL TESTS/tests for simple boards
+-possible crash: optimization, stack size/overflow, memory overflow
+larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
+
+- try 48k again!
+- fixes to fingervalright so wraps correctlyDONE-TEST!
+- rework X and Y as new knobs: possibilities. X as mod. Y as settings
+  for that group // open up bare fingers here and adc9
+- test fingers with different fingers!
+- FINAL TESTS/tests for simple boards
 - finish write knob layout above for manual
 - video and more samples...
 
+- villager max number increase or?
+- adc9 -> datagenbuffer (at start or?)
+- *some kind of foldback for hardware setting* settingsarray[64]//too high
+
+
 * WED 30 APR-FINISH
 
-TODO:
-
-- fix settings X and Y somehow - averaging and kind of works
-- move or not stack
-- check all TODO, TESTYs and TESTERs, cleanups
 
 ** DONE/NOTES:
 
+- check all TODO, TESTYs and TESTERs, cleanups
+: pureleakXmasquesTEST audioX hardwareX simulationforstackX CPUintrev3X CAforstackX
+- simulate dir changes-DONE
 - crash - still unknown but stopped now 
 - small fixes to mistakes in audio.c
-- in main init add all datagens _and_ villagers. TODO>TEST
+- in main init add all datagens _and_ villagers.
 - crash tests- could be in stacker(which must be restricted - stackery
   is ok as refers to 8bits), fixed but still crash//could be
   villager>>1fixedNON... //enlarged audio_buffer by a margin seems
@@ -320,6 +331,7 @@ TODO:
 - settings with knob is now after mirroring
 
 * MON/TUE 28/29 APR
+
 
 samples: 473
 
@@ -333,17 +345,17 @@ PLAN:
 W/THU/test basic brds/tweak/record/document
 
 tweakS!:
-- villager max number?
+- villager max number tweaks
 - adc9 -> datagenbuffer (at start or?)
 - bare finger entry into settings/datagen
-- some kind of foldback for hardware setting
+- *some kind of foldback for hardware setting*
 
 new knob scheme:
 
 1-hardwareDONE
 2-effects-test jitter (effectmod also from below)DONE
 3-mod for up/down/left/right and foldback (mirror)
-4-settings X
+4-settings X-TODO!
 5-settings Y
 
 ** DONE
@@ -413,7 +425,7 @@ diff this or make inc changed by user)-TO TEST
 - do ifdefs for all changes of ADCs DONE
 - test new integration of villages into EFFECTREAD/WRITE/FILT-DONE
 -fixed one issue with second/firstbuf and can add extra effects to
-16 or keep as 128 as LIMIT?TODO?
+16 or keep as 128 as LIMIT?
 -added SAMPLEWRAP as constraint on other grainers
 -digfilterflag zeroes in hardware.c IMPORTANT!
 - test new CA and simulation on ARM DONE
@@ -426,9 +438,8 @@ diff this or make inc changed by user)-TO TEST
 
 RELEASE THU 1 MAY
 
-TODO:
 
-- if we use 40106 as control then should do pwm on this all the time???
+- if we use 40106 as control then should do pwm on this all the time???DONE
 
 *potential new knob scheme and mirroring:*
 
@@ -486,7 +497,7 @@ but we would need to re-write so variables are in the stack TODO!done for both T
 village setting to exploit!
 
 - why does settingsarray settings not go into audio.c//line 450tests -
-  most likely from redroom code? CHANGE or KEEP?. removed from pureleak but still in CPU! TODO?
+  most likely from redroom code? CHANGE or KEEP?. removed from pureleak but still in CPU! TODO?back in
 
 - test finger code directionsDONE-working
 - smoothing tests doneTESTED
@@ -546,9 +557,6 @@ http://00xnor.blogspot.de/2014/01/7-stm32-f4-adc-dma-temperature-sensor.html
 use it for leftbuffer only???  // so can discard it when we don't use
 leftbuffer
 
-- TODO: when wrapper changes we need to redo direction array!!!
-
-- TODO: test fingers with different fingers!
 
 ** //DONE:***
 

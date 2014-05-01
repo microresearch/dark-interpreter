@@ -83,8 +83,10 @@
 
 //foldback settings
 
-#define FOLDSDIR (settingsarray[64]>>15) // both unused i think
-#define FOLDDDIR (settingsarray[65]>>15)
+#define HARDWARE (settingsarray[64]>>9)
+
+//#define FOLDSDIR (settingsarray[64]>>15) // both unused i think
+//#define FOLDDDIR (settingsarray[65]>>15)
 
 #define FOLDSSTART ((settingsarray[66]>>1)) 
 #define FOLDSWRAP ((settingsarray[67]>>10)+1)// 6 bits 

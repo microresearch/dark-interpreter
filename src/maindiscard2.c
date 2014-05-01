@@ -1,3 +1,39 @@
+
+/* TODO:
+
+///older:::
+
+test leave all hanging= GPIO_Mode_IN_FLOATING
+
+- maybe do all hardware init/setup in one go - as maybe problem with so many
+- structures try also with BSRR or with GPIO_WriteBit(GPIO_TypeDef*
+- GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
+
+- lmpwm is ringing (1-1000)
+
+- clean up for functions below and test all combinations:
+
+  functions:
+- justfilter
+- justdistortion
+- filterthendistortion
+- distortionthenfilter
+- distortioninfilter on/off (could be done fast also)
+- setfiltfeedbackpath - digital/lm13700
+- feedback 
+- setfloating (enum list)
+- setallfloating (or how to set diff ones but not just one)
+
+- setlmpwm- setmaximpwm
+- set40106power
+
+////
+
+- test leave all hanging= GPIO_Mode_IN_FLOATING
+
+*/
+
+
 /////////////////////////////
 
 latest knob business:
