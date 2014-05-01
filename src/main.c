@@ -12,7 +12,6 @@
 /*
  PATH=~/sat/bin:$PATH
  PATH=~/stm32f4/stlink/flash:$PATH
-
  make stlink_flash
 */
 
@@ -56,22 +55,22 @@
 #define RIGHT 7
 #endif
 
-int16_t newdir[4]={-1,1};
-int16_t direction[4]={-1,1};
-int16_t villagedirection[4]={-1,1};
-int16_t villagedirectionf[4]={-1,1};
-int16_t villagedirectionw[4]={-1,1};
-int16_t newdirf[4]={-1,1};
-int16_t directionf[4]={-1,1};
-int16_t newdirread[4]={-1,1};
-int16_t directionread[4]={-1,1};
+signed char newdir[2]={-1,1};
+signed char direction[2]={-1,1};
+signed char villagedirection[2]={-1,1};
+signed char villagedirectionf[2]={-1,1};
+signed char villagedirectionw[2]={-1,1};
+signed char newdirf[2]={-1,1};
+signed char directionf[2]={-1,1};
+signed char newdirread[2]={-1,1};
+signed char directionread[2]={-1,1};
 
 u8 villagestackpos=0;
 u16 villager[129];
 u16 stackery[48]; // 16*3 MAX
 u16 stacker[48]; // 16*3 MAX
 u8 ww[3]={12,15,0};
-  u8 freqy[3]={10,10,0};
+u8 freqy[3]={10,10,0};
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -99,16 +98,11 @@ extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
 extern u8 digfilterflag;
 
-u8 testdirection;
-u8 wormdir; // worm direction
+//u8 testdirection;
+//u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
 u16 settingsarray[71];
-
-struct dgenwalker{
-  u8 step,dir,speed,del,wormflag;
-  u16 pos;
-};
 
 #define VILLAGE_SIZE 128 // 64 *2
 
@@ -164,20 +158,17 @@ u8 fingerdir(void){
 u8 fingerdirleftright(void){
 
   u8 handleft, handright, left=0,right=0;
-  u8 result=2;
+  u8 result=0;
 
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
   if (handleft>8) left++;
   if (handright>8) right++;
-  //  handcount++;
   if (left>8 && left>right) {
-    //    up=0;down=0;left=0;right=0;
     result=0;
   }
   else if (right>8 && right>left) {
-    //    up=0;down=0;left=0;right=0;
     result=1;
   }
   }
@@ -194,13 +185,10 @@ u8 fingerdirupdown(void){
   handright=adc_buffer[DOWN]>>8;
   if (handleft>8) left++;
   if (handright>8) right++;
-  //  handcount++;
   if (left>8 && left>right) {
-    //    up=0;down=0;left=0;right=0;
     result=0;
   }
   else if (right>8 && right>left) {
-    //    up=0;down=0;left=0;right=0;
     result=1;
   }
   }
@@ -262,7 +250,6 @@ tmpsetting-=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 *buf; u8 *buff;
   u16 x,addr,tmp,tmppp,hdtmp,tmphardware;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper;
@@ -272,11 +259,11 @@ void main(void)
   u8 machine_count=0,leak_count=0; 
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
 
-  int16_t hwdir[2]={1,-1};
+  signed char hwdir[2]={1,-1};
 
   inittable(3,4,randi(),table);
 
-  float pi= 3.141592;
+  const float pi= 3.141592;
   float w;
   float yi;
   float phase;
@@ -315,8 +302,7 @@ void main(void)
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
   u8 hwdel=0;
-    u16 hwpos=0,hwposss,wrapper;
-	 
+  u16 hwpos=0,hwposss,wrapper;
   u8 stack_pos=0;
   u8 stack_posy=0;
   u8 whichstack=0;
@@ -360,14 +346,14 @@ void main(void)
   for (x=0; x<100; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,addr+randi(),randi()%31,randi()%100);
+      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%100);
     }
 
   //pureleak
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-    cpustackpushhh(datagenbuffer,addr,addr+randi(),randi()%31,randi()%100);
+    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%100);
   }
 
   // CA
@@ -394,20 +380,19 @@ void main(void)
 #ifdef TEST_STRAIGHT
       // do nothing
 #else
-
-	  machine_count++;
-	  if (machine_count>=MACHINESPEED){
+      machine_count++;
+      if (machine_count>=MACHINESPEED){
 
 	          for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
-	  	  func_runall(stackyy,stack_pos); // simulations
+	  func_runall(stackyy,stack_pos); // simulations
 	  break;
 	case 1:
-	  	  	  ca_runall(stackyyy,stack_posy); // CA
+	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  	  machine_run(m);
+	  machine_run(m);
 	    m->m_leakiness=LEAKINESS;
 	    m->m_infectprob=INFECTION;
 	    machine_count=0;
@@ -415,7 +400,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    	    machine_runnn(datagenbuffer);
+	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -458,12 +443,12 @@ void main(void)
 	effectmod=fingervalright(effectmod,8);
       }
       // 2-push/pop with template settings and type fronm left/right
-                  else if (fingermod<16){ // TODO: move stack to first position above
-		    whichstack=fingervalright(whichstack,5);
-		    //		    whichstack=rand()%5; TESTY
-		    if (fingerdirupdown()==1) {
-		      //if ((rand()%2)==1){
-		  	  switch (whichstack){ // which stack to push=0-4
+      else if (fingermod<16){ // TODO: move stack to first position above
+	whichstack=fingervalright(whichstack,5);
+	//		    whichstack=rand()%5; TESTY
+	if (fingerdirupdown()==1) {
+	  //if ((rand()%2)==1){
+	  switch (whichstack){ // which stack to push=0-4
 	  case 0:
 	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
 	    break;
@@ -480,9 +465,8 @@ void main(void)
 	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
 	    break;
 			  }
-		    }
-		  }
-		  else if (fingerdirupdown()==0){
+	}
+	else if (fingerdirupdown()==0){
 			  //else {
 	  switch (whichstack%3){ // which stack to pop=0-
 	  case 0:
@@ -495,7 +479,7 @@ void main(void)
 	    villagestackpos=villagepop(villagestackpos);
 	  }
 		  }
-
+      }
 
       // 3-directions???
       // up/down selects and other sets dir or other way round here?
@@ -522,7 +506,6 @@ void main(void)
 	settingsarray[35+x]=speed<<8;
 	}
       }
-
       // 5-micro-macro - expand or contract
       else if (fingermod<40){
 	// change wraps [11-24]
@@ -537,8 +520,8 @@ void main(void)
 	// finger-> foldback settings 66-70
 
 	      foldback=fingervalright(foldback,5);
-	foldbackset=fingervalup16bits(foldbackset, 32);	
-	settingsarray[66+foldback]=foldbackset;
+	      foldbackset=fingervalup16bits(foldbackset, 32);	
+	      settingsarray[66+foldback]=foldbackset;
 	//      mirror: - all as action and one off toggle on off
 	if (oldfingermod!=fingermod){
 	// 1-datagen to region of settings:
@@ -546,8 +529,8 @@ void main(void)
 	if (fingermod<42){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
-			}
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+	}
 	mirror^=1;
 	}	
 	// 2-datagen to region of stack:
@@ -577,7 +560,7 @@ void main(void)
 	else if (fingermod<48){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
-	  	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<4;
+	  	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]=randi()<<4;
 			}
 	mirror^=4;
 	}	
@@ -601,7 +584,7 @@ void main(void)
 	else if (fingermod<52){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
-	  	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
+	  	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]+=8;
 			}
 	mirror^=16;
 	}	
@@ -633,7 +616,7 @@ void main(void)
 	else if (fingermod<58){ // TODO TEST/jitter??? maybe +-1 also?
 	
 	for (x=0;x<FOLDSWRAP;x++){
-	    settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
+	    settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]-=8;
 			}
 	mirror^=64;
 	}	
@@ -667,23 +650,22 @@ void main(void)
 
 	//	fingermod=64; mirror=1;// TESTY!!!
 	else { // TODO TEST/jitter??? maybe +-1 also?
-		for (x=0;x<7;x++){
+		for (x=0;x<5;x++){
 	  tmper=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
-	  settingsarray[x+64]=tmper; // TESTER-was big crash!
+	  settingsarray[x+66]=tmper; // TESTER-was big crash!
 		}
 	}	
       }
       }
       oldfingermod=fingermod;
      
-
       ////////////////////////////////////////////////////////////////////////////////////
       
             if (++mirrordel>=FOLDSPEED){
 
       if (mirror&1){
 	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
 			}
       }
 
@@ -701,7 +683,7 @@ void main(void)
 
       if (mirror&4){
 	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=randi()<<3;
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]=randi()<<3;
 			}
 	}	
 
@@ -719,7 +701,7 @@ void main(void)
 
       if (mirror&16){	
 	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=8;
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]+=8;
 			}
       }
 
@@ -737,7 +719,7 @@ void main(void)
 
       if (mirror&64){
 	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=8;
+	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%65]-=8;
 			}
 	}	
 

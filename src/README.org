@@ -293,14 +293,13 @@ foldback settings. about foldback/mirror
 
 * THU 1 MAY/FRI 2 MAY
 
-- clean vars/check arrays//
 
-: main audioX simulationforstackX
+- check in sim: rosslers and co for output scalings!
 
-//////
+/////
 
-- check sim - rosllers and co for output scalings!
-- try 48k again!
+- some kind of foldback for hardware setting in main.c -DONE. TEST 
+- try 48k again (change in main and in sim)
 - fixes to fingervalright so wraps correctlyDONE-TEST!
 - rework X and Y as new knobs: possibilities. X as mod. Y as settings
   for that group // open up bare fingers here and adc9
@@ -313,7 +312,6 @@ foldback settings. about foldback/mirror
 
 - villager max number increase or?
 - adc9 -> datagenbuffer (at start or?)TEST
-- *some kind of foldback for hardware setting* settingsarray[64]//too high or?TEST
 
 CRASH notes:
 
@@ -336,6 +334,9 @@ larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
 
 ** DONE
 
+
+- cleaned vars/checked arrays//- watch for stacker and stackery not being set
+- jumble in main of elses FIXED
 - rewrite simulationforstack to avoid waste in sineDONE
 - check all TODO, TESTYs and TESTERs, cleanups
 - bug in CA pushn code fixed

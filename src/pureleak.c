@@ -24,7 +24,7 @@ extern u16 settingsarray[71];
 #ifdef PCSIM
 u8 wormdir; // worm direction
 #else
-extern u8 wormdir;
+u8 wormdir;
 #endif
 
 /* 

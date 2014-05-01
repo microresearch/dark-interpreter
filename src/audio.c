@@ -12,6 +12,7 @@ LINEIN/OUTL-filter
 
 #define STEREO_BUFSZ (BUFF_LEN/2)
 #define MONO_BUFSZ (STEREO_BUFSZ/2)
+
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 
 extern __IO uint16_t adc_buffer[10];
@@ -19,21 +20,20 @@ extern __IO uint16_t adc_buffer[10];
 extern u8 villagestackpos;
 extern u16 settingsarray[71];
 extern u16 villager[130];
-extern int16_t newdir[2];
-extern int16_t direction[2];
-extern int16_t villagedirection[2];
-extern int16_t villagedirectionf[2];
-extern int16_t villagedirectionw[2];
-extern int16_t newdirf[2];
-extern int16_t directionf[2];
-extern int16_t newdirread[2];
-extern int16_t directionread[2];
+extern signed char newdir[2];
+extern signed char direction[2];
+extern signed char villagedirection[2];
+extern signed char villagedirectionf[2];
+extern signed char villagedirectionw[2];
+extern signed char newdirf[2];
+extern signed char directionf[2];
+extern signed char newdirread[2];
+extern signed char directionread[2];
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
 
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
-
 
 void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, float c2){
   u8 i=0,tmp=0,tmpp;
@@ -46,7 +46,6 @@ void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, floa
 extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
-
 extern u8 ww[3],freqy[3];
 
 void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
@@ -119,24 +118,22 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 {
-  //	float32_t f_p0, f_p1, tb_l, tb_h, f_i, m;
   u16 tmp,tmper;
   int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
-	static u16 start=0,startfilt,wrapfilt,wrap,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-	static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0;
-	u8 VILLAGEREAD=0,VILLAGEWRITE=0,VILLAGEFILT=0;
-	int16_t dirry=1;
-	float w0,w1,w2;
+  static u16 start=0,startfilt=0,wrapfilt=1,wrap=1,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
+  static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
+  u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
+  int16_t dirry;
+  float w0,w1,w2;
 
-	static u16 anyposread=0,sampleposread=0,wrapread=0,startread=0;
-	static u8 delread=0;
-	u16 wrapper; 
+  static u16 anyposread=0,sampleposread=0,wrapread=1,startread=0;
+  u16 wrapper; 
 
 #ifdef TEST_STRAIGHT
-	audio_split_stereo(sz, src, left_buffer, right_buffer);
-	audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+  audio_split_stereo(sz, src, left_buffer, right_buffer);
+  audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 #else
 
 	u16 *buf16 = (u16*) datagenbuffer;
@@ -249,7 +246,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=newdirread[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    ///
-	    count=((sampleposread-startread)+dirry); //TODO: could also just be static count
+	    count=((sampleposread-startread)+dirry);
 	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
 		  {
@@ -385,7 +382,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src;
 	  tmp32=firstbuf[samplepos%32768]* *src++;
 	  *rdst++ = *src++; 
-	  *src++;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 11:
@@ -475,7 +471,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  delread=0;
 	  }
 	}
-
 	}
 	else  // READIN NO DIG FILTER
 	  {
@@ -645,13 +640,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  switch(tmpp){ 
 	  case 0:
 	  default:
-	    mono_buffer[x]=firstbuf[samplepos%32768];
+	  mono_buffer[x]=firstbuf[samplepos%32768];
 	  break;
 	  case 1:
 	  mono_buffer[x]=secondbuf[samplepos%32768];
 	  break;
 	  // effects with/without clipping *, +, -, 
-
 	  case 2:
 	  tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
 	  mono_buffer[x]=tmp32;
@@ -757,14 +751,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  }
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp>12){
-
 	    switch(tmpp){
 	    case 13:
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,0.5,0.5,0.5);
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
@@ -915,17 +908,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp==15){
 	      // 3 floats!
-	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
 	      runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	  } // end of tmpp==15
-
-
 	}
-
 	}
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
-
 	    	  if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    //	    firstbuf=buf16int; //TESTY!
@@ -1054,7 +1043,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[0]/65536;w1=buf16[1]/65536;w2=buf16[2]/65536;
+	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
@@ -1062,16 +1051,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	      break;
 	  }
 	  } // end of tmpp>12
-
 	}
 	  }
-#endif
-      
-	///!!!!!!////////////////////////////////END OF WRITEOUTSSS
+      	///!!!!!!////////////////////////////////END OF WRITEOUTSSS
 
 	///	///	///	///
-
-#ifndef LACH // as we have no filter!
 
 if (digfilterflag&1){ 
 
