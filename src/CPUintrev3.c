@@ -1,7 +1,5 @@
 // was CPU.c but now with overlap, uint16_t blah
 
-// void cpustackpush(machine *this, u16 address, u16 wrapaddress, u8 cputype, u8 delay)
-
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -16,10 +14,11 @@ u16 settingsarray[71];
 #include <malloc.h>
 #include "CPUint.h"
 #include "settings.h"
+#include "audio.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
-extern u16 settingsarray[64];
+extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+extern u16 settingsarray[71];
 #endif
 
 #include <math.h>
@@ -29,7 +28,6 @@ u8 wormdir; // worm direction
 #else
 extern u8 wormdir;
 #endif
-
 
 /* 
 
@@ -92,7 +90,6 @@ void thread_create(thread *this, u8 *buffer,u16 address, u16 wrapaddress, uint8_
   this->m_reg16bit1=address;
   this->m_stack_pos=-1;
   this->m_memory=buffer;
-    //this->m_stack=(u8*)malloc(STACK_SIZE);
 
     for (u8 n=0; n<STACK_SIZE; n++)
       {
@@ -121,7 +118,6 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
   index=(rule>>inst)&1;
   if (index==0) return dir-1; 
   else return dir+1; 
-
 }
 
 void dircalc(u16 *mmm, u16 wrapper,u16 liner){
@@ -140,9 +136,7 @@ void thread_run(thread* this, machine *m) {
   u16 y;
   u8 flag,other=0;// float other=0.0f;
   u8 deltastate[ ] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
-			6, 11, 5, 13};	/* change in state indexed by color */
-  //  printf("running: %d ",this->m_start);
-  //  sleep(1);
+			6, 11, 5, 13};
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
@@ -154,7 +148,6 @@ void thread_run(thread* this, machine *m) {
     //    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
-    //    this->m_CPU=5;
     switch(this->m_CPU)
       {
       case 0: // :LEAKY STACK! - working!
@@ -164,7 +157,6 @@ void thread_run(thread* this, machine *m) {
       //			printf("%d", instr);
       switch(instr%25)
 	{
-	  
 	case NOP: break;
 	case ORG: this->m_start=this->m_pc-1; this->m_pc=this->m_start+1; break;
 	case EQU: if (thread_stack_count(this,2)) thread_push(this,thread_pop(this)==thread_pop(this)); break;
@@ -1553,7 +1545,6 @@ int main(void)
 {
   u16 xx; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
-u8 settingsarray[64];
 
   srandom(time(0));
   for (xx=0;xx<65535;xx++){

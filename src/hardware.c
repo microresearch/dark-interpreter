@@ -9,7 +9,6 @@ u8 digfilterflag;
 
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure;
-uint16_t CCR4_Val = 333;
 uint16_t PrescalerValue = 0;
 
 void TIM_Config(void);
@@ -75,10 +74,10 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
     reset_clocks();
     }
 
-  //#ifdef TEST_STRAIGHT
-  //      res=2;
-      //    res2=0; // testing now!
-  //#endif // TEST_STRAIGHT
+#ifdef TEST_STRAIGHT
+      res=0;
+      res2=0;
+#endif
 
   //  res=2;
   /*
@@ -124,7 +123,6 @@ RES: feedback on/off - jackin-> - lm358in->
    clockhangflag=1;
    break;
  }
-
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
@@ -549,8 +547,6 @@ void setup_switches(void)
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
   RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-
-  
   //  GPIO_Init(GPIOC, &GPIO_InitStructure); //????
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_13;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
@@ -558,11 +554,6 @@ void setup_switches(void)
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-
-  //  GPIOC->MODER |= (1 << (8 * 2)) | (1 << (11 * 2)) | (1 << (10 * 2));
-  //  GPIOC->ODR = 0;
-  //  GPIOB->ODR = 0;
   
 }
 
@@ -596,7 +587,7 @@ void initpwm(void){ // THIS ONE WORKS!
   /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+  TIM_OCInitStructure.TIM_Pulse = 333;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM3, &TIM_OCInitStructure);
@@ -617,7 +608,7 @@ void initpwm(void){ // THIS ONE WORKS!
   /* PWM1 Mode configuration: Channel4 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+  TIM_OCInitStructure.TIM_Pulse = 333;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM8, &TIM_OCInitStructure);
@@ -639,7 +630,7 @@ void initpwm(void){ // THIS ONE WORKS!
   /* PWM1 Mode configuration: Channel2 */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR4_Val;
+  TIM_OCInitStructure.TIM_Pulse = 333;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC2Init(TIM1, &TIM_OCInitStructure);
@@ -715,8 +706,6 @@ void setmaximpwm(uint16_t value){
   TIM_CtrlPWMOutputs(TIM8, ENABLE);
   TIM_Cmd(TIM8, ENABLE);
   //  TIM8->CCR4 = value;
-  
-
 }
 
 void TIM_Config(void) 

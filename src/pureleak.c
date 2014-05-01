@@ -97,17 +97,14 @@ void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
   u16 offset;
   buffer[buffer[0]]=offset>>8; // but offset can be over 255 - so top bit
   buffer[buffer[0]+1]=offset&255; // lower bit
-  //  printf("offset: %d\n",offset);
   offset=buffer[0]*30;
   thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
   buffer[0]+=2;
 }
 
-
 void cpustackpoppp(u8 *buffer){
   buffer[0]--;
   }
-
 
 u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) { 
   offset+=13;
@@ -146,7 +143,6 @@ u8 thread_poppp(u8* buffer, u16 offset) {
 		buffer[offsetty]--;
 		return ret;
 	}
-	//    printf("errorr\n");
 	return 0;   
 }
 
@@ -182,13 +178,9 @@ void thread_runnn(u8* buffer, u8 threadnum) {
   //  printf("num: %d readoffset: %d cpu: %d\n",threadnum,offset,buffer[offset]);
 
   const u8 deltastate[16] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
-			6, 11, 5, 13};	/* change in state indexed by color */
-  //  printf("running: %d ",this->m_start);
-  //  sleep(1);
+			6, 11, 5, 13};
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
-  //  dircalc(biotadir,65536,256);
-  //    CPU=16; //16=crash
       if (++DELC==DELAY){
 #ifdef PCSIM
   //            printf("CPU: %d\n",CPU);
@@ -197,7 +189,6 @@ void thread_runnn(u8* buffer, u8 threadnum) {
 
   switch(CPU%max_cpus)
     {
-
     case 0: // :LEAKY STACK! - working!
       addr=((PCADDRHI<<8)+PCADDRLO);
       instr=machine_p88kkk(buffer,addr);

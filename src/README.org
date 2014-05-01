@@ -293,32 +293,59 @@ foldback settings. about foldback/mirror
 
 * THU 1 MAY/FRI 2 MAY
 
-provisional release:
+- clean vars/check arrays//
 
--possible crash: optimization, stack size/overflow, memory overflow
-larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
+: main audioX simulationforstackX
 
+//////
+
+- check sim - rosllers and co for output scalings!
 - try 48k again!
 - fixes to fingervalright so wraps correctlyDONE-TEST!
 - rework X and Y as new knobs: possibilities. X as mod. Y as settings
   for that group // open up bare fingers here and adc9
+- but still need to access settings somehow... - what are key settings?
+- masque code in pureleak and cpu TEST!
 - test fingers with different fingers!
 - FINAL TESTS/tests for simple boards
 - finish write knob layout above for manual
 - video and more samples...
 
 - villager max number increase or?
-- adc9 -> datagenbuffer (at start or?)
-- *some kind of foldback for hardware setting* settingsarray[64]//too high
+- adc9 -> datagenbuffer (at start or?)TEST
+- *some kind of foldback for hardware setting* settingsarray[64]//too high or?TEST
 
+CRASH notes:
+
+Possible crash tech: optimization, stack size/overflow, memory overflow
+larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
+
+-in runswapaudio/runORaudio in simulation was audio_buffer overflow - FIXED!
+
+-clean up variables (ints, u16s esp. for dirs)
+-audio.c simulation
+
+-test behaviour on divide by zero
+
+-estimate RAM use by way of arrays/structures (SEIR in sim is quite heavy max=1k)
+
+-check null on inits in CA and sim???
+
+-redo CA, CPU and sim without any mallocs... test without these
+(CPU just mallocs at beginning)
+
+** DONE
+
+- rewrite simulationforstack to avoid waste in sineDONE
+- check all TODO, TESTYs and TESTERs, cleanups
+- bug in CA pushn code fixed
+- in runswapaudio in simulation was audio_buffer overflow - FIXED!
 
 * WED 30 APR-FINISH
 
 
 ** DONE/NOTES:
 
-- check all TODO, TESTYs and TESTERs, cleanups
-: pureleakXmasquesTEST audioX hardwareX simulationforstackX CPUintrev3X CAforstackX
 - simulate dir changes-DONE
 - crash - still unknown but stopped now 
 - small fixes to mistakes in audio.c

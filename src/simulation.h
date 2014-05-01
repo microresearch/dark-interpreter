@@ -10,7 +10,7 @@
 #define floor(x) ((int)(x))
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
-#define MAX_GROUPS 16
+#define MAX_GROUPS 8
 #define STACK_SIZE 16
 #define NUM_FUNCS 33
 
@@ -52,7 +52,6 @@ typedef unsigned char u8;
 typedef uint16_t u16;
 
 struct siney{
-  u16 sin_data[256];  // sine LUT Array
   u16 cc;
   u16* buffer;
 };
@@ -77,9 +76,8 @@ struct generik{
 
 struct chunkey{
   u16 otherstart,otherwrap,othercount;
-
   u8 dirr;
-  int16_t newdir[4];
+  signed char newdir[2];
   u16* buffer;
 };
 
@@ -103,7 +101,7 @@ struct SEIR {
   int m;
   float mu;
   float S0,I0;
-  float S,I[MAX_GROUPS]; // 4x8x16=512bytes
+  float S,I[MAX_GROUPS]; // 4x16=64bytes
   float dPop[MAX_GROUPS+1];//4x9=36bytes
 
   u16* buffer;
