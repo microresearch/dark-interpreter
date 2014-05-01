@@ -53,7 +53,7 @@
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
-#define STACKMUCH (settingsarray[46]>>8)
+#define STACKMUCH (settingsarray[46]>>10)
 
 //////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@
 
 //foldback settings
 
-#define HARDWARE (settingsarray[64]>>9)
+#define HARDWARE (settingsarray[64]>>9) // 7 bits
 
 //#define FOLDSDIR (settingsarray[64]>>15) // both unused i think
 //#define FOLDDDIR (settingsarray[65]>>15)
@@ -92,6 +92,6 @@
 #define FOLDSWRAP ((settingsarray[67]>>10)+1)// 6 bits 
 #define FOLDDSTART ((settingsarray[68])>>10) // 6 bits
 #define FOLDDWRAP ((settingsarray[69]>>10)+1)
-#define FOLDSPEED (settingsarray[70]>>13)
+#define FOLDSPEED (settingsarray[70]>>10)
 
 //71

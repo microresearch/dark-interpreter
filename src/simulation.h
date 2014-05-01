@@ -10,7 +10,7 @@
 #define floor(x) ((int)(x))
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
-#define MAX_GROUPS 8
+#define MAX_GROUPS 16 /// leave as 16
 #define STACK_SIZE 16
 #define NUM_FUNCS 33
 
@@ -103,7 +103,6 @@ struct SEIR {
   float S0,I0;
   float S,I[MAX_GROUPS]; // 4x16=64bytes
   float dPop[MAX_GROUPS+1];//4x9=36bytes
-
   u16* buffer;
 };
 

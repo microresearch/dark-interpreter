@@ -293,19 +293,17 @@ foldback settings. about foldback/mirror
 
 * THU 1 MAY/FRI 2 MAY
 
-
-- check in sim: rosslers and co for output scalings!
-
-/////
-
 - some kind of foldback for hardware setting in main.c -DONE. TEST 
 - try 48k again (change in main and in sim)
 - fixes to fingervalright so wraps correctlyDONE-TEST!
+
 - rework X and Y as new knobs: possibilities. X as mod. Y as settings
   for that group // open up bare fingers here and adc9
 - but still need to access settings somehow... - what are key settings?
+
 - masque code in pureleak and cpu TEST!
 - test fingers with different fingers!
+
 - FINAL TESTS/tests for simple boards
 - finish write knob layout above for manual
 - video and more samples...
@@ -334,7 +332,7 @@ larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
 
 ** DONE
 
-
+- checked in sim: rosslers and co for output scalings
 - cleaned vars/checked arrays//- watch for stacker and stackery not being set
 - jumble in main of elses FIXED
 - rewrite simulationforstack to avoid waste in sineDONE

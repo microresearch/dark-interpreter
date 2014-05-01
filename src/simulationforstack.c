@@ -195,8 +195,8 @@ void chunkinit(void* unity, uint16_t *workingbuffer){
   unit->otherstart=workingbuffer[0]>>1;
   unit->otherwrap=workingbuffer[1]>>1;
   unit->dirr=workingbuffer[2]&1;
-  unit->newdir[0]=1;
-  unit->newdir[1]=-1;
+  unit->newdir[0]=-1;
+  unit->newdir[1]=1; // fixed
     if (unit->dirr==1)  unit->othercount=0;
     else unit->othercount=unit->otherwrap;
 }
@@ -263,10 +263,12 @@ u16 runwalkerchunk(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap)
       unit->otherstart=workingbuffer[0]>>1;
       unit->otherwrap=workingbuffer[1]>>1;
       unit->dirr=workingbuffer[2]&1;
-  if (unit->dirr==1)  othercount=0;
-  else othercount=unit->otherwrap;
-  }
+      if (unit->dirr==1)  othercount=0;
+      else       othercount=unit->otherwrap;
+
+    }
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+unit->otherstart)%32768];
+    //    printf("count: %d\n",othercount+unit->otherstart);
   }
   unit->othercount=othercount;
   return count;
@@ -1044,15 +1046,15 @@ return count;
 // ROSSLER
 
 void rosslerinit(void* unity, uint16_t *workingbuffer){
-  /*  unit->h = 0.1;
-  unit->a = 0.3;
-  unit->b = 0.2;
-  unit->c = 5.8;*/
   struct Rossler* unit=unity;
   unit->buffer=workingbuffer;
   unit->h = (float)workingbuffer[0]/120536.0;
   unit->a = (float)workingbuffer[1]/122536.0;
   unit->b = (float)workingbuffer[2]/100536.0;
+  /*  unit->h = 0.1;
+  unit->a = 0.3;
+  unit->b = 0.2;*/
+  unit->c = 5.8;
   unit->lx0 = 0.1;
   unit->ly0 = 0;
   unit->lz0 = 0;
@@ -1086,13 +1088,13 @@ u16 runrossler(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   unit->ly0 = ly1;
   unit->lz0 = lz1;
 #ifdef PCSIM
-  //      printf("%c",lx1);
+  //        printf("%d\n",lx1);
   //    if (count>32767) printf("ROSSCRASH%d\n",count);
 
 #endif
       if (count>=wrap) count=0;
 
-        workingbuffer[(count+start)%32768]=lx1;
+      workingbuffer[(count+start)%32768]=lx1;
   //  workingbuffer[i+1]=ly1;
   //  workingbuffer[i+2]=lz1;
   }
@@ -1188,7 +1190,7 @@ u16 runsecondrossler(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wra
 
 			    workingbuffer[(count+start)%32768]=xnm1+dx;
 #ifdef PCSIM
-			    //			    printf("%c",(xnm1+dx));
+			    printf("%d\n",(xnm1+dx));
 			    //    if (count>32767) printf("ROSS2CRASH%d\n",count);
 
 #endif
@@ -1239,7 +1241,7 @@ u16 runbrussel(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 		workingbuffer[(count+start)%32768]=x*65536.0;
 	}
 #ifdef PCSIM
-    //    printf("brussels: x %f y %f\n",x,y); 
+    printf("brussels: x %f y %f\n",x,y); 
     //        printf("%c",workingbuffer[(count+start)%32768]); 
     //    if (count>32767) printf("BRUSSCRASH%d\n",count);
 
@@ -1294,7 +1296,7 @@ u16 runspruce(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   unit->x = x; 
   unit->y = y;
 #ifdef PCSIM
-  //    	printf("%c",x*65536); 
+  printf("%d\n",x*65536); 
   //    if (count>32767) printf("SPRUCECRASH%d\n",count);
 
 #endif
@@ -1345,7 +1347,7 @@ u16 runoregon(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 		workingbuffer[(count+start)%32768]=x*65536.0;
 	}
 #ifdef PCSIM
-	//	printf("Oregonator: x %f y %f z %f\n",x,y,z); 
+		printf("Oregonator: x %f y %f z %f\n",x,y,z); 
 	//	printf("%c",workingbuffer[(count+start)%32768]); 
 	//    if (count>32767) printf("ORCRASH%d\n",count);
 
@@ -1661,7 +1663,7 @@ void tester(u8 SAMPLEDIRR){
  // printf("pos: %d\n", sampleposread);
 }
 
-void main(void)
+void main(int argc, char **argv)
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x; 
@@ -1706,9 +1708,11 @@ void main(void)
   //  printf("test%d\n",256<<7);
   	 for (x=0;x<16;x++){
 	   u16 addr=rand()%32768;
-	   	   u8 which=rand()%31;
+	   //	   u8 which=rand()%31;//
+	   int which=atoi(argv[1]);
+	   //	   which=0;
 	   //	   u8 which=23;//18,19,20,22,23
-	   	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,addr+rand()%32768);//howmuch,start,wrap //29-32
+	   	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,rand()%32768);//howmuch,start,wrap //29-32
   	 	   }
   
 
@@ -1729,24 +1733,10 @@ void main(void)
 		    else samplepos=start+wrap;
 		  }
 		    printf("%d\n",samplepos);*/
-	   u16 addr=rand()%32768;
-		   
-		      stack_pos=func_pushn(stackyy,1,buf16,stack_pos,10,addr,addr+rand()%32768);
 
-		   /*	   if ((rand()%20)<10){			   stack_pos=func_pushn(stackyy,rand()%31,buf16,stack_pos,rand()%32760,rand()%32768,rand()%32768);//29-32
-		     //		     printf("pusn %d\n",stack_pos);
-		   }
-			   else stack_pos=func_pop(stackyy,stack_pos);
-		
-	   	   func_runall(stackyy,stack_pos); // simulations
-
-		   for(x=0;x<48;x++){
-		     stacker[x]=rand()%32768;
-		     }*/
-
-		   //	settingsarray[66+foldback]=foldbackset;
-		   //	   	   printf("%d\n",buf16[x%32768]>>8);
-	   //	   x++;
+		   func_runall(stackyy,stack_pos); // simulations
+		   //		   		   printf("%c",buf16[x%32768]>>8);
+	   	   x++;
 	   }
 }
 
