@@ -6,14 +6,13 @@
       // 1-mod EFFECTMOD 0-7
       if (fingermod<8){
 	effectmod=fingervalright(effectmod,8); //TODO!
-	settingsarray[5]=effectmod<<13;
+	settingsarray[50]=effectmod<<13;
       }
       // 2-push/pop with template settings and type fronm left/right
       else if (fingermod<16){ // TODO: move stack to first position above
 	whichstack=fingervalright(whichstack,5);
 	//		    whichstack=rand()%5; TESTY
 	if (fingerdirupdown()==1) {
-	  //if ((rand()%2)==1){
 	  switch (whichstack){ // which stack to push=0-4
 	  case 0:
 	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
@@ -31,9 +30,8 @@
 	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
 	    break;
 			  }
-	}
+}
 	else if (fingerdirupdown()==0){
-			  //else {
 	  switch (whichstack%3){ // which stack to pop=0-
 	  case 0:
 	    stack_posy=ca_pop(stackyyy,stack_posy);
@@ -47,6 +45,7 @@
 	  }
 		  }
       }
+
 
       // 3-directions???
       // up/down selects and other sets dir or other way round here?
@@ -88,7 +87,7 @@
 
 	      foldback=fingervalright(foldback,5);
 	      foldbackset=fingervalup16bits(foldbackset, 32);	
-	      settingsarray[66+foldback]=foldbackset;
+	      settingsarray[64+foldback]=foldbackset;
 	//      mirror: - all as action and one off toggle on off
 	if (oldfingermod!=fingermod){
 	// 1-datagen to region of settings:
@@ -105,7 +104,6 @@
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
-	  // into stackery stacker (both 64- so just wrap on 96)
 	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
 	  else {
 	    tmper=tmper-48;
@@ -161,8 +159,8 @@
 	
 	for (x=0;x<FOLDSWRAP;x++){
 	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
-	  // into stackery stacker (both 64- so just wrap on 96)
-	  	  if (tmper<48) stackery[tmper]=stackery[tmper]+8;
+	  	  // into stackery stacker (both 64- so just wrap on 96)
+	  	  	  if (tmper<48) stackery[tmper]=stackery[tmper]+8;
 	  else {
 	    tmper=tmper-48;
 	    	    stacker[tmper]=(stacker[tmper]+8)%32768;

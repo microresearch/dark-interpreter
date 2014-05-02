@@ -315,8 +315,9 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
-* TODO finals
+* TODO finals M/T
 
+- boards started
 - test and tweak
 - test fingers with different fingers-re-test LACH and SUSP(bring) boards with new knob layout
 - finish manual/site
@@ -324,7 +325,8 @@ For Mater Lachrymarum IN is unused!
 
 * FRI 2 MAY
 
-Samples: 506 is LACH only,
+Samples: 506 is LACH only (same for any hardware only recordings),
+507- with hardware/no input mostly
 
 - new knobs
 
