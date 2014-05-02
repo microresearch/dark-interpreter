@@ -1,4 +1,4 @@
-,`Oh, eternity with outstretched wings, that broodest over the secret
+Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
 organ!
@@ -214,10 +214,9 @@ outside, and in open daylight.
 
 * TO REMEMBER/TODO
 
-- always set define for board in MAKEFILE!!!
+- always set define for board (TENE, LACH _or_ SUSP) in MAKEFILE and make clean first!!!
 - caps across potis for top-board
-- make clean after changes to settingsarray
-
+- make clean after changes to settingsarray or MAKEFILE!
 
 * MANUAL IN PROGRESS
 
@@ -253,6 +252,23 @@ also different.
 
 ** knobs from top down and left to right (diagram for each)
 
+for TENE is:
+
+1
+
+2
+
+3 4
+
+5
+
+for LACH/SUSP is:
+
+1 (was hard/now samplewrap)
+         3
+	 4
+2	 5
+
 1-The first knob strictly controls the hardware operations and signal
 routing, including opening up of routes, and settings to the skin (we
 call this unhanging of hardware options). Here we can set the signal
@@ -280,38 +296,104 @@ speed
 constraint
 foldback settings. about foldback/mirror
 
-4 and 5. 4 selects what parameter to set and 5 what the setting is
+//REDO4 and 5. 4 selects what parameter to set and 5 what the setting is
 
 ** fingerpoints (2 diagrams)
 
 *** Mater Lachrymarum and Mater Suspiriorum
 
+   L U
+IN  V  GND
+   D R
+   OUT
 
+For Mater Lachrymarum IN is unused!
+
+[diagram also]
 
 *** Mater Tenebrarum
 
+[diagram]
 
-* THU 1 MAY/FRI 2 MAY
+* TODO finals
 
-- some kind of foldback for hardware setting in main.c -DONE. TEST 
-- try 48k again (change in main and in sim)
-- fixes to fingervalright so wraps correctlyDONE-TEST!
+- test and tweak
+- test fingers with different fingers-re-test LACH and SUSP(bring) boards with new knob layout
+- finish manual/site
+- video and more samples uploaded
 
-- rework X and Y as new knobs: possibilities. X as mod. Y as settings
-  for that group // open up bare fingers here and adc9
-- but still need to access settings somehow... - what are key settings?
+* FRI 2 MAY
 
-- masque code in pureleak and cpu TEST!
-- test fingers with different fingers!
+Samples: 506 is LACH only,
 
-- FINAL TESTS/tests for simple boards
-- finish write knob layout above for manual
-- video and more samples...
+- new knobs
 
-- villager max number increase or?
-- adc9 -> datagenbuffer (at start or?)TEST
+- *TODO:make sure we have copy stacker/stackery into villager (but just start and end not howmuch)*
 
-CRASH notes:
+** knob notes:
+
+// what makes sense to set from settings.h:
+
+starts
+wraps/cons
+STEP/SPEED - have above
+
+village settings
+stack settings
+FOLDBACK settings
+
+EXESPOT
+
+HARDWARE
+
+///
+
+third as more modifiers for hardware(first),effects(second),
+constraints, speed, steps, dir, village, stack and foldback=set with
+knob(where),hand up/down,open hand(straight set but we have 4 pads to
+set 4 settings=5,6,7,8-do in loop!)/adc
+
+third works fine now kind of... could be tidier
+maybe way of tying settings to specific finger/adc9/knob
+
+could be fourth=stack/execution or as set knob with stack and exespot above as before
+fifth=mirror/foldback
+
+////
+
+q of last 3 knobs(or 4):
+
+set a region/group of settings (size of group->all->single) --> attach/set by fingers/knobs/adc9/datagen
+
+copy a region/group to another group//other operations
+
+region/groups are defined (as eg. wrap, speed) as contiguous and selected
+
++ set a region of stacker and villager  --> attach/set by fingers/knobs/adc9/datagen
+
++ stack settings and push and pull
+
++ how to set and attach these regions // as an array or?
+
+** DONE
+- effectmod into settingsarray, reduce array to 64 with
+  hardware at 65 as special case (so shift out infection, leak and set
+  at beginning as randi) now HARDWARE is within 64 total...DONE
+- check all ifdefsDONE
+- add ifdef for eeg/adc9 = -DTEST_EEG and test this!DONE
+- testing LACH (funny hum sometimes with effect on LEFT=adc8-REDO some effectsDONE
+
+* THU 1 MAY
+
+major changes to test:
+- fix audio.c villager codeDONE-TEST
+- adc9 -> datagenbuffer (at start)TEST
+- maybe inc villager max number(now is 128 which is 64 villagers) (inc to 96*2=192) and TEST!
+
+
+samples: 497+ are with 48k (earlier were with 16k)
+
+** CRASH notes//appears now fixed as of 1 MAY 6PM+
 
 Possible crash tech: optimization, stack size/overflow, memory overflow
 larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -331,7 +413,12 @@ larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
 (CPU just mallocs at beginning)
 
 ** DONE
-
+- some kind of foldback for hardware setting in main.c -DONE. tests
+  but doesn't seem-tweak
+- try 48k again (change in main and in sim)-now back to 48k
+- masque code in pureleak and cpu should be ok?
+- fixes to fingervalright so wraps correctlyDONE
+- fix for new fingerval - must init all settings or crashes
 - checked in sim: rosslers and co for output scalings
 - cleaned vars/checked arrays//- watch for stacker and stackery not being set
 - jumble in main of elses FIXED

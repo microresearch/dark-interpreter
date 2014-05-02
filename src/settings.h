@@ -49,7 +49,7 @@
 // hardware constraints - real walkers - don't have to mirror!
 #define HDGENERBASE (settingsarray[41]>>8)// less than 255
 #define HDGENERCONS (settingsarray[42]>>8)// less than 255
-#define VILLAGEWSTART (settingsarray[43]>>10) //64
+#define VILLAGEWSTART (settingsarray[43]>>10) //64 *2
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
@@ -59,17 +59,18 @@
 
 // Excess settings/actions to walkers - WHERE to set?
 
-#define LEAKINESS (settingsarray[47]>>8)
-#define INFECTION (settingsarray[48]>>8)
-#define STACKFUNC (settingsarray[49]>>11)
-#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
+#define HARDWARE (settingsarray[47]>>9) // 7 bits
 
-/////////// BELOW is set by mirror!
+//#define LEAKINESS (settingsarray[47]>>8)
+//#define INFECTION (settingsarray[48]>>8)
+#define STACKFUNC (settingsarray[48]>>11)
+#define EXESPOT (settingsarray[49]>>11)  // execution order setting already constrained upto22
+#define EFFECTMOD (settingsarray[50]>>13) //is 3 bits
 
 #define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128
 #define EFFECTWRITE (settingsarray[52]>>9) 
 #define EFFECTFILTER (settingsarray[53]>>9) 
-
+/////
 #define HWDIR (settingsarray[54]>>15) // restricted to 1 bit
 #define DATADIRR (settingsarray[55]>>15)
 #define DATADIRW (settingsarray[56]>>15)
@@ -83,15 +84,10 @@
 
 //foldback settings
 
-#define HARDWARE (settingsarray[64]>>9) // 7 bits
-
-//#define FOLDSDIR (settingsarray[64]>>15) // both unused i think
-//#define FOLDDDIR (settingsarray[65]>>15)
-
-#define FOLDSSTART ((settingsarray[66]>>1)) 
-#define FOLDSWRAP ((settingsarray[67]>>10)+1)// 6 bits 
-#define FOLDDSTART ((settingsarray[68])>>10) // 6 bits
-#define FOLDDWRAP ((settingsarray[69]>>10)+1)
-#define FOLDSPEED (settingsarray[70]>>10)
+#define FOLDSSTART ((settingsarray[64]>>1)) 
+#define FOLDSWRAP ((settingsarray[65]>>9)+1)// 6 bits 
+#define FOLDDSTART ((settingsarray[66])>>10) // 6 bits
+#define FOLDDWRAP ((settingsarray[67]>>9)+1)
+#define FOLDSPEED (settingsarray[68]>>10)
 
 //71

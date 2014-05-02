@@ -65,7 +65,7 @@ void forminit(void* unity, u16 *workingbuffer){
   unit->buffer=(u16*)workingbuffer;
 }
 
-const u16 SAMPLE_FREQUENCY = 16000;
+const u16 SAMPLE_FREQUENCY = 48000; // TODO!
 const float Pi = 3.1415926535f;
 const float PI_2 = 6.28318531f;
 
@@ -542,12 +542,11 @@ u16 runknob(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
         if (count>=wrap) count=0;
 
 #ifndef PCSIM
-
-#if defined(SUSP) || defined(LACH)
-        workingbuffeur[count]=adc_buffer[3]>>4; // TOP knob in either case!
+#ifdef TENE
+        workingbuffeur[count]=adc_buffer[2]>>4; // TOP knob in either case!
     //    printf("%d\n",workingbuffer[(count+start)%32768]);
 #else
-        workingbuffeur[count]=adc_buffer[2]>>4; // 8 bits
+        workingbuffeur[count]=adc_buffer[3]>>4; // 8 bits
 #endif
 #endif
   }
@@ -1190,7 +1189,7 @@ u16 runsecondrossler(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wra
 
 			    workingbuffer[(count+start)%32768]=xnm1+dx;
 #ifdef PCSIM
-			    printf("%d\n",(xnm1+dx));
+			    //			    printf("%d\n",(xnm1+dx));
 			    //    if (count>32767) printf("ROSS2CRASH%d\n",count);
 
 #endif
@@ -1241,7 +1240,7 @@ u16 runbrussel(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 		workingbuffer[(count+start)%32768]=x*65536.0;
 	}
 #ifdef PCSIM
-    printf("brussels: x %f y %f\n",x,y); 
+    //    printf("brussels: x %f y %f\n",x,y); 
     //        printf("%c",workingbuffer[(count+start)%32768]); 
     //    if (count>32767) printf("BRUSSCRASH%d\n",count);
 
@@ -1296,7 +1295,7 @@ u16 runspruce(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
   unit->x = x; 
   unit->y = y;
 #ifdef PCSIM
-  printf("%d\n",x*65536); 
+  //  printf("%d\n",x*65536); 
   //    if (count>32767) printf("SPRUCECRASH%d\n",count);
 
 #endif
@@ -1347,7 +1346,7 @@ u16 runoregon(uint8_t howmuch, void* unity, u16 count, u16 start, u16 wrap){
 		workingbuffer[(count+start)%32768]=x*65536.0;
 	}
 #ifdef PCSIM
-		printf("Oregonator: x %f y %f z %f\n",x,y,z); 
+	//		printf("Oregonator: x %f y %f z %f\n",x,y,z); 
 	//	printf("%c",workingbuffer[(count+start)%32768]); 
 	//    if (count>32767) printf("ORCRASH%d\n",count);
 
@@ -1663,7 +1662,8 @@ void tester(u8 SAMPLEDIRR){
  // printf("pos: %d\n", sampleposread);
 }
 
-void main(int argc, char **argv)
+//void main(int argc, char **argv)
+void main()
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x; 
@@ -1708,8 +1708,8 @@ void main(int argc, char **argv)
   //  printf("test%d\n",256<<7);
   	 for (x=0;x<16;x++){
 	   u16 addr=rand()%32768;
-	   //	   u8 which=rand()%31;//
-	   int which=atoi(argv[1]);
+	   	   u8 which=rand()%31;//
+	   //   int which=atoi(argv[1]);
 	   //	   which=0;
 	   //	   u8 which=23;//18,19,20,22,23
 	   	   stack_pos=func_pushn(stackyy,which,buf16,stack_pos,10,addr,rand()%32768);//howmuch,start,wrap //29-32

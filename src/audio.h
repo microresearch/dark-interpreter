@@ -11,7 +11,7 @@
 #include "arm_math.h"
 
 #define BUFF_LEN 128
-#define AUDIO_BUFSZ 32770 // was 32768
+#define AUDIO_BUFSZ 32768 // was 32768
 
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 //extern int16_t writeloc[BUFF_LEN/2];
