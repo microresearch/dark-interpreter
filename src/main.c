@@ -103,6 +103,7 @@ extern u8 digfilterflag;
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
 u16 settingsarray[71];
+u16 FOLDD[45]; // MAX size 44!!!
 
 #define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192
 
@@ -249,7 +250,7 @@ tmpsetting-=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 x,addr,tmp,tmppp,hdtmp,tmphardware,knobby;
+  u16 x,addr,tmp,tmppp,hdtmp,tmphardware,knobby,coo=0;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper,stackerstart,stackerwrap;
   u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,exespot=0,stackmuch=0;
@@ -345,28 +346,28 @@ void main(void)
 
   // TESTY! datagen init with adc9: TESTY!
   for (x=0;x<32768;x++){
-    buf16[x]=randi()<<4; // 16 bits
+    //    buf16[x]=randi()<<4; // 16 bits
   }
 	 
   // CPUintrev2:
   for (x=0; x<100; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%100);
+      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
     }
 
   //pureleak
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%100);
+    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
   }
 
   // CA
   for (x=0;x<STACK_SIZE;x++){
     start=randi()<<3;
     wrap=randi()<3;
-    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%100,start,wrap); 
+    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
     villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
@@ -374,7 +375,7 @@ void main(void)
   for (x=0;x<STACK_SIZE;x++){
     start=randi()<<3;
     wrap=randi()<3;
-    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%100,start,wrap);
+    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
@@ -454,7 +455,6 @@ void main(void)
 
       // KNOB FIVE = knobby //TODO: underused
       knobby=adc_buffer[FIFTH];
-
       // KNOB THREE = modifiers and fingers
       fingermod=adc_buffer[THIRD]>>7;// 5 bits=32 
       fingerfing=fingermod&1; //finger open0 or as dir
@@ -608,92 +608,102 @@ void main(void)
       // toggle repeats is top bit but how we set this 
       mirrortoggle=mirror>>5; // top bit
       mirror=mirror>>1; // so now 32
-
-      // actions: on settingsarray
-      // on stacker
-      // on villager
-
-      // on foldback
-
-      // actions are: 1adc9,2buf16,3knob,4openfingUP (for villager copy start/ends from stacks)+others
-      // but also we need do nothing?
-      if (mirrortoggle&1) mirrorflag^=(1<<mirror); // TEST. toggles the mirror
-
+      FOLDD[44]=knobby<<4; // knob five as length of mirror
+      FOLDD[1]=knobby<<4; // knob five as length of mirror
+      //      FOLDD[1]=65536;
+      //      if (mirrortoggle&1) mirrorflag^=(1<<mirror); // TEST. toggles the mirror
+      //      mirror=1;
       switch(mirror){
       case 0: // do nothing
 	break;
      case 1:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+       for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	 settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+	  coo++;
 	}
+
+       if (mirrortoggle&1) mirrorflag^=1;
 	break;
       case 2:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=(randi()<<4);
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=(randi()<<4);
 	}
+	if (mirrortoggle&1) mirrorflag^=2;
 	break;
       case 3:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=adc_buffer[UP];
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=adc_buffer[UP];
 	}
+	if (mirrortoggle&1) mirrorflag^=4;
 	break;
       case 4:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=knobby<<4;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=knobby<<4;
 	}
+	if (mirrortoggle&1) mirrorflag^=8;
 	break;
       case 5:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=1;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]+=1;
 	}
+	if (mirrortoggle&1) mirrorflag^=16;
 	break;
       case 6:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=1; //TODO TUNING this +-1!!!
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]-=1; //TODO TUNING this +-1!!!
 	}
+	if (mirrortoggle&1) mirrorflag^=32;
 	break;
       case 7:
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=settingsarray[(FOLDDSTART+8+(x%FOLDDWRAP))%64];
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>9)+1)))%64];
 	}
+	if (mirrortoggle&1) mirrorflag^=64;
 	break;
 	////////////////////////////////VILLAGER MIRROR
       case 8: // do nothing
 	break;
       case 9:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	  	  coo++;
 	}
+	if (mirrortoggle&1) mirrorflag^=128;
 	break;
       case 10:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=(randi()<<3);
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	}
+	if (mirrortoggle&1) mirrorflag^=256;
 	break;
       case 11:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
+	if (mirrortoggle&1) mirrorflag^=512;
 	break;
       case 12:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=knobby<<3;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
+	if (mirrortoggle&1) mirrorflag^=1024;
 	break;
       case 13:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=(villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]+1)%32768; // TUNING +-1 TODO
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]+1)%32768; // TUNING +-1 TODO
 	}
+	if (mirrortoggle&1) mirrorflag^=2048;
 	break;
       case 14:
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=(villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]-1)%32768;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
+	if (mirrortoggle&1) mirrorflag^=4096;
 	break;
       case 15:
-	for (x=0;x<FOLDSWRAP;x++){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
 	  // take start and ends from stacks TODO!	  
-	  tmper=((FOLDDSTART+(x%FOLDDWRAP))*3)%96; // div by 3 96/3=32
+	  tmper=((((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))*3)%96; // div by 3 96/3=32
 	  //extract stackerstart and stackerwrap
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
@@ -705,201 +715,236 @@ void main(void)
 	    stackerstart=stacker[tmper];
 	    stackerwrap=stacker[(tmper+2)%96];
 	  }
-	  villager[((FOLDDSTART*2)+(x%(FOLDDWRAP*2)))% VILLAGE_SIZE]=stackerstart;
-	  villager[((FOLDDSTART*2)+((x+1)%(FOLDDWRAP*2)))% VILLAGE_SIZE]=stackerwrap;
+	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
+	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
 	}
+	if (mirrortoggle&1) mirrorflag^=8192;
 	break;
 	////////////////////////////////STACKER MIRROR
       case 16:// do nothing
 	break;
       case 17:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
-	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
+	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
 		}
+	  coo++;
 	}
+	if (mirrortoggle&1) mirrorflag^=16384;
       break;
       case 18:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(randi()<<3);
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(randi()<<3);
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=32768;
       break;
       case 19:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=adc_buffer[UP]<<3;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=adc_buffer[UP]<<3;
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=65536;
       break;
       case 20:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(knobby<<3);
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(knobby<<3);
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=131072;
       break;
       case 21:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stacker[tmper]+1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]+1)%32768; // TODO TUNING +-1
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=262144;
       break;
       case 22:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stacker[tmper]-1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]-1)%32768; // TODO TUNING +-1
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=524288;
       break;
       case 23:
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%96];
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=stacker[(tmper+3)%96];
 		}
 	}
+	if (mirrortoggle&1) mirrorflag^=1048576;
       break;
 
-	////////////////////////////////MIRROR | MIRROR
+      ////////////////////////////////MIRROR | MIRROR
+      // but can't short circuit itself
       case 24:
 	break; // do nothing
       case 25:
-	for (x=0;x<5;x++){
-	  settingsarray[x+64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+	  coo++;
 		}
+	//	if (mirrortoggle&1) mirrorflag^=2097152;
 	break;
       case 26:
-	for (x=64;x<69;x++){
-	  settingsarray[x]=(randi()<<4);
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]=(randi()<<4);
 		}
+	//	if (mirrortoggle&1) mirrorflag^=4194304;
 	break;
       case 27:
-	for (x=64;x<69;x++){
-	  settingsarray[x]=adc_buffer[UP]<<4;
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]=adc_buffer[UP]<<4;
 		}
+	//	if (mirrortoggle&1) mirrorflag^=8388608;
 	break;
       case 28:
-	for (x=64;x<69;x++){
-	  settingsarray[x]=knobby<<4;
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]=knobby<<4;
 		}
+	//	if (mirrortoggle&1) mirrorflag^=16777216;
 	break;
       case 29:
-	for (x=64;x<69;x++){
-	  settingsarray[x]+=1; // TODO tuning! and below
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]+=1; // TODO tuning! and below
 		}
+	//	if (mirrortoggle&1) mirrorflag^=33554432;
 	break;
       case 30:
-	for (x=64;x<69;x++){
-	  settingsarray[x]-=1;
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]-=1;
 		}
+	//	if (mirrortoggle&1) mirrorflag^=67108864;
 	break;
       case 31:
-	for (x=0;x<5;x++){
-	  settingsarray[x+64]=settingsarray[64+((x+1)%5)];
+	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	  tmper=((FOLDD[2]>>10)+x)%44;
+	  FOLDD[tmper]=FOLDD[((tmper+1)%44)];
 		}
       } // end of mirror switch
+      //	if (mirrortoggle&1) mirrorflag^=134217700;
 
       ////////////////////////////////////////////////MIRROR ACTIONZ
+	//// leave as 2 and 3 and inc here!
 
-      if (mirrorflag&2){ //skip 0
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768];
+            
+      if (mirrorflag&1){ //skip 0
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>9)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+	  coo++;
 	}
       }
 
-      if (mirrorflag&4){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=(randi()<<4);
+      if (mirrorflag&2){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[6])>>10)+(x%((FOLDD[7]>>9)+1)))%64]=(randi()<<4);
 	}
     }
 
+      if (mirrorflag&4){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>9)+1)))%64]=adc_buffer[UP];
+	}
+}
+
       if (mirrorflag&8){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=adc_buffer[UP];
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[10])>>10)+(x%((FOLDD[11]>>9)+1)))%64]=knobby<<4;
 	}
 }
 
       if (mirrorflag&16){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=knobby<<4;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>9)+1)))%64]+=1;
 	}
 }
 
       if (mirrorflag&32){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]+=1;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>9)+1)))%64]-=1; //TODO TUNING this +-1!!!
 	}
 }
 
       if (mirrorflag&64){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]-=1; //TODO TUNING this +-1!!!
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  settingsarray[(((FOLDD[16])>>10)+(x%((FOLDD[17]>>9)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>9)+1)))%64];
 	}
 }
 
       if (mirrorflag&128){
-	for (x=0;x<FOLDSWRAP;x++){
-	  settingsarray[(FOLDDSTART+(x%FOLDDWRAP))%64]=settingsarray[(FOLDDSTART+8+(x%FOLDDWRAP))%64];
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[18])>>10)+(x%((FOLDD[19]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	  	  coo++;
 	}
 }
 
-      if (mirrorflag&512){ // skip 0
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+      if (mirrorflag&256){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[20])>>10)+(x%((FOLDD[21]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	}
+}
+
+      if (mirrorflag&512){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[22])>>10)+(x%((FOLDD[23]>>9)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
 }
 
       if (mirrorflag&1024){
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=(randi()<<3);
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[24])>>10)+(x%((FOLDD[25]>>9)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
 }
 
       if (mirrorflag&2048){
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
 }
 
       if (mirrorflag&4096){
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=knobby<<3;
-	}
-}
-
-      if (mirrorflag&8192){
-	for (x=0;x<FOLDSWRAP;x++){
-	  villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]=(villager[(FOLDDSTART+(x%FOLDDWRAP))% VILLAGE_SIZE]-1)%32768;
-	}
-}
-
-      if (mirrorflag&16384){
-	for (x=0;x<FOLDSWRAP;x++){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
 	  // take start and ends from stacks TODO!	  
-	  tmper=((FOLDDSTART+(x%FOLDDWRAP))*3)%96; // div by 3 96/3=32
+	  tmper=((((FOLDD[28])>>10)+(x%((FOLDD[29]>>9)+1)))*3)%96; // div by 3 96/3=32
 	  //extract stackerstart and stackerwrap
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
@@ -911,26 +956,27 @@ void main(void)
 	    stackerstart=stacker[tmper];
 	    stackerwrap=stacker[(tmper+2)%96];
 	  }
-	  villager[((FOLDDSTART*2)+(x%(FOLDDWRAP*2)))% VILLAGE_SIZE]=stackerstart;
-	  villager[((FOLDDSTART*2)+((x+1)%(FOLDDWRAP*2)))% VILLAGE_SIZE]=stackerwrap;
+	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
+	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
 	}
 }
 
       //skip 0
-      if (mirrorflag&65536){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
-	  if (tmper<48) stackery[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+      if (mirrorflag&8192){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[30])>>10)+(x%((FOLDD[31]>>9)+1)))%96;
+	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=buf16[(FOLDSSTART+(x%FOLDSWRAP))%32768]>>1;
+	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
 		}
+	  	  coo++;
 	}
 }
 
-      if (mirrorflag&131072){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&16384){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[32])>>10)+(x%((FOLDD[33]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(randi()<<3);
 	  else {
 	    tmper=tmper-48;
@@ -939,9 +985,9 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&262144){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&32768){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[34])>>10)+(x%((FOLDD[35]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=adc_buffer[UP]<<3;
 	  else {
 	    tmper=tmper-48;
@@ -950,9 +996,9 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&524288){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&65536){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[36])>>10)+(x%((FOLDD[37]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(knobby<<3);
 	  else {
 	    tmper=tmper-48;
@@ -961,9 +1007,9 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&1048576){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&131072){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[38])>>10)+(x%((FOLDD[39]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stacker[tmper]+1)%32768;
 	  else {
 	    tmper=tmper-48;
@@ -972,9 +1018,9 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&2097152){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&262144){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[40])>>10)+(x%((FOLDD[41]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stacker[tmper]-1)%32768;
 	  else {
 	    tmper=tmper-48;
@@ -983,9 +1029,9 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&4194304){
-	for (x=0;x<FOLDSWRAP;x++){
-	  tmper=(FOLDDSTART+(x%FOLDDWRAP))%96;
+      if (mirrorflag&524288){
+	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	  tmper=(((FOLDD[42])>>10)+(x%((FOLDD[43]>>9)+1)))%96;
 	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%96];
 	  else {
 	    tmper=tmper-48;
@@ -994,7 +1040,7 @@ void main(void)
 	}
 }
 	/// mirror miror or not??? TODO!
-
+      //      	*/
       ////////////////////////////////////////////////
 #ifndef LACH
       /////////////////////////////////////
@@ -1031,7 +1077,7 @@ void main(void)
 	  
 
       if (digfilterflag&4){
-		  setlmpwm(LMERBASE+(buf16[tmppp]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
+	setlmpwm(LMERBASE+(buf16[tmppp]%LMERCONS),LMERBASE+(buf16[tmp]%LMERCONS)); 
       }
 	  
       if (digfilterflag&8){

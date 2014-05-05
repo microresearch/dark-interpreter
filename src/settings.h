@@ -43,8 +43,8 @@
 #define SAMPLESPEED (settingsarray[36]>>13) // 16 bits to 3 bits
 #define SAMPLESPEEDREAD (settingsarray[37]>>13)
 #define SAMPLESPEEDFILT (settingsarray[38]>>13)
-#define LEAKSPEED (settingsarray[39]>>8)
-#define MACHINESPEED (settingsarray[40]>>8)
+#define LEAKSPEED (settingsarray[39]>>7)
+#define MACHINESPEED (settingsarray[40]>>10)
 
 // hardware constraints - real walkers - don't have to mirror!
 #define HDGENERBASE (settingsarray[41]>>8)// less than 255
@@ -82,12 +82,17 @@
 #define VILLAGERDIR (settingsarray[62]>>15)
 #define VILLAGEFDIR (settingsarray[63]>>15)
 
-//foldback settings
+//foldback settings now in new array
 
-#define FOLDSSTART ((settingsarray[64]>>1)) 
-#define FOLDSWRAP ((settingsarray[65]>>9)+1)// 6 bits 
-#define FOLDDSTART ((settingsarray[66])>>10) // 6 bits
-#define FOLDDWRAP ((settingsarray[67]>>9)+1)
-#define FOLDSPEED (settingsarray[68]>>10)
+//#define FOLDSSTART ((settingsarray[64]>>1)) 
+//#define FOLDSWRAP ((settingsarray[65]>>9)+1)// 6 bits 
+//((FOLDD[1]>>9)+1)
+//(FOLDD[0]>>1)
+
+//#define FOLDDSTART ((settingsarray[66])>>10) // 6 bits
+//((FOLDD[2])>>10)
+//#define FOLDDWRAP ((settingsarray[67]>>9)+1)
+//((FOLDD[3]>>9)+1)
+//#define FOLDSPEED (settingsarray[68]>>10) //unused...
 
 //71

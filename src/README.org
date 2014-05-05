@@ -323,6 +323,24 @@ For Mater Lachrymarum IN is unused!
 - finish manual/site
 - video and more samples uploaded
 
+* MON 5 MAY
+
+// TEST ALL!
+
+- float mod for effects in params (where to put?)
+
+** DONE:
+
+
+- fix each mirror action as having it's own parameters (64) and mirror
+  of mirror into this:DONE
+
+  //// fix these as they all write to same place. pos in buf16
+  //// should also incrementDONE
+
+  //// also we need to sort mirror of mirrorDONE
+  //// so we need change mirror so doesn't skipTEST
+
 * FRI 2 MAY
 
 Samples: 506 is LACH only (same for any hardware only recordings),
