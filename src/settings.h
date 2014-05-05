@@ -53,19 +53,16 @@
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
-#define STACKMUCH (settingsarray[46]>>10)
+#define FMOD (settingsarray[46]/65536.0)
+#define FMODF (settingsarray[47]/65536.0)
+#define FMODW (settingsarray[48]/65536.0)
 
 //////////////////////////////////////////////////
 
 // Excess settings/actions to walkers - WHERE to set?
 
-#define HARDWARE (settingsarray[47]>>9) // 7 bits
-
-//#define LEAKINESS (settingsarray[47]>>8)
-//#define INFECTION (settingsarray[48]>>8)
-#define STACKFUNC (settingsarray[48]>>11)
-#define EXESPOT (settingsarray[49]>>11)  // execution order setting already constrained upto22
-#define EFFECTMOD (settingsarray[50]>>13) //is 3 bits
+#define STACKFUNC (settingsarray[49]>>11)
+#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
 
 #define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128
 #define EFFECTWRITE (settingsarray[52]>>9) 
@@ -95,4 +92,3 @@
 //((FOLDD[3]>>9)+1)
 //#define FOLDSPEED (settingsarray[68]>>10) //unused...
 
-//71

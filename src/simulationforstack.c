@@ -1716,9 +1716,9 @@ void main()
   	 	   }
   
 
-	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdir[2]={-1,1};
+	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdir[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
  
-	  	 while(1){
+	 //	  	 while(1){
 		   /*		   SAMPLEDIRW=rand()%2;
 	    dirry=newdir[SAMPLEDIRW]*1;
 	    count=((samplepos-start)+dirry);
@@ -1734,10 +1734,21 @@ void main()
 		  }
 		    printf("%d\n",samplepos);*/
 
-		   func_runall(stackyy,stack_pos); // simulations
+		   //		   func_runall(stackyy,stack_pos); // simulations
 		   //		   		   printf("%c",buf16[x%32768]>>8);
-	   	   x++;
-	   }
+	 for (x=0;x<4096;x++){
+		   mirror++;
+		   //		   if (mirror==4096) mirror=0;
+		   mirrorii=mirror>>6;
+		   mirrori=mirrorii&31;
+		   mirrortoggle=mirrorii>>5; // top bit
+		   //mirror=mirror>>1; // so now 32
+		   printf("mirror %d mirror %d togg %d\n", mirrorii, mirrori,mirrortoggle);
+		   }
+	 //	 x=4096;
+	 //	 mirrori=x>>6;
+	 //	 printf("test %d", mirrori);
+
 }
 
 #endif

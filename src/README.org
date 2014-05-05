@@ -327,11 +327,34 @@ For Mater Lachrymarum IN is unused!
 
 // TEST ALL!
 
-- float mod for effects in params (where to put?)
+- too much chaos: 
+
+TODO: test push/pop on its own, make more of execution, effectmod is a
+bit oddFIXED, order of mirroring/foldback(first) and settings(later),
+hardware in foldback as questionableDONE, test finger stuff ONLY, test 16k
+again(speedup?)
+
+- thus more EXEC settings - stack, also fingers in the stack
+
+- float mod for effects in params (-hard,-effectmod as not a
+  setting=2)DONE-put into audio.c TODO!!!
+
+  float32_t morph_inv = 1.0 - FMOD;
+
+  f_sum = (float32_t)*asrc++ * morph_inv + (float32_t)*bsrc++ * FMOD;
+
+  float32_t morph_inv = 1.0 - morph, f_sum;
+
+#define FMOD (settingsarray[46]/65536.0)
+#define FMODF (settingsarray[47]/65536.0)
+#define FMODW (settingsarray[48]/65536.0)
+
 
 ** DONE:
 
-
+- fixed exespot error - check settingsarray in main
+- fixed bug in mirroring
+- fixed stacker overflow with %96 oversight!
 - fix each mirror action as having it's own parameters (64) and mirror
   of mirror into this:DONE
 

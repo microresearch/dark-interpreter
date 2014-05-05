@@ -102,7 +102,7 @@ extern u8 digfilterflag;
 //u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
-u16 settingsarray[71];
+u16 settingsarray[64];
 u16 FOLDD[45]; // MAX size 44!!!
 
 #define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192
@@ -250,7 +250,7 @@ tmpsetting-=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 x,addr,tmp,tmppp,hdtmp,tmphardware,knobby,coo=0;
+  u16 x,addr,tmp,tmppp,hdtmp,tmphardware,HARDWARE,knobby,coo=0;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper,stackerstart,stackerwrap;
   u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,exespot=0,stackmuch=0;
@@ -436,21 +436,21 @@ void main(void)
 	  }
 
       effects=adc_buffer[SECOND]>>5;  // 7 bits
-      if (EFFECTMOD&1) settingsarray[51]=effects<<9; // READ IN 
-      if (EFFECTMOD&2 || EFFECTMOD&4) settingsarray[52]=effects<<9; // WRITE=PLAY
+      settingsarray[51]=effects<<9; // READ IN 
+      if (effectmod&1 || effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIRST]>>5; // 7 bits
       }
-            settingsarray[47]=tmphardware<<1; //was >>8 to divide average
+            HARDWARE=tmphardware>>8; //was >>8 to divide average
       //      hardware=rand()%127; // TESTY!
             effects=adc_buffer[SECOND]>>5;  // 7 bits
 	    //      effects=rand()%128;
-      //      EFFECTMOD=rand()%8; // TESTY!
-      if (EFFECTMOD&1) settingsarray[51]=effects<<9; // READ IN 
-      if (EFFECTMOD&2) settingsarray[52]=effects<<9; // WRITE=PLAY
-      if (EFFECTMOD&4) settingsarray[53]=effects<<9; // FILTER
+      //      effectmod=rand()%8; // TESTY!
+	    settingsarray[51]=effects<<9; // READ IN 
+      if (effectmod&1) settingsarray[52]=effects<<9; // WRITE=PLAY
+      if (effectmod&2) settingsarray[53]=effects<<9; // FILTER
 #endif
 
       // KNOB FIVE = knobby //TODO: underused
@@ -463,8 +463,7 @@ void main(void)
       switch(fingermod){
       case 0:
 	//effectmod
-	effectmod=fingervalright(effectmod,8);
-	settingsarray[50]=effectmod<<13;
+	effectmod=fingervalright(effectmod,3);
 	break;
       case 1:
 	// stack
@@ -473,23 +472,23 @@ void main(void)
 	if (fingerdirupdown()==1) {
 	  switch (whichstack){ // which stack to push=0-4
 	  case 0:
-	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,stackmuch,STACKSTART,STACKWRAP);	    
 	    break;
 	  case 1:
-	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,stackmuch,STACKSTART,STACKWRAP);	    
 	    break;
 	  case 2:
-	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 3:
-	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 4:
 	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
 			  }
 	}
 	else if (fingerdirupdown()==0){
-	  switch (whichstack%3){ // which stack to pop=0-
+	  switch (whichstack%3){ // which stack to pop=0-3
 	  case 0:
 	    stack_posy=ca_pop(stackyyy,stack_posy);
 	    break;
@@ -503,7 +502,7 @@ void main(void)
 	break;
       case 2:
 	// direction
-	whichdir=fingervalright(whichdir,12);//
+	whichdir=fingervalright(whichdir,10);//
 	whichdiritis=(fingerdirupdown()); // was UP
 	settingsarray[54+whichdir]=whichdiritis<<15;  //<<1 bit to 16
 	break;
@@ -561,7 +560,7 @@ void main(void)
 	break;
       case 10:
 	// wrap 16 bits
-	constrained=fingervalright(constrained,14);
+	constrained=fingervalright(constrained,15);
 	if (fingerfing&1) constrain=fingervalup16bits(constrain,32);
 	else constrain=adc_buffer[UP]<<4;
 	settingsarray[11+constrained]=constrain; // 16 bit value
@@ -569,50 +568,44 @@ void main(void)
       case 11:
 	// wrap all
 	constrain=fingervalup16bits(constrain,32);
-	//	if (fingerfing&1) constrain=fingervalup16bits(constrain,32);
-	//	else constrain=adc_buffer[UP]<<4;
-	//	constrain=adc_buffer[UP]<<4;
 	for (x=11;x<25;x++){
 	  settingsarray[x]=constrain; // 16 bit value
       }
 	break;
       case 12:
 	// exespot
-	exespot=fingervalright(exespot,22);
-	settingsarray[49]=exespot; 
+	exespot=fingervalright(exespot,32);
+	settingsarray[50]=exespot<<11; 
 	break;
       case 13:
 	// folder?
-	foldback=fingervalright(foldback,5);
+	foldback=fingervalright(foldback,44);
 	if (fingerfing&1) foldbackset=fingervalup16bits(foldbackset,32);
 	else foldbackset=adc_buffer[UP]<<4;
-	settingsarray[64+foldback]=foldbackset;
+	FOLDD[foldback]=foldbackset;
 	break;
       case 14:
 	// fold all?
 	if (fingerfing&1) foldbackset=fingervalup16bits(foldbackset,32);
 	else foldbackset=adc_buffer[UP]<<4;
-	for (x=64;x<69;x++){
-	settingsarray[x]=foldbackset;
+	for (x=0;x<44;x++){
+	FOLDD[x]=foldbackset;
 	}
 	break;
       case 15:
-	//stackmuch 46
+	//stackmuch 
 	if (fingerfing&1) stackmuch=fingervalright(stackmuch,100);
 	else stackmuch=adc_buffer[UP]>>5;
-	settingsarray[46]=stackmuch;
       }
 
       // KNOB FOUR = mirrors ---> TODO: last or first??
       mirror=adc_buffer[FOURTH]>>6; // 6 bits
       // toggle repeats is top bit but how we set this 
       mirrortoggle=mirror>>5; // top bit
-      mirror=mirror>>1; // so now 32
+      mirror=mirror&31; // so now 32... fixed as kept mirrortoggle bit...
       FOLDD[44]=knobby<<4; // knob five as length of mirror
-      FOLDD[1]=knobby<<4; // knob five as length of mirror
-      //      FOLDD[1]=65536;
-      //      if (mirrortoggle&1) mirrorflag^=(1<<mirror); // TEST. toggles the mirror
-      //      mirror=1;
+      FOLDD[1]=knobby<<4; // knob five as length of mirror???TODO
+
       switch(mirror){
       case 0: // do nothing
 	break;
@@ -632,7 +625,7 @@ void main(void)
 	break;
       case 3:
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=adc_buffer[UP];
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=adc_buffer[UP]<<4;
 	}
 	if (mirrortoggle&1) mirrorflag^=4;
 	break;
@@ -644,13 +637,13 @@ void main(void)
 	break;
       case 5:
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]+=1;
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]+=8;
 	}
 	if (mirrortoggle&1) mirrorflag^=16;
 	break;
       case 6:
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]-=1; //TODO TUNING this +-1!!!
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
 	if (mirrortoggle&1) mirrorflag^=32;
 	break;
@@ -708,12 +701,12 @@ void main(void)
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
 	    stackerstart=stackery[tmper];
-	    stackerwrap=stackery[(tmper+2)%96];
+	    stackerwrap=stackery[(tmper+2)%48];
 	  }
 	  else {
 	    tmper=tmper-48;
 	    stackerstart=stacker[tmper];
-	    stackerwrap=stacker[(tmper+2)%96];
+	    stackerwrap=stacker[(tmper+2)%48];
 	  }
 	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
 	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
@@ -793,10 +786,10 @@ void main(void)
       case 23:
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
 	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%96];
+	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%48];
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=stacker[(tmper+3)%96];
+	    stacker[tmper]=stacker[(tmper+3)%48];
 		}
 	}
 	if (mirrortoggle&1) mirrorflag^=1048576;
@@ -809,7 +802,7 @@ void main(void)
       case 25:
 	for (x=0;x<((FOLDD[44]>>9)+1);x++){
 	  tmper=((FOLDD[2]>>10)+x)%44;
-	  FOLDD[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+	  FOLDD[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[44]>>9)+1)))%32768];
 	  coo++;
 		}
 	//	if (mirrortoggle&1) mirrorflag^=2097152;
@@ -882,7 +875,7 @@ void main(void)
 
       if (mirrorflag&4){
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>9)+1)))%64]=adc_buffer[UP];
+	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>9)+1)))%64]=adc_buffer[UP]<<4;
 	}
 }
 
@@ -894,13 +887,13 @@ void main(void)
 
       if (mirrorflag&16){
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>9)+1)))%64]+=1;
+	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>9)+1)))%64]+=8;
 	}
 }
 
       if (mirrorflag&32){
 	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>9)+1)))%64]-=1; //TODO TUNING this +-1!!!
+	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>9)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
 }
 
@@ -949,12 +942,12 @@ void main(void)
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
 	    stackerstart=stackery[tmper];
-	    stackerwrap=stackery[(tmper+2)%96];
+	    stackerwrap=stackery[(tmper+2)%48];
 	  }
 	  else {
 	    tmper=tmper-48;
 	    stackerstart=stacker[tmper];
-	    stackerwrap=stacker[(tmper+2)%96];
+	    stackerwrap=stacker[(tmper+2)%48];
 	  }
 	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
 	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
@@ -1035,7 +1028,7 @@ void main(void)
 	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%96];
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=stacker[(tmper+3)%96];
+	    stacker[tmper]=stacker[(tmper+3)%48];
 		}
 	}
 }
