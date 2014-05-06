@@ -325,6 +325,8 @@ For Mater Lachrymarum IN is unused!
 
 * WED 7 MAY
 
+- redo simulationforstack as sans mem - simforstacksansmemDONE-TEST!
+
 [TODO:
 - reduce always-running mirror ops???TEST
 - order of mirroring/foldback(first) and settings(later)TEST
@@ -342,9 +344,11 @@ nohard/vocl: 537,540(no action),542(action-good!),544,546,547
 hard/no in 533(not much hardware)
 
 TUE EVE:
-- redo simulationforstack as sans mem - simforstacksansmemDONE-TEST!
-- way into stack of pureleak and cpus and more execution stuff
 
+- way into stack of cpus and more execution stuff
+
+max is  this->m_threadcount
+TEST :  this->m_threads[n].CPU=
 
 ** DONE:
 

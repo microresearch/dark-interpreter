@@ -1617,19 +1617,19 @@ int main(void)
   // inc threadcount, array of offsets
   for (x=0;x<MAX_FRED/2;x++){
     addr=randi()%65536;
-    //    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
-    cpustackpushhh(buffer,addr,addr+randi()%65536,3,1);//masque, 6=corewars
+    cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1);
+    //    cpustackpushhh(buffer,addr,addr+randi()%65536,3,1);//masque, 6=corewars
 }
 
   x=0; 
     while(1) {
       machine_runnn(buffer);
-      //    printf("%c",buffer[x++]);
-      //      x++;
+          printf("%c",buffer[x++]);
+            x++;
 	  //	  addr=randi()%65536;
-	   if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1); 
+      //	   if ((rand()%2)==1)     cpustackpushhh(buffer,addr,addr+randi()%65536,randi()%31,1); 
 
-	   else  			cpustackpoppp(buffer); 
+      //   else  			cpustackpoppp(buffer); 
 		 //  printf("stackposy: %d\n", stack_posy);
 
 

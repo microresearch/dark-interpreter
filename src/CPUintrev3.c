@@ -140,8 +140,8 @@ void thread_run(thread* this, machine *m) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-  m->m_memory=this->m_memory;
-  if (++this->m_delc==this->m_del){
+  //  m->m_memory=this->m_memory;
+  if (++this->m_delc>=this->m_del){
 
 #ifdef PCSIM
     //      printf("CPU: %d\n",this->m_CPU);
@@ -684,7 +684,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
+	//	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
+	//	printf("adde\n");
+	
 	break;
       case 27:
 	this->m_pc+=3;
@@ -1424,10 +1426,10 @@ void machine_run(machine* this) {
   }
 		
   }
-
-  	for (unsigned char n=0; n<this->m_threadcount; n++) {
-  	  thread_run(&this->m_threads[n],this);
-	  }
+  for (unsigned char n=0; n<this->m_threadcount; n++) {
+    thread_run(&this->m_threads[n],this);
+    //    printf("running %d\n", n);
+  }
 }
 
 void leak(machine *m){
@@ -1584,10 +1586,11 @@ int main(void)
 	u8 anydir, anyspeed, anystep;
 	u16 anywrap,anystart,start,wrap;
 	u8 inproc=1, anydel=0;
-	u16 samplepos,anypos=0; u8 x;
+	u16 samplepos,anypos=0; u16 x;
 	u8 del=0,speed=1;
 	signed char dirry;
 	u16 *buf16 = (u16*) buffer;
+
 
 	anyspeed=1;anydir=2;anystart=0;anywrap=32; anystep=1;
 	samplestep=1;sampledir=2;
@@ -1598,8 +1601,8 @@ int main(void)
 	  //	  printf("%c",buffer[x]);
 	  x++;
 
-	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
-	  else cpustackpop(m);
+	  //	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
+	  //	  else cpustackpop(m);
 
 	}
 	}

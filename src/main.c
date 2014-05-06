@@ -307,6 +307,13 @@ void main(void)
   m->m_threadcount=0;
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
+  // TEST : max f [] is this->m_threadcount
+  m->m_threads[1].m_CPU=1;
+  //  this->m_start=address;
+  //  this->m_wrap=wrapaddress;
+
+
+
   u8 hwdel=0; u8 effectmod=0;
   u16 hwpos=0,hwposss,wrapper;
   u8 stack_pos=0;
@@ -410,7 +417,7 @@ void main(void)
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  	  machine_run(m);
+	  machine_run(m);
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    machine_count=0;
@@ -418,7 +425,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    	    machine_runnn(datagenbuffer);
+	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -480,10 +487,10 @@ void main(void)
 	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,stackmuch,STACKSTART,STACKWRAP);	    
 	    break;
 	  case 2:
-	    //	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,stackmuch,STACKSTART,STACKWRAP);
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 3:
-	    //	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,stackmuch,STACKSTART,STACKWRAP);
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 4:
 	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
@@ -496,7 +503,7 @@ void main(void)
 	    stack_posy=ca_pop(stackyyy,stack_posy);
 	    break;
 	  case 1:
-	    //	    stack_pos=func_pop(stackyy,stack_pos);
+	    	    stack_pos=func_pop(stackyy,stack_pos);
 	    break;
 	  case 2:
 	    villagestackpos=villagepop(villagestackpos);
