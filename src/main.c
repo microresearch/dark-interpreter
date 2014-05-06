@@ -399,7 +399,7 @@ void main(void)
 #else
 
       machine_count++;
-      //      if (machine_count>=MACHINESPEED){
+      if (machine_count>=MACHINESPEED){
 
       for (x=0;x<4;x++){
 	switch(exeperms[((exespot%22)*4)+x]){
@@ -423,7 +423,7 @@ void main(void)
 	  }
 	}
 	}
-		  //      	  } // end of machine count
+      } // end of machine count
       /////////////////////////////
       // KKNOBBBSSS
 
@@ -460,7 +460,7 @@ void main(void)
       fingermod=adc_buffer[THIRD]>>7;// 5 bits=32 
       fingerfing=fingermod&1; //finger open0 or as dir
       fingermod=fingermod>>1; //4 bits=16
-      fingermod=1; // TESTY!!!
+      //      fingermod=1; // TESTY!!!
       switch(fingermod){
       case 0:
 	//effectmod

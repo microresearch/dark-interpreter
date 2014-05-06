@@ -173,16 +173,24 @@ struct Fitz
   u16* buffer;
 };
 
-
-void inittable(u8 r, u8 k, int rule, u8 *table);
-
-struct stackey{
+/*struct stackey{
   u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
   u8 howmuch;
   u16 count;
   void* unit;
   };
+*/
 
+
+struct stackey{
+  u16 (*functione) (u8 howmuch, u16* workingbuffer, u16 count, u16 start, u16 wrap);  
+  u8 howmuch;
+  u16* buffer;
+  u16 count;
+  };
+
+
+void inittable(u8 r, u8 k, int rule, u8 *table);
 
 signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap);
 void func_runall(struct stackey stack[STACK_SIZE], u8 stack_pos);

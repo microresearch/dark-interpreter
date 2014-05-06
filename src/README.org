@@ -222,7 +222,7 @@ outside, and in open daylight.
 
 ** basic operation/theory/background
 
-notes from notebook
+++++notes from notebook
 
 The Dark Interpreter is _not_ to be controlled. It is a dark
 electronic mirror, the skin itself.
@@ -330,6 +330,7 @@ For Mater Lachrymarum IN is unused!
 - order of mirroring/foldback(first) and settings(later)TEST
 - more of EXEC settings - stack, also fingers in the stack(HOW?)
 - fingermod doesn't seem work so well - re-test
+- maybe retry with float mod
 ]
 
 * MON 5 MAY/TUE 6 MAY
@@ -340,9 +341,10 @@ nohard/vocl: 537,540(no action),542(action-good!),544,546,547
 
 hard/no in 533(not much hardware)
 
-- redo simulationforstack as sans mem
+TUE EVE:
+- redo simulationforstack as sans mem - simforstacksansmem
 - way into stack of pureleak and cpus and more execution stuff
-- maybe retry with float mod
+
 
 ** DONE:
 
