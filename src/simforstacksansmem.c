@@ -208,13 +208,13 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
   otherstart=workingbuffer[0]>>1;
   otherwrap=workingbuffer[1]>>1;
   dirr=workingbuffer[2]&1;
-  newdir[0]=-1;
-  newdir[1]=1; // fixed
+  newdirrr[0]=-1;
+  newdirrr[1]=1; // fixed
     if (dirr==1)  othercount=0;
     else othercount=otherwrap;
     }*/
 
-u8 newdir[2]={-1,1};
+u8 newdirrr[2]={-1,1};
 
 u16 runchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
   u8 i; static u16 othercount;
@@ -225,7 +225,7 @@ u16 runchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    othercount+=newdir[dirr];
+    othercount+=newdirrr[dirr];
 
     if (othercount<otherwrap && othercount>0){
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+otherstart)%32768];
@@ -248,7 +248,7 @@ u16 runderefchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    othercount+=newdir[dirr];
+    othercount+=newdirrr[dirr];
     if (othercount<otherwrap && othercount>0){
       workingbuffer[(count+start)%32768]=workingbuffer[workingbuffer[(othercount+otherstart)%32768]>>1];
       //      printf("%c",workingbuffer[(count+start)%32768]);
@@ -272,7 +272,7 @@ u16 runwalkerchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u1
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    othercount+=newdir[dirr];
+    othercount+=newdirrr[dirr];
     if (othercount>otherwrap || othercount<1){
       // get new start and wrap - from where? would need other counter
       otherstart=workingbuffer[0]>>1;
@@ -300,7 +300,7 @@ u16 runswapchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    othercount+=newdir[dirr];
+    othercount+=newdirrr[dirr];
     if (othercount>otherwrap || othercount<1){
       otherstart=workingbuffer[0]>>1;
       otherwrap=workingbuffer[1]>>1;
@@ -576,6 +576,7 @@ u16 runORaudio(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
     // convert signed to unsigned how? 
 
     temp=(uint16_t)audio_buffer[(count+start)%32768];
+    u16 cop=workingbuffer[0]; 
     switch(cop%5){
     case 0:
     audio_buffer[(count+start)%32768]|=(int16_t)workingbuffer[(count+start)%32768];
@@ -1722,11 +1723,11 @@ void main()
   	 	   }
   
 
-	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdir[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
+	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdirrr[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
  
 	 while(1){
 		   /*		   SAMPLEDIRW=rand()%2;
-	    dirry=newdir[SAMPLEDIRW]*1;
+	    dirry=newdirrr[SAMPLEDIRW]*1;
 	    count=((samplepos-start)+dirry);
 	    //	    if (count<wrap && (samplepos+dirry)>start)
 		    if (count<wrap && count>0)
