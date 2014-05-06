@@ -1739,11 +1739,17 @@ void main()
 	 for (x=0;x<4096;x++){
 		   mirror++;
 		   //		   if (mirror==4096) mirror=0;
-		   mirrorii=mirror>>6;
-		   mirrori=mirrorii&31;
-		   mirrortoggle=mirrorii>>5; // top bit
+
+		   /*      fingermod=adc_buffer[THIRD]>>7;// 5 bits=32 
+			   fingerfing=fingermod&1; //finger open0 or as dir
+			   fingermod=fingermod>>1; //4 bits=16
+		   */
+
+		   mirrorii=mirror>>7;
+		   mirrori=mirrorii&1;
+		   mirrortoggle=mirrorii>>1; // top bit
 		   //mirror=mirror>>1; // so now 32
-		   printf("mirror %d mirror %d togg %d\n", mirrorii, mirrori,mirrortoggle);
+		   printf("fingermod1 %d fingerfing %d fingermod2 %d\n", mirrorii, mirrori,mirrortoggle);
 		   }
 	 //	 x=4096;
 	 //	 mirrori=x>>6;

@@ -322,6 +322,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	else firstbuf=audio_buffer;
 	VILLAGEREAD=EFFECTREAD&3;
 	tmpp=(EFFECTREAD&63)>>2;
+	//	float32_t morph_inv = 1.0 - FMOD;
       	for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
@@ -340,6 +341,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
 	  tmp32=(*src++)*firstbuf[sampleposread%32768];
+	  //  f_sum = (float32_t)*asrc++ * morph_inv + (float32_t)*bsrc++ * FMOD;
+	  //	  tmp32=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 3:
@@ -488,7 +491,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
-      	for (x=0;x<sz/2;x++){
+	    //	    tmpp=3; // TESTER!!!
+	    //	    float32_t morph_inv = 1.0 - (float32_t)FMOD,fsum;
+	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
 	  case 0:
 	  default:
@@ -510,22 +515,30 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  case 3:
 	  *src++;
 	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  //	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  //	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	  *src++;
 	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  //fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  //	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 5:
 	  *src++;
 	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  //	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  //	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  *src++;
 	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  //fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  //	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
@@ -553,11 +566,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  case 11:
 	  *src++;
 	  tmp32=(*src++)+firstbuf[sampleposread%32768];
+	  //	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
+	  //tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 12:
 	  *src++;
-	  tmp32=(*src++)+firstbuf[sampleposread%32768];
+	  	  tmp32=(*src++)+firstbuf[sampleposread%32768];
+		  //fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
+		  //	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
@@ -929,8 +946,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	    firstbuf=buf16int; //TESTY!
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  tmpp=(EFFECTWRITE&63)>>2;
-	  //	  tmpp=0; // TESTYYYY!!!
-      	for (x=0;x<sz/2;x++){
+	  //	  tmpp=0;firstbuf=buf16int; // TESTYYY!!!
+	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	    mono_buffer[x]=firstbuf[samplepos%32768];
@@ -988,7 +1005,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	 	  }
 
-	  //	  VILLAGEWRITE=0; // TESTY!!!!
+	  //	  	  VILLAGEWRITE=0; // TESTY!!!!
  
 	  if (++del>=SAMPLESPEED){
 	    dirry=newdir[SAMPLEDIRW]*SAMPLESTEP;

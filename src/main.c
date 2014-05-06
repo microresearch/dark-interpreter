@@ -65,8 +65,10 @@ signed char directionf[2]={-1,1};
 signed char newdirread[2]={-1,1};
 signed char directionread[2]={-1,1};
 
+#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192
+
 u8 villagestackpos=0;
-u16 villager[129];
+u16 villager[VILLAGE_SIZE];
 u16 stackery[48]; // 16*3 MAX
 u16 stacker[48]; // 16*3 MAX
 u8 ww[3]={12,15,0};
@@ -105,7 +107,7 @@ u16 sin_data[256];  // sine LUT Array
 u16 settingsarray[64];
 u16 FOLDD[45]; // MAX size 44!!!
 
-#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192
+
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   if (villagepos<VILLAGE_SIZE)
@@ -181,6 +183,9 @@ u8 fingerdirupdown(void){
   u8 handleft, handright, left=0,right=0;
   u8 result=2;
 
+  // TESTY!
+  //  return (rand()%2);
+
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[UP]>>8;
   handright=adc_buffer[DOWN]>>8;
@@ -253,7 +258,7 @@ void main(void)
   u16 x,addr,tmp,tmppp,hdtmp,tmphardware,HARDWARE,knobby,coo=0;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper,stackerstart,stackerwrap;
-  u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,exespot=0,stackmuch=0;
+  u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,exespot=0,stackmuch=10;
   u16 constrain,foldbackset;
   u32 mirrorflag;
   u8 effects;
@@ -288,7 +293,7 @@ void main(void)
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000); // was 16000
+  Codec_Init(48000); // was 48000
   delay();
 
 #ifndef LACH
@@ -343,11 +348,6 @@ void main(void)
   settingsarray[51]=0; //EFFECTS
   settingsarray[52]=0;
   settingsarray[53]=0;
-
-  // TESTY! datagen init with adc9: TESTY!
-  for (x=0;x<32768;x++){
-    //    buf16[x]=randi()<<4; // 16 bits
-  }
 	 
   // CPUintrev2:
   for (x=0; x<100; x++) // was 100
@@ -372,7 +372,8 @@ void main(void)
   }
 
   //simulationforstack:	
-  for (x=0;x<STACK_SIZE;x++){
+    for (x=0;x<STACK_SIZE;x++){
+  //  for (x=0;x<2;x++){ // TESTY!
     start=randi()<<3;
     wrap=randi()<3;
     stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
@@ -398,10 +399,10 @@ void main(void)
 #else
 
       machine_count++;
-      if (machine_count>=MACHINESPEED){
+      //      if (machine_count>=MACHINESPEED){
 
-	          for (x=0;x<4;x++){
-	switch(exeperms[((EXESPOT%22)*4)+x]){
+      for (x=0;x<4;x++){
+	switch(exeperms[((exespot%22)*4)+x]){
 	case 0:
 	  func_runall(stackyy,stack_pos); // simulations
 	  break;
@@ -409,7 +410,7 @@ void main(void)
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  machine_run(m);
+	  	  machine_run(m);
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    machine_count=0;
@@ -417,12 +418,12 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    machine_runnn(datagenbuffer);
+	    	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
 	}
-      	  } // end of machine count
+		  //      	  } // end of machine count
       /////////////////////////////
       // KKNOBBBSSS
 
@@ -459,7 +460,7 @@ void main(void)
       fingermod=adc_buffer[THIRD]>>7;// 5 bits=32 
       fingerfing=fingermod&1; //finger open0 or as dir
       fingermod=fingermod>>1; //4 bits=16
-      //      fingermod=10;
+      fingermod=1; // TESTY!!!
       switch(fingermod){
       case 0:
 	//effectmod
@@ -468,7 +469,8 @@ void main(void)
       case 1:
 	// stack
 	whichstack=fingervalright(whichstack,5);
-	//		    whichstack=rand()%5; TESTY
+	//	whichstack=3; // TESTY!!
+	//	whichstack=rand()%5; //TESTY
 	if (fingerdirupdown()==1) {
 	  switch (whichstack){ // which stack to push=0-4
 	  case 0:
@@ -478,22 +480,23 @@ void main(void)
 	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,stackmuch,STACKSTART,STACKWRAP);	    
 	    break;
 	  case 2:
-	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,stackmuch,STACKSTART,STACKWRAP);
+	    //	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 3:
-	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,stackmuch,STACKSTART,STACKWRAP);
+	    //	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,stackmuch,STACKSTART,STACKWRAP);
 	    break;
 	  case 4:
 	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
 			  }
 	}
 	else if (fingerdirupdown()==0){
+	  ///	  whichstack=1; // TESTY!
 	  switch (whichstack%3){ // which stack to pop=0-3
 	  case 0:
 	    stack_posy=ca_pop(stackyyy,stack_posy);
 	    break;
 	  case 1:
-	    stack_pos=func_pop(stackyy,stack_pos);
+	    //	    stack_pos=func_pop(stackyy,stack_pos);
 	    break;
 	  case 2:
 	    villagestackpos=villagepop(villagestackpos);
@@ -574,8 +577,8 @@ void main(void)
 	break;
       case 12:
 	// exespot
-	exespot=fingervalright(exespot,32);
-	settingsarray[50]=exespot<<11; 
+	exespot=fingervalright(exespot,22);
+	//	settingsarray[50]=exespot<<11; 
 	break;
       case 13:
 	// folder?
@@ -586,9 +589,9 @@ void main(void)
 	break;
       case 14:
 	// fold all?
-	if (fingerfing&1) foldbackset=fingervalup16bits(foldbackset,32);
-	else foldbackset=adc_buffer[UP]<<4;
 	for (x=0;x<44;x++){
+	if (fingerfing&1) foldbackset=fingervalup16bits(FOLDD[x],32);
+	else foldbackset=adc_buffer[UP]<<4;
 	FOLDD[x]=foldbackset;
 	}
 	break;

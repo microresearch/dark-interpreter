@@ -323,18 +323,34 @@ For Mater Lachrymarum IN is unused!
 - finish manual/site
 - video and more samples uploaded
 
-* MON 5 MAY
+* WED 7 MAY
 
-// TEST ALL!
+[TODO:
+- reduce always-running mirror ops???TEST
+- order of mirroring/foldback(first) and settings(later)TEST
+- more of EXEC settings - stack, also fingers in the stack(HOW?)
+- fingermod doesn't seem work so well - re-test
+]
 
-- too much chaos: 
+* MON 5 MAY/TUE 6 MAY
 
-TODO: test push/pop on its own, make more of execution, effectmod is a
-bit oddFIXED, order of mirroring/foldback(first) and settings(later),
-hardware in foldback as questionableDONE, test finger stuff ONLY, test 16k
-again(speedup?)
+TUE samples: no hardware/no input/TENE: 530,531,534,548
 
-- thus more EXEC settings - stack, also fingers in the stack
+nohard/vocl: 537,540(no action),542(action-good!),544,546,547
+
+hard/no in 533(not much hardware)
+
+- redo simulationforstack as sans mem
+- way into stack of pureleak and cpus and more execution stuff
+- maybe retry with float mod
+
+** DONE:
+
+- now with CAforstacksansmem TEST...
+
+- fixed wrong size for villager array
+
+///-decided not use below:
 
 - float mod for effects in params (-hard,-effectmod as not a
   setting=2)DONE-put into audio.c TODO!!!
@@ -349,10 +365,9 @@ again(speedup?)
 #define FMODF (settingsarray[47]/65536.0)
 #define FMODW (settingsarray[48]/65536.0)
 
-
-** DONE:
-
-- fixed exespot error - check settingsarray in main
+- hardware in foldback as questionableDONE-removed
+- effectmod is a bit oddFIXED
+- fixed exespot error - check settingsarray in mainCHECKED
 - fixed bug in mirroring
 - fixed stacker overflow with %96 oversight!
 - fix each mirror action as having it's own parameters (64) and mirror

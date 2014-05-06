@@ -53,16 +53,16 @@
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
-#define FMOD (settingsarray[46]/65536.0)
-#define FMODF (settingsarray[47]/65536.0)
-#define FMODW (settingsarray[48]/65536.0)
+//#define FMOD ((float32_t)settingsarray[46]/65536.0f)
+//#define FMODF ((float32_t)settingsarray[47]/65536.0f)
+//#define FMODW ((float32_t)settingsarray[48]/65536.0f) UNUSED./// now holes in
 
 //////////////////////////////////////////////////
 
 // Excess settings/actions to walkers - WHERE to set?
 
 #define STACKFUNC (settingsarray[49]>>11)
-#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
+//#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
 
 #define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128
 #define EFFECTWRITE (settingsarray[52]>>9) 

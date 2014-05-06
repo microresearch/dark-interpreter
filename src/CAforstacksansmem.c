@@ -26,78 +26,80 @@ extern u16 stackery[48]; // 16*3 MAX
 #define STACK_SIZE 16
 
 struct stackey{
-  u16 (*functione) (u8 howmuch, void * unity, u16 count, u16 start, u16 wrap);  
-  void* unit;
+  u16 (*functione) (u8 howmuch, u8 * cells, u16 count, u16 start, u16 wrap);  
   u16 count;
+  u8 *buffer;
   };
 
 //////////////////////////////////////////
 
 // hodge from microbd simplified with circular buffer and init
 
-void hodgeinit(void* unity, u8* cells){
+/*void hodgeinit(void* unity, u8* cells){
   struct hodge* unit=unity;
   unit->q=cells[0];unit->k1=cells[1];unit->k2=cells[2];unit->g=cells[3];
-  unit->celllen=cells[4];
+  cells[4]=cells[4];
   unit->cells=cells;
   if (unit->k1==0) unit->k1=1;
-  if (unit->k2==0) unit->k2=1;
-}
+  if (cells[2]==0) cells[2]=1;
+  }*/
 
-u16 runhodge(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runhodge(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y; u8 i;
-  struct hodge *unit=unity;
-  u8 *cells=unit->cells;
+  u8 k1=cells[1];
+  u8 k2=cells[2];
+  if (k1==0) k1=1;
+  if (k2==0) k2=1;
 
   for (i=0;i<howmuch;i++){
-    y=x-unit->celllen-1;
+    y=x-cells[4]-1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y+=1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y+=1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
-    y+=unit->celllen-2;
+    y+=cells[4]-2;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
-
-    y+=1;
-    sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y+=1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
-
-    y+=unit->celllen-2;
-    sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y+=1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
+
+    y+=cells[4]-2;
+    sum+=cells[y];
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y+=1;
     sum+=cells[y];
-    if (cells[y]==(unit->q-1)) numill++; else if (cells[y]>0) numinf++;
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
+
+    y+=1;
+    sum+=cells[y];
+    if (cells[y]==(cells[0]-1)) numill++; else if (cells[y]>0) numinf++;
 
     y=x+wrap;
   if(cells[x] == 0)
-    cells[y] = floorf(numinf / unit->k1) + floorf(numill / unit->k2);
-  else if(cells[x] < unit->q - 1)
-    cells[y] = floorf(sum / (numinf + 1)) + unit->g;
+    cells[y] = floorf(numinf / k1) + floorf(numill / k2);
+  else if(cells[x] < cells[0] - 1)
+    cells[y] = floorf(sum / (numinf + 1)) + cells[3];
   else
     cells[y] = 0;
 
-  if(cells[y] > unit->q - 1)
-    cells[y] = unit->q - 1;
+  if(cells[y] > cells[0] - 1)
+    cells[y] = cells[0] - 1;
 
   x++;
   if (x>(start+wrap)) x=start;
@@ -113,62 +115,64 @@ u16 runhodge(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-u16 runhodgenet(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
-  struct hodge* unit=unity;
   u8 sum=0, numill=0, numinf=0; u16 place;
   uint16_t y;
   u8 i;
-  u8 *cells=unit->cells;
+  u8 k1=cells[1];
+  u8 k2=cells[2];
+  if (k1==0) k1=1;
+  if (k2==0) k2=1;
 
   for (i=0;i<howmuch;i++){
 
-  place=x-unit->celllen-1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  place=x-cells[4]-1;
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
   place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
   place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
-  place+=unit->celllen-2;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
-  sum+=cells[place];
-
-  place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  place+=cells[4]-2;
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
   place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
-  sum+=cells[place];
-
-  place+=unit->celllen-2;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
   place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+
+  place+=cells[4]-2;
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
   place+=1;
-  if (cells[place]==unit->q) numill++; if (cells[place]>0) numinf++;  
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
+  sum+=cells[place];
+
+  place+=1;
+  if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
     y=x+32768;
   if(cells[x] == 0)
-    cells[y] = floorf(numinf / unit->k1) + floorf(numill / unit->k2);
-  else if(cells[x] < unit->q)
-    {    if ((numinf+1)!=0)    cells[y] = floorf(sum / (numinf + 1)) + unit->g;}
+    cells[y] = floorf(numinf / k1) + floorf(numill / k2);
+  else if(cells[x] < cells[0])
+    {    if ((numinf+1)!=0)    cells[y] = floorf(sum / (numinf + 1)) + cells[3];}
   else
     cells[y] = 0;
 
-  if(cells[y] > unit->q)
-    cells[y] = unit->q;
+  if(cells[y] > cells[0])
+    cells[y] = cells[0];
 
   x++;
   if (x>(start+wrap)) x=start;
@@ -186,25 +190,23 @@ u16 runhodgenet(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
 
 void inittable(u8 r, u8 k, int rule, u8 *table);
 
-void cainit(void* unity, u8* cells){
+/*void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
-  unit->celllen=cells[0]+1;
+  cells[4]=cells[0]+1;
   unit->rule=cells[1];
   unit->cells=cells;
-}
+  }*/
 
-u16 runlife(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runlife(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
 
   u8 sum;
   uint16_t y; u8 i;
-  struct CA* unit=unity;
-  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
-    //  sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
+    //  sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-cells[4]]&1)+(cells[x+cells[4]]&1)+(cells[x-cells[4]-1]&1)+(cells[x-cells[4]+1]&1)+(cells[x+cells[4]-1]&1)+(cells[x+cells[4]+1]&1);
 
-    y=x-unit->celllen-1;
+    y=x-cells[4]-1;
     sum+=cells[y]&1;
 
     y+=1;
@@ -213,7 +215,7 @@ u16 runlife(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     y+=1;
     sum+=cells[y]&1;
 
-    y+=unit->celllen-2;
+    y+=cells[4]-2;
     sum+=cells[y]&1;
 
     y+=1;
@@ -222,7 +224,7 @@ u16 runlife(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     y+=1;
     sum+=cells[y]&1;
 
-    y+=unit->celllen-2;
+    y+=cells[4]-2;
     sum+=cells[y]&1;
 
     y+=1;
@@ -255,11 +257,9 @@ u16 runlife(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
 
 //one dimensional - working line by line through buffer
 
-u16 runcel(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runcel(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
   u8 state,i=0; u16 y;
-  struct CA* unit=unity;
-  u8 *cells=unit->cells;
 
   for (i=1;i<howmuch;i++){
       state = 0;
@@ -272,8 +272,8 @@ u16 runcel(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
       y-=1;
       if (cells[y]>128)
 	state |= 0x1;
-      y=x+i+unit->celllen;
-      if ((unit->rule >> state) & 1){
+      y=x+i+cells[4];
+      if ((cells[1] >> state) & 1){
 	cells[y] = 255;
       }
       else{
@@ -317,13 +317,11 @@ void inittable(u8 r, u8 k, int rule, u8 *table){
 
 // 1d with rules
 
-u16 runcel1d(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runcel1d(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
   u8 sum; int16_t z,zz;
   u8 i;//k=states
-  struct CA* unit=unity;
   u16 y;
-  u8 *cells=unit->cells;
 
   for (i=1;i<howmuch;i++){
     sum=0;
@@ -331,12 +329,12 @@ u16 runcel1d(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     // sum of cells in radius - not looping!
     for (z=-3;z<3;z++){ // hardcode sans radius...
       zz=x+i+z;
-      if (zz>=unit->celllen) zz=zz-unit->celllen;
-      if (zz<0) zz=unit->celllen+zz;
+      if (zz>=cells[4]) zz=zz-cells[4];
+      if (zz<0) zz=cells[4]+zz;
             sum+=(cells[zz]>>4)%4; // crash here?
     }
 
-    y=x+i+unit->celllen;
+    y=x+i+cells[4];
         cells[y]= table[sum]<<4;  
 
 #ifdef PCSIM  
@@ -353,24 +351,26 @@ u16 runcel1d(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
 
 //forest fire
 
-void fireinit(void* unity, u8* cells){
+/*void fireinit(void* unity, u8* cells){
   struct fire* unit=unity;
   unit->probB=cells[0]/32;
-  unit->probI=cells[1]/10;
-  unit->celllen=cells[2];
+  probI=cells[1]/10;
+  cells[4]=cells[2];
   unit->cells=cells;  
-}
+  }*/
 
-u16 runfire(uint8_t howmuch,void* unity, u16 x, u16 start, u16 wrap){
+u16 runfire(uint8_t howmuch,u8* cells, u16 x, u16 start, u16 wrap){
 
   u8 sum;
   uint16_t y; u8 i;
-  struct fire* unit=unity;
-  u8 *cells=unit->cells;
+  u8 probB=cells[0]/32;
+  u8 probI=cells[1]/10;
+  cells[4]=cells[2];
+
 
   for (i=0;i<howmuch;i++){
 
-    y=x-unit->celllen-1;
+    y=x-cells[4]-1;
     sum+=cells[y]&1;
 
     y+=1;
@@ -379,7 +379,7 @@ u16 runfire(uint8_t howmuch,void* unity, u16 x, u16 start, u16 wrap){
     y+=1;
     sum+=cells[y]&1;
 
-    y+=unit->celllen-2;
+    y+=cells[4]-2;
     sum+=cells[y]&1;
 
     y+=1;
@@ -388,7 +388,7 @@ u16 runfire(uint8_t howmuch,void* unity, u16 x, u16 start, u16 wrap){
     y+=1;
     sum+=cells[y]&1;
 
-    y+=unit->celllen-2;
+    y+=cells[4]-2;
     sum+=cells[y]&1;
 
     y+=1;
@@ -397,14 +397,14 @@ u16 runfire(uint8_t howmuch,void* unity, u16 x, u16 start, u16 wrap){
     y+=1;
     sum+=cells[y]&1;
 
-    //    sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-unit->celllen]&1)+(cells[x+unit->celllen]&1)+(cells[x-unit->celllen-1]&1)+(cells[x-unit->celllen+1]&1)+(cells[x+unit->celllen-1]&1)+(cells[x+unit->celllen+1]&1);
+    //    sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-cells[4]]&1)+(cells[x+cells[4]]&1)+(cells[x-cells[4]-1]&1)+(cells[x-cells[4]+1]&1)+(cells[x+cells[4]-1]&1)+(cells[x+cells[4]+1]&1);
 
     y=x+32768;
 
     if (cells[x]==0 || cells[x]==254) cells[y]=cells[x]; //empty or burnt
     // now deal with vegetation(bit1 empty) and burning(&1)
-    else if ((cells[x]&1)==0 && randi()%255<=(sum*unit->probI)) cells[y]=cells[x]|1;  //veg->burning
-    else if ((cells[x]&1)==1 && randi()%255<=unit->probB) cells[y]=254; // burning->burnt
+    else if ((cells[x]&1)==0 && randi()%255<=(sum*probI)) cells[y]=cells[x]|1;  //veg->burning
+    else if ((cells[x]&1)==1 && randi()%255<=probB) cells[y]=254; // burning->burnt
     else cells[y]=cells[x];
 
 #ifdef PCSIM  
@@ -431,24 +431,25 @@ copper(?) stays copper unless just 1 or 2 neighbours are heads(1) then it become
 
 // use struct CA
 
-void wireinit(void* unity, u8* cells){
+/*void wireinit(void* unity, u8* cells){
   struct CA* unit=unity;
-  unit->celllen=cells[0];
-}
+  cells[4]=cells[0];
+  }*/
 
-u8 headcount(struct CA* unit,u8 *cells,u16 place){
+u8 headcount(u8 *cells,u16 place){
   u8 counter=0;
-  place-=unit->celllen-1;
+  cells[4]=cells[0];
+  place-=cells[4]-1;
   if (cells[place]==1) counter++;
   place+=1;
   if (cells[place]==1) counter++;
   place+=1;
   if (cells[place]==1) counter++;
-  place+=unit->celllen-2;
+  place+=cells[4]-2;
   if (cells[place]==1) counter++;
   place+=2;
   if (cells[place]==1) counter++;
-  place+=unit->celllen-1;
+  place+=cells[4]-1;
   if (cells[place]==1) counter++;
   place+=1;
   if (cells[place]==1) counter++;
@@ -458,11 +459,9 @@ u8 headcount(struct CA* unit,u8 *cells,u16 place){
   else return 0;
 }
 
-u16 runwire(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runwire(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
   u8 sum;
   uint16_t y; u8 i;
-  struct CA* unit=unity;
-  u8 *cells=unit->cells;
 
   for (i=0;i<howmuch;i++){
 
@@ -471,7 +470,7 @@ u16 runwire(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     if (cells[x]==0) cells[y]=0; //blank
     else if (cells[x]==1) cells[y]=255;  // head to tail
     else if (cells[x]==255) cells[y]=129;  // tail to copper
-    else if (cells[x]>128 && headcount(unit,cells,x)==1) cells[y]=1;
+    else if (cells[x]>128 && headcount(cells,x)==1) cells[y]=1;
     else cells[y]=cells[x];
 
 #ifdef PCSIM  
@@ -510,18 +509,21 @@ infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
 
-void SIRinit(void* unity, u8* cells){
+		 /*void SIRinit(void* unity, u8* cells){
     struct SIR* unit=unity;
   unit->probD=cells[0]/32;
-  unit->probI=cells[1]/10;
-  unit->celllen=cells[2];
+  probI=cells[1]/10;
+  cells[4]=cells[2];
   unit->cells=cells;
-}
+  }*/
 
-u16 runSIR(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
-  struct SIR* unit=unity;
+u16 runSIR(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   uint16_t y,yy; u8 i;
-  u8 *cells=unit->cells;
+
+  u8 probD=cells[0]/32;
+  u8 probI=cells[1]/10;
+  cells[4]=cells[2];
+
 
   for (i=0;i<howmuch;i++){
 
@@ -531,31 +533,31 @@ u16 runSIR(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     //
     else if (cells[x]==0){
       // do count of surroundings
-      /*      if ( (cells[x-unit->celllen]>0 && cells[x-unit->celllen]<129) ||
-	   (cells[x+unit->celllen]>0 && cells[x+unit->celllen]<129) ||
+      /*      if ( (cells[x-cells[4]]>0 && cells[x-cells[4]]<129) ||
+	   (cells[x+cells[4]]>0 && cells[x+cells[4]]<129) ||
 	   (cells[x-1]>0 && cells[x-1]<129) ||
 	   (cells[x+1]>0 && cells[x+1]<129))
 	{
-	if (randi()%100 <= unit->probI) cells[y] = 1;       
+	if (randi()%100 <= probI) cells[y] = 1;       
 	}*/
-      yy=x-unit->celllen;
-      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= unit->probI) cells[y] = 1;       
+      yy=x-cells[4];
+      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
 	else {
-	  yy+=unit->celllen-1;
-	  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= unit->probI) cells[y] = 1;       
+	  yy+=cells[4]-1;
+	  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
 	    else {
 	      yy+=2;
-	      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= unit->probI) cells[y] = 1;       
+	      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
 		else {
 		  yy+=1;
-		  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= unit->probI) cells[y] = 1;       
+		  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
 		}
 	    }
 	}      
       //calc probI
     }
     else if (cells[x]>1 && cells[x]<129){
-      if (randi()%100<unit->probD) cells[y]=255; //dead
+      if (randi()%100<probD) cells[y]=255; //dead
       else cells[y]=cells[x]+1;
       // if infected (>1 and <129) add day until recovered(129) or dprob dead(255)
     }
@@ -598,31 +600,24 @@ void SIR16init(void* unity, u8* cells){
 - contact infection=probC
 - recovery=probV
 */
-  unit->cells=cells;
-  unit->probM=cells[0];
-  unit->probR=cells[1];
-  unit->probC=cells[2];
-  unit->probV=cells[3];
-  // TODO/IGNORE fix this constraint!
-  // distribute totals and SIR - total must be sum of S.I.R in other bits
-  /*  for (i=0;i<65534;i+=2){
-    total=(cells[i]>>4)|1;
-    suscept=cells[i]%total;
-    infected=total-suscept;
-    cells[i]=(total<<4)+suscept;
-    y=i+1;
-    cells[y]=(infected<<4);
-    }*/
+  //  unit->cells=cells;
+  //  unit->probM=cells[0];
+  //  probR=cells[1];
+  //  unit->probC=cells[2];
+  //  probV=cells[3];
 }
 
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
-u16 runSIR16(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
+u16 runSIR16(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   u8 i,ii; u16 y,dest,yy;
   u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
-  struct SIR16* unit=unity;
-  u8 *cells=unit->cells;
+
+  u8 probM=cells[0];
+  u8 probR=cells[1];
+  u8 probC=cells[2];
+  u8 probV=cells[3];
 
     // select random cell, for each of ind, select neighbour and move
     // it there based on probability and neighbour not full
@@ -637,7 +632,7 @@ u16 runSIR16(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     // 16 bits: top/lower top/lower total/S/I/R
     totaldest=cells[dest]>>4;
     totalhost=cells[y]>>4;
-    if (totaldest<15 &&totalhost>0 && randi()%255<=unit->probM){
+    if (totaldest<15 &&totalhost>0 && randi()%255<=probM){
     // from host choose S,I or R to shift over if motionP and not full
     // then update both host y and dest...
       which=randi()%3;
@@ -707,14 +702,14 @@ u16 runSIR16(uint8_t howmuch, void* unity, u16 x, u16 start, u16 wrap){
     // for each of infected:
     // deduct virus morbidity
     // recoveries
-      if ((randi()%255)<=unit->probR) {futureinfected--; futuretotal--;} // dead
-      if ((randi()%255)<=unit->probV) {futurerecovered++; futureinfected--;} // recovered
+      if ((randi()%255)<=probR) {futureinfected--; futuretotal--;} // dead
+      if ((randi()%255)<=probV) {futurerecovered++; futureinfected--;} // recovered
     }
     suscept=futuresuscept=cells[i]&15;
     for (ii=0;ii<suscept;ii++){
     // for each of suscept:
     // compute contact infections based on how many infected in cell
-      if (((randi()%16)*infected)>unit->probC) {futureinfected++; futuresuscept--;} // dead
+      if (((randi()%16)*infected)>probC) {futureinfected++; futuresuscept--;} // dead
     }
 
     // put all back together???
@@ -743,55 +738,56 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
       if (howmuch==0) howmuch=1;
       u8 tmp=stack_posy*3;
       stackery[tmp]=start;
+      stack[stack_posy].buffer=buffer;
       stack[stack_posy].count=start;
       stackery[tmp+1]=howmuch;
       stackery[tmp+2]=wrap;
 
       switch(typerr){
       case HODGEY:
-	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
 	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
-	hodgeinit(stack[stack_posy].unit,buffer);
+	//	hodgeinit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runhodge;
 	break;
       case HODGENETY:
-	stack[stack_posy].unit=malloc(sizeof(struct hodge));
-	hodgeinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	//	hodgeinit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runhodgenet;
 	break;
       case LIFEY:
-	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runlife;
 	break;
       case CELY:
-	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runcel;
 	break;
       case CEL1DY:
-	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runcel1d;
 	break;
       case FIREY:
-	stack[stack_posy].unit=malloc(sizeof(struct fire));
-	fireinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct fire));
+	//	fireinit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runfire;
 	break;
       case WIREY:
-	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runwire;
 	break;
       case SIRY:
-	stack[stack_posy].unit=malloc(sizeof(struct SIR));
-	SIRinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct SIR));
+	//	SIRinit(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runSIR;
 	break;
       case SIR16Y:
-	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
-	SIR16init(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
+	//	SIR16init(stack[stack_posy].unit,buffer);
 	stack[stack_posy].functione=runSIR16;
 	break;
       }
@@ -801,7 +797,7 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
 }
 
 void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
-  u8 i;
+  u8 i; u8 *buffer;
   for (i=0;i<stack_posy;i++){
     //    if (stack[stack_posy].unit!=NULL){
       //      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
@@ -809,7 +805,7 @@ void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
 	u8 tmp=i*3;
 	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
 
-	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].unit,stack[i].count,stackery[tmp],stackery[tmp+2]);
+	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
 
   }
 }
@@ -819,7 +815,7 @@ signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
 	{
 	  stack_posy--;
 	  //	  if (stack[stack_posy].unit!=NULL){
-	  	  free(stack[stack_posy].unit);
+	  //	  free(stack[stack_posy].unit);
 		  //	  stack[stack_posy].unit=NULL;
 		  //	  	  }
 	  //	  stack_posy--;
@@ -851,7 +847,7 @@ int main(void)
 
     for (x=0;x<STACK_SIZE;x++){
       xx=rand()%65536;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%255,xx,xx+rand()%65536); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%32,xx,xx+rand()%65536); // last as howmany, start.,wrap
     }
 
     //    //    printf("stackposy: %d\n", stack_posy);
@@ -860,19 +856,20 @@ int main(void)
                while(1){
 		 ca_runall(stack,stack_posy);     
 
-		 /*		 if ((rand()%20)<10){stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%65536,rand()%65536,rand()%65536);//29-32
-		     //		     printf("pusn %d\n",stack_pos);
-		 }
-		 	   else stack_posy=ca_pop(stack,stack_posy);
+		 		 if ((rand()%20)<10){stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%65536,rand()%65536,rand()%65536);//29-32
+				   //printf("pusn %d\n",stack_pos);
+		 		 }
+				 else stack_posy=ca_pop(stack,stack_posy);
 		
 
-		   		   for(x=0;x<48;x++){
-				     stackery[x]=rand()%65536;
-				     }*/
+		 //		   		   for(x=0;x<48;x++){
+				     //		     stackery[x]=rand()%65536;
+		 //		   }
 
 
 		 		 printf("%c",buffer[x]>>8);
 				 x++;
+				 if (x>=32768) x=0;
     	 }
 
 }
