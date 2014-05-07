@@ -315,15 +315,14 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
-* TODO finals M/T
 
-- boards started
-- test and tweak
-- test fingers with different fingers-re-test LACH and SUSP(bring) boards with new knob layout
-- finish manual/site
-- video and more samples uploaded
+* THU 8 MAY
 
-* WED 7 MAY+
+- maybe retry with float mod - TODO across all!TEST!!-check last filter for repeats
+- reduce always-running mirror ops???TEST
+- order of mirroring/foldback(first) and settings(later)TEST
+
+* WED 7 MAY
 
 samples:// no in 549HW,550HW,551HW
 
@@ -331,12 +330,7 @@ HWvocal559,569and570(eegonly),571,575**,576*,577**
 noHW/vocal: 553,554,555**,556**,557,560*,561,562,564,565,566,567,568,572,574
 noHW: feedback: 558
 
-still odd crash???? see below- stack size increased
-
-- maybe retry with float mod - TODO across all!
-
-- reduce always-running mirror ops???TEST
-- order of mirroring/foldback(first) and settings(later)TEST
+still odd crash???? see below- stack size increased, is it NaN is sim?
 
 ** DONE:
 
@@ -345,9 +339,13 @@ still odd crash???? see below- stack size increased
 - further bugs in stacker and stackery (one serious)
 - replaced >>9 for mirror with >>10
 - check villagestackpos upto 190
-- rid in audio.c of traps for mod0
+
+- rid in audio.c of traps for mod0 - reverse!REDONE
+
 - bug with unassigned HW wrapper in main
-- got rid of +1 for wraps as would hit 32768 (but always mod so???) whereas div0 not
+
+- got rid of +1 for wraps as would hit 32768 (but always mod so???) whereas div0 not-REDONE
+
 - CPUintrev3 and pureleak - fixed one overflow in biotadir
 - audio.c fixed mismatch in settingsarray and villagersize(?), also mismatches in pureleak...
 - redone simulationforstack as sans mem - simforstacksansmemDONE-TESTED

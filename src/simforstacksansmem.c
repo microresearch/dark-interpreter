@@ -1723,15 +1723,10 @@ void main()
 
 	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdirrr[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
  
-	 /*	 while(1){
-
-
-		   		   func_runall(stackyy,stack_pos); // simulations
-				   printf("%c",buf16[x%32768]>>8);
-				   x++;
-				   }*/
-	   u8 handup,handdown;u8 tmpsetting=0;
-  int16_t tmps;
-  u8 ttss=0,sstt=0;
+	 	 while(1){
+		   // func_runall(stackyy,stack_pos); // simulations
+		   //		   printf("%c",buf16[x%32768]>>8);
+		   //		   x++;
+		 }
 }
 #endif

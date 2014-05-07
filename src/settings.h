@@ -12,21 +12,21 @@
 #define F0106ERBASE ((settingsarray[9])>>1)
 #define MAXIMERBASE ((settingsarray[10])>>1) 
 
-#define HWWRAP (settingsarray[11]>>1) // can all hit 32768
-#define SAMPLEWRAP (settingsarray[12]>>1)
-#define SAMPLEWRAPREAD (settingsarray[13]>>1)
-#define SAMPLEWRAPFILT (settingsarray[14]>>1)
-#define ANYWRAPREAD (settingsarray[15]>>1)
-#define ANYWRAP (settingsarray[16]>>1)
-#define ANYWRAPFILT (settingsarray[17]>>1)
-#define VILLAGEWWRAP (settingsarray[18]>>10) // 8 BITs
-#define VILLAGERWRAP (settingsarray[19]>>10) // 8 bits
-#define VILLAGEFWRAP (settingsarray[20]>>10) // 8 BITS
-#define STACKWRAP (settingsarray[21]>>9) //???
+#define HWWRAP ((settingsarray[11]>>1)+1) // allowed - can all hit 32768
+#define SAMPLEWRAP ((settingsarray[12]>>1)+1)
+#define SAMPLEWRAPREAD ((settingsarray[13]>>1)+1)
+#define SAMPLEWRAPFILT ((settingsarray[14]>>1)+1)
+#define ANYWRAPREAD ((settingsarray[15]>>1)+1)
+#define ANYWRAP ((settingsarray[16]>>1)+1)
+#define ANYWRAPFILT ((settingsarray[17]>>1)+1)
+#define VILLAGEWWRAP ((settingsarray[18]>>10)+1) // 8 BITs
+#define VILLAGERWRAP ((settingsarray[19]>>10)+1) // 8 bits
+#define VILLAGEFWRAP ((settingsarray[20]>>10)+1) // 8 BITS
+#define STACKWRAP ((settingsarray[21]>>9)+1) //???
 
-#define LMERCONS (settingsarray[22]>>1)
-#define F0106ERCONS (settingsarray[23]>>1)
-#define MAXIMERCONS (settingsarray[24]>>1)
+#define LMERCONS ((settingsarray[22]>>1)+1)
+#define F0106ERCONS ((settingsarray[23]>>1)+1)
+#define MAXIMERCONS ((settingsarray[24]>>1)+1)
 
 #define HWSTEP (settingsarray[25]>>8) // 16 bits to 8 bits
 #define SAMPLESTEP (settingsarray[26]>>8)
