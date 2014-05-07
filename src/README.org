@@ -318,7 +318,7 @@ For Mater Lachrymarum IN is unused!
 
 * THU 8 MAY
 
-- maybe retry with float mod - TODO across all!TEST!!-check last filter for repeats
+- maybe retry with float mod - TODO across all!TEST!!
 - reduce always-running mirror ops???TEST
 - order of mirroring/foldback(first) and settings(later)TEST
 
