@@ -78,7 +78,7 @@ Based in part on spork factory by Dave Griffiths.
 
 void leak(machine *m);
 
-void thread_create(thread *this, u8 *buffer,u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
+void thread_create(thread *this, u8* buffer,u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
   this->m_infection=0;
   this->m_CPU=which;
   this->m_del=delay; this->m_delc=0;
@@ -97,9 +97,10 @@ void thread_create(thread *this, u8 *buffer,u16 address, u16 wrapaddress, uint8_
       }
 }
 
-void cpustackpush(machine *this, u8 *buffer, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
+void cpustackpush(machine *this, u8* buffer, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
   if (this->m_threadcount>=MAX_THREADS) return;
   else {
+    //    printf("Thread %d Thread buffer %ld\n",this->m_threadcount,buffer);
     thread_create(&this->m_threads[this->m_threadcount], buffer, address, wrapaddress,cputype,delay);// last is CPU type!
   this->m_threadcount++;
   }
@@ -139,12 +140,16 @@ void thread_run(thread* this, machine *m) {
 			6, 11, 5, 13};
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
+
+
   //  dircalc(biotadir,65536,256);
-  //  m->m_memory=this->m_memory;
+  m->m_memory=this->m_memory;
   if (++this->m_delc>=this->m_del){
 
 #ifdef PCSIM
-    //      printf("CPU: %d\n",this->m_CPU);
+
+    //    printf("
+    //    printf("CPU: %d\n",this->m_CPU);
     //    printf("%c",machine_peek(m,this->m_pc));
 
 #endif
@@ -1572,8 +1577,8 @@ int main(void)
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
 	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,1);
-	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
+	  //	  cpustackpush(m,buffer, addr,addr+randi()%65536,randi()%31,1);
+	  	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
 	}
 
 
@@ -1598,8 +1603,12 @@ int main(void)
 
 	while(1) {
 	  machine_run(m); //cpu - WRAP own speed
-	  //	  printf("%c",buffer[x]);
+	  printf("%c",buffer[x]);
 	  x++;
+
+	  	  for (u8 y=0;y<m->m_threadcount;y++){
+	    m->m_threads[y].m_CPU=rand()%31;
+	    }
 
 	  //	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
 	  //	  else cpustackpop(m);
