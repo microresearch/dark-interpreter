@@ -323,28 +323,36 @@ For Mater Lachrymarum IN is unused!
 - finish manual/site
 - video and more samples uploaded
 
-* WED 7 MAY
+* WED 7 MAY+
 
-- redo simulationforstack as sans mem - simforstacksansmemDONE-TEST!
+samples:// no in 549HW,550HW,551HW
 
+HWvocal559,569and570(eegonly),571,575**,576*,577**
+noHW/vocal: 553,554,555**,556**,557,560*,561,562,564,565,566,567,568,572,574
+noHW: feedback: 558
 
-- FINISH way into stack of cpus and more execution stuff
+still odd crash???? see below- stack size increased
 
-max is  this->m_threadcount
+- maybe retry with float mod - TODO across all!
 
-TEST :  this->m_threads[n].CPU=xxx%31
-
-  this->m_start=address;
-  this->m_wrap=wrapaddress;
-
-
-[TODO:
 - reduce always-running mirror ops???TEST
 - order of mirroring/foldback(first) and settings(later)TEST
-- more of EXEC settings - stack, also fingers in the stack(HOW?)
-- fingermod doesn't seem work so well - re-test
-- maybe retry with float mod
-]
+
+** DONE:
+
+- redoing effectmod so makes more sense TEST
+- checked all files for over buffer DONE
+- further bugs in stacker and stackery (one serious)
+- replaced >>9 for mirror with >>10
+- check villagestackpos upto 190
+- rid in audio.c of traps for mod0
+- bug with unassigned HW wrapper in main
+- got rid of +1 for wraps as would hit 32768 (but always mod so???) whereas div0 not
+- CPUintrev3 and pureleak - fixed one overflow in biotadir
+- audio.c fixed mismatch in settingsarray and villagersize(?), also mismatches in pureleak...
+- redone simulationforstack as sans mem - simforstacksansmemDONE-TESTED
+
+one crash so far: note that cpuintrev still uses malloc but all at start
 
 * MON 5 MAY/TUE 6 MAY
 
@@ -466,19 +474,22 @@ samples: 497+ are with 48k (earlier were with 16k)
 Possible crash tech: optimization, stack size/overflow, memory overflow
 larger stack: _Min_Stack_Size = 0x400; /* required amount of stack */
 
--in runswapaudio/runORaudio in simulation was audio_buffer overflow - FIXED!
-
--clean up variables (ints, u16s esp. for dirs)
 -audio.c simulation
 
--test behaviour on divide by zero
 
--estimate RAM use by way of arrays/structures (SEIR in sim is quite heavy max=1k)
 
--check null on inits in CA and sim???
+-in runswapaudio/runORaudio in simulation was audio_buffer overflow - FIXED!
+
+-clean up variables (ints, u16s esp. for dirs)DONE
+
+-test behaviour on divide by zeroDONE-no crash
+
+-estimate RAM use by way of arrays/structures (SEIR in sim is quite heavy max=1k)DONE
+
+-check null on inits in CA and sim???DONE
 
 -redo CA, CPU and sim without any mallocs... test without these
-(CPU just mallocs at beginning)
+(CPU just mallocs at beginning)DONE
 
 ** DONE
 - some kind of foldback for hardware setting in main.c -DONE. tests

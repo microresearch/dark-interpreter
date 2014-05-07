@@ -7,7 +7,7 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-u16 settingsarray[71];
+u16 settingsarray[64];
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -16,7 +16,7 @@ u16 settingsarray[71];
 //#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
-extern u16 settingsarray[71];
+extern u16 settingsarray[64];
 #endif
 
 #include <math.h>
@@ -1230,10 +1230,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //delta = dmove[(instr - buffer->reg8bit1) & 0xf];
       flag=instr - BIT81;
       //tm->dir = (tm->dir + delta) & 3;
-      BIT82=(BIT82+flag)&8;
+      BIT82=(BIT82+flag)%8;
       //do move and wrap
       wormdir=BIT82;
-      addr+=biotadir[wormdir];
+      addr+=biotadir[wormdir]; // %8 is above
       // finally
       BIT81 += deltastate[instr%16];
       //      printf("%c",addr);

@@ -110,7 +110,7 @@ u16 FOLDD[45]; // MAX size 44!!!
 
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
-  if (villagepos<VILLAGE_SIZE)
+  if (villagepos<190) /// size -2
     {
       villager[villagepos]=start;
       villager[villagepos+1]=wrap;
@@ -231,6 +231,27 @@ u8 fingervalup(u8 tmpsetting){
   return tmpsetting;
 }
 
+u8 fingervaleff(u8 tmpsetting){
+  u8 handup,handdown;
+  int16_t tmps;
+  u8 ttss=0,sstt=0;u8 x;
+  for (x=0;x<16;x++){
+  handup=adc_buffer[RIGHT]>>8;
+  handdown=adc_buffer[LEFT]>>8;
+  if (handup>8) ttss++;
+  else if (handdown>8) sstt++;
+  }
+  if (ttss>sstt) {
+    tmpsetting+=1;
+    if (tmpsetting>=8) tmpsetting=1;
+  }
+  else if (ttss<sstt) {
+tmpsetting-=1;
+ if (tmpsetting==0) tmpsetting=1;
+  }
+  return tmpsetting;
+}
+
 u8 fingervalright(u8 tmpsetting, u8 wrap){
   u8 handup,handdown;
   int16_t tmps;
@@ -258,7 +279,8 @@ void main(void)
   u16 x,addr,tmp,tmppp,hdtmp,tmphardware,HARDWARE,knobby,coo=0;
   u16 settings,setted;
   u8 oldsettings,oldsetted,tmper,stackerstart,stackerwrap;
-  u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,exespot=0,stackmuch=10;
+  u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,stackmuch=10,exespot=0,cpur=0,cpu,startrr=0,wraprr=0;
+  u16 startr,wrapr;
   u16 constrain,foldbackset;
   u32 mirrorflag;
   u8 effects;
@@ -269,10 +291,10 @@ void main(void)
 
   inittable(3,4,randi(),table);
 
-  const float pi= 3.141592;
-  float w;
-  float yi;
-  float phase;
+  const float32_t pi= 3.141592;
+  float32_t w;
+  float32_t yi;
+  float32_t phase;
   int sign_samp,i;
   w= 2*pi;
   w= w/256;
@@ -307,14 +329,7 @@ void main(void)
   m->m_threadcount=0;
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
-  // TEST : max f [] is this->m_threadcount
-  m->m_threads[1].m_CPU=1;
-  //  this->m_start=address;
-  //  this->m_wrap=wrapaddress;
-
-
-
-  u8 hwdel=0; u8 effectmod=0;
+  u8 hwdel=0; u8 effectmod=1;
   u16 hwpos=0,hwposss,wrapper;
   u8 stack_pos=0;
   u8 stack_posy=0;
@@ -409,7 +424,7 @@ void main(void)
       if (machine_count>=MACHINESPEED){
 
       for (x=0;x<4;x++){
-	switch(exeperms[((exespot%22)*4)+x]){
+	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
 	  func_runall(stackyy,stack_pos); // simulations
 	  break;
@@ -444,8 +459,9 @@ void main(void)
 	  }
 
       effects=adc_buffer[SECOND]>>5;  // 7 bits
-      settingsarray[51]=effects<<9; // READ IN 
-      if (effectmod&1 || effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
+
+      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
+      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
@@ -454,11 +470,18 @@ void main(void)
             HARDWARE=tmphardware>>8; //was >>8 to divide average
       //      hardware=rand()%127; // TESTY!
             effects=adc_buffer[SECOND]>>5;  // 7 bits
-	    //      effects=rand()%128;
-      //      effectmod=rand()%8; // TESTY!
-	    settingsarray[51]=effects<<9; // READ IN 
-      if (effectmod&1) settingsarray[52]=effects<<9; // WRITE=PLAY
-      if (effectmod&2) settingsarray[53]=effects<<9; // FILTER
+
+	    if (digfilterflag&1){
+      if (effectmod&1) settingsarray[51]=effects<<9;
+      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
+      if (effectmod&4) settingsarray[53]=effects<<9; 
+	    }
+	    else
+	      {
+      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
+      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
+	      }
+
 #endif
 
       // KNOB FIVE = knobby //TODO: underused
@@ -467,11 +490,11 @@ void main(void)
       fingermod=adc_buffer[THIRD]>>7;// 5 bits=32 
       fingerfing=fingermod&1; //finger open0 or as dir
       fingermod=fingermod>>1; //4 bits=16
-      //      fingermod=1; // TESTY!!!
+      //      fingermod=13; // TESTY!!!
       switch(fingermod){
       case 0:
 	//effectmod
-	effectmod=fingervalright(effectmod,3);
+	effectmod=fingervaleff(effectmod); // return 1-7
 	break;
       case 1:
 	// stack
@@ -511,17 +534,14 @@ void main(void)
 	}
 	break;
       case 2:
+	//stackmuch 
+	if (fingerfing&1) stackmuch=fingervalright(stackmuch,100);
+	else stackmuch=adc_buffer[UP]>>5;
+      case 3:
 	// direction
 	whichdir=fingervalright(whichdir,10);//
 	whichdiritis=(fingerdirupdown()); // was UP
 	settingsarray[54+whichdir]=whichdiritis<<15;  //<<1 bit to 16
-	break;
-      case 3:
-	// dir all
-	whichdiritis=(fingerdirupdown()); // was UP
-	for (x=54;x<64;x++){
-	settingsarray[x]=whichdiritis<<15;  //<<1 bit to 16
-	}
 	break;
       case 4:
 	// speed
@@ -531,82 +551,79 @@ void main(void)
 	settingsarray[35+whichspeed]=speed<<8; // 8 bits to 16
 	break;
       case 5:
-	// speed all
-	if (fingerfing&1) speed=fingervalup(speed);
-	else speed=adc_buffer[UP]>>4;
-	for (x=35;x<41;x++){
-	settingsarray[x]=speed<<8;
-	}
-	break;
-      case 6:
 	// step
 	whichstep=fingervalright(whichstep,10);
 	if (fingerfing&1) step=fingervalup(step);
 	else step=adc_buffer[UP]>>8;
 	settingsarray[25+whichstep]=step<<8; // 8 bits to 16
 	break;
-      case 7:
-	// step all
-	if (fingerfing&1) step=fingervalup(step);
-	else step=adc_buffer[UP]>>8;
-	for (x=25;x<35;x++){
-	settingsarray[x]=step<<8;
-	}
-	break;
-      case 8:
+      case 6:
 	// start 16 bits
 	started=fingervalright(started,11);
 	if (fingerfing&1) start=fingervalup16bits(start,32);
 	else start=adc_buffer[UP]<<4;
 	settingsarray[started]=start; // 16 bit value
 	break;
-      case 9:
+      case 7:
 	// start all
-	if (fingerfing&1) start=fingervalup16bits(start,32);
-	else start=adc_buffer[UP]<<4;
 	for (x=0;x<14;x++){
+	if (fingerfing&1) start=fingervalup16bits(settingsarray[x],32);
+	else start=adc_buffer[UP]<<4;
 	  settingsarray[x]=start; // 16 bit value
       }
 	break;
-      case 10:
+      case 8:
 	// wrap 16 bits
 	constrained=fingervalright(constrained,15);
 	if (fingerfing&1) constrain=fingervalup16bits(constrain,32);
 	else constrain=adc_buffer[UP]<<4;
 	settingsarray[11+constrained]=constrain; // 16 bit value
 	break;
-      case 11:
+      case 9:
 	// wrap all
-	constrain=fingervalup16bits(constrain,32);
 	for (x=11;x<25;x++){
+	constrain=fingervalup16bits(settingsarray[x],32);
 	  settingsarray[x]=constrain; // 16 bit value
       }
 	break;
-      case 12:
+      case 10:
 	// exespot
-	exespot=fingervalright(exespot,22);
-	//	settingsarray[50]=exespot<<11; 
+	exespot=fingervalright(exespot,32);
+	settingsarray[50]=exespot<<11; 
+	break;
+      case 11:
+	cpur=fingervalright(exespot,m->m_threadcount);
+	if (fingerfing&1) cpu=fingervalup(cpu);
+	else cpu=adc_buffer[UP]>>4;
+	m->m_threads[cpur].m_CPU=cpu%31;
+	break;
+      case 12:
+	startrr=fingervalright(startrr,m->m_threadcount);
+	if (fingerfing&1) startr=fingervalup16bits(startr,32);
+	else startr=adc_buffer[UP]<<4;
+	m->m_threads[startrr].m_start=startr;
 	break;
       case 13:
+	wraprr=fingervalright(wraprr,m->m_threadcount);
+	if (fingerfing&1) wrapr=fingervalup16bits(wrapr,32);
+	else wrapr=adc_buffer[UP]<<4;
+	m->m_threads[wraprr].m_wrap=m->m_threads[wraprr].m_start+wrapr;
+	break;
+      case 14:
 	// folder?
 	foldback=fingervalright(foldback,44);
 	if (fingerfing&1) foldbackset=fingervalup16bits(foldbackset,32);
 	else foldbackset=adc_buffer[UP]<<4;
 	FOLDD[foldback]=foldbackset;
 	break;
-      case 14:
+      case 15:
 	// fold all?
 	for (x=0;x<44;x++){
 	if (fingerfing&1) foldbackset=fingervalup16bits(FOLDD[x],32);
 	else foldbackset=adc_buffer[UP]<<4;
 	FOLDD[x]=foldbackset;
 	}
-	break;
-      case 15:
-	//stackmuch 
-	if (fingerfing&1) stackmuch=fingervalright(stackmuch,100);
-	else stackmuch=adc_buffer[UP]>>5;
-      }
+      } ///end of fingermod
 
       // KNOB FOUR = mirrors ---> TODO: last or first??
       mirror=adc_buffer[FOURTH]>>6; // 6 bits
@@ -620,46 +637,46 @@ void main(void)
       case 0: // do nothing
 	break;
      case 1:
-       for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	 settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+       for (x=0;x<((FOLDD[1]>>10)+1);x++){ //was >>9
+	 settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768];
 	  coo++;
 	}
 
        if (mirrortoggle&1) mirrorflag^=1;
 	break;
       case 2:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=(randi()<<4);
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=(randi()<<4);
 	}
 	if (mirrortoggle&1) mirrorflag^=2;
 	break;
       case 3:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=adc_buffer[UP]<<4;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=adc_buffer[UP]<<4;
 	}
 	if (mirrortoggle&1) mirrorflag^=4;
 	break;
       case 4:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=knobby<<4;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=knobby<<4;
 	}
 	if (mirrortoggle&1) mirrorflag^=8;
 	break;
       case 5:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]+=8;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]+=8;
 	}
 	if (mirrortoggle&1) mirrorflag^=16;
 	break;
       case 6:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]-=8; //TODO TUNING this +-1!!!
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
 	if (mirrortoggle&1) mirrorflag^=32;
 	break;
       case 7:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>9)+1)))%64];
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>10)+1)))%64];
 	}
 	if (mirrortoggle&1) mirrorflag^=64;
 	break;
@@ -667,46 +684,46 @@ void main(void)
       case 8: // do nothing
 	break;
       case 9:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  	  coo++;
 	}
 	if (mirrortoggle&1) mirrorflag^=128;
 	break;
       case 10:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	}
 	if (mirrortoggle&1) mirrorflag^=256;
 	break;
       case 11:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
 	if (mirrortoggle&1) mirrorflag^=512;
 	break;
       case 12:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=knobby<<3;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
 	if (mirrortoggle&1) mirrorflag^=1024;
 	break;
       case 13:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]+1)%32768; // TUNING +-1 TODO
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]+1)%32768; // TUNING +-1 TODO
 	}
 	if (mirrortoggle&1) mirrorflag^=2048;
 	break;
       case 14:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]-1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
 	if (mirrortoggle&1) mirrorflag^=4096;
 	break;
       case 15:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  // take start and ends from stacks TODO!	  
-	  tmper=((((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))*3)%96; // div by 3 96/3=32
+	  tmper=((((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))*3)%96; // div by 3 96/3=32
 	  //extract stackerstart and stackerwrap
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
@@ -718,8 +735,8 @@ void main(void)
 	    stackerstart=stacker[tmper];
 	    stackerwrap=stacker[(tmper+2)%48];
 	  }
-	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
-	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
+	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerstart;
+	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
 	}
 	if (mirrortoggle&1) mirrorflag^=8192;
 	break;
@@ -727,20 +744,20 @@ void main(void)
       case 16:// do nothing
 	break;
       case 17:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 		}
 	  coo++;
 	}
 	if (mirrortoggle&1) mirrorflag^=16384;
       break;
       case 18:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(randi()<<3);
 	  else {
 	    tmper=tmper-48;
@@ -750,8 +767,8 @@ void main(void)
 	if (mirrortoggle&1) mirrorflag^=32768;
       break;
       case 19:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=adc_buffer[UP]<<3;
 	  else {
 	    tmper=tmper-48;
@@ -761,8 +778,8 @@ void main(void)
 	if (mirrortoggle&1) mirrorflag^=65536;
       break;
       case 20:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(knobby<<3);
 	  else {
 	    tmper=tmper-48;
@@ -772,9 +789,9 @@ void main(void)
 	if (mirrortoggle&1) mirrorflag^=131072;
       break;
       case 21:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=(stacker[tmper]+1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]+1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]+1)%32768; // TODO TUNING +-1
@@ -783,9 +800,9 @@ void main(void)
 	if (mirrortoggle&1) mirrorflag^=262144;
       break;
       case 22:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=(stacker[tmper]-1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]-1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]-1)%32768; // TODO TUNING +-1
@@ -794,9 +811,9 @@ void main(void)
 	if (mirrortoggle&1) mirrorflag^=524288;
       break;
       case 23:
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%48];
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=stackery[(tmper+3)%48];
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=stacker[(tmper+3)%48];
@@ -810,56 +827,56 @@ void main(void)
       case 24:
 	break; // do nothing
       case 25:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
 	  tmper=((FOLDD[2]>>10)+x)%44;
-	  FOLDD[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[44]>>9)+1)))%32768];
+	  FOLDD[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[44]>>10)+1)))%32768];
 	  coo++;
 		}
 	//	if (mirrortoggle&1) mirrorflag^=2097152;
 	break;
       case 26:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]=(randi()<<4);
 		}
 	//	if (mirrortoggle&1) mirrorflag^=4194304;
 	break;
       case 27:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]=adc_buffer[UP]<<4;
 		}
 	//	if (mirrortoggle&1) mirrorflag^=8388608;
 	break;
       case 28:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]=knobby<<4;
 		}
 	//	if (mirrortoggle&1) mirrorflag^=16777216;
 	break;
       case 29:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]+=1; // TODO tuning! and below
 		}
 	//	if (mirrortoggle&1) mirrorflag^=33554432;
 	break;
       case 30:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]-=1;
 		}
 	//	if (mirrortoggle&1) mirrorflag^=67108864;
 	break;
       case 31:
-	for (x=0;x<((FOLDD[44]>>9)+1);x++){
-	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))%44;
+	for (x=0;x<((FOLDD[44]>>10)+1);x++){
+	  //	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%44;
 	  tmper=((FOLDD[2]>>10)+x)%44;
 	  FOLDD[tmper]=FOLDD[((tmper+1)%44)];
 		}
@@ -871,83 +888,83 @@ void main(void)
 
             
       if (mirrorflag&1){ //skip 0
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>9)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768];
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768];
 	  coo++;
 	}
       }
 
       if (mirrorflag&2){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[6])>>10)+(x%((FOLDD[7]>>9)+1)))%64]=(randi()<<4);
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[6])>>10)+(x%((FOLDD[7]>>10)+1)))%64]=(randi()<<4);
 	}
     }
 
       if (mirrorflag&4){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>9)+1)))%64]=adc_buffer[UP]<<4;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>10)+1)))%64]=adc_buffer[UP]<<4;
 	}
 }
 
       if (mirrorflag&8){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[10])>>10)+(x%((FOLDD[11]>>9)+1)))%64]=knobby<<4;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[10])>>10)+(x%((FOLDD[11]>>10)+1)))%64]=knobby<<4;
 	}
 }
 
       if (mirrorflag&16){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>9)+1)))%64]+=8;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>10)+1)))%64]+=8;
 	}
 }
 
       if (mirrorflag&32){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>9)+1)))%64]-=8; //TODO TUNING this +-1!!!
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>10)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
 }
 
       if (mirrorflag&64){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  settingsarray[(((FOLDD[16])>>10)+(x%((FOLDD[17]>>9)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>9)+1)))%64];
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  settingsarray[(((FOLDD[16])>>10)+(x%((FOLDD[17]>>10)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>10)+1)))%64];
 	}
 }
 
       if (mirrorflag&128){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[18])>>10)+(x%((FOLDD[19]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[18])>>10)+(x%((FOLDD[19]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  	  coo++;
 	}
 }
 
       if (mirrorflag&256){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[20])>>10)+(x%((FOLDD[21]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[20])>>10)+(x%((FOLDD[21]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	}
 }
 
       if (mirrorflag&512){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[22])>>10)+(x%((FOLDD[23]>>9)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[22])>>10)+(x%((FOLDD[23]>>10)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
 }
 
       if (mirrorflag&1024){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[24])>>10)+(x%((FOLDD[25]>>9)+1)))% VILLAGE_SIZE]=knobby<<3;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[24])>>10)+(x%((FOLDD[25]>>10)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
 }
 
       if (mirrorflag&2048){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>9)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>9)+1)))% VILLAGE_SIZE]-1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
 }
 
       if (mirrorflag&4096){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  // take start and ends from stacks TODO!	  
-	  tmper=((((FOLDD[28])>>10)+(x%((FOLDD[29]>>9)+1)))*3)%96; // div by 3 96/3=32
+	  tmper=((((FOLDD[28])>>10)+(x%((FOLDD[29]>>10)+1)))*3)%96; // div by 3 96/3=32
 	  //extract stackerstart and stackerwrap
 	  // start is 0 wrap is +2;
 	  if (tmper<48) {
@@ -959,27 +976,27 @@ void main(void)
 	    stackerstart=stacker[tmper];
 	    stackerwrap=stacker[(tmper+2)%48];
 	  }
-	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerstart;
-	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>9)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
+	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerstart;
+	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
 	}
 }
 
       //skip 0
       if (mirrorflag&8192){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[30])>>10)+(x%((FOLDD[31]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[30])>>10)+(x%((FOLDD[31]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  else {
 	    tmper=tmper-48;
-	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>9)+1)))%32768]>>1;
+	    stacker[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 		}
 	  	  coo++;
 	}
 }
 
       if (mirrorflag&16384){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[32])>>10)+(x%((FOLDD[33]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[32])>>10)+(x%((FOLDD[33]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(randi()<<3);
 	  else {
 	    tmper=tmper-48;
@@ -989,8 +1006,8 @@ void main(void)
 }
 
       if (mirrorflag&32768){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[34])>>10)+(x%((FOLDD[35]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[34])>>10)+(x%((FOLDD[35]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=adc_buffer[UP]<<3;
 	  else {
 	    tmper=tmper-48;
@@ -1000,8 +1017,8 @@ void main(void)
 }
 
       if (mirrorflag&65536){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[36])>>10)+(x%((FOLDD[37]>>9)+1)))%96;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[36])>>10)+(x%((FOLDD[37]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(knobby<<3);
 	  else {
 	    tmper=tmper-48;
@@ -1011,9 +1028,9 @@ void main(void)
 }
 
       if (mirrorflag&131072){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[38])>>10)+(x%((FOLDD[39]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=(stacker[tmper]+1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[38])>>10)+(x%((FOLDD[39]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]+1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]+1)%32768; // TODO TUNING +-1
@@ -1022,9 +1039,9 @@ void main(void)
 }
 
       if (mirrorflag&262144){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[40])>>10)+(x%((FOLDD[41]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=(stacker[tmper]-1)%32768;
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[40])>>10)+(x%((FOLDD[41]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=(stackery[tmper]-1)%32768;
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=(stacker[tmper]-1)%32768; // TODO TUNING +-1
@@ -1033,9 +1050,9 @@ void main(void)
 }
 
       if (mirrorflag&524288){
-	for (x=0;x<((FOLDD[1]>>9)+1);x++){
-	  tmper=(((FOLDD[42])>>10)+(x%((FOLDD[43]>>9)+1)))%96;
-	  if (tmper<48) stackery[tmper]=stacker[(tmper+3)%96];
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  tmper=(((FOLDD[42])>>10)+(x%((FOLDD[43]>>10)+1)))%96;
+	  if (tmper<48) stackery[tmper]=stackery[(tmper+3)%48];
 	  else {
 	    tmper=tmper-48;
 	    stacker[tmper]=stacker[(tmper+3)%48];
@@ -1059,7 +1076,7 @@ void main(void)
 	  }
 
       if (digfilterflag&16){
-	hdtmp=(HWSTART+(hwpos%wrapper)); 
+	hdtmp=(HWSTART+(hwpos%HWWRAP)); 
 	dohardwareswitch(HARDWARE,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONS));
       }
       else

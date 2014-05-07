@@ -18,8 +18,8 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFS
 extern __IO uint16_t adc_buffer[10];
 //extern u8 wormdir;
 extern u8 villagestackpos;
-extern u16 settingsarray[71];
-extern u16 villager[130];
+extern u16 settingsarray[64];
+extern u16 villager[192];
 extern signed char newdir[2];
 extern signed char direction[2];
 extern signed char villagedirection[2];
@@ -36,10 +36,11 @@ int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 int16_t *audio_ptr;
 
 void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, float c2){
-  u8 i=0,tmp=0,tmpp;
+  u8 i=0,tmpp;
   for (i=0; i<sz; i++) {
-    tmp++;tmpp=(tmp-1)%sz;
-  *dst++ =((float)src[tmpp]*c0)+((float)src[tmp]*c1)+((float)src[(tmp+1)%sz]*c2);
+    //    tmp++;tmpp=(tmp-1)%sz;
+    tmpp=(i-1)%sz;
+    *dst++ =((float)src[tmpp]*c0)+((float)src[i]*c1)+((float)src[(i+1)%sz]*c2);
   }
 }
 
@@ -293,13 +294,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=(buf16[tmp]>>1)%SAMPLEWRAPREAD;
 		  if (wrapread==0) wrapread=1;
@@ -467,13 +468,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=(buf16[tmp]>>1)%SAMPLEWRAPREAD;
 		  if (wrapread==0) wrapread=1;
@@ -491,8 +492,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
-	    //	    tmpp=3; // TESTER!!!
-	    //	    float32_t morph_inv = 1.0 - (float32_t)FMOD,fsum;
+	    //  	    tmpp=3; // TESTER!!!
+	    	    float32_t morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
 	  case 0:
@@ -514,31 +515,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // Effects with/without clipping *, +, -, 
 	  case 3:
 	  *src++;
-	  tmp32=(*src++)*secondbuf[sampleposread%32768];
-	  //	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
-	  //	  tmp32=fsum;
+	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	  *src++;
-	  tmp32=(*src++)*secondbuf[sampleposread%32768];
-	  //fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
-	  //	  tmp32=fsum;
+	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 5:
 	  *src++;
-	  tmp32=(*src++)+secondbuf[sampleposread%32768];
-	  //	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
-	  //	  tmp32=fsum;
+	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  *src++;
-	  tmp32=(*src++)+secondbuf[sampleposread%32768];
-	  //fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
-	  //	  tmp32=fsum;
+	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
@@ -559,13 +560,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  break;
 	  case 10:
 	  *src++;
-	  tmp32=(*src++)*firstbuf[sampleposread%32768];
+	  //	  tmp32=(*src++)*firstbuf[sampleposread%32768];
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
+	  tmp32=fsum;
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 11:
 	  *src++;
-	  tmp32=(*src++)+firstbuf[sampleposread%32768];
+	  	  tmp32=(*src++)+firstbuf[sampleposread%32768];
 	  //	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  //tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
@@ -632,7 +635,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*directionread[DATADIRR];
@@ -641,7 +644,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=(buf16[tmp]>>1)%SAMPLEWRAPREAD;
-		  if (wrapread==0) wrapread=1;
+		  //		  if (wrapread==0) wrapread=1;
 		  if (SAMPLEDIRR==1) sampleposread=startread;
 		  else sampleposread=startread+wrapread;
 		  }
@@ -759,13 +762,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=(buf16[tmp]>>1)%SAMPLEWRAP;
 		  if (wrap==0) wrap=1;
@@ -783,7 +786,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
+	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
@@ -915,13 +918,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=(buf16[tmp]>>1)%SAMPLEWRAP;
 		  if (wrap==0) wrap=1;
@@ -934,7 +937,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp==15){
 	      // 3 floats!
-	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
+	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
 	      runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	  } // end of tmpp==15
 	}
@@ -1044,13 +1047,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=(buf16[tmp]>>1)%SAMPLEWRAP;
 		  if (wrap==0) wrap=1;
@@ -1069,7 +1072,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    break;
 	    case 14:
 	      // 3 floats!
-	      w0=buf16[0]/65536.0;w1=buf16[1]/65536.0;w2=buf16[2]/65536.0;
+	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
@@ -1205,13 +1208,13 @@ if (digfilterflag&1){
 		  tmp=ANYSTEPFILT*direction[DATADIRF];
 		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT; 
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  startfilt=buf16[tmp]>>1;
 		  tmp=ANYSTEPFILT*directionf[DATADIRF];
 		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT;
-		  if (wrapper==0) wrapper=1;
+		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  wrapfilt=(buf16[tmp]>>1)%SAMPLEWRAPFILT;
 		  if (wrapfilt==0) wrapfilt=1;

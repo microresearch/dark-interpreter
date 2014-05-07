@@ -12,21 +12,21 @@
 #define F0106ERBASE ((settingsarray[9])>>1)
 #define MAXIMERBASE ((settingsarray[10])>>1) 
 
-#define HWWRAP ((settingsarray[11]>>1)+1)
-#define SAMPLEWRAP ((settingsarray[12]>>1)+1)
-#define SAMPLEWRAPREAD ((settingsarray[13]>>1)+1)
-#define SAMPLEWRAPFILT ((settingsarray[14]>>1)+1)
-#define ANYWRAPREAD ((settingsarray[15]>>1)+1)
-#define ANYWRAP ((settingsarray[16]>>1)+1)
-#define ANYWRAPFILT ((settingsarray[17]>>1)+1)
-#define VILLAGEWWRAP ((settingsarray[18]>>10)+1) // 8 BITs
-#define VILLAGERWRAP ((settingsarray[19]>>10)+1) // 8 bits
-#define VILLAGEFWRAP ((settingsarray[20]>>10)+1) // 8 BITS
-#define STACKWRAP ((settingsarray[21]>>9)+1) //???
+#define HWWRAP (settingsarray[11]>>1) // can all hit 32768
+#define SAMPLEWRAP (settingsarray[12]>>1)
+#define SAMPLEWRAPREAD (settingsarray[13]>>1)
+#define SAMPLEWRAPFILT (settingsarray[14]>>1)
+#define ANYWRAPREAD (settingsarray[15]>>1)
+#define ANYWRAP (settingsarray[16]>>1)
+#define ANYWRAPFILT (settingsarray[17]>>1)
+#define VILLAGEWWRAP (settingsarray[18]>>10) // 8 BITs
+#define VILLAGERWRAP (settingsarray[19]>>10) // 8 bits
+#define VILLAGEFWRAP (settingsarray[20]>>10) // 8 BITS
+#define STACKWRAP (settingsarray[21]>>9) //???
 
-#define LMERCONS ((settingsarray[22]>>1)+1)
-#define F0106ERCONS ((settingsarray[23]>>1)+1)
-#define MAXIMERCONS ((settingsarray[24]>>1)+1)
+#define LMERCONS (settingsarray[22]>>1)
+#define F0106ERCONS (settingsarray[23]>>1)
+#define MAXIMERCONS (settingsarray[24]>>1)
 
 #define HWSTEP (settingsarray[25]>>8) // 16 bits to 8 bits
 #define SAMPLESTEP (settingsarray[26]>>8)
@@ -53,16 +53,18 @@
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
-//#define FMOD ((float32_t)settingsarray[46]/65536.0f)
-//#define FMODF ((float32_t)settingsarray[47]/65536.0f)
-//#define FMODW ((float32_t)settingsarray[48]/65536.0f) UNUSED./// now holes in
+/// maybe re-use this....
+
+#define FMOD ((float32_t)settingsarray[46]/65536.0f)
+#define FMODF ((float32_t)settingsarray[47]/65536.0f)
+#define FMODW ((float32_t)settingsarray[48]/65536.0f)// UNUSED so far
 
 //////////////////////////////////////////////////
 
 // Excess settings/actions to walkers - WHERE to set?
 
 #define STACKFUNC (settingsarray[49]>>11)
-//#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
+#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
 
 #define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128
 #define EFFECTWRITE (settingsarray[52]>>9) 
@@ -81,14 +83,14 @@
 
 //foldback settings now in new array
 
-//#define FOLDSSTART ((settingsarray[64]>>1)) 
-//#define FOLDSWRAP ((settingsarray[65]>>9)+1)// 6 bits 
-//((FOLDD[1]>>9)+1)
+//#define FOLDSSTART (settingsarray[64]>>1)) 
+//#define FOLDSWRAP (settingsarray[65]>>9)// 6 bits 
+//(FOLDD[1]>>9)
 //(FOLDD[0]>>1)
 
-//#define FOLDDSTART ((settingsarray[66])>>10) // 6 bits
-//((FOLDD[2])>>10)
-//#define FOLDDWRAP ((settingsarray[67]>>9)+1)
-//((FOLDD[3]>>9)+1)
+//#define FOLDDSTART (settingsarray[66])>>10) // 6 bits
+//(FOLDD[2])>>10)
+//#define FOLDDWRAP (settingsarray[67]>>9)
+//(FOLDD[3]>>9)
 //#define FOLDSPEED (settingsarray[68]>>10) //unused...
 

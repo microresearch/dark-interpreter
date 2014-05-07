@@ -8,7 +8,7 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-u16 settingsarray[71];
+u16 settingsarray[64];
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -18,7 +18,7 @@ u16 settingsarray[71];
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
-extern u16 settingsarray[71];
+extern u16 settingsarray[64];
 #endif
 
 #include <math.h>
@@ -1059,7 +1059,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //tm->dir = (tm->dir + delta) & 3;
       this->m_reg8bit2=(this->m_reg8bit2+flag)&8;
       //do move and wrap
-      wormdir=this->m_reg8bit2;
+      wormdir=(this->m_reg8bit2)%8;
       this->m_pc+=biotadir[wormdir];
       // finally
       this->m_reg8bit1 += deltastate[instr%16];
@@ -1369,7 +1369,7 @@ void thread_push(thread* this, u8 data) {
 }
 
 u8 thread_pop(thread* this) {
- 	if (this->m_stack_pos>=0)
+ 	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZE)
 	{
 	  u8 ret=this->m_stack[this->m_stack_pos];
 	  this->m_stack_pos--;
@@ -1381,7 +1381,7 @@ u8 thread_pop(thread* this) {
 }
 
 u8 thread_top(thread* this) {
-	if (this->m_stack_pos>=0)
+	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZE)
 	{
 	  return this->m_stack[this->m_stack_pos];
 	}
@@ -1539,7 +1539,7 @@ void killcpu(machine *m, u8 killed){
   //  cpustackpop(m);
   //  thread *this=&m->m_threads[which];
   //this->m_threads[this->m_threadcount]
-  if (killed<m->m_threadcount){
+  if (killed<m->m_threadcount && killed<(MAX_THREADS-1)){
   for (x=killed;x<m->m_threadcount-1;x++){
     m->m_threads[x]=m->m_threads[x+1];
   }
@@ -1610,8 +1610,8 @@ int main(void)
 	    m->m_threads[y].m_CPU=rand()%31;
 	    }
 
-	  //	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
-	  //	  else cpustackpop(m);
+		  //	  	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
+		  //	  	  else cpustackpop(m);
 
 	}
 	}

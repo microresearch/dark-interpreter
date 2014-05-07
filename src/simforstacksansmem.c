@@ -85,8 +85,6 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
   w[0]=(u8)buffer[3];
   w[1]=(u8)buffer[4];
   w[2]=(u8)buffer[5];
-  buffer=(u16*)buffer;
-
 
   u8 *workingbuffer=(u8 *)buffer;
   float32_t buff[255]; float32_t x; 
@@ -105,7 +103,7 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
   for (u8 s = 0; s < howmuch; s++ ) {
     // x is our float32_t sample
     // Apply formant filter
-    x=(float32_t)(workingbuffer[(start+count)%32768])/32768.0f;
+    x=(float32_t)(workingbuffer[start+count])/32768.0f;
        x = x + 2.0f * cosf ( PI_2 * freq ) * buf1Res * q - buf2Res * q * q;
     buf2Res = buf1Res;
     buf1Res = x;
@@ -113,7 +111,7 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
     xp = x;
     buff[s]+=x; // as float32_t
     if (f==2){
-      workingbuffer[(start+count)%32768]=(float32_t)buff[s]*32768.0f;
+      workingbuffer[start+count]=(float32_t)buff[s]*32768.0f;
 #ifdef PCSIM
 	    //            printf("%c",workingbuffer[count]%255);
       //    if (tmyyp>32767) printf("FDORMCRASH%d\n",tmp);
@@ -622,13 +620,13 @@ see also: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
  */
 
-float dPop[3];
-float beta;//=520.0/365.0;
-float gamm;//=1.0/7.0;
-float S0;//=1.0-1e-6;
-float I0;//=1e-6;
-float step;
-float S,II,R;
+float32_t dPop[3];
+float32_t beta;//=520.0/365.0;
+float32_t gamm;//=1.0/7.0;
+float32_t S0;//=1.0-1e-6;
+float32_t I0;//=1e-6;
+float32_t step;
+float32_t S,II,R;
 
 void Diff(float32_t Pop[3])
 {
@@ -691,8 +689,8 @@ void Runge_Kutta()
 void simplesirinit(u16 *workingbuffer){
   //  beta=520.0/365.0;
   //  gamm=1.0/7.0;
-  beta=(float32_t)workingbuffer[0]/65536.0;
-  gamm=(float32_t)workingbuffer[1]/65536.0;
+  beta=(float32_t)workingbuffer[0]/65536.0f;
+  gamm=(float32_t)workingbuffer[1]/65536.0f;
   S0=1.0-1e-6;
   I0=1e-6;
   step=0.01/((beta+gamm)*S0);
@@ -988,11 +986,11 @@ void ifsinit(u16 *workingbuffer){
       prob[iter]=((float32_t)randi()/4096.0f);
 #endif
 
-  prob[0]=(float32_t)workingbuffer[0]/65536.0;
-  prob[1]=(float32_t)workingbuffer[1]/65536.0;
-  prob[2]=(float32_t)workingbuffer[2]/65536.0;
-  prob[3]=(float32_t)workingbuffer[3]/65536.0;
-  prob[4]=(float32_t)workingbuffer[4]/65536.0;
+  prob[0]=(float32_t)workingbuffer[0]/65536.0f;
+  prob[1]=(float32_t)workingbuffer[1]/65536.0f;
+  prob[2]=(float32_t)workingbuffer[2]/65536.0f;
+  prob[3]=(float32_t)workingbuffer[3]/65536.0f;
+  prob[4]=(float32_t)workingbuffer[4]/65536.0f;
     }
   }
 
@@ -1013,7 +1011,7 @@ u16 runifs(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
 #ifdef PCSIM
   randiom_num = (float32_t)randi()/(float32_t)(RAND_MAX);
 #else
-  randiom_num = (float32_t)randi()/4096.0;
+  randiom_num = (float32_t)randi()/4096.0f;
 #endif
   for (x=0;x<howmuch;x++){
     count++;
@@ -1073,9 +1071,9 @@ u16 runrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
   u8 i;
   /* which unit to vary according to workingbuffer */
   // leave as so!
- static float32_t   lx0 = 0.1;
- static float32_t   ly0 = 0;
- static float32_t   lz0 = 0;
+ static float32_t   lx0 = 0.1f;
+ static float32_t   ly0 = 0.0f;
+ static float32_t   lz0 = 0.0f;
 
  float32_t  h = (float32_t)workingbuffer[0]/120536.0;
  float32_t  a = (float32_t)workingbuffer[1]/122536.0;
@@ -1083,7 +1081,7 @@ u16 runrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
 //  h = 0.1;
 //  a = 0.3;
 //  b = 0.2;
- float32_t  c = 5.8;
+ float32_t  c = 5.8f;
 
 
   for (i=0; i<howmuch; i++) {
@@ -1129,13 +1127,13 @@ u16 runsecondrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, 
 
   u8 i;
 
-float32_t  a = (float32_t)workingbuffer[0]/65536.0;
-float32_t  b = (float32_t)workingbuffer[1]/65536.0;
-float32_t  c = (float32_t)workingbuffer[2]/65536.0;
-float32_t  h = (float32_t)workingbuffer[3]/65536.0;
-float32_t  x0 = (float32_t)workingbuffer[4]/65536.0;
-float32_t  y0 = (float32_t)workingbuffer[5]/65536.0;
- float32_t  z0 = (float32_t)workingbuffer[6]/65536.0;
+float32_t  a = (float32_t)workingbuffer[0]/65536.0f;
+float32_t  b = (float32_t)workingbuffer[1]/65536.0f;
+float32_t  c = (float32_t)workingbuffer[2]/65536.0f;
+float32_t  h = (float32_t)workingbuffer[3]/65536.0f;
+float32_t  x0 = (float32_t)workingbuffer[4]/65536.0f;
+float32_t  y0 = (float32_t)workingbuffer[5]/65536.0f;
+ float32_t  z0 = (float32_t)workingbuffer[6]/65536.0f;
 
  static float32_t xn;
  static float32_t yn;
@@ -1228,9 +1226,9 @@ u16 runbrussel(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
   float32_t muplusone = 1.0f+mu; 
   static float32_t x= 0.5f; 
   static float32_t y= 0.5f;  
-  float32_t delta = (float32_t)workingbuffer[0]/65536.0;
-  float32_t mu = (float32_t)workingbuffer[1]/65536.0;
-  float32_t gamma = (float32_t)workingbuffer[2]/65536.0;
+  float32_t delta = (float32_t)workingbuffer[0]/65536.0f;
+  float32_t mu = (float32_t)workingbuffer[1]/65536.0f;
+  float32_t gamma = (float32_t)workingbuffer[2]/65536.0f;
 
     for (i=0; i<howmuch; ++i) {
 	    count++;	
@@ -1278,13 +1276,13 @@ u16 runspruce(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
   static float32_t x= 0.9f; 
   static float32_t y= 0.1f;  
 
-  float32_t k1 = (float32_t)workingbuffer[0]/65536.0;
-  float32_t k2 = (float32_t)workingbuffer[1]/65536.0;
-  float32_t alpha = (float32_t)workingbuffer[2]/65536.0;
-  float32_t beta = (float32_t)workingbuffer[3]/65536.0;
-  float32_t mu = (float32_t)workingbuffer[4]/65536.0;
-  float32_t rho = (float32_t)workingbuffer[5]/65536.0;
-  float32_t delta = (float32_t)workingbuffer[6]/65536.0;
+  float32_t k1 = (float32_t)workingbuffer[0]/65536.0f;
+  float32_t k2 = (float32_t)workingbuffer[1]/65536.0f;
+  float32_t alpha = (float32_t)workingbuffer[2]/65536.0f;
+  float32_t beta = (float32_t)workingbuffer[3]/65536.0f;
+  float32_t mu = (float32_t)workingbuffer[4]/65536.0f;
+  float32_t rho = (float32_t)workingbuffer[5]/65536.0f;
+  float32_t delta = (float32_t)workingbuffer[6]/65536.0f;
 
 
 	for (i=0; i<howmuch; ++i) {
@@ -1335,10 +1333,10 @@ u16 runoregon(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
   static float32_t y= 0.5f; 
   static float32_t z= 0.5f; 
 
-  float32_t delta = (float32_t)workingbuffer[0]/65536.0;
-  float32_t   epsilon = (float32_t)workingbuffer[1]/65536.0;
-  float32_t   mu = (float32_t)workingbuffer[2]/65536.0;
-  float32_t q = (float32_t)workingbuffer[3]/65536.0;
+  float32_t delta = (float32_t)workingbuffer[0]/65536.0f;
+  float32_t   epsilon = (float32_t)workingbuffer[1]/65536.0f;
+  float32_t   mu = (float32_t)workingbuffer[2]/65536.0f;
+  float32_t q = (float32_t)workingbuffer[3]/65536.0f;
 
 	for (i=0; i<howmuch; ++i) {
 	    count++;	
@@ -1725,26 +1723,15 @@ void main()
 
 	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdirrr[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
  
-	 while(1){
-		   /*		   SAMPLEDIRW=rand()%2;
-	    dirry=newdirrr[SAMPLEDIRW]*1;
-	    count=((samplepos-start)+dirry);
-	    //	    if (count<wrap && (samplepos+dirry)>start)
-		    if (count<wrap && count>0)
-		  {
-		    samplepos+=dirry;//)%32768;
-		  }
-		else {
-		    start=SAMPLESTART;wrap=SAMPLEWRAP;
-		    if (SAMPLEDIRW==1) samplepos=start; //forwards
-		    else samplepos=start+wrap;
-		  }
-		    printf("%d\n",samplepos);*/
+	 /*	 while(1){
+
 
 		   		   func_runall(stackyy,stack_pos); // simulations
 				   printf("%c",buf16[x%32768]>>8);
 				   x++;
+				   }*/
+	   u8 handup,handdown;u8 tmpsetting=0;
+  int16_t tmps;
+  u8 ttss=0,sstt=0;
 }
-}
-
 #endif
