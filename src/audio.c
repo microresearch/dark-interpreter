@@ -15,6 +15,7 @@ LINEIN/OUTL-filter
 
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 
+extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 extern __IO uint16_t adc_buffer[10];
 //extern u8 wormdir;
 extern u8 villagestackpos;

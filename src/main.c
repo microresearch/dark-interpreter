@@ -55,6 +55,8 @@
 #define RIGHT 7
 #endif
 
+u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
+
 signed char newdir[2]={-1,1};
 signed char direction[2]={-1,1};
 signed char villagedirection[2]={-1,1};
@@ -282,7 +284,7 @@ void main(void)
   u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,stackmuch=10,exespot=0,cpur=0,cpu,startrr=0,wraprr=0;
   u16 startr,wrapr;
   u16 constrain,foldbackset;
-  u32 mirrorflag;
+  u16 m1flag,m2flag;
   u8 effects;
   u8 machine_count=0,leak_count=0; 
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
@@ -446,10 +448,12 @@ void main(void)
 	}
 	}
       } // end of machine count
+
+
       /////////////////////////////
       // KKNOBBBSSS
 
-      // TODO: should these be before or after mirroring
+      // TODO: should these be before or after mirroring-TEST!
 
 #ifdef LACH
 	  //SAMPLEWRAP (out-play) TO TEST!!
@@ -460,8 +464,14 @@ void main(void)
 
       effects=adc_buffer[SECOND]>>5;  // 7 bits
 
-      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
-      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
+      /*      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
+	      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY*/
+
+      // TESTY
+
+      if (effectmod&1 || effectmod&4) EFFECTREAD=effects<<9;
+      if (effectmod&2) EFFECTWRITE=effects<<9; // WRITE=PLAY*/
+
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
@@ -471,7 +481,7 @@ void main(void)
       //      hardware=rand()%127; // TESTY!
             effects=adc_buffer[SECOND]>>5;  // 7 bits
 
-	    if (digfilterflag&1){
+	    /*	    if (digfilterflag&1){
       if (effectmod&1) settingsarray[51]=effects<<9;
       if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
       if (effectmod&4) settingsarray[53]=effects<<9; 
@@ -480,7 +490,19 @@ void main(void)
 	      {
       if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
       if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
-	      }
+      }*/
+
+	    if (digfilterflag&1){
+      if (effectmod&1) EFFECTREAD=effects;
+      if (effectmod&2) EFFECTWRITE=effects; // WRITE=PLAY
+      if (effectmod&4) EFFECTFILTER=effects; 
+	    }
+	    else
+	      {
+      if (effectmod&1 || effectmod&4) EFFECTREAD=effects;
+      if (effectmod&2) EFFECTWRITE=effects; // WRITE=PLAY
+      }
+
 
 #endif
 
@@ -633,6 +655,9 @@ void main(void)
       FOLDD[44]=knobby<<4; // knob five as length of mirror
       FOLDD[1]=knobby<<4; // knob five as length of mirror???TODO
 
+
+      //////////////////////////////////////////////// INTO THE MIRROR
+
       switch(mirror){
       case 0: // do nothing
 	break;
@@ -642,43 +667,43 @@ void main(void)
 	  coo++;
 	}
 
-       if (mirrortoggle&1) mirrorflag^=1;
+       if (mirrortoggle&1) m1flag^=1;
 	break;
       case 2:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=(randi()<<4);
 	}
-	if (mirrortoggle&1) mirrorflag^=2;
+	if (mirrortoggle&1) m1flag^=2;
 	break;
       case 3:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=adc_buffer[UP]<<4;
 	}
-	if (mirrortoggle&1) mirrorflag^=4;
+	if (mirrortoggle&1) m1flag^=4;
 	break;
       case 4:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=knobby<<4;
 	}
-	if (mirrortoggle&1) mirrorflag^=8;
+	if (mirrortoggle&1) m1flag^=8;
 	break;
       case 5:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]+=8;
 	}
-	if (mirrortoggle&1) mirrorflag^=16;
+	if (mirrortoggle&1) m1flag^=16;
 	break;
       case 6:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
-	if (mirrortoggle&1) mirrorflag^=32;
+	if (mirrortoggle&1) m1flag^=32;
 	break;
       case 7:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>10)+1)))%64];
 	}
-	if (mirrortoggle&1) mirrorflag^=64;
+	if (mirrortoggle&1) m1flag^=64;
 	break;
 	////////////////////////////////VILLAGER MIRROR
       case 8: // do nothing
@@ -688,37 +713,37 @@ void main(void)
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  	  coo++;
 	}
-	if (mirrortoggle&1) mirrorflag^=128;
+	if (mirrortoggle&1) m1flag^=128;
 	break;
       case 10:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	}
-	if (mirrortoggle&1) mirrorflag^=256;
+	if (mirrortoggle&1) m1flag^=256;
 	break;
       case 11:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
-	if (mirrortoggle&1) mirrorflag^=512;
+	if (mirrortoggle&1) m1flag^=512;
 	break;
       case 12:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
-	if (mirrortoggle&1) mirrorflag^=1024;
+	if (mirrortoggle&1) m1flag^=1024;
 	break;
       case 13:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]+1)%32768; // TUNING +-1 TODO
 	}
-	if (mirrortoggle&1) mirrorflag^=2048;
+	if (mirrortoggle&1) m1flag^=2048;
 	break;
       case 14:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
-	if (mirrortoggle&1) mirrorflag^=4096;
+	if (mirrortoggle&1) m1flag^=4096;
 	break;
       case 15:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -738,7 +763,7 @@ void main(void)
 	  villager[((((FOLDD[2])>>10)*2)+(x%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerstart;
 	  villager[((((FOLDD[2])>>10)*2)+((x+1)%(((FOLDD[3]>>10)+1)*2)))% VILLAGE_SIZE]=stackerwrap;
 	}
-	if (mirrortoggle&1) mirrorflag^=8192;
+	if (mirrortoggle&1) m1flag^=8192;
 	break;
 	////////////////////////////////STACKER MIRROR
       case 16:// do nothing
@@ -753,7 +778,7 @@ void main(void)
 		}
 	  coo++;
 	}
-	if (mirrortoggle&1) mirrorflag^=16384;
+	if (mirrortoggle&1) m1flag^=16384;
       break;
       case 18:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -764,7 +789,7 @@ void main(void)
 	    stacker[tmper]=(randi()<<3);
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=32768;
+	if (mirrortoggle&1) m1flag^=32768;
       break;
       case 19:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -775,8 +800,9 @@ void main(void)
 	    stacker[tmper]=adc_buffer[UP]<<3;
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=65536;
+	if (mirrortoggle&1) m2flag^=1;
       break;
+
       case 20:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))%96;
@@ -786,7 +812,7 @@ void main(void)
 	    stacker[tmper]=(knobby<<3);
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=131072;
+	if (mirrortoggle&1) m2flag^=2;
       break;
       case 21:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -797,7 +823,7 @@ void main(void)
 	    stacker[tmper]=(stacker[tmper]+1)%32768; // TODO TUNING +-1
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=262144;
+	if (mirrortoggle&1) m2flag^=4;
       break;
       case 22:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -808,7 +834,7 @@ void main(void)
 	    stacker[tmper]=(stacker[tmper]-1)%32768; // TODO TUNING +-1
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=524288;
+	if (mirrortoggle&1) m2flag^=8;
       break;
       case 23:
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
@@ -819,7 +845,7 @@ void main(void)
 	    stacker[tmper]=stacker[(tmper+3)%48];
 		}
 	}
-	if (mirrortoggle&1) mirrorflag^=1048576;
+	if (mirrortoggle&1) m2flag^=16;
       break;
 
       ////////////////////////////////MIRROR | MIRROR
@@ -886,82 +912,89 @@ void main(void)
       ////////////////////////////////////////////////MIRROR ACTIONZ
 	//// leave as 2 and 3 and inc here!
 
+      //      /* for mirror
             
-      if (mirrorflag&1){ //skip 0
+      if (m1flag&1){ //skip 0
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768];
 	  coo++;
 	}
       }
 
-      if (mirrorflag&2){
+      if (m1flag&2){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[6])>>10)+(x%((FOLDD[7]>>10)+1)))%64]=(randi()<<4);
 	}
     }
 
-      if (mirrorflag&4){
+      if (m1flag&4){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>10)+1)))%64]=adc_buffer[UP]<<4;
 	}
 }
 
-      if (mirrorflag&8){
+      if (m1flag&8){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[10])>>10)+(x%((FOLDD[11]>>10)+1)))%64]=knobby<<4;
 	}
 }
 
-      if (mirrorflag&16){
+      if (m1flag&16){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>10)+1)))%64]+=8;
 	}
 }
 
-      if (mirrorflag&32){
+      if (m1flag&32){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[14])>>10)+(x%((FOLDD[15]>>10)+1)))%64]-=8; //TODO TUNING this +-1!!!
 	}
 }
 
-      if (mirrorflag&64){
+      if (m1flag&64){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  settingsarray[(((FOLDD[16])>>10)+(x%((FOLDD[17]>>10)+1)))%64]=settingsarray[(((FOLDD[2])>>10)+8+(x%((FOLDD[3]>>10)+1)))%64];
 	}
 }
 
-      if (mirrorflag&128){
+      if (m1flag&128){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[18])>>10)+(x%((FOLDD[19]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
 	  	  coo++;
 	}
 }
 
-      if (mirrorflag&256){
+      if (m1flag&256){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[20])>>10)+(x%((FOLDD[21]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	}
 }
 
-      if (mirrorflag&512){
+      if (m1flag&512){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[22])>>10)+(x%((FOLDD[23]>>10)+1)))% VILLAGE_SIZE]=adc_buffer[UP]<<3;
 	}
 }
 
-      if (mirrorflag&1024){
+      if (m1flag&1024){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[24])>>10)+(x%((FOLDD[25]>>10)+1)))% VILLAGE_SIZE]=knobby<<3;
 	}
 }
 
-      if (mirrorflag&2048){
+      if (m1flag&2048){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
 }
 
-      if (mirrorflag&4096){
+      if (m1flag&4096){
+	for (x=0;x<((FOLDD[1]>>10)+1);x++){
+	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)-1)))% VILLAGE_SIZE]-1)%32768;
+	}
+}
+
+      if (m1flag&8192){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  // take start and ends from stacks TODO!	  
 	  tmper=((((FOLDD[28])>>10)+(x%((FOLDD[29]>>10)+1)))*3)%96; // div by 3 96/3=32
@@ -982,7 +1015,7 @@ void main(void)
 }
 
       //skip 0
-      if (mirrorflag&8192){
+      if (m1flag&16384){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[30])>>10)+(x%((FOLDD[31]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768]>>1;
@@ -994,7 +1027,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&16384){
+      if (m1flag&32768){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[32])>>10)+(x%((FOLDD[33]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(randi()<<3);
@@ -1005,7 +1038,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&32768){
+      if (m2flag&1){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[34])>>10)+(x%((FOLDD[35]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=adc_buffer[UP]<<3;
@@ -1016,7 +1049,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&65536){
+      if (m2flag&2){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[36])>>10)+(x%((FOLDD[37]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(knobby<<3);
@@ -1027,7 +1060,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&131072){
+      if (m2flag&4){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[38])>>10)+(x%((FOLDD[39]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stackery[tmper]+1)%32768;
@@ -1038,7 +1071,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&262144){
+      if (m2flag&8){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[40])>>10)+(x%((FOLDD[41]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=(stackery[tmper]-1)%32768;
@@ -1049,7 +1082,7 @@ void main(void)
 	}
 }
 
-      if (mirrorflag&524288){
+      if (m2flag&16){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
 	  tmper=(((FOLDD[42])>>10)+(x%((FOLDD[43]>>10)+1)))%96;
 	  if (tmper<48) stackery[tmper]=stackery[(tmper+3)%48];
@@ -1059,9 +1092,12 @@ void main(void)
 		}
 	}
 }
-	/// mirror miror or not??? TODO!
-      //      	*/
-      ////////////////////////////////////////////////
+	/// mirror miror or not??? no as can short circuit?
+            	
+      ////////////////////////////////////////////////END OF MIRROR
+
+
+
 #ifndef LACH
       /////////////////////////////////////
       // 4-hardware operations

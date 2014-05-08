@@ -1,3 +1,4 @@
+
 Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
@@ -222,10 +223,18 @@ outside, and in open daylight.
 
 ** basic operation/theory/background
 
-++++notes from notebook
+++++notes from notebook:HERE:
 
-The Dark Interpreter is _not_ to be controlled. It is a dark
-electronic mirror, the skin itself.
+The Dark Interpreter is influenced and guided by body capacitance,
+skin resistance, biological micro-voltages and the fleshy conduction
+of all signals. These are ways of saying that the Dark Interpreter is
+completely open. It is not to be considered as a closed and bounded
+device which is subject to an exterior control "by the body." The
+Dark Interpreter is an electronic and thus earthy shadow of the body,
+it _is_ (inside) the body.
+
+The Dark Interpreter is thus _not_ to be controlled. It is an obsidian
+electronic mirror, the earth and skin itself.
 
 the 3 boards and how they differ and can be used
 
@@ -318,16 +327,38 @@ For Mater Lachrymarum IN is unused!
 
 * THU 8 MAY
 
-- maybe retry with float mod - TODO across all!TEST!!
-- reduce always-running mirror ops???TEST
-- order of mirroring/foldback(first) and settings(later)TEST
+samples: 581*** hardware, no input
+584*** no hard, vocals
+
+2 crashes
+
+//////
+
+- fix fingermod so doesn't reset settings
+- mirror of mirror in main or not?
+- embed in itself (how? self-simulation, own stack pointers made audible?)
+- simulate audio and settings.h for crash test
+
+[- reduce always-running mirror ops?]
+
+** DONE:
+
+- take effects out of FOLDBACK
+- maybe retry with float mod - TODO across all!TESTED!!
+- added extra into mirror + speedups in mirror (not 32 bit flag)
+- order of mirroring/foldback(first) and settings(later)TEST - not
+  much diff as depends when audio int is called but stick with
+  settings first as then altered...
+
 
 * WED 7 MAY
 
 samples:// no in 549HW,550HW,551HW
 
-HWvocal559,569and570(eegonly),571,575**,576*,577**
-noHW/vocal: 553,554,555**,556**,557,560*,561,562,564,565,566,567,568,572,574
+HWvocal559,569and570(eegonly),571,575**,576*,577=test1
+
+noHW/vocal: 553,554,555=test2,556===,557,560=3,561,562,564,565,566,567,568,572,574
+
 noHW: feedback: 558
 
 still odd crash???? see below- stack size increased, is it NaN is sim?

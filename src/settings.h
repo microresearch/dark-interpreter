@@ -66,9 +66,9 @@
 #define STACKFUNC (settingsarray[49]>>11)
 #define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
 
-#define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128
-#define EFFECTWRITE (settingsarray[52]>>9) 
-#define EFFECTFILTER (settingsarray[53]>>9) 
+//#define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128 // TESTY out of mirror
+//#define EFFECTWRITE (settingsarray[52]>>9) 
+//#define EFFECTFILTER (settingsarray[53]>>9) 
 /////
 #define HWDIR (settingsarray[54]>>15) // restricted to 1 bit
 #define DATADIRR (settingsarray[55]>>15)
