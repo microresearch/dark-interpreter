@@ -325,6 +325,30 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+* SAT 10 MAY RIGA
+
+Working on pcsim of all relevant files - completed...
+
+- seems to run without any segfault
+
+** DONE:
+
+- checked all *src++ businesses in audio.(*ldst++ = *src++; is fine) DONE
+- fixed secondbuf bugs in audio.c filter code and bits and pieces
+
+* FRI 9 MAY+
+
+- fix fingermod so doesn't reset settings-still knobs not right also
+  on mirror toggle all wrong
+
+- mirror of mirror in main or not?
+
+- embed in itself (how? self-simulation, own stack pointers made audible?)
+- simulate audio and settings.h for crash test
+
+[- reduce always-running mirror ops?]
+
+
 * THU 8 MAY
 
 samples: 581*** hardware, no input
@@ -332,14 +356,6 @@ samples: 581*** hardware, no input
 
 2 crashes
 
-//////
-
-- fix fingermod so doesn't reset settings
-- mirror of mirror in main or not?
-- embed in itself (how? self-simulation, own stack pointers made audible?)
-- simulate audio and settings.h for crash test
-
-[- reduce always-running mirror ops?]
 
 ** DONE:
 

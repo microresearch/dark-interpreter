@@ -2,7 +2,14 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdlib.h"
+#include "stdint.h"
 #endif
+
+#ifdef PCSIM
+typedef unsigned char u8;
+typedef unsigned short int u16;
+#endif
+
 
 #define true 1
 #define false 0
@@ -47,9 +54,6 @@
 #define DEREFCHUNKY 30
 #define WALKERCHUNKY 31
 #define SWAPCHUNKY 32
-
-typedef unsigned char u8;
-typedef uint16_t u16;
 
 struct siney{
   u16 cc;

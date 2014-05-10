@@ -2,12 +2,12 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdlib.h"
+#else
+#define u8 unsigned char
+#define u16 uint16_t
 #endif
+//typedef uint16_t u16; // only for lone typedef
 
-//#include "simulation.h"
-
-typedef unsigned char u8;
-typedef uint16_t u16;
 
 #define HODGEY 0
 #define HODGENETY 1

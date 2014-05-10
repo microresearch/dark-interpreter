@@ -7,7 +7,7 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-u16 settingsarray[64];
+uint16_t settingsarray[64];
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -95,9 +95,9 @@ void machine_runnn(u8* buffer){
 
 void cpustackpushhh(u8 *buffer,u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy){
   u16 offset;
+  offset=buffer[0]*30;
   buffer[buffer[0]]=offset>>8; // but offset can be over 255 - so top bit
   buffer[buffer[0]+1]=offset&255; // lower bit
-  offset=buffer[0]*30;
   thread_createee(buffer, addr, wrapaddr,cpuuu,delayyy,offset);
   buffer[0]+=2;
 }
@@ -113,9 +113,8 @@ u8 thread_stack_counttt(u8 *buffer, u8 c, u16 offset) {
 
 u8 antrule(u8 dir,u8 inst, u8 rule);
 
-#ifdef PCSIM
 u8 antrule(u8 dir,u8 inst, u8 rule){
-  u8 index,x;
+  u8 index;
   // process state from rule 
   // rule in binary
   // inst is index into binary array - so inst must be lower than 0->7 - it is
@@ -123,7 +122,6 @@ u8 antrule(u8 dir,u8 inst, u8 rule){
   if (index==0) return dir-1; 
   else return dir+1; 
 }
-#endif
 
 void thread_pushhh(u8 *buffer, u8 data, u16 offset) {
   u16 offsetty=offset+13; u16 orf;
@@ -711,7 +709,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 	//HERE      case 5:
 	// ADD indirect to direct.
-	machine_pokeee(buffer,addr+machine_p88kkk(buffer,addr+2),machine_p88kkk(buffer,machine_peekkk(buffer,addr+1))+(machine_p88kkk(buffer,addr+machine_p88kkk(buffer,addr+2)>>8)));
+	machine_pokeee(buffer,addr+machine_p88kkk(buffer,addr+2),machine_p88kkk(buffer,machine_peekkk(buffer,addr+1))+(machine_p88kkk(buffer,addr+(machine_p88kkk(buffer,addr+2)>>8))));
 	addr+=3;
 	break;
       case 6:
@@ -1531,7 +1529,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(buffer,addr);
-      y=(instr<<9)+machine_p88kkk(buffer,addr+1)<<1;
+      y=(instr<<9)+(machine_p88kkk(buffer,addr+1)<<1);
       machine_pokeee(buffer,addr,y>>8);      
       machine_pokeee(buffer,addr+1,y&255);      
       addr+=2;
@@ -1545,7 +1543,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(buffer,addr);
-      y=(instr<<7)+machine_p88kkk(buffer,addr+1)>>1;
+      y=(instr<<7)+(machine_p88kkk(buffer,addr+1)>>1);
       machine_pokeee(buffer,addr,y>>8);      
       machine_pokeee(buffer,addr+1,y&255);      
       addr+=2;
@@ -1602,6 +1600,7 @@ void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
 
 ///////////////////////////////////////////////////////////////
 
+/*
 #ifdef PCSIM
 int main(void)
 {
@@ -1637,3 +1636,4 @@ int main(void)
 
 }
 #endif
+*/

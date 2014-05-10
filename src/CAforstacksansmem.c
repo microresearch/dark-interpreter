@@ -199,12 +199,12 @@ void inittable(u8 r, u8 k, int rule, u8 *table);
 
 u16 runlife(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
 
-  u8 sum;
+  u8 sum=0;
   uint16_t y; u8 i;
 
   for (i=0;i<howmuch;i++){
 
-    //  sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-cells[4]]&1)+(cells[x+cells[4]]&1)+(cells[x-cells[4]-1]&1)+(cells[x-cells[4]+1]&1)+(cells[x+cells[4]-1]&1)+(cells[x+cells[4]+1]&1);
+    //    sum=(cells[x-1]&1)+(cells[x+1]&1)+(cells[x-cells[4]]&1)+(cells[x+cells[4]]&1)+(cells[x-cells[4]-1]&1)+(cells[x-cells[4]+1]&1)+(cells[x+cells[4]-1]&1)+(cells[x+cells[4]+1]&1);
 
     y=x-cells[4]-1;
     sum+=cells[y]&1;
@@ -361,7 +361,7 @@ u16 runcel1d(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 u16 runfire(uint8_t howmuch,u8* cells, u16 x, u16 start, u16 wrap){
 
-  u8 sum;
+  u8 sum=0;
   uint16_t y; u8 i;
   u8 probB=cells[0]/32;
   u8 probI=cells[1]/10;
@@ -460,7 +460,6 @@ u8 headcount(u8 *cells,u16 place){
 }
 
 u16 runwire(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
-  u8 sum;
   uint16_t y; u8 i;
 
   for (i=0;i<howmuch;i++){
@@ -541,16 +540,16 @@ u16 runSIR(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 	if (randi()%100 <= probI) cells[y] = 1;       
 	}*/
       yy=x-cells[4];
-      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
+      if (cells[yy]>0 && cells[yy]<129) {	if (randi()%100 <= probI) cells[y] = 1;       }
 	else {
 	  yy+=cells[4]-1;
-	  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
+	  if (cells[yy]>0 && cells[yy]<129){ 	if (randi()%100 <= probI) cells[y] = 1;       }
 	    else {
 	      yy+=2;
-	      if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
+	      if (cells[yy]>0 && cells[yy]<129){ 	if (randi()%100 <= probI) cells[y] = 1;}       
 		else {
 		  yy+=1;
-		  if (cells[yy]>0 && cells[yy]<129) 	if (randi()%100 <= probI) cells[y] = 1;       
+		  if (cells[yy]>0 && cells[yy]<129){ 	if (randi()%100 <= probI) cells[y] = 1;       }
 		}
 	    }
 	}      
@@ -590,7 +589,7 @@ infection radius???, max population=15
  */
 
 void SIR16init(void* unity, u8* cells){
-  struct SIR16* unit=unity;
+  //  struct SIR16* unit=unity;
   //  u16 i,y; u8 total,suscept,infected;
 
   /*with probabilities fixed for:
@@ -612,7 +611,7 @@ u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
 u16 runSIR16(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   u8 i,ii; u16 y,dest,yy;
-  u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,sutureinfected,infected,suscept;
+  u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,infected,suscept;
 
   u8 probM=cells[0];
   u8 probR=cells[1];
@@ -797,7 +796,7 @@ signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8
 }
 
 void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
-  u8 i; u8 *buffer;
+  u8 i; 
   for (i=0;i<stack_posy;i++){
     //    if (stack[stack_posy].unit!=NULL){
       //      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
@@ -826,6 +825,7 @@ signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
 
 //////////////////////////////////////////
 
+/*
 #ifdef PCSIM
 int main(void)
 {
@@ -874,3 +874,4 @@ int main(void)
 
 }
 #endif
+*/

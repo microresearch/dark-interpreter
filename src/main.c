@@ -15,6 +15,27 @@
  make stlink_flash
 */
 
+#ifdef PCSIM
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <malloc.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/times.h>
+#include <sys/unistd.h>
+#include "audio.h"
+#include "simulation.h"
+#include "CPUint.h"
+#include "CA.h"
+#include "settings.h"
+uint16_t adc_buffer[10];
+typedef float float32_t;
+u8 digfilterflag;
+int16_t src[BUFF_LEN], dst[BUFF_LEN];
+#else
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/times.h>
@@ -30,6 +51,13 @@
 #include "CA.h"
 #include "settings.h"
 
+/* DMA buffers for I2S */
+__IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
+
+/* DMA buffer for ADC  & copy */
+__IO uint16_t adc_buffer[10];
+
+#endif
 // for knobwork
 // TENE: 2,0,3,4,1 // else: 3,0,2,4,1
 
@@ -88,18 +116,15 @@ u8 freqy[3]={10,10,0};
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
-
-#define randi() (adc_buffer[9]) // 12 bits
-
-/* DMA buffers for I2S */
-__IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
-
-/* DMA buffer for ADC  & copy */
-__IO uint16_t adc_buffer[10];
-
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 
+#ifndef PCSIM
 u8* datagenbuffer = (u8*)0x10000000;
+#define randi() (adc_buffer[9]) // 12 bits
+#else
+#define randi() (rand()%4096)
+u8 datagenbuffer[65536];
+#endif
 extern u8 digfilterflag;
 
 //u8 testdirection;
@@ -108,8 +133,6 @@ u8 table[21];
 u16 sin_data[256];  // sine LUT Array
 u16 settingsarray[64];
 u16 FOLDD[45]; // MAX size 44!!!
-
-
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   if (villagepos<190) /// size -2
@@ -133,7 +156,7 @@ u8 fingerdir(void){
 
   u8 handleft, handright, up=0,down=0,left=0,right=0;
   u8 handupp, handdown;
-  u8 result;
+  u8 result=5;
 
   for (u8 x=0;x<16;x++){
   handupp=adc_buffer[UP]>>8; 
@@ -235,7 +258,6 @@ u8 fingervalup(u8 tmpsetting){
 
 u8 fingervaleff(u8 tmpsetting){
   u8 handup,handdown;
-  int16_t tmps;
   u8 ttss=0,sstt=0;u8 x;
   for (x=0;x<16;x++){
   handup=adc_buffer[RIGHT]>>8;
@@ -256,7 +278,6 @@ tmpsetting-=1;
 
 u8 fingervalright(u8 tmpsetting, u8 wrap){
   u8 handup,handdown;
-  int16_t tmps;
   u8 ttss=0,sstt=0;u8 x;
   for (x=0;x<16;x++){
   handup=adc_buffer[RIGHT]>>8;
@@ -296,7 +317,7 @@ void main(void)
   const float32_t pi= 3.141592;
   float32_t w;
   float32_t yi;
-  float32_t phase;
+  float32_t phase=0;
   int sign_samp,i;
   w= 2*pi;
   w= w/256;
@@ -308,6 +329,7 @@ void main(void)
       sin_data[i]=sign_samp; // write value into array
     }
 
+#ifndef PCSIM
   //	ADC1_Initonce();
   ADC1_Init((uint16_t *)adc_buffer);
 
@@ -327,6 +349,11 @@ void main(void)
   I2S_Block_Init();
   I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
+#ifndef LACH
+  dohardwareswitch(2,0);
+#endif
+#endif // for ifndef PCSIM
+
   machine *m=(machine *)malloc(sizeof(machine));
   m->m_threadcount=0;
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
@@ -343,10 +370,6 @@ void main(void)
   u8 *audio_buf = (u8*) audio_buffer;
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
-
-#ifndef LACH
-  dohardwareswitch(2,0);
-#endif
 
   // setup code for walkers
   for (x=0;x<11;x++){
@@ -400,7 +423,9 @@ void main(void)
   //  for (x=0;x<2;x++){ // TESTY!
     start=randi()<<3;
     wrap=randi()<3;
-    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
+            stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
+    //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
+
     villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
@@ -448,6 +473,31 @@ void main(void)
 	}
 	}
       } // end of machine count
+
+#ifdef PCSIM
+
+      // do randomising
+
+	for (x=0;x<VILLAGE_SIZE;x++){
+	  villager[x]=(randi()<<3);
+	}
+
+
+	for (x=0;x<64;x++){
+	  settingsarray[x]=randi()<<4;
+	}
+
+	for (x=0;x<96;x++){
+	  if (x<48) stackery[x]=(randi()<<3);
+	  else {
+	    tmper=x-48;
+	    stacker[tmper]=(randi()<<3);
+		}
+	}
+
+
+	      I2S_RX_CallBack(src, dst, BUFF_LEN);
+#else
 
 
       /////////////////////////////
@@ -1139,6 +1189,7 @@ void main(void)
       if (digfilterflag&8){
 		  setmaximpwm(MAXIMERBASE+(buf16[tmp]%MAXIMERCONS));
 		  }
+#endif
 #endif
 #endif
 #endif

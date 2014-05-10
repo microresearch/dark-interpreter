@@ -6,17 +6,35 @@ LINEIN/OUTL-filter
 
 */
 
+#ifdef PCSIM
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include "simulation.h"
+#include <malloc.h>
+#include "audio.h"
+#include "settings.h"
+extern int adc_buffer[10];
+#define  uint32_t int
+typedef int int32_t;
+#define float32_t float
+#else
 #include "audio.h"
 #include "CPUint.h"
 #include "settings.h"
+extern __IO uint16_t adc_buffer[10];
+#endif
 
 #define STEREO_BUFSZ (BUFF_LEN/2)
 #define MONO_BUFSZ (STEREO_BUFSZ/2)
 
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 
+extern int16_t audio_buffer[AUDIO_BUFSZ];
 extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
-extern __IO uint16_t adc_buffer[10];
+
 //extern u8 wormdir;
 extern u8 villagestackpos;
 extern u16 settingsarray[64];
@@ -118,7 +136,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 	}
 }
 
-void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
+void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   u16 tmp,tmper;
   int16_t tmp16,count;
@@ -197,7 +215,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //	  tmp32=(*src++)*firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 5:
@@ -212,7 +232,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //	  tmp32=(*src++)+firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 7:
@@ -235,7 +257,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //	  tmp32=(*src++)+firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 11:
@@ -265,7 +289,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  //	  tmp32=(*src++)*firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  }
@@ -358,7 +384,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
 	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
@@ -366,16 +392,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
 	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
 	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
@@ -383,37 +411,43 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
 	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  tmp16=(*src++)-secondbuf[sampleposread%32768];
+	  tmp16=(*src++)-firstbuf[sampleposread%32768];
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 7:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  tmp16=secondbuf[sampleposread%32768]-(*src++);
+	  tmp16=firstbuf[sampleposread%32768]-(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  // start of *(src-1)
 	  case 8:
-	  *ldst++ = *src;
-	  tmp32= *(src++) * (*src++);
+	  *ldst++ = *src++;
+	  tmp16=*src++;
+	  tmp32= *(src) * tmp16;
 	  *rdst++ = *src; 
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 9:
 	  *ldst++ = *src;
 	  //	  tmp32= *(src++) * (*src++);
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)*src++ * FMOD;
+	  tmp16=*src++;
+	  fsum=(float32_t)tmp16 * morph_inv * (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src; 
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 10:
@@ -428,9 +462,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  *ldst++ = *src;
 	  //	  tmp32=firstbuf[samplepos%32768]* *src++;
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
-	  tmp32=fsum;
+	  //	  tmp32=fsum;
 	  *rdst++ = *src++; 
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 12:
@@ -439,29 +475,35 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src; 
-	  *src++;
+	  (src++);
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  case 13:
 	  *ldst++ = *src++;
 	  //repeats???
-	  fsum=(float32_t)(float32_t)secondbuf[sampleposread%32768] * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)(float32_t)firstbuf[sampleposread%32768] * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  	  //	  tmp32=*src++ * *src++;
 	  //	  fsum=(float32_t)*src++ * morph_inv * (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src++; 
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 14:
-	  *ldst++ = *src;
-	  tmp16=*src++ ^ *src++;
+	  *ldst++ = *src++;
+	  tmper= *src++;
+	  tmp16=*src ^ tmper;
 	  *rdst++ = *src; 
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
  	  case 15:
-	  *ldst++ = *src;
+	  *ldst++ = *src++;
 	  //	  tmp32=*src++ + *src++;
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)*src++ * FMOD;
+	  tmp16=*src;
+	  fsum=(float32_t)tmp16 * morph_inv + (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src; 
 	  firstbuf[sampleposread%32768]=tmp32;
@@ -534,11 +576,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  switch(tmpp){
 	  case 0:
 	  default:
-	  *src++;
+	  (src++);
 	  firstbuf[sampleposread%32768]=*src++;
 	  break;
 	  case 1:
-	  *src++;
+	  (src++);
 	  firstbuf[sampleposread%32768]=*src++;
 	  secondbuf[sampleposread%32768]=*src++;
 	  break;	    
@@ -551,85 +593,93 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	  ////////
 	  // Effects with/without clipping *, +, -, 
 	  case 3:
-	  *src++;
+	    (src++);
 	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
-	  *src++;
+	    (src++);
 	  //	  tmp32=(*src++)*secondbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 5:
-	  *src++;
+	  (src++);
 	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
-	  *src++;
+	  (src++);
 	  //	  tmp32=(*src++)+secondbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)secondbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 7:
-	  *src++;
+	  (src++);
 	  tmp16=(*src++)-secondbuf[sampleposread%32768];
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
-	  *src++;
+	  (src++);
 	  tmp16=secondbuf[sampleposread%32768]-(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 9:
-	  *src++;
+	  (src++);
 	  tmp16=secondbuf[sampleposread%32768]^(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 10:
-	  *src++;
+	  (src++);
 	  //	  tmp32=(*src++)*firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 11:
-	  *src++;
+	  (src++);
 	  //	  	  tmp32=(*src++)+firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 12:
-	  *src++;
+	  (src++);
 	  //	  tmp32=(*src++)+firstbuf[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)firstbuf[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 13:
-	  *src++;
+	  (src++);
 	  tmp32=(*src++)-firstbuf[sampleposread%32768];
 	  firstbuf[sampleposread%32768]=tmp32;
 	  break;
 	  case 14:
-	  *src++;
+	  (src++);
 	  tmp16=firstbuf[sampleposread%32768]-(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  break;
 	  case 15:
-	  *src++;
+	  (src++);
 	  tmp16=firstbuf[sampleposread%32768]^(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  }
@@ -725,7 +775,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv * (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
@@ -738,7 +790,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=firstbuf[samplepos%32768]+secondbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv + (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
@@ -873,7 +927,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv * (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
@@ -886,7 +942,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=firstbuf[samplepos%32768]+secondbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv + (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
@@ -907,7 +965,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=firstbuf[samplepos%32768]* *ldst++;
 	    fsum=(float32_t)*ldst++ * morph_inv * (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 9:
@@ -924,7 +984,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=*(ldst++)+secondbuf[samplepos%32768];
 	    fsum=(float32_t)*ldst++ * morph_inv + (float32_t)secondbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
@@ -1039,7 +1101,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv + (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
@@ -1052,7 +1116,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz, uint16_t ht)
 	    //	  tmp32=firstbuf[samplepos%32768]+secondbuf[samplepos%32768];
 	  fsum=(float32_t)secondbuf[samplepos%32768] + morph_inv + (float32_t)firstbuf[samplepos%32768] * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
@@ -1202,7 +1268,9 @@ if (digfilterflag&1){
 	    //	  tmp32=firstbuf[sampleposfilt%32768]* *ldst++;
 	    fsum=(float32_t)firstbuf[samplepos%32768] + morph_inv * (float32_t)(*ldst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst=tmp32;
 	  break;
 	  case 5:
@@ -1215,7 +1283,9 @@ if (digfilterflag&1){
 	    //	  tmp32=firstbuf[sampleposfilt%32768]* *rdst++;
 	    fsum=(float32_t)firstbuf[samplepos%32768] + morph_inv * (float32_t)(*rdst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst++=tmp32;
 	  break;
 	  case 7:
@@ -1228,7 +1298,9 @@ if (digfilterflag&1){
 	    //	  tmp32=*ldst++ * *rdst++;
 	    fsum=(float32_t)(*ldst++) * morph_inv * (float32_t)(*rdst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst=tmp32;
 	  break;
 	  case 9:
@@ -1241,7 +1313,9 @@ if (digfilterflag&1){
 	    //	  tmp32=firstbuf[sampleposfilt%32768]+ *ldst++;
 	    fsum=(float32_t)firstbuf[samplepos%32768] + morph_inv * (float32_t)(*ldst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst=tmp32;
 	  break;
 	  case 11:
@@ -1254,7 +1328,9 @@ if (digfilterflag&1){
 	    //	  tmp32=firstbuf[sampleposfilt%32768]+ *rdst++;
 	    fsum=(float32_t)firstbuf[samplepos%32768] + morph_inv * (float32_t)(*rdst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst++=tmp32;
 	  break;
 	  case 13:
@@ -1267,7 +1343,9 @@ if (digfilterflag&1){
 	    //	  tmp32=*ldst++ + *rdst++;
 	    fsum=(float32_t)(*ldst++) * morph_inv + (float32_t)(*rdst++) * FMOD;
 	  tmp32=fsum;
+#ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+#endif
 	  *ldst=tmp32;
 	  break;
 	  case 15:
@@ -1330,7 +1408,7 @@ if (digfilterflag&1){
 		  }
 		}
 	  delf=0;
-	  }
+		  }
 	}
 
  }
@@ -1340,6 +1418,13 @@ if (digfilterflag&1){
 	// 4-out
 	//audio_comb_stereo(sz, dst, left_buffer, right_buffer);
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+
+#ifdef PCSIM
+ //	for (x=0;x<sz;x++){
+ //	  printf("%c",mono_buffer[x]);
+ //	}
+#endif
+
 #endif // for test eeg
 #endif // for straight
 

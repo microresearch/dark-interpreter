@@ -2,10 +2,10 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdlib.h"
+#else
+#define u8 unsigned char
+#define u16 uint16_t
 #endif
-
-typedef unsigned char u8;
-typedef uint16_t u16;
 
 #define DATA_BUFSZ 65535
 
@@ -79,7 +79,7 @@ typedef uint16_t u16;
     
 /////////////////////////////////////////////////////////
     
-void machine_create(machine *this, uint8_t *buffer);
+void machine_create(machine *this, u8 *buffer);
 u16 machine_peek(machine *t, u16 addr); // changed for CPUintrev2.h
 u8 machine_p88k(machine* this, uint16_t addr); // ditto added
 void machine_poke(machine *t, u16 addr, u8 data);	

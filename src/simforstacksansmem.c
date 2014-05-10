@@ -154,7 +154,7 @@ u16 runconv(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count==0) tmp=32766;
     else tmp=count-1;
 			
-        workingbuffer[y]=((float32_t)workingbuffer[tmp%32768]*c0)+((float32_t)workingbuffer[(count+start)%32768]*c1)+((float32_t)workingbuffer[(count+1)%32768]*c2);
+    workingbuffer[y]=((float32_t)workingbuffer[tmp%32768]*c0)+((float32_t)workingbuffer[(count+start)%32768]*c1)+((float32_t)workingbuffer[(count+1)%32768]*c2);
 
 #ifdef PCSIM
     //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[(count+start)%32768]);
@@ -1451,12 +1451,12 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 	//	stack[stack_pos].unit=malloc(sizeof(struct CONV));
 	//	convinit(stack[stack_pos].unit,buffer);
 	//	convinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runconv;
+		stack[stack_pos].functione=runconv;
 	break;
       case FORMY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct FORM));
 	//	forminit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runform;
+		stack[stack_pos].functione=runform;
 	break;
       case SINEY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct siney));
@@ -1466,137 +1466,137 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
       case INCY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runinc;
+		stack[stack_pos].functione=runinc;
 	break;
       case DECY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=rundec;
+		stack[stack_pos].functione=rundec;
 	break;
       case LEFTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runleft;
+		stack[stack_pos].functione=runleft;
 	break;
       case RIGHTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runright;
+		stack[stack_pos].functione=runright;
 	break;
       case SWAPPY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runswap;
+		stack[stack_pos].functione=runswap;
 	break;
       case NEXTINCY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runnextinc;
+		stack[stack_pos].functione=runnextinc;
 	break;
       case NEXTDECY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runnextdec;
+		stack[stack_pos].functione=runnextdec;
 	break;
       case NEXTMULTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runnextmult;
+		stack[stack_pos].functione=runnextmult;
 	break;
       case NEXTDIVY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runnextdiv;
+		stack[stack_pos].functione=runnextdiv;
 	break;
       case COPYY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runcopy;
+		stack[stack_pos].functione=runcopy;
 	break;
       case ZEROY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runzero;
+       		stack[stack_pos].functione=runzero;
 	break;
       case FULLY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runfull;
+		stack[stack_pos].functione=runfull;
 	break;
       case RANDY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runrand;
+		stack[stack_pos].functione=runrand;
 	break;
       case KNOBY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runknob;
+		stack[stack_pos].functione=runknob;
 	break;
       case SWAPAUDIOY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runswapaudio;
+		stack[stack_pos].functione=runswapaudio;
 	break;
       case ORAUDIOY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runORaudio;
+		stack[stack_pos].functione=runORaudio;
 	break;
       case SIMPLESIRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct simpleSIR));
 	simplesirinit(buffer);
-	stack[stack_pos].functione=runsimplesir;
+		stack[stack_pos].functione=runsimplesir;
 	break;
       case SEIRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct SEIR));
 	seirinit(buffer);
-	stack[stack_pos].functione=runseir;
+		stack[stack_pos].functione=runseir;
 	break;
       case SICRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct SICR));
 	sicrinit(buffer);
-	stack[stack_pos].functione=runsicr;
+		stack[stack_pos].functione=runsicr;
 	break;
       case IFSY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct IFS));
 	ifsinit(buffer);
-	stack[stack_pos].functione=runifs;
+		stack[stack_pos].functione=runifs;
 	break;
       case ROSSLERY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Rossler));
 	//	rosslerinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runrossler;
+		stack[stack_pos].functione=runrossler;
 	break;
       case SECONDROSSLERY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct secondRossler));
 	//	secondrosslerinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runsecondrossler;
+		stack[stack_pos].functione=runsecondrossler;
 	break;
       case BRUSSELY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Brussel));
 	//	brusselinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runbrussel;
+		stack[stack_pos].functione=runbrussel;
 	break;
       case SPRUCEY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Spruce));
 	//	spruceinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runspruce;
+		stack[stack_pos].functione=runspruce;
 	break;
       case OREGONY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Oregon));
 	//	oregoninit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runoregon;
+		stack[stack_pos].functione=runoregon;
 	break;
       case FITZY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Fitz));
 	//	fitzinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runfitz;
+		stack[stack_pos].functione=runfitz;
 	break;
       case SWAPCHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
 	//	chunkinit(stack[stack_pos].buffer);
-	stack[stack_pos].functione=runswapchunk;
+		stack[stack_pos].functione=runswapchunk;
 	break;
       case CHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
@@ -1621,7 +1621,7 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
 
 void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 
-  static u16 count; char i; signed char x;
+  static u16 count; u8 i;
       for (i=0;i<stack_pos;i++){
 	u8 tmp=i*3;
 	stack[i].count=stack[i].functione(stacker[tmp+1],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+2]);
@@ -1637,7 +1637,7 @@ signed char func_pop(struct stackey stack[STACK_SIZE], u8 stack_pos){
 	return stack_pos;
 	}
 
-#ifdef PCSIM
+//#ifdef PCSIM
 
 
 void tester(u8 SAMPLEDIRR){
@@ -1667,8 +1667,9 @@ void tester(u8 SAMPLEDIRR){
  // printf("pos: %d\n", sampleposread);
 }
 
+
 //void main(int argc, char **argv)
-void main()
+/*void main()
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x; 
@@ -1722,11 +1723,40 @@ void main()
   
 
 	 int count,dirry; u16 samplepos=100, start=100,wrap=200, SAMPLESTART=100, SAMPLEWRAP=200; u8 d=0, SAMPLEDIRW=1; int newdirrr[2]={-1,1}; u16 mirror=0; u8 mirrori,mirrorii,oldmir, mirrortoggle;
+
+	 // test *ldst++ = *src;
  
-	 	 while(1){
+	 u16 samplearray[64],samplearray2[64];
+	 for (x=0;x<64;x++){
+	   samplearray[x]=128;
+	 }
+	 for (x=0;x<64;x++){
+	   samplearray2[x]=19;
+	 }
+
+
+	 u16* ldst=samplearray;
+	 u16* src=samplearray2;
+
+	 for (x=0;x<64;x++){
+	   *ldst++ = *src++;
+	 }
+
+	 ldst=samplearray;
+
+	 for (x=0;x<64;x++){
+	 printf("val %d\n",*ldst++);
+	 }
+
+
+	 
+
+
+	   //	 while(1){
 		   // func_runall(stackyy,stack_pos); // simulations
 		   //		   printf("%c",buf16[x%32768]>>8);
 		   //		   x++;
-		 }
+	   //	 }
 }
-#endif
+#endif*/
+

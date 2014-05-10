@@ -111,15 +111,15 @@ void cpustackpop(machine *this){
   if (this->m_threadcount<0) this->m_threadcount=0;
 }
 
-u8 antrule(u8 dir,u8 inst, u8 rule){
-  u8 index,x;
+u8 antrulee(u8 dir,u8 inst, u8 rule){
+  u8 index;
   // process state from rule 
   // rule in binary
   // inst is index into binary array - so inst must be lower than 0->7 - it is
   index=(rule>>inst)&1;
   if (index==0) return dir-1; 
   else return dir+1; 
-}
+  }
 
 void dircalc(u16 *mmm, u16 wrapper,u16 liner){
   mmm[0]=wrapper-liner;
@@ -337,7 +337,7 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	case 5:
 	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
-	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=(this->m_stack[this->m_reg8bit2%STACK_SIZE])<<8+((this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]));
+	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=((this->m_stack[this->m_reg8bit2%STACK_SIZE])<<8)+((this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]));
 	  this->m_reg8bit2-=2;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
@@ -580,7 +580,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 	//HERE      case 5:
 	// ADD indirect to direct.
-	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1))+(machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2)>>8)));
+	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1))+(machine_p88k(m,this->m_pc+(machine_p88k(m,this->m_pc+2)>>8))));
 	this->m_pc+=3;
 	break;
       case 6:
@@ -1091,7 +1091,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       instr=machine_p88k(m,this->m_pc);
       //      machine_poke(m,this->m_pc,instr+1);
       machine_poke(m,this->m_pc,instr+biotadir[this->m_reg8bit1%8]);
-      this->m_reg8bit1=antrule(this->m_reg8bit1,instr%8,machine_p88k(m,0));//last is rule
+      this->m_reg8bit1=antrulee(this->m_reg8bit1,instr%8,machine_p88k(m,0));//last is rule
       this->m_pc+=biotadir[this->m_reg8bit1%8];
       //      printf("%c",this->m_pc);
       break;
@@ -1316,7 +1316,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // 16 bit left
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
-      y=(instr<<9)+machine_p88k(m,this->m_pc+1)<<1;
+      y=(instr<<9)+(machine_p88k(m,this->m_pc+1)<<1);
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1327,7 +1327,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // 16 bit right
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
-      y=(instr<<7)+machine_p88k(m,this->m_pc+1)>>1;
+      y=(instr<<7)+(machine_p88k(m,this->m_pc+1)>>1);
       machine_poke(m,this->m_pc,y>>8);      
       machine_poke(m,this->m_pc+1,y&255);      
       this->m_pc+=2;
@@ -1462,7 +1462,7 @@ void leak(machine *m){
 void mutate(machine *m, u8 which, u8 identifier){
   // select CPU and flip bits within contraints
   // what are identifiers? del, wrap, pc also registers or not?
-  u8 x; u16 temp;
+  u16 temp;
   //  x=which%m->m_threadcount;
   thread *this=&m->m_threads[which];
   switch (identifier%4){
@@ -1546,8 +1546,8 @@ void killcpu(machine *m, u8 killed){
   m->m_threadcount--;}
 }
 
+/*
 #ifdef PCSIM
-
 int main(void)
 {
   u16 xx; u16 addr;
@@ -1617,3 +1617,4 @@ int main(void)
 	}
 
 #endif
+*/
