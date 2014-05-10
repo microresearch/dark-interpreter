@@ -83,7 +83,7 @@ __IO uint16_t adc_buffer[10];
 #define RIGHT 7
 #endif
 
-u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
+u16 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 
 signed char newdir[2]={-1,1};
 signed char direction[2]={-1,1};
@@ -123,7 +123,7 @@ u8* datagenbuffer = (u8*)0x10000000;
 #define randi() (adc_buffer[9]) // 12 bits
 #else
 #define randi() (rand()%4096)
-u8 datagenbuffer[65536];
+u8* datagenbuffer;
 #endif
 extern u8 digfilterflag;
 
@@ -358,6 +358,10 @@ void main(void)
   m->m_threadcount=0;
   m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
 
+#ifdef PCSIM
+  datagenbuffer=(u8*)malloc(65536);
+#endif
+
   u8 hwdel=0; u8 effectmod=1;
   u16 hwpos=0,hwposss,wrapper;
   u8 stack_pos=0;
@@ -453,13 +457,13 @@ void main(void)
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
-	  func_runall(stackyy,stack_pos); // simulations
+	  	  func_runall(stackyy,stack_pos); // simulations
 	  break;
 	case 1:
-	  ca_runall(stackyyy,stack_posy); // CA
+	  	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  machine_run(m);
+	  	  machine_run(m);
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    machine_count=0;
@@ -467,7 +471,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    machine_runnn(datagenbuffer);
+	    	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -482,7 +486,6 @@ void main(void)
 	  villager[x]=(randi()<<3);
 	}
 
-
 	for (x=0;x<64;x++){
 	  settingsarray[x]=randi()<<4;
 	}
@@ -494,7 +497,13 @@ void main(void)
 	    stacker[tmper]=(randi()<<3);
 		}
 	}
+	//            effects=adc_buffer[SECOND]>>5;  // 7 bits
+	//      if (effectmod&1 || effectmod&4) EFFECTREAD=effects<<9;
+	EFFECTREAD=randi()>>5;
+	EFFECTWRITE=randi()>>5;
+	EFFECTFILTER=randi()>>5;
 
+	//	digfilterflag=randi()>>5;
 
 	      I2S_RX_CallBack(src, dst, BUFF_LEN);
 #else
@@ -519,8 +528,8 @@ void main(void)
 
       // TESTY
 
-      if (effectmod&1 || effectmod&4) EFFECTREAD=effects<<9;
-      if (effectmod&2) EFFECTWRITE=effects<<9; // WRITE=PLAY*/
+      if (effectmod&1 || effectmod&4) EFFECTREAD=effects;//<<9;
+      if (effectmod&2) EFFECTWRITE=effects;//<<9; // WRITE=PLAY*/
 
 #else
       tmphardware=0;

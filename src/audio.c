@@ -1087,7 +1087,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    break;
 	  case 1:
 	    // 	    mono_buffer[x]=secondbuf[samplepos%32768]; no sense
-	  tmp16=firstbuf[samplepos%32768]%secondbuf[samplepos%32768];
+	    tmp16=firstbuf[samplepos%32768]%(secondbuf[samplepos%32768]+1);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  // effects with/without clipping *, +, -, 
@@ -1420,9 +1420,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- //	for (x=0;x<sz;x++){
- //	  printf("%c",mono_buffer[x]);
- //	}
+ 	for (x=0;x<sz;x++){
+ 	  printf("%c",mono_buffer[x]);
+ 	}
 #endif
 
 #endif // for test eeg
