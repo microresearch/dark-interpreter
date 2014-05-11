@@ -332,22 +332,27 @@ For Mater Lachrymarum IN is unused!
 
 : valgrind  --undef-value-errors=no --leak-check=full ./DISIM
 
+-runcel1d in ca needs a re-write 
+
 ** Notes:
 
 - gcc warning flags but not: Wconversion - some fixes
 
-simforstacksansmem.c: In function ‘ifsinit’:
-simforstacksansmem.c:975: warning: cast from function call of type ‘int’ to non-matching type ‘float’
-simforstacksansmem.c:976: warning: cast from function call of type ‘int’ to non-matching type ‘float’
-simforstacksansmem.c:977: warning: cast from function call of type ‘int’ to non-matching type ‘float’
-simforstacksansmem.c: In function ‘runifs’:
-simforstacksansmem.c:1007: warning: cast from function call of type ‘int’ to non-matching type ‘float’
-
-and look into conversion factor
+and look into Wconversion - check and recheck all datagens for sizes
 
 - endianness and our 8->16 bit conversions (byte 0 is LSB)
-- check and recheck all datagens for sizes
+
+where we have this?
+
 - lots of undefined value errors in valgrind
+
+/// debug tip:
+
+: ulimit -c unlimited
+run code
+then with generated core:
+
+: gdb DISIM core
 
 
 * SAT 10 MAY RIGA

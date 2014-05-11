@@ -478,9 +478,21 @@ void main(void)
   }
 #else
 
+
+#ifdef PCSIM
+
+      // randomise adc_buffer
+      for (x=0;x<10;x++){
+	adc_buffer[x]=randi();
+      }
+
+      I2S_RX_CallBack(src, dst, BUFF_LEN); 
+#endif
+
+
+
       machine_count++;
       if (machine_count>=MACHINESPEED){
-
 
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
@@ -488,7 +500,7 @@ void main(void)
 	  func_runall(stackyy,stack_pos); // simulations
 	  break;
 	case 1:
-	  //ca_runall(stackyyy,stack_posy); // CA
+	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
 	  //	  machine_run(m);
@@ -505,17 +517,6 @@ void main(void)
 	}
 	}
       } // end of machine count
-
-#ifdef PCSIM
-
-      // randomise adc_buffer
-      for (x=0;x<10;x++){
-	adc_buffer[x]=randi();
-      }
-
-      I2S_RX_CallBack(src, dst, BUFF_LEN); 
-#endif
-
 
       /////////////////////////////
       // KKNOBBBSSS

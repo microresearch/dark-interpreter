@@ -319,23 +319,24 @@ void inittable(u8 r, u8 k, int rule){
 
 u16 runcel1d(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
-  u8 sum; int16_t z,zz;
+  u8 sum; int16_t z; u16 zz;
   u8 i;//k=states
   u16 y;
 
-  for (i=1;i<howmuch;i++){
+  for (i=3;i<howmuch;i++){
+
     sum=0;
     
     // sum of cells in radius - not looping!
     for (z=-3;z<3;z++){ // hardcode sans radius...
       zz=x+i+z;
       if (zz>=cells[4]) zz=zz-cells[4];
-      if (zz<0) zz=cells[4]+zz;
-            sum+=(cells[zz]>>4)%4; // crash here?
+      //      if (zz<0) zz=cells[4]+zz;
+      sum+=(cells[zz]>>4)%4; // crash here? and it did/// not now !
     }
 
     y=x+i+cells[4];
-        cells[y]= table[sum]<<4;  
+    cells[y]=table[sum]<<4;  
 
 #ifdef PCSIM  
 	//    printf("%c",cells[x]);

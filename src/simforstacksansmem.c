@@ -35,7 +35,8 @@ Based in part on SLUGens by Nicholas Collins.
 #include <time.h>
 #include "simulation.h"
 #include <malloc.h>
-#define randi() rand()
+//#define randi() rand()
+#define randi() (adc_buffer[9])
 #define float32_t float
 extern u16 sin_data[256];
 extern u16 stacker[48]; // 16*3 MAX
