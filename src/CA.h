@@ -6,8 +6,6 @@
 #define u8 unsigned char
 #define u16 uint16_t
 #endif
-//typedef uint16_t u16; // only for lone typedef
-
 
 #define HODGEY 0
 #define HODGENETY 1

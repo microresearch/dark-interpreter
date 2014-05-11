@@ -7,7 +7,7 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-uint16_t settingsarray[64];
+extern uint16_t settingsarray[64];
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -263,8 +263,8 @@ break;
       //      printf("%c",thread_poppp(buffer));
       //      machine_poke(buffer,machine_peekkk(buffer,buffer->m_pc++),randi()%255);      
         break;
-#ifndef PCSIM
 	case INP:
+#ifndef PCSIM
 	  machine_pokeee(buffer,machine_peekkk(buffer,addr++),adc_buffer[thread_poppp(buffer,offset)%10]);      
 #endif
 	  addr++;
@@ -440,10 +440,10 @@ break;
 	  BIT81-=2;
 	  if (BIT81==0) BIT81=14;
 	  break;
-#ifndef PCSIM
 	case 6:
 	  //  cells[omem] = adcread(3); 
 	  y=((BITADDRHI<<8)+BITADDRLO);
+#ifndef PCSIM
 	  machine_pokeee(buffer,y,adc_buffer[(y>>8)%10]);
 #endif
 	  addr++;
@@ -522,9 +522,9 @@ break;
 	  if (flag==3) 	  BIT81-=16;
 	  addr++;
 	  break;
-#ifndef PCSIM
 	case 6:
 	  y=((BITADDRHI<<8)+BITADDRLO);
+#ifndef PCSIM
 	  machine_pokeee(buffer,y+2,adc_buffer[(y>>8)%10]);
 #endif
 	  addr++;
@@ -707,7 +707,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	machine_pokeee(buffer,addr+machine_p88kkk(buffer,addr+2),machine_p88kkk(buffer,addr+1)+machine_p88kkk(buffer,addr+machine_p88kkk(buffer,addr+2)));
 	addr+=3;
 	break;
-	//HERE      case 5:
+	//HERE      
+      case 5:
 	// ADD indirect to direct.
 	machine_pokeee(buffer,addr+machine_p88kkk(buffer,addr+2),machine_p88kkk(buffer,machine_peekkk(buffer,addr+1))+(machine_p88kkk(buffer,addr+(machine_p88kkk(buffer,addr+2)>>8))));
 	addr+=3;

@@ -51,7 +51,7 @@ extern signed char directionread[2];
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
 
-int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 int16_t *audio_ptr;
 
 void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, float c2){
@@ -66,19 +66,20 @@ void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, floa
 extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
-extern u8 ww[3],freqy[3];
 
-void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
+u8 www[3],freqyy[3];
+
+/*void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
 
   float buff[64]; float x; 
 
   for (u8 f = 0; f < 3; f++ ) {
-  u8 ff = freqy[f]; // the three freqs
+  u8 ff = freqyy[f]; // the three freqs
 
   float freq = (float)ff*(50.0f/SAMPLE_FREQUENCY);
 
   float buf1Res = 0, buf2Res = 0;
-  float q = 1.0f - (float)ww[f] * (Pi * 10.0f / SAMPLE_FREQUENCY);
+  float q = 1.0f - (float)www[f] * (Pi * 10.0f / SAMPLE_FREQUENCY);
   float xp = 0;
   
   for (u8 s = 0; s < sz; s++ ) {
@@ -97,7 +98,7 @@ void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
     }
   }
   }
-}
+  }*/
 
 void Audio_Init(void)
 {
@@ -479,6 +480,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 #endif
+	  firstbuf[sampleposread%32768]=tmp32;
 	  case 13:
 	  *ldst++ = *src++;
 	  //repeats???
@@ -571,7 +573,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
 	    //  	    tmpp=3; // TESTER!!!
-	    float32_t morph_inv = 1.0 - (float32_t)FMOD,fsum;
+	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
 	  case 0:
@@ -892,7 +894,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
-	      runformforaudio(sz/2,temp_buffer,mono_buffer);
+	      //	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
 	  }
 	  } // end of tmpp>12
@@ -902,7 +904,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #else
 
 	if (digfilterflag&32 || digfilterflag&1){
-	int16_t * ldst=left_buffer;
+	ldst=left_buffer;
 
 	  ////////////////////////////////////LDST effects also...
 
@@ -1224,7 +1226,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
-	      runformforaudio(sz/2,temp_buffer,mono_buffer);
+	      //	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
 	  }
 	  } // end of tmpp>12
@@ -1236,8 +1238,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 if (digfilterflag&1){ 
 
-	int16_t * ldst=left_buffer;
-	int16_t * rdst=right_buffer;
+	ldst=left_buffer;
+	rdst=right_buffer;
 	morph_inv = 1.0 - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
@@ -1420,9 +1422,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- 	for (x=0;x<sz;x++){
- 	  printf("%c",mono_buffer[x]);
- 	}
+ /// 	for (x=0;x<sz;x++){
+	  // 	  printf("%c",mono_buffer[x]);
+ //	}
 #endif
 
 #endif // for test eeg

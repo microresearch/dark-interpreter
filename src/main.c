@@ -35,6 +35,21 @@ uint16_t adc_buffer[10];
 typedef float float32_t;
 u8 digfilterflag;
 int16_t src[BUFF_LEN], dst[BUFF_LEN];
+
+void  dohardwareswitch(u8 one,u8 two){
+  // nothing
+}
+
+void set40106pwm(u16 one){
+}
+
+void setmaximpwm(u16 one){
+}
+
+void setlmpwm(u16 one, u16 two){
+}
+
+
 #else
 #include <errno.h>
 #include <sys/stat.h>
@@ -375,6 +390,12 @@ void main(void)
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
+  // fill datagenbuffer TODO
+
+  for (x=0;x<65535;x++){
+    datagenbuffer[x]=randi()%255;
+  }
+
   // setup code for walkers
   for (x=0;x<11;x++){
     settingsarray[x]=0;
@@ -407,6 +428,10 @@ void main(void)
       cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
     }
 
+  for (x=0;x<45;x++){
+    FOLDD[x]=randi()<<4;
+  }
+
   //pureleak
 
   for (x=0;x<100;x++){
@@ -427,13 +452,15 @@ void main(void)
   //  for (x=0;x<2;x++){ // TESTY!
     start=randi()<<3;
     wrap=randi()<3;
-            stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
+    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
-
+    //    printf("stackpos %d\n",stack_pos);
+    
     villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   start=0;
+  u16 count=0;
 
   ///////////////////////////
 
@@ -454,16 +481,17 @@ void main(void)
       machine_count++;
       if (machine_count>=MACHINESPEED){
 
+
       for (x=0;x<4;x++){
 	switch(exeperms[((EXESPOT%22)*4)+x]){
 	case 0:
-	  	  func_runall(stackyy,stack_pos); // simulations
+	  func_runall(stackyy,stack_pos); // simulations
 	  break;
 	case 1:
-	  	  ca_runall(stackyyy,stack_posy); // CA
+	  //ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  	  machine_run(m);
+	  //	  machine_run(m);
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    machine_count=0;
@@ -471,7 +499,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    	    machine_runnn(datagenbuffer);
+	    //	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -480,33 +508,13 @@ void main(void)
 
 #ifdef PCSIM
 
-      // do randomising
+      // randomise adc_buffer
+      for (x=0;x<10;x++){
+	adc_buffer[x]=randi();
+      }
 
-	for (x=0;x<VILLAGE_SIZE;x++){
-	  villager[x]=(randi()<<3);
-	}
-
-	for (x=0;x<64;x++){
-	  settingsarray[x]=randi()<<4;
-	}
-
-	for (x=0;x<96;x++){
-	  if (x<48) stackery[x]=(randi()<<3);
-	  else {
-	    tmper=x-48;
-	    stacker[tmper]=(randi()<<3);
-		}
-	}
-	//            effects=adc_buffer[SECOND]>>5;  // 7 bits
-	//      if (effectmod&1 || effectmod&4) EFFECTREAD=effects<<9;
-	EFFECTREAD=randi()>>5;
-	EFFECTWRITE=randi()>>5;
-	EFFECTFILTER=randi()>>5;
-
-	//	digfilterflag=randi()>>5;
-
-	      I2S_RX_CallBack(src, dst, BUFF_LEN);
-#else
+      I2S_RX_CallBack(src, dst, BUFF_LEN); 
+#endif
 
 
       /////////////////////////////
@@ -528,7 +536,7 @@ void main(void)
 
       // TESTY
 
-      if (effectmod&1 || effectmod&4) EFFECTREAD=effects;//<<9;
+      if (effectmod&1 || effectmod&4) EFFECTREAD=effects;//<<9; FIXED!!!
       if (effectmod&2) EFFECTWRITE=effects;//<<9; // WRITE=PLAY*/
 
 #else
@@ -604,10 +612,10 @@ void main(void)
 	  ///	  whichstack=1; // TESTY!
 	  switch (whichstack%3){ // which stack to pop=0-3
 	  case 0:
-	    stack_posy=ca_pop(stackyyy,stack_posy);
+	    stack_posy=ca_pop(stack_posy);
 	    break;
 	  case 1:
-	    	    stack_pos=func_pop(stackyy,stack_pos);
+	    stack_pos=func_pop(stack_pos);
 	    break;
 	  case 2:
 	    villagestackpos=villagepop(villagestackpos);
@@ -1049,7 +1057,7 @@ void main(void)
 
       if (m1flag&4096){
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
-	  villager[(((FOLDD[26])>>10)+(x%((FOLDD[27]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)-1)))% VILLAGE_SIZE]-1)%32768;
+	  villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]=(villager[(((FOLDD[2])>>10)+(x%((FOLDD[3]>>10)+1)))% VILLAGE_SIZE]-1)%32768;
 	}
 }
 
@@ -1201,7 +1209,7 @@ void main(void)
 #endif
 #endif
 #endif
-#endif
+      //#endif 
     }
 }
 

@@ -8,7 +8,7 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-u16 settingsarray[64];
+extern u16 settingsarray[64];
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -24,7 +24,7 @@ extern u16 settingsarray[64];
 #include <math.h>
 
 #ifdef PCSIM
-u8 wormdir; // worm direction
+extern u8 wormdir; // worm direction
 #else
 extern u8 wormdir;
 #endif
@@ -197,8 +197,8 @@ void thread_run(thread* this, machine *m) {
       //      printf("%c",thread_pop(this));
       //      machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
         break;
-#ifndef PCSIM
 	case INP:
+#ifndef PCSIM
 	  machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[thread_pop(this)%10]);      
 #endif
 	  this->m_pc++;
@@ -341,9 +341,9 @@ void thread_run(thread* this, machine *m) {
 	  this->m_reg8bit2-=2;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
-#ifndef PCSIM
 	case 6:
 	  //  cells[omem] = adcread(3); 
+#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1,adc_buffer[this->m_reg16bit1%10]);
 #endif
 	  this->m_pc++;
@@ -410,8 +410,8 @@ void thread_run(thread* this, machine *m) {
 	  if (flag==3) 	  this->m_reg8bit2-=16;
 	  this->m_pc++;
 	  break;
-#ifndef PCSIM
 	case 6:
+#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[((this->m_reg16bit1)>>8)%10]);
 #endif
 	  this->m_pc++;
@@ -578,7 +578,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,this->m_pc+1)+machine_p88k(m,this->m_pc+machine_p88k(m,this->m_pc+2)));
 	this->m_pc+=3;
 	break;
-	//HERE      case 5:
+	//HERE
+      case 5:
 	// ADD indirect to direct.
 	machine_poke(m,this->m_pc+machine_p88k(m,this->m_pc+2),machine_p88k(m,machine_peek(m,this->m_pc+1))+(machine_p88k(m,this->m_pc+(machine_p88k(m,this->m_pc+2)>>8))));
 	this->m_pc+=3;
@@ -1484,7 +1485,7 @@ void mutate(machine *m, u8 which, u8 identifier){
   }
 }
 
-void swapcpu(machine *m, u8 which, u8 identifier){// never called!
+void swapcpu(machine *m, u8 identifier){// never called!
   u8 x,y,temp; u16 tempi;
   x=randi()%m->m_threadcount;
   y=(x+1)%m->m_threadcount;

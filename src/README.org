@@ -325,11 +325,39 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+* SUN 11 MAY RIGA
+
+- more complete simulation now segs, float point error/fixed
+- put fix into sim with runform after valgrind tests
+
+: valgrind  --undef-value-errors=no --leak-check=full ./DISIM
+
+** Notes:
+
+- gcc warning flags but not: Wconversion - some fixes
+
+simforstacksansmem.c: In function ‘ifsinit’:
+simforstacksansmem.c:975: warning: cast from function call of type ‘int’ to non-matching type ‘float’
+simforstacksansmem.c:976: warning: cast from function call of type ‘int’ to non-matching type ‘float’
+simforstacksansmem.c:977: warning: cast from function call of type ‘int’ to non-matching type ‘float’
+simforstacksansmem.c: In function ‘runifs’:
+simforstacksansmem.c:1007: warning: cast from function call of type ‘int’ to non-matching type ‘float’
+
+and look into conversion factor
+
+- endianness and our 8->16 bit conversions (byte 0 is LSB)
+- check and recheck all datagens for sizes
+- lots of undefined value errors in valgrind
+
+
 * SAT 10 MAY RIGA
 
 Working on pcsim of all relevant files - completed...
 
+- add to pcsim: hardware settings, something else???
+
 - seems to run without any segfault
+
 
 ** DONE:
 

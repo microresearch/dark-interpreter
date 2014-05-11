@@ -11,8 +11,8 @@
 #include <sys/time.h>
 #include "CA.h"
 #define randi() rand()
-u8 table[21];
-u16 stackery[48]; // 16*3 MAX
+extern u8 table[21];
+extern u16 stackery[48]; // 16*3 MAX
 #else
 #include "CA.h"
 #define randi() (adc_buffer[9])
@@ -188,7 +188,7 @@ u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 //life - 2d CA - these all now use CA struct
 
-void inittable(u8 r, u8 k, int rule, u8 *table);
+void inittable(u8 r, u8 k, int rule);
 
 /*void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
@@ -291,7 +291,7 @@ u16 runcel(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 ///////////////
 
-void inittable(u8 r, u8 k, int rule, u8 *table){
+void inittable(u8 r, u8 k, int rule){
   u8 max; int z; u8 summ;
 
   //    free(table);
@@ -588,23 +588,17 @@ infection radius???, max population=15
 
  */
 
-void SIR16init(void* unity, u8* cells){
+/*void SIR16init(void* unity, u8* cells){
   //  struct SIR16* unit=unity;
   //  u16 i,y; u8 total,suscept,infected;
 
-  /*with probabilities fixed for:
+  //with probabilities fixed for:
 
 - movement=probM
 - morbidity=probR
 - contact infection=probC
 - recovery=probV
-*/
-  //  unit->cells=cells;
-  //  unit->probM=cells[0];
-  //  probR=cells[1];
-  //  unit->probC=cells[2];
-  //  probV=cells[3];
-}
+}*/
 
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
@@ -809,7 +803,7 @@ void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
   }
 }
 
-signed char ca_pop(struct stackey stack[STACK_SIZE], u8 stack_posy){
+signed char ca_pop(u8 stack_posy){
  	if (stack_posy>0)
 	{
 	  stack_posy--;
