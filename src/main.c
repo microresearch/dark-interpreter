@@ -152,9 +152,9 @@ u16 FOLDD[45]; // MAX size 44!!!
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   if (villagepos<190) /// size -2
     {
-      villager[villagepos]=start;
-      villager[villagepos+1]=wrap;
-      villagepos+=2;
+      villager[villagepos++]=start;
+      villager[villagepos++]=wrap;
+      //      villagepos+=2;
 }
   return villagepos;
 }
@@ -488,8 +488,6 @@ void main(void)
 
       I2S_RX_CallBack(src, dst, BUFF_LEN); 
 #endif
-
-
 
       machine_count++;
       if (machine_count>=MACHINESPEED){

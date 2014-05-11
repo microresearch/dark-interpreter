@@ -327,24 +327,20 @@ For Mater Lachrymarum IN is unused!
 
 * SUN 11 MAY RIGA
 
-- more complete simulation now segs, float point error/fixed
-- put fix into sim with runform after valgrind tests
+** DONE:
+
+- more complete simulation now segs, float point error/fixedDONE
+- put fix into sim with runform after valgrind tests DONE
 
 : valgrind  --undef-value-errors=no --leak-check=full ./DISIM
 
--runcel1d in ca needs a re-write 
+-runcel1d in ca needs a re-write DONE
 
 ** Notes:
 
 - gcc warning flags but not: Wconversion - some fixes
 
-and look into Wconversion - check and recheck all datagens for sizes
-
-- endianness and our 8->16 bit conversions (byte 0 is LSB)
-
-where we have this?
-
-- lots of undefined value errors in valgrind
+- lots of undefined value errors in valgrind (datagen?)
 
 /// debug tip:
 
@@ -354,17 +350,16 @@ then with generated core:
 
 : gdb DISIM core
 
-
 * SAT 10 MAY RIGA
+
+
+** DONE:
 
 Working on pcsim of all relevant files - completed...
 
 - add to pcsim: hardware settings, something else???
 
 - seems to run without any segfault
-
-
-** DONE:
 
 - checked all *src++ businesses in audio.(*ldst++ = *src++; is fine) DONE
 - fixed secondbuf bugs in audio.c filter code and bits and pieces
