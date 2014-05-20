@@ -325,6 +325,65 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+* MON 20 MAY 
+
+585(nohardvocals),589(nohard,noin),590(nohard,noin),592(hard,noin),593(hard,noin+play),594(hard,noin),
+,595(hard,noin),596(noin,nohard)
+
+(all limited play)
+
+TODO:
+
+- ONE CRASH (none in SIM)
+- effectmod is not working as sets all effects to be same on modchange!
+
+
+recent notebook notes:
+
+- knob settings not quite right(finger issues, also too much use of knobby)
+- fingers as navigation thru micro-macro states (how?)
+- how well do datagens work - test and isolate
+- test granulation also and control of macro wraps
+- test mirror of mirror
+- fingers in the stack
+
+KNOBS:
+
+1-HW
+2-effects (how with effectread/write/filt?)
+---
+ 3- setting
+ 4- param <- ->also with up-down to set/unset push/pop
+ 5- mirror op and amount to mirror (??) or fingers as mirroring
+
++somehow stack of settings (well is 2 arrays/sets of arrays)
++how we use direct finger setting
+
+//from pre-riga:
+
+- fix fingermod so doesn't reset settings-still knobs not right also
+  on mirror toggle all wrong
+- embed in itself (how? self-simulation, own stack pointers made audible?)
+
+** DONE:
+
+crash appeared fixed but now crashes if start with certain mirror
+ops - now fixed with init of m1flag and m2flag!
+
+CRASH notes:
+
+- can we count on adc being max 12 bits or always test (and does it
+  make a difference?no)
+
+- why does valgrind report undefined errors?
+
+// DONE
+
+- fixed bug in fingervalleff code (recheck all)DONE
+- re-instated: - last of one of effects gives high pitch??? check
+  out-runformforaudio was commented outRE_TEST-DONE and made global freq
+
+
 * SUN 11 MAY RIGA
 
 ** DONE:
@@ -345,10 +404,15 @@ For Mater Lachrymarum IN is unused!
 /// debug tip:
 
 : ulimit -c unlimited
+
 run code
 then with generated core:
 
 : gdb DISIM core
+
+check leaks with: 
+
+: valgrind  --undef-value-errors=no --leak-check=full ./DISIM
 
 * SAT 10 MAY RIGA
 
@@ -393,7 +457,6 @@ samples: 581*** hardware, no input
 - order of mirroring/foldback(first) and settings(later)TEST - not
   much diff as depends when audio int is called but stick with
   settings first as then altered...
-
 
 * WED 7 MAY
 

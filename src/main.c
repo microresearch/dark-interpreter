@@ -16,6 +16,8 @@
 */
 
 #ifdef PCSIM
+#include <string.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -49,7 +51,6 @@ void setmaximpwm(u16 one){
 void setlmpwm(u16 one, u16 two){
 }
 
-
 #else
 #include <errno.h>
 #include <sys/stat.h>
@@ -75,6 +76,11 @@ __IO uint16_t adc_buffer[10];
 #endif
 // for knobwork
 // TENE: 2,0,3,4,1 // else: 3,0,2,4,1
+
+#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+//#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
+
+
 
 #ifdef TENE
 #define FIRST 2
@@ -110,14 +116,12 @@ signed char directionf[2]={-1,1};
 signed char newdirread[2]={-1,1};
 signed char directionread[2]={-1,1};
 
-#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192
-
 u8 villagestackpos=0;
 u16 villager[VILLAGE_SIZE];
 u16 stackery[48]; // 16*3 MAX
 u16 stacker[48]; // 16*3 MAX
-u8 ww[3]={12,15,0};
-u8 freqy[3]={10,10,0};
+u8 www[3]={12,15,0};
+u8 freqyy[3]={10,10,0};
 
 #define delay()						 do {	\
     register unsigned int i;					\
@@ -150,7 +154,7 @@ u16 settingsarray[64];
 u16 FOLDD[45]; // MAX size 44!!!
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
-  if (villagepos<190) /// size -2
+  if (villagepos<(VILLAGE_SIZE-2)) /// size -2
     {
       villager[villagepos++]=start;
       villager[villagepos++]=wrap;
@@ -201,7 +205,7 @@ u8 fingerdir(void){
 u8 fingerdirleftright(void){
 
   u8 handleft, handright, left=0,right=0;
-  u8 result=0;
+  u8 result=2; 
 
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[LEFT]>>8;
@@ -286,7 +290,7 @@ u8 fingervaleff(u8 tmpsetting){
   }
   else if (ttss<sstt) {
 tmpsetting-=1;
- if (tmpsetting==0) tmpsetting=1;
+ if (tmpsetting==0) tmpsetting=7; // wraps
   }
   return tmpsetting;
 }
@@ -320,7 +324,7 @@ void main(void)
   u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,stackmuch=10,exespot=0,cpur=0,cpu,startrr=0,wraprr=0;
   u16 startr,wrapr;
   u16 constrain,foldbackset;
-  u16 m1flag,m2flag;
+  u16 m1flag=0,m2flag=0;
   u8 effects;
   u8 machine_count=0,leak_count=0; 
   u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
@@ -375,6 +379,20 @@ void main(void)
 
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
+  srandom(time(0));
+
+  // init int16_t src[BUFF_LEN], dst[BUFF_LEN];
+
+  for (x=0;x<BUFF_LEN;x++){
+    src[x]=rand()%65536;
+    dst[x]=rand()%65536;
+  }
+
+  for (x=0;x<32768;x++){
+    audio_buffer[x]=rand()%65536;
+  }
+
+
 #endif
 
   u8 hwdel=0; u8 effectmod=1;
@@ -501,7 +519,7 @@ void main(void)
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  //	  machine_run(m);
+	  machine_run(m);
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    machine_count=0;
@@ -509,7 +527,7 @@ void main(void)
 	case 3:
 	  leak_count++;
 	  if (leak_count>=LEAKSPEED){
-	    //	    machine_runnn(datagenbuffer);
+	    machine_runnn(datagenbuffer);
 	    leak_count=0;
 	  }
 	}
@@ -533,7 +551,7 @@ void main(void)
       /*      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
 	      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY*/
 
-      // TESTY
+      // TESTY - note that always sets effects to be the SAME!! TODO!
 
       if (effectmod&1 || effectmod&4) EFFECTREAD=effects;//<<9; FIXED!!!
       if (effectmod&2) EFFECTWRITE=effects;//<<9; // WRITE=PLAY*/
@@ -547,16 +565,7 @@ void main(void)
       //      hardware=rand()%127; // TESTY!
             effects=adc_buffer[SECOND]>>5;  // 7 bits
 
-	    /*	    if (digfilterflag&1){
-      if (effectmod&1) settingsarray[51]=effects<<9;
-      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
-      if (effectmod&4) settingsarray[53]=effects<<9; 
-	    }
-	    else
-	      {
-      if (effectmod&1 || effectmod&4) settingsarray[51]=effects<<9;
-      if (effectmod&2) settingsarray[52]=effects<<9; // WRITE=PLAY
-      }*/
+      // TESTY - note that always sets effects to be the SAME!! TODO!
 
 	    if (digfilterflag&1){
       if (effectmod&1) EFFECTREAD=effects;
@@ -579,6 +588,7 @@ void main(void)
       fingerfing=fingermod&1; //finger open0 or as dir
       fingermod=fingermod>>1; //4 bits=16
       //      fingermod=13; // TESTY!!!
+      //      fingermod=0;
       switch(fingermod){
       case 0:
 	//effectmod
@@ -978,12 +988,16 @@ void main(void)
       ////////////////////////////////////////////////MIRROR ACTIONZ
 	//// leave as 2 and 3 and inc here!
 
-      //      /* for mirror
+      //           /* for mirror
+
+      //      m1flag=8; m2flag=1; // TESTY
             
       if (m1flag&1){ //skip 0
 	for (x=0;x<((FOLDD[1]>>10)+1);x++){
-	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768];
+	  	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))%32768];
+	  //	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=buf16[((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))];
 	  coo++;
+	  //	  if (((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1)))>32768)  printf("coo %d\n",((FOLDD[0]>>1)+(coo%((FOLDD[1]>>10)+1))));
 	}
       }
 
@@ -1159,6 +1173,7 @@ void main(void)
 	}
 }
 	/// mirror miror or not??? no as can short circuit?
+	
             	
       ////////////////////////////////////////////////END OF MIRROR
 

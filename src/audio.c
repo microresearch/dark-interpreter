@@ -67,9 +67,9 @@ extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
 
-u8 www[3],freqyy[3];
+extern u8 www[3],freqyy[3]; // where to INIT?
 
-/*void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
+void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
 
   float buff[64]; float x; 
 
@@ -98,7 +98,7 @@ u8 www[3],freqyy[3];
     }
   }
   }
-  }*/
+  }
 
 void Audio_Init(void)
 {
@@ -1226,7 +1226,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	      break;
 	    case 15:
-	      //	      runformforaudio(sz/2,temp_buffer,mono_buffer);
+	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
 	  }
 	  } // end of tmpp>12
