@@ -325,6 +325,23 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+
+* TUE 27 MAY
+
+
+-  where crash could be then?
+- isolate and test/pcsim datagens
+- re-test granulation
+- strip code and figure out new finger setup - how can be pulled together more closely
+
+** DONE
+
+- what errors will valgrind detect (all arrays as malloced in PCSIM
+  will work better)DONE-all arrays converted and checked with valgrind-no errors
+
+- fix for pointer/potential crash in audio.c
+- fix other wierd/overflow/crash bug in runconvforaudio in audio.c
+
 * MON 20 MAY 
 
 585(nohardvocals),589(nohard,noin),590(nohard,noin),592(hard,noin),593(hard,noin+play),594(hard,noin),
@@ -335,7 +352,8 @@ For Mater Lachrymarum IN is unused!
 TODO:
 
 - ONE CRASH (none in SIM)
-- effectmod is not working as sets all effects to be same on modchange!
+- effectmod is not working as sets all effects to be same on
+  modchange// but we re-do all knobs anyways
 
 
 recent notebook notes:

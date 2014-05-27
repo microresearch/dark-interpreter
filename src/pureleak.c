@@ -7,7 +7,9 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-extern uint16_t settingsarray[64];
+extern uint16_t *settingsarray;
+extern int16_t* audio_buffer;
+extern uint16_t* adc_buffer;
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -264,9 +266,7 @@ break;
       //      machine_poke(buffer,machine_peekkk(buffer,buffer->m_pc++),randi()%255);      
         break;
 	case INP:
-#ifndef PCSIM
 	  machine_pokeee(buffer,machine_peekkk(buffer,addr++),adc_buffer[thread_poppp(buffer,offset)%10]);      
-#endif
 	  addr++;
 	  break;
 
@@ -443,9 +443,7 @@ break;
 	case 6:
 	  //  cells[omem] = adcread(3); 
 	  y=((BITADDRHI<<8)+BITADDRLO);
-#ifndef PCSIM
 	  machine_pokeee(buffer,y,adc_buffer[(y>>8)%10]);
-#endif
 	  addr++;
 	  break;
 	}
@@ -476,9 +474,7 @@ break;
 	if (BIT81==13){
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  y++;
-#ifndef PCSIM
 	  machine_pokeee(buffer,y,audio_buffer[addr%32768]); //READ IN
-#endif
 	  BITADDRHI=y>>8; // hi/lo
 	  BITADDRLO=y&255;
 	  addr++;
@@ -524,9 +520,7 @@ break;
 	  break;
 	case 6:
 	  y=((BITADDRHI<<8)+BITADDRLO);
-#ifndef PCSIM
 	  machine_pokeee(buffer,y+2,adc_buffer[(y>>8)%10]);
-#endif
 	  addr++;
 	  break;
       }
@@ -566,10 +560,8 @@ break;
 	else BIT81*=machine_p88kkk(buffer,addr)>>4;
 	addr+=biotadir[BIT81%8];
 	break;
-#ifndef PCSIM
       case 4:
 	machine_pokeee(buffer,addr+1,adc_buffer[(BIT81>>8)%10]);
-#endif
 	  break;
 
       }
@@ -654,11 +646,9 @@ break;
       case 13:	  
 	addr++;
 	break;
-#ifndef PCSIM
       case 14:
 	y=((BITADDRHI<<8)+BITADDRLO);
 	machine_pokeee(buffer,addr,adc_buffer[(y>>8)%10]);
-#endif
 	break;
       }
       //      printf("%c",addr);
@@ -952,10 +942,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 11:
 	machine_pokeee(buffer,addr+y,thread_poppp(buffer,offset));
 	break;
-#ifndef PCSIM
       case 12:
 	machine_pokeee(buffer,addr+y,adc_buffer[thread_poppp(buffer,offset)%10]);      
-#endif
 	break;
       }
 
@@ -1055,10 +1043,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_pushhh(buffer,machine_p88kkk(buffer,addr+1),offset);
 	addr++;
 	break;
-#ifndef PCSIM
       case 15:
 	machine_pokeee(buffer,machine_peekkk(buffer,addr+1),adc_buffer[thread_poppp(buffer,offset)%10]);      
-#endif
 	break;
 
       }
@@ -1162,10 +1148,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 29:
 	thread_pushhh(buffer,machine_p88kkk(buffer,thread_poppp(buffer,offset)*thread_poppp(buffer,offset)),offset);
 	break;
-#ifndef PCSIM
       case 30:
 	machine_pokeee(buffer,(thread_poppp(buffer,offset))*(thread_poppp(buffer,offset)),adc_buffer[thread_poppp(buffer,offset)%10]);      
-#endif
 	break;
 
       }
@@ -1397,7 +1381,6 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
       break;
-#ifndef PCSIM
     case 23:
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
@@ -1405,7 +1388,6 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
       break;
-#endif
 ///////////////////////////////////////////////////////////////
     case 24:
       // from wormcode.c
@@ -1487,10 +1469,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  wormdir=biotadir[randi()%8];
 	  addr+=wormdir;
 	  break;
-#ifndef PCSIM
       case 14:
 	machine_pokeee(buffer,(addr+=biotadir[randi()%8]),adc_buffer[thread_poppp(buffer,offset)%10]);      
-#endif
 	break;
 	}
       PCADDRHI=addr>>8; // hi/lo

@@ -53,11 +53,11 @@
 #define VILLAGERSTART (settingsarray[44]>>10)
 #define VILLAGEFSTART (settingsarray[45]>>10)
 
-/// maybe re-use this....
+/// float mods in audio.c
 
 #define FMOD ((float32_t)settingsarray[46]/65536.0f)
 #define FMODF ((float32_t)settingsarray[47]/65536.0f)
-#define FMODW ((float32_t)settingsarray[48]/65536.0f)// UNUSED so far
+#define FMODW ((float32_t)settingsarray[48]/65536.0f)//
 
 //////////////////////////////////////////////////
 
@@ -65,6 +65,8 @@
 
 #define STACKFUNC (settingsarray[49]>>11)
 #define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
+
+//TODO put back in!
 
 //#define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128 // TESTY out of mirror
 //#define EFFECTWRITE (settingsarray[52]>>9) 

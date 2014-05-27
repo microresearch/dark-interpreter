@@ -8,7 +8,9 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-extern u16 settingsarray[64];
+extern u16 *settingsarray;
+extern int16_t* audio_buffer;
+extern uint16_t* adc_buffer;
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -198,9 +200,7 @@ void thread_run(thread* this, machine *m) {
       //      machine_poke(m,machine_peek(m,this->m_pc++),randi()%255);      
         break;
 	case INP:
-#ifndef PCSIM
 	  machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[thread_pop(this)%10]);      
-#endif
 	  this->m_pc++;
 	  break;
 
@@ -343,9 +343,7 @@ void thread_run(thread* this, machine *m) {
 	  break;
 	case 6:
 	  //  cells[omem] = adcread(3); 
-#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1,adc_buffer[this->m_reg16bit1%10]);
-#endif
 	  this->m_pc++;
 	  break;
 	}
@@ -373,9 +371,7 @@ void thread_run(thread* this, machine *m) {
       case 1:
 	if (this->m_reg8bit2==13){
 	  this->m_reg16bit1++;
-#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1,audio_buffer[this->m_pc%32768]); //READ IN
-#endif
 	  this->m_pc++;
 	}
 	else this->m_pc++;
@@ -411,9 +407,7 @@ void thread_run(thread* this, machine *m) {
 	  this->m_pc++;
 	  break;
 	case 6:
-#ifndef PCSIM
 	  machine_poke(m,this->m_reg16bit1+2,adc_buffer[((this->m_reg16bit1)>>8)%10]);
-#endif
 	  this->m_pc++;
 	  break;
       }
@@ -453,10 +447,8 @@ void thread_run(thread* this, machine *m) {
 	else this->m_reg8bit2*=machine_p88k(m,this->m_pc)>>4;
 	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	break;
-#ifndef PCSIM
       case 4:
 	machine_poke(m,this->m_pc+1,adc_buffer[(this->m_reg8bit1>>8)%10]);
-#endif
 	  break;
 
       }
@@ -530,10 +522,8 @@ void thread_run(thread* this, machine *m) {
       case 13:	  
 	this->m_pc++;
 	break;
-#ifndef PCSIM
       case 14:
 	machine_poke(m,this->m_pc,adc_buffer[((this->m_reg8bit1)>>8)%10]);
-#endif
 	break;
       }
       //      printf("%c",this->m_pc);
@@ -803,10 +793,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 11:
 	machine_poke(m,this->m_pc+this->m_reg16bit1,thread_pop(this));
 	break;
-#ifndef PCSIM
       case 12:
 	machine_poke(m,this->m_pc+this->m_reg16bit1,adc_buffer[thread_pop(this)%10]);      
-#endif
 	break;
       }
 
@@ -894,10 +882,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_push(this,machine_p88k(m,this->m_pc+1));
 	this->m_pc++;
 	break;
-#ifndef PCSIM
       case 15:
 	machine_poke(m,machine_peek(m,this->m_pc+1),adc_buffer[thread_pop(this)%10]);      
-#endif
 	break;
 
       }
@@ -998,10 +984,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 29:
 	thread_push(this,machine_p88k(m,thread_pop(this)*thread_pop(this)));
 	break;
-#ifndef PCSIM
       case 30:
 	machine_poke(m,(thread_pop(this))*(thread_pop(this)),adc_buffer[thread_pop(this)%10]);      
-#endif
 	break;
 
       }
@@ -1198,12 +1182,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_poke(m,this->m_pc,instr);
       this->m_pc++; 
       break;
-#ifndef PCSIM
     case 23:
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       machine_poke(m,machine_peek(m,this->m_pc++),adc_buffer[machine_p88k(m,this->m_pc)%10]);    
       break;
-#endif
 ///////////////////////////////////////////////////////////////
     case 24:
       // from wormcode.c
@@ -1283,10 +1265,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  wormdir=biotadir[randi()%8];
 	  this->m_pc+=wormdir;
 	  break;
-#ifndef PCSIM
       case 14:
 	machine_poke(m,(this->m_pc+=biotadir[randi()%8]),adc_buffer[thread_pop(this)%10]);      
-#endif
 	break;
 	}
       break;

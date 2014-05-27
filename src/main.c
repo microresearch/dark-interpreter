@@ -33,10 +33,13 @@
 #include "CPUint.h"
 #include "CA.h"
 #include "settings.h"
-uint16_t adc_buffer[10];
+uint16_t *adc_buffer;
 typedef float float32_t;
 u8 digfilterflag;
-int16_t src[BUFF_LEN], dst[BUFF_LEN];
+//int16_t src[BUFF_LEN], dst[BUFF_LEN];
+
+int16_t *villager,*stacker,*stackery,*settingsarray;
+int16_t *src, *dst;
 
 void  dohardwareswitch(u8 one,u8 two){
   // nothing
@@ -72,6 +75,12 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
+
+u16 villager[VILLAGE_SIZE];
+u16 stackery[48]; // 16*3 MAX
+u16 stacker[48]; // 16*3 MAX
+u16 settingsarray[64];
+u16 FOLDD[45]; // MAX size 44!!!
 
 #endif
 // for knobwork
@@ -117,9 +126,6 @@ signed char newdirread[2]={-1,1};
 signed char directionread[2]={-1,1};
 
 u8 villagestackpos=0;
-u16 villager[VILLAGE_SIZE];
-u16 stackery[48]; // 16*3 MAX
-u16 stacker[48]; // 16*3 MAX
 u8 www[3]={12,15,0};
 u8 freqyy[3]={10,10,0};
 
@@ -135,14 +141,15 @@ u8 freqyy[3]={10,10,0};
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
-extern int16_t audio_buffer[AUDIO_BUFSZ];
-
 #ifndef PCSIM
+extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
 #define randi() (adc_buffer[9]) // 12 bits
 #else
 #define randi() (rand()%4096)
 u8* datagenbuffer;
+extern int16_t* audio_buffer;
+u16* FOLDD; // MAX size 44!!!
 #endif
 extern u8 digfilterflag;
 
@@ -150,8 +157,7 @@ extern u8 digfilterflag;
 //u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
-u16 settingsarray[64];
-u16 FOLDD[45]; // MAX size 44!!!
+
 
 u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   if (villagepos<(VILLAGE_SIZE-2)) /// size -2
@@ -379,11 +385,25 @@ void main(void)
 
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
+  audio_buffer=(u8*)malloc(65536);
+  settingsarray=malloc(64*sizeof(int16_t));
+  villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
+  stacker=malloc(48*sizeof(int16_t));
+  stackery=malloc(48*sizeof(int16_t));
+  FOLDD=malloc(45*sizeof(int16_t));
+  //u16 FOLDD[45]; // MAX size 44!!!
+  adc_buffer=malloc(10*sizeof(int16_t));
+  initaudio();
+
   srandom(time(0));
 
   // init int16_t src[BUFF_LEN], dst[BUFF_LEN];
 
-  for (x=0;x<BUFF_LEN;x++){
+  src=malloc(BUFF_LEN*sizeof(int16_t));
+  dst=malloc(BUFF_LEN*sizeof(int16_t));
+
+
+  for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
     dst[x]=rand()%65536;
   }
@@ -504,7 +524,7 @@ void main(void)
 	adc_buffer[x]=randi();
       }
 
-      I2S_RX_CallBack(src, dst, BUFF_LEN); 
+      I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
 
       machine_count++;
@@ -690,7 +710,7 @@ void main(void)
 	settingsarray[50]=exespot<<11; 
 	break;
       case 11:
-	cpur=fingervalright(exespot,m->m_threadcount);
+	cpur=fingervalright(cpur,m->m_threadcount);
 	if (fingerfing&1) cpu=fingervalup(cpu);
 	else cpu=adc_buffer[UP]>>4;
 	m->m_threads[cpur].m_CPU=cpu%31;

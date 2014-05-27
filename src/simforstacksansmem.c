@@ -39,9 +39,9 @@ Based in part on SLUGens by Nicholas Collins.
 #define randi() (adc_buffer[9])
 #define float32_t float
 extern u16 sin_data[256];
-extern u16 stacker[48]; // 16*3 MAX
+extern u16 *stacker;//[48]; // 16*3 MAX
 extern uint16_t adc_buffer[10];
-extern int16_t audio_buffer[32768];
+extern int16_t* audio_buffer;
 #else
 #include "simulation.h"
 #include <malloc.h>

@@ -6,6 +6,9 @@ LINEIN/OUTL-filter
 
 */
 
+#define STEREO_BUFSZ (BUFF_LEN/2) // 64
+#define MONO_BUFSZ (STEREO_BUFSZ/2) // 32
+
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -16,29 +19,40 @@ LINEIN/OUTL-filter
 #include <malloc.h>
 #include "audio.h"
 #include "settings.h"
-extern int adc_buffer[10];
+extern int16_t *adc_buffer;
+int16_t *audio_buffer;
+extern int16_t *settingsarray;
+extern int16_t *villager;
 #define  uint32_t int
 typedef int int32_t;
 #define float32_t float
+int16_t	*left_buffer, *right_buffer, *temp_buffer, *mono_buffer;
+
+void initaudio(void){
+  //int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
+left_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
+right_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
+temp_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
+mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
+}
+
+
 #else
 #include "audio.h"
 #include "CPUint.h"
 #include "settings.h"
 extern __IO uint16_t adc_buffer[10];
+int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
+extern u16 settingsarray[64];
+extern u16 villager[192];
+int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #endif
 
-#define STEREO_BUFSZ (BUFF_LEN/2)
-#define MONO_BUFSZ (STEREO_BUFSZ/2)
 
-int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
-
-extern int16_t audio_buffer[AUDIO_BUFSZ];
 extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 
 //extern u8 wormdir;
 extern u8 villagestackpos;
-extern u16 settingsarray[64];
-extern u16 villager[192];
 extern signed char newdir[2];
 extern signed char direction[2];
 extern signed char villagedirection[2];
@@ -51,15 +65,16 @@ extern signed char directionread[2];
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
 
-int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 int16_t *audio_ptr;
 
-void runconvforaudio(u8 sz, int16_t *src, int16_t *dst, float c0, float c1, float c2){
-  u8 i=0,tmpp;
+void runconvforaudio(u8 sz, int16_t *sorc, int16_t *dest, float c0, float c1, float c2){
+  unsigned char i=0, tmpp;
   for (i=0; i<sz; i++) {
     //    tmp++;tmpp=(tmp-1)%sz;
-    tmpp=(i-1)%sz;
-    *dst++ =((float)src[tmpp]*c0)+((float)src[i]*c1)+((float)src[(i+1)%sz]*c2);
+    tmpp=(i-1);
+    tmpp=tmpp%sz;
+    //    printf("sz %d tmpp %d\n",sz,tmpp);
+    *dest++ =((float)sorc[tmpp]*c0)+((float)sorc[i]*c1)+((float)sorc[(i+1)%sz]*c2);
   }
 }
 
@@ -582,7 +597,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  firstbuf[sampleposread%32768]=*src++;
 	  break;
 	  case 1:
-	  (src++);
+	    //	  (src++);
 	  firstbuf[sampleposread%32768]=*src++;
 	  secondbuf[sampleposread%32768]=*src++;
 	  break;	    
