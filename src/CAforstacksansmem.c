@@ -16,7 +16,7 @@ extern u16 *stackery;//[48]; // 16*3 MAX
 #else
 #include "CA.h"
 #define randi() (adc_buffer[9])
-//extern __IO uint16_t adc_buffer[10];
+extern __IO uint16_t adc_buffer[10];
 extern u8 table[21];
 extern u16 stackery[48]; // 16*3 MAX
 #endif

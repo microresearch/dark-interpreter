@@ -15,6 +15,9 @@
  make stlink_flash
 */
 
+#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+//#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
+
 #ifdef PCSIM
 #include <string.h>
 #include <sys/time.h>
@@ -85,11 +88,6 @@ u16 FOLDD[45]; // MAX size 44!!!
 #endif
 // for knobwork
 // TENE: 2,0,3,4,1 // else: 3,0,2,4,1
-
-#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
-//#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
-
-
 
 #ifdef TENE
 #define FIRST 2

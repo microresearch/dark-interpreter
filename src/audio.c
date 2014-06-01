@@ -46,13 +46,10 @@ int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 extern u16 settingsarray[64];
 extern u16 villager[192];
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
+
 #endif
 
 
-extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
-
-//extern u8 wormdir;
-extern u8 villagestackpos;
 extern signed char newdir[2];
 extern signed char direction[2];
 extern signed char villagedirection[2];
@@ -62,6 +59,11 @@ extern signed char newdirf[2];
 extern signed char directionf[2];
 extern signed char newdirread[2];
 extern signed char directionread[2];
+
+extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
+
+//extern u8 wormdir;
+extern u8 villagestackpos;
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
 

@@ -329,7 +329,8 @@ For Mater Lachrymarum IN is unused!
 * TUE 27 MAY
 
 
--  where crash could be then?
+- where crash could be then (if still exists) - dir arrays are only more or less left
+
 - isolate and test/pcsim datagens
 - re-test granulation
 - strip code and figure out new finger setup - how can be pulled together more closely
@@ -337,10 +338,11 @@ For Mater Lachrymarum IN is unused!
 ** DONE
 
 - what errors will valgrind detect (all arrays as malloced in PCSIM
-  will work better)DONE-all arrays converted and checked with valgrind-no errors
+  will work better)DONE-all arrays converted and checked with
+  valgrind-no errors/below:
 
-- fix for pointer/potential crash in audio.c
-- fix other wierd/overflow/crash bug in runconvforaudio in audio.c
+- fixed for pointer/potential crash in audio.c
+- fixed other wierd/overflow/crash bug in runconvforaudio in audio.c
 
 * MON 20 MAY 
 
