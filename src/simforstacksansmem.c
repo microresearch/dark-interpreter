@@ -35,7 +35,7 @@ Based in part on SLUGens by Nicholas Collins.
 #include <time.h>
 #include "simulation.h"
 #include <malloc.h>
-#define randi() rand()
+#define randi() (rand()%4096)
 //#define randi() (adc_buffer[9])
 #define float32_t float
 /*extern u16 sin_data[256];
@@ -734,13 +734,13 @@ float32_t dPopp[MAX_GROUPS+1];//4x9=36bytes
 
 void seirinit(u16 *workingbuffer){
   u8 i;
-  beta=17/5;
-  gamm=1.0/13;
-  //  beta=(float32_t)workingbuffer[0]/65536.0;
-  //  gamm=(float32_t)workingbuffer[1]/65536.0;
+  //  beta=17/5;
+  //  gamm=1.0/13;
+    beta=(float32_t)workingbuffer[0]/65536.0f;
+    gamm=(float32_t)workingbuffer[1]/65536.0f;
   n=13;
   m=8;
-  mu=1.0f/(55*365);
+  mu=1.0f/(55.0f*365.0f);
   S0=0.05f;
   I0=0.00001f;
   step=0.01f/(beta+gamm*n+mu);
@@ -748,7 +748,7 @@ void seirinit(u16 *workingbuffer){
   S=S0;
   for(i=0;i<n;i++)
     {
-      I[i]=I0/n;
+      I[i]=I0/(float)n;
     }
 
     }
@@ -775,6 +775,7 @@ void seirDiff(float32_t Pop[MAX_GROUPS+1])
   for(i=2;i<=n;i++)
     {
       dPopp[i]= gamm*n*Pop[i-1] - gamm*n*Pop[i] - mu*Pop[i];
+      //  printf("dp: %g\n",dPopp[i]);
     }
 
   return;
@@ -799,21 +800,21 @@ void seir_Runge_Kutta(void)
   seirDiff(InitialPop);
   for(i=0;i<=n;i++)
     {
-      dPop1[i]=dPop[i];
-      tmpPop[i]=InitialPop[i]+step*dPop1[i]/2;
+      dPop1[i]=dPopp[i];
+      tmpPop[i]=InitialPop[i]+step*dPop1[i]/2.0f;
     }
 
   seirDiff(tmpPop);
   for(i=0;i<=n;i++)
     {
-      dPop2[i]=dPop[i];
-      tmpPop[i]=InitialPop[i]+step*dPop2[i]/2;  
+      dPop2[i]=dPopp[i];
+      tmpPop[i]=InitialPop[i]+step*dPop2[i]/2.0f;  
     }
 
   seirDiff(tmpPop);
   for(i=0;i<=n;i++)
     {
-      dPop3[i]=dPop[i];
+      dPop3[i]=dPopp[i];
       tmpPop[i]=InitialPop[i]+step*dPop3[i]; 
     }
 
@@ -821,12 +822,12 @@ void seir_Runge_Kutta(void)
 
   for(i=0;i<n;i++)
     {
-      dPop4[i+1]=dPop[i+1];
-      I[i]=I[i]+(dPop1[i+1]/6 + dPop2[i+1]/3 + dPop3[i+1]/3 + dPop4[i+1]/6)*step;
+      dPop4[i+1]=dPopp[i+1];
+      I[i]=I[i]+(dPop1[i+1]/6.0f + dPop2[i+1]/3.0f + dPop3[i+1]/3.0f + dPop4[i+1]/6.0f)*step;
     }
   dPop4[0]=dPop[0];
-  S=S+(dPop1[0]/6 + dPop2[0]/3 + dPop3[0]/3 + dPop4[0]/6)*step;
-
+  S=S+(dPop1[0]/6.0f + dPop2[0]/3.0f + dPop3[0]/3.0f + dPop4[0]/6.0f)*step;
+  //  printf("S: %g\n",S);
   return;
 }
 
@@ -839,9 +840,9 @@ u16 runseir(uint8_t howmuch,u16 *workingbuffer, u16 count, u16 start, u16 wrap){
     if (count>=wrap) count=0;
 
     seir_Runge_Kutta();//  t+=step;
-    workingbuffer[(count+start)%32768]=S;
+    workingbuffer[(count+start)%32768]=S*65536.0f;
 #ifdef PCSIM
-    printf("%g\n",S);
+    printf("%d\n",workingbuffer[(count+start)%32768]);
     //    if (count>32767) printf("SEIRCRASH%d\n",count);
 #endif
   }
@@ -976,25 +977,22 @@ void ifsinit(u16 *workingbuffer){
 
   for (iter=0;iter<row;iter++){
     for (i=0;i<column;i++){
-      //      iter=randi()%row;
-      //      i=randi()%column;
 
-      coeff[iter][i]=((float32_t)randi()/4096.0f);
-      if (((float32_t)randi()/4096.0f)>0.5) coeff[iter][i]= coeff[iter][i]-1;
-      prob[iter]=((float32_t)randi()/4096.0f);
+      coeff[iter][i]=(float32_t)randi()/4096.0f;
+      //      if ((float32_t)randi()/4096.0f>0.5f) coeff[iter][i]= coeff[iter][i]-1.0f;
+      prob[iter]=(float32_t)randi()/4096.0f;
 
-  prob[0]=(float32_t)workingbuffer[0]/65536.0f;
-  prob[1]=(float32_t)workingbuffer[1]/65536.0f;
-  prob[2]=(float32_t)workingbuffer[2]/65536.0f;
-  prob[3]=(float32_t)workingbuffer[3]/65536.0f;
-  prob[4]=(float32_t)workingbuffer[4]/65536.0f;
-
-  prob[0]=0.0;
-  prob[1]=0.85; 
-  prob[2]=0.92; 
-  prob[3]=0.99; 
-  prob[4]=1.0; 
-
+      prob[0]=(float32_t)workingbuffer[0]/65536.0f;
+      prob[1]=(float32_t)workingbuffer[1]/65536.0f;
+      prob[2]=(float32_t)workingbuffer[2]/65536.0f;
+      prob[3]=(float32_t)workingbuffer[3]/65536.0f;
+      prob[4]=(float32_t)workingbuffer[4]/65536.0f;
+      /*  prob[0]=0.00f;
+  prob[1]=0.01f; 
+  prob[2]=0.85f; 
+  prob[3]=0.07f; 
+  prob[4]=0.07f; 
+      */
     }
   }
 
@@ -1006,11 +1004,7 @@ u16 runifs(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
   u8 i,x;
   u8 row = 4;
 
-#ifdef PCSIM
-  randiom_num = (float32_t)randi()/(float32_t)(RAND_MAX);
-#else
   randiom_num = (float32_t)randi()/4096.0f;
-#endif
   for (x=0;x<howmuch;x++){
     count++;
   for(i = 0; i < row; i++){
@@ -1022,15 +1016,11 @@ u16 runifs(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
   }
   p1=p2;  
 					
-  //  if (p2.x>0.0)
-    //    returnvalx=(int)((p2.x)*1024);
-  //  if (p2.y>0.0)
-    //   returnvaly=(int)((p2.y)*1024);
       if (count>=wrap) count=0;
 
-        workingbuffer[(count+start)%32768]=p2.x*1024;
+      workingbuffer[(count+start)%32768]=(u16)p2.x;
 #ifdef PCSIM
-	printf("%g\n",p2.x);
+	printf("%d\n",workingbuffer[(count+start)%32768]);
       //    if (count>32767) printf("IFSCRASH%d\n",count);
 
 #endif
@@ -1145,9 +1135,9 @@ u16 runsecondrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, 
 
 	for (i=0; i<howmuch; ++i) {
     count++;
-			xnm1 = xn;
-			ynm1 = yn;
-			znm1 = zn;
+    xnm1 = xn;
+    ynm1 = yn;
+    znm1 = zn;
 
 			float32_t k1x, k2x, k3x, k4x,
 				k1y, k2y, k3y, k4y,
@@ -1192,7 +1182,7 @@ u16 runsecondrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, 
 
 		workingbuffer[(count+start)%32768]=(u16)((xnm1+dx)*1024.0f);
 #ifdef PCSIM
-		printf("%g\n",(xnm1+dx));
+		printf("%d\n",workingbuffer[(count+start)%32768]);
 			    //    if (count>32767) printf("ROSS2CRASH%d\n",count);
 
 #endif
@@ -1235,7 +1225,7 @@ u16 runbrussel(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
         y += delta*dy; 
 	if (count>=wrap) count=0;
 
-	workingbuffer[(count+start)%32768]=x*65536.0;
+	workingbuffer[(count+start)%32768]=x*65536.0f;
 	}
 #ifdef PCSIM
     //printf("brussels: x %f y %f\n",x,y); 
@@ -1344,11 +1334,11 @@ u16 runoregon(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
 	//        output3[i]= z; 
 	if (count>=wrap) count=0;
 
-		workingbuffer[(count+start)%32768]=x*65536.0;
+		workingbuffer[(count+start)%32768]=x*65536.0f;
 	}
 #ifdef PCSIM
 	//		printf("Oregonator: x %f y %f z %f\n",x,y,z); 
-	//	printf("%c",workingbuffer[(count+start)%32768]); 
+	printf("%d\n",workingbuffer[(count+start)%32768]); 
 	//    if (count>32767) printf("ORCRASH%d\n",count);
 
 #endif
@@ -1758,7 +1748,7 @@ void main()
 	   //   int which=atoi(argv[1]);
 	   //	   which=0;
 	   //	   u8 which=23;//18,19,20,22,23
-	   	   stack_pos=func_pushn(stackyy,25,buf16,stack_pos,10,addr,rand()%32768);//howmuch,start,wrap //29-32
+	   	   stack_pos=func_pushn(stackyy,26,buf16,stack_pos,10,addr,rand()%32768);//howmuch,start,wrap //29-32
   	 	   }
   
 

@@ -38,10 +38,6 @@ up to limit
 
 * TODO
 
-- test simplest hardware
-
-*then start on buffer/grain code, hardware tie-ins*
-
 - marked all questions as **TODO
 
 * DONE
@@ -324,20 +320,19 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+* TUE 10 JUNE
 
+- think to add new datagens (from sci-am)-worms through allllll
+- layout/knobs
 
 * MON 9 JUNE
 
 597.wav (noin,hard)
 
-- granular tests=EXPAND>CONTRACT
-- think to add new datagens (from sci-am)-EVE
-
 ** NOTES: 
 
-randi as one issue (as varies quite small)
-
-SIMULATIONS to fix: SEIR, IFSY, secondrossler,brussels,spruce,oregon?
+- randi as one issue (as varies quite small)
+- hardware is all same walker with shifts from base value!TODO!
 
 ////
 
@@ -345,9 +340,9 @@ NEW: questions:
 
 - fingers into CPU and pureleak (how to choose execution - again more control)
 - nearly all settings are for walkers ???
-- exeperms doesn't include non execution of any
+- exeperms doesn't include non execution of any (how many extra options?)
 - stacks or no stacks for execution (more control?)
-- walkers can also be like ants, turmites and so on - MODES!
+- walkers can also be like ants, turmites and so on - MODES/location/walker walkers(=mirror?)
 
 ////
 
@@ -356,9 +351,10 @@ NEW: questions:
   - per villager details(execution/attachment,location,per grain
     effect) (how many and how to store)?
 
-or we need 3 sorts of villager for each mode R?W?F?
+and/or we need 3 sorts of villager for each mode R?W?F?
 
-  - is stack model working?
+each of R/W/F modes: 6 bits=EFFECTREAD/WRITE/FILTER
+
   - greater execution control/fingers in code
   - varying modes
   - mirror and double 
@@ -376,13 +372,15 @@ code etc...
 ** DONE
 
 - does it still crash? doesn't seem so but anyways major changes to come!
-- strip and re-test granulation
+- strip and re-test granulationDONE
 - cleaning up inittable and #define STACK_SIZE 16 is now ONLY in simulation.h
 - cleaning up direction arrays
 - re-familiarize and make general tests - cpu in CA and SIM should be
-  alterable in stacker and stackery
-- small fixes to effects
-- expand AND contract the WRAPS _ TODO in tests
+  alterable in stacker and stackeryDONE
+- small fixes to effectsDONE
+- expand AND contract the WRAPS _ TODO fully but tests well
+- SEIR fixed (wrong array)
+- SIMULATIONS to fix: IFSY(input conditions?), ////secondrosslerDONE,
 
 * TUE 27 MAY
 

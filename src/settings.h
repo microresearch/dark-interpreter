@@ -1,13 +1,15 @@
 //////////////////////////////////////////////WALKERS - can be 16 bits so need to fix WRAP!
 
 #define HWSTART ((settingsarray[0])>>1)
+
 #define SAMPLESTART ((settingsarray[1])>>1) 
 #define SAMPLESTARTREAD ((settingsarray[2])>>1) 
 #define SAMPLESTARTFILT ((settingsarray[3])>>1) 
 #define ANYSTART ((settingsarray[4])>>1) 
 #define ANYSTARTREAD ((settingsarray[5])>>1) 
 #define ANYSTARTFILT ((settingsarray[6])>>1) 
-#define STACKSTART ((settingsarray[7])>>1) 
+
+#define STACKSTART ((settingsarray[7])>>1) // ??? for villager
 #define LMERBASE ((settingsarray[8])>>1) 
 #define F0106ERBASE ((settingsarray[9])>>1)
 #define MAXIMERBASE ((settingsarray[10])>>1) 
@@ -22,7 +24,7 @@
 #define VILLAGEWWRAP ((settingsarray[18]>>10)+1) // 8 BITs
 #define VILLAGERWRAP ((settingsarray[19]>>10)+1) // 8 bits
 #define VILLAGEFWRAP ((settingsarray[20]>>10)+1) // 8 BITS
-#define STACKWRAP ((settingsarray[21]>>9)+1) //???
+#define STACKWRAP ((settingsarray[21]>>9)+1) //??? for villager
 
 #define LMERCONS ((settingsarray[22]>>1)+1)
 #define F0106ERCONS ((settingsarray[23]>>1)+1)
@@ -68,7 +70,7 @@
 
 #define SAMPLEEXPAND (settingsarray[51]>>1) // test TODO for expansion
 
-//TODO put back in!
+/// writeexpand above-51, readexpand-52, filterexpand-53
 
 //#define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128 // TESTY out of mirror
 //#define EFFECTWRITE (settingsarray[52]>>9) 
