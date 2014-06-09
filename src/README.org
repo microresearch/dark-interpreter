@@ -326,6 +326,40 @@ For Mater Lachrymarum IN is unused!
 
 
 
+* MON 9 JUNE
+
+597.wav (noin,hard),
+
+- strip and re-test granulation
+
+- test all datagens and add new (from sci-am)
+
+questions:
+
+- nearly all settings are for walkers
+- exeperms doesn't include non execution of any
+- stacks or no stacks for execution (more control?)
+
+////
+
+- new architecture:
+
+  - is stack model working?
+  - greater execution control/fingers in code
+  - varying modes
+  - per villager details(execution,location,mode=R/W/F,effect) (how many and how to store)?
+  - mirror and double 
+
+- new controls:
+
+  - finger modes (untied, into code, into villagers)
+  - 8 controls as per new diagram
+
+** DONE
+
+- does it still crash? doesn't seem so but anyways major changes to come!
+
+
 * TUE 27 MAY
 
 
