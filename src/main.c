@@ -15,7 +15,7 @@
  make stlink_flash
 */
 
-#define VILLAGE_SIZE 192 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+#define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
 //#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
 
 #ifdef PCSIM
@@ -80,8 +80,8 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 __IO uint16_t adc_buffer[10];
 
 u16 villager[VILLAGE_SIZE];
-u16 stackery[48]; // 16*3 MAX
-u16 stacker[48]; // 16*3 MAX
+u16 stackery[STACK_SIZE*4]; // 16*4 MAX
+u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 FOLDD[45]; // MAX size 44!!!
 
@@ -113,15 +113,7 @@ u16 FOLDD[45]; // MAX size 44!!!
 
 u16 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 
-signed char newdir[2]={-1,1};
 signed char direction[2]={-1,1};
-signed char villagedirection[2]={-1,1};
-signed char villagedirectionf[2]={-1,1};
-signed char villagedirectionw[2]={-1,1};
-signed char newdirf[2]={-1,1};
-signed char directionf[2]={-1,1};
-signed char newdirread[2]={-1,1};
-signed char directionread[2]={-1,1};
 
 u8 villagestackpos=0;
 u8 www[3]={12,15,0};
@@ -335,7 +327,7 @@ void main(void)
 
   signed char hwdir[2]={1,-1};
 
-  inittable(3,4,randi(),table);
+  inittable(3,4,randi());
 
   const float32_t pi= 3.141592;
   float32_t w;
@@ -420,13 +412,13 @@ void main(void)
   u16 start,wrap;
 
   struct stackey stackyy[STACK_SIZE];
-  struct stackey stackyyy[STACK_SIZE];
+  struct stackeyyy stackyyy[STACK_SIZE];
   u16 *buf16 = (u16*) datagenbuffer;
   u8 *audio_buf = (u8*) audio_buffer;
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
-  // fill datagenbuffer TODO
+  // fill datagenbuffer???
 
   for (x=0;x<65535;x++){
     datagenbuffer[x]=randi()%255;
@@ -446,8 +438,13 @@ void main(void)
   }//step
 
   for (x=35;x<41;x++){
-    settingsarray[x]=511;
+    settingsarray[x]=8192;
   }//speed
+
+
+  for (x=46;x<49;x++){
+    settingsarray[x]=65535;
+  }//wrap
 
   for (x=54;x<64;x++){
     settingsarray[x]=32768;//>>15
@@ -477,8 +474,9 @@ void main(void)
 
   // CA
   for (x=0;x<STACK_SIZE;x++){
-    start=randi()<<3;
-    wrap=randi()<3;
+      start=0; wrap=32768; // TESTY!
+      //    start=randi()<<3;
+      //    wrap=randi()<3;
     stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
     villagestackpos=villagepush(villagestackpos,start,wrap);
   }
@@ -486,13 +484,14 @@ void main(void)
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
   //  for (x=0;x<2;x++){ // TESTY!
-    start=randi()<<3;
-    wrap=randi()<3;
+      //    start=randi()<<3;
+      start=0; wrap=32768; // TESTY!
+      //    wrap=randi()<3;
     stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
     
-    villagestackpos=villagepush(villagestackpos,start,wrap);
+    //    villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   start=0;
@@ -525,6 +524,12 @@ void main(void)
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
 
+      func_runall(stackyy,stack_pos); // simulations
+      //      machine_run(m);
+      //      machine_runnn(datagenbuffer);
+      //  ca_runall(stackyyy,stack_posy); // CA
+
+	/*
       machine_count++;
       if (machine_count>=MACHINESPEED){
 
@@ -551,7 +556,20 @@ void main(void)
 	}
 	}
       } // end of machine count
+	*/
+      //#define SAMPLEWRAP ((settingsarray[12]>>1)+1)
 
+      settingsarray[12]=adc_buffer[SECOND]<<1; // wrap
+
+      settingsarray[51]=adc_buffer[THIRD]<<4; // expand TODO
+
+
+ for (x=0;x<STACK_SIZE*4;x+=4){
+   stacker[x+3]=adc_buffer[FIRST]>>7;
+   //   stacker[x+3]=25;
+   //   stackery[x+3]=(adc_buffer[FIRST]>>8)%9;
+   //   stackery[x+3]=8;
+ }
 
 #ifndef LACH
       /////////////////////////////////////

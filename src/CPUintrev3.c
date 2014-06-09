@@ -93,7 +93,7 @@ void thread_create(thread *this, u8* buffer,u16 address, u16 wrapaddress, uint8_
   this->m_stack_pos=-1;
   this->m_memory=buffer;
 
-    for (u8 n=0; n<STACK_SIZE; n++)
+    for (u8 n=0; n<STACK_SIZEE; n++)
       {
 	this->m_stack[n]=0;
       }
@@ -331,13 +331,13 @@ void thread_run(thread* this, machine *m) {
 	case 4:
 	  this->m_reg8bit2+=2;
 	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
-	  this->m_stack[this->m_reg8bit2%STACK_SIZE]= this->m_pc>>8;
-	  this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]= this->m_pc&255;
+	  this->m_stack[this->m_reg8bit2%STACK_SIZEE]= this->m_pc>>8;
+	  this->m_stack[(this->m_reg8bit2+1)%STACK_SIZEE]= this->m_pc&255;
 	  this->m_pc++;
 	  break;
 	case 5:
 	  if (this->m_reg8bit2>=14) this->m_reg8bit2=0;
-	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=((this->m_stack[this->m_reg8bit2%STACK_SIZE])<<8)+((this->m_stack[(this->m_reg8bit2+1)%STACK_SIZE]));
+	  if (machine_p88k(m,this->m_reg16bit1)!=0) this->m_pc=((this->m_stack[this->m_reg8bit2%STACK_SIZEE])<<8)+((this->m_stack[(this->m_reg8bit2+1)%STACK_SIZEE]));
 	  this->m_reg8bit2-=2;
 	  if (this->m_reg8bit2==0) this->m_reg8bit2=14;
 	  break;
@@ -1318,7 +1318,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 29:
       // pure leakage - push instr onto stack. when stack is full pull off...
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-      if (thread_stack_count(this,STACK_SIZE)) machine_poke(m,this->m_pc,thread_pop(this));
+      if (thread_stack_count(this,STACK_SIZEE)) machine_poke(m,this->m_pc,thread_pop(this));
       else thread_push(this,machine_p88k(m,this->m_pc));
       this->m_pc++;
       break;
@@ -1343,14 +1343,14 @@ u8 thread_stack_count(thread* this, u8 c) {
 }
 
 void thread_push(thread* this, u8 data) {
-  if (this->m_stack_pos<14) // STACK_SIZE-2
+  if (this->m_stack_pos<14) // STACK_SIZEE-2
 	{
 	  this->m_stack[++this->m_stack_pos]=data;
 	}
 }
 
 u8 thread_pop(thread* this) {
- 	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZE)
+ 	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZEE)
 	{
 	  u8 ret=this->m_stack[this->m_stack_pos];
 	  this->m_stack_pos--;
@@ -1362,7 +1362,7 @@ u8 thread_pop(thread* this) {
 }
 
 u8 thread_top(thread* this) {
-	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZE)
+	if (this->m_stack_pos>=0 && this->m_stack_pos<STACK_SIZEE)
 	{
 	  return this->m_stack[this->m_stack_pos];
 	}

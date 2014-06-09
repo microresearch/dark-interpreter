@@ -66,6 +66,8 @@
 #define STACKFUNC (settingsarray[49]>>11)
 #define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
 
+#define SAMPLEEXPAND (settingsarray[51]>>1) // test TODO for expansion
+
 //TODO put back in!
 
 //#define EFFECTREAD (settingsarray[51]>>9) /// 7 bits =128 // TESTY out of mirror

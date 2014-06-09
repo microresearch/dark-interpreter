@@ -8,8 +8,8 @@
 #ifdef PCSIM
 typedef unsigned char u8;
 typedef uint16_t u16;
+#define float32_t float
 #endif
-
 
 #define true 1
 #define false 0
@@ -18,7 +18,7 @@ typedef uint16_t u16;
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16 /// leave as 16
-#define STACK_SIZE 16
+#define STACK_SIZE 1
 #define NUM_FUNCS 33
 
 #define CONVY 0
@@ -87,93 +87,93 @@ struct chunkey{
 
 
 struct simpleSIR{
-  float beta;//=520.0/365.0;
-  float gamm;//=1.0/7.0;
-  float S0;//=1.0-1e-6;
-  float I0;//=1e-6;
-  float step;
-  float S,I,R;
-  float dPop[3];
+  float32_t beta;//=520.0/365.0;
+  float32_t gamm;//=1.0/7.0;
+  float32_t S0;//=1.0-1e-6;
+  float32_t I0;//=1e-6;
+  float32_t step;
+  float32_t S,I,R;
+  float32_t dPop[3];
   u16* buffer;
 };
 
 struct SEIR {
-  float beta;
-  float step;
-  float gamm;
+  float32_t beta;
+  float32_t step;
+  float32_t gamm;
   int n;
   int m;
-  float mu;
-  float S0,I0;
-  float S,I[MAX_GROUPS]; // 4x16=64bytes
-  float dPop[MAX_GROUPS+1];//4x9=36bytes
+  float32_t mu;
+  float32_t S0,I0;
+  float32_t S,I[MAX_GROUPS]; // 4x16=64bytes
+  float32_t dPop[MAX_GROUPS+1];//4x9=36bytes
   u16* buffer;
 };
 
 struct SICR {
-  float beta;
-  float epsilon;
-  float gamm;
-  float Gamm; 
-  float mu;
-  float q;
-  float S0;
-  float I0;
-  float C0;
-  float t,S,I,C,R;
-  float dPop[3];
-  float step;
+  float32_t beta;
+  float32_t epsilon;
+  float32_t gamm;
+  float32_t Gamm; 
+  float32_t mu;
+  float32_t q;
+  float32_t S0;
+  float32_t I0;
+  float32_t C0;
+  float32_t t,S,I,C,R;
+  float32_t dPop[3];
+  float32_t step;
 
   u16* buffer;
 };
 
-typedef struct{ float x, y; } Point;
+typedef struct{ float32_t x, y; } Point;
 
 struct IFS {
-  float prob[5];
-  float coeff[4][6];
+  float32_t prob[5];
+  float32_t coeff[4][6];
   Point p1,p2;
 
   u16* buffer;
 };
 
 struct Rossler{
-  float h,a,b,c,lx0,ly0,lz0;
+  float32_t h,a,b,c,lx0,ly0,lz0;
 
   u16* buffer;
 };
 
 struct secondRossler{
-  float z0, zn, znm1;
-  float a,b,c,h;
-  float x0, y0, xn, yn, xnm1, ynm1;
+  float32_t z0, zn, znm1;
+  float32_t a,b,c,h;
+  float32_t x0, y0, xn, yn, xnm1, ynm1;
 
   u16* buffer;
 };
 
 struct Brussel{
-  float x,y; 
-  float delta,mu,gamma;
+  float32_t x,y; 
+  float32_t delta,mu,gamma;
 
   u16* buffer;
 };
 
 struct Spruce{
-  float x, y; 
-  float k1,k2,alpha,beta,mu,rho,delta;
+  float32_t x, y; 
+  float32_t k1,k2,alpha,beta,mu,rho,delta;
   u16* buffer;
 };
 
 struct Oregon
 {
-  float x, y, z; 
-  float delta,epsilon,mu,q;
+  float32_t x, y, z; 
+  float32_t delta,epsilon,mu,q;
   u16* buffer;
 };
 
 struct Fitz
 {
-  float u,w,b0,b1;
+  float32_t u,w,b0,b1;
   u16* buffer;
 };
 
@@ -187,20 +187,26 @@ struct Fitz
 
 
 struct stackey{
-  u16 (*functione) (u8 howmuch, u16* workingbuffer, u16 count, u16 start, u16 wrap);  
-  u8 howmuch;
+  //  u16 (*functione) (u8 howmuch, u16* workingbuffer, u16 count, u16 start, u16 wrap);  
+  //  u8 howmuch;
   u16* buffer;
   u16 count;
   };
 
+struct stackeyyy{
+  //   u16 (*functione) (u8 howmuch, u8 * cells, u16 count, u16 start, u16 wrap);  
+  u8 *buffer;
+  u16 count;
+  };
 
-void inittable(u8 r, u8 k, int rule, u8 *table);
+
+void inittable(u8 r, u8 k, int rule);
 
 signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap);
 void func_runall(struct stackey stack[STACK_SIZE], u8 stack_pos);
 signed char func_pop(u8 stack_pos);
 
 
-void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy);
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap);
+void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy);
+signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap);
 signed char ca_pop(u8 stack_posy);

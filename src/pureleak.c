@@ -1537,7 +1537,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // pure leakage - push instr onto stack. when stack is full pull off...
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
-      if (thread_stack_counttt(buffer,STACK_SIZE,offset)) machine_pokeee(buffer,addr,thread_poppp(buffer,offset));
+      if (thread_stack_counttt(buffer,STACK_SIZEE,offset)) machine_pokeee(buffer,addr,thread_poppp(buffer,offset));
       else thread_pushhh(buffer,machine_p88kkk(buffer,addr),offset);
       addr++;
       PCADDRHI=addr>>8; // hi/lo

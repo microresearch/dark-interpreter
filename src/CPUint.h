@@ -12,7 +12,7 @@
 #define MAX_FRED 60
 #define max_cpus 31
     
-#define STACK_SIZE 16
+#define STACK_SIZEE 16
 #define MAX_THREADS 120
 
 #define NOP 0
@@ -51,7 +51,7 @@
       u16 m_pc;
       u16 m_wrap;
       signed char m_stack_pos;
-      u8 m_stack[STACK_SIZE];
+      u8 m_stack[STACK_SIZEE];
     } thread;
     
     typedef struct {

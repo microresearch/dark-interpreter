@@ -10,26 +10,18 @@
 #include <string.h>
 #include <sys/time.h>
 #include "CA.h"
+#include "simulation.h"
 #define randi() rand()
 extern u8 table[21];
 extern u16 *stackery;//[48]; // 16*3 MAX
 #else
 #include "CA.h"
+#include "simulation.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 extern u8 table[21];
-extern u16 stackery[48]; // 16*3 MAX
+extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 #endif
-
-//////////////////////////////////////////
-
-#define STACK_SIZE 16
-
-struct stackey{
-  u16 (*functione) (u8 howmuch, u8 * cells, u16 count, u16 start, u16 wrap);  
-  u16 count;
-  u8 *buffer;
-  };
 
 //////////////////////////////////////////
 
@@ -188,7 +180,7 @@ u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 //life - 2d CA - these all now use CA struct
 
-void inittable(u8 r, u8 k, int rule);
+//void inittable(u8 r, u8 k, int rule);
 
 /*void cainit(void* unity, u8* cells){
   struct CA* unit=unity;
@@ -725,82 +717,88 @@ u16 runSIR16(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 //stack_posy=ca_pushn(stack,0,datagenbuffer,stack_posy,1,10); // delay,howmany);
 
-signed char ca_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
+signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
   if (stack_posy<STACK_SIZE)
     {
 
       if (howmuch==0) howmuch=1;
-      u8 tmp=stack_posy*3;
+      u8 tmp=stack_posy*4;
       stackery[tmp]=start;
       stack[stack_posy].buffer=buffer;
       stack[stack_posy].count=start;
-      stackery[tmp+1]=howmuch;
-      stackery[tmp+2]=wrap;
-
-      switch(typerr){
-      case HODGEY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
-	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
-	//	hodgeinit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runhodge;
-	break;
-      case HODGENETY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
-	//	hodgeinit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runhodgenet;
-	break;
-      case LIFEY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runlife;
-	break;
-      case CELY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runcel;
-	break;
-      case CEL1DY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runcel1d;
-	break;
-      case FIREY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct fire));
-	//	fireinit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runfire;
-	break;
-      case WIREY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runwire;
-	break;
-      case SIRY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct SIR));
-	//	SIRinit(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runSIR;
-	break;
-      case SIR16Y:
-	//	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
-	//	SIR16init(stack[stack_posy].unit,buffer);
-	stack[stack_posy].functione=runSIR16;
-	break;
-      }
+      stackery[tmp+1]=wrap;
+      stackery[tmp+2]=howmuch;
+      stackery[tmp+3]=typerr;
       stack_posy++;
     }  
   return stack_posy;
 }
 
-void ca_runall(struct stackey stack[STACK_SIZE], u8 stack_posy){
+void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
   u8 i; 
   for (i=0;i<stack_posy;i++){
-    //    if (stack[stack_posy].unit!=NULL){
-      //      stack[stack_posy].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_posy].count,stack[stack_posy].start,stack[stack_posy].wrap);
-      //  }
-	u8 tmp=i*3;
-	//	stack[stack_pos].count=stack[i].functione(stack[i].howmuch,stack[i].unit,stack[stack_pos].count,stack[stack_pos].start,stack[stack_pos].wrap);
+	u8 tmp=i*4;
 
-	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
+	//	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
 
+      switch(stackery[tmp+3]){
+      case HODGEY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
+	//	hodgeinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runhodge;
+	stack[i].count=runhodge(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case HODGENETY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
+	//	hodgeinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runhodgenet;
+	stack[i].count=runhodgenet(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+
+	break;
+      case LIFEY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runlife;
+	stack[i].count=runlife(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case CELY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runcel;
+	stack[i].count=runcel(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case CEL1DY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runcel1d;
+	stack[i].count=runcel1d(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case FIREY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct fire));
+	//	fireinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runfire;
+	stack[i].count=runfire(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case WIREY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
+	//	cainit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runwire;
+	stack[i].count=runwire(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case SIRY:
+	//	stack[stack_posy].unit=malloc(sizeof(struct SIR));
+	//	SIRinit(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runSIR;
+	stack[i].count=runSIR(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      case SIR16Y:
+	//	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
+	//	SIR16init(stack[stack_posy].unit,buffer);
+	//	stack[stack_posy].functione=runSIR16;
+	stack[i].count=runSIR16(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
+      }
   }
 }
 
