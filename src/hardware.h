@@ -10,6 +10,8 @@
 
 void dohardwareswitch(uint16_t modder, u8 hdgen);
 void setup_switches(void);
+void reset_switches(void);
+void reset_clocks(void);
 void switch_jack(void);
 void changepwm(uint16_t value);
 void initpwm(void);

@@ -1,3 +1,169 @@
+
+
+// 10 JUNE:
+
+//RETHINK
+
+
+      /* FIRST as modes - 8 modes/8 fingermods
+
+	 0- EFFMODE
+	 1,2,3- GROUPMODE1,2,3
+	 5,6,7,8- MIRRORMODE5,6,7,8 // or so - to figure OUT!
+
+	 fingers:
+	 0-fingers in the code0stacker,1stackery,2CPUs
+	 3-in settings
+	 4-in stack
+	 5-in datagens
+	 6,7-contract/expand of groups eg. mirror and wraps
+
+       */
+
+      switch(mainmode){
+      case 0: // EFFMODE
+      default:
+	// if enter this case then must be a change (from new mode knobs) to register...
+	if (changeflagone==1){	  //new case - check for change
+	  if (effr!=oldeffr && effr!=oldeffr-1 && effr!=oldeffr+1) {
+	  //	  if (effr!=oldeffr) {
+	    EFFECTREAD=effr;
+	  changeflagone=0;
+	}
+	}
+	  else {
+	    EFFECTREAD=effr;
+	  }
+
+	if (changeflagtwo==1){	  //new case - check for change
+	  if (effw!=oldeffw && effw!=oldeffw-1 && effw!=oldeffw+1) {
+	  //	  if (effw!=oldeffw) {
+	    EFFECTWRITE=effw;
+	  changeflagtwo=0;
+	}
+	}
+	  else {
+	    EFFECTWRITE=effw;
+	  }
+
+	// TODO deal with LACH here!
+
+	if (changeflagthree==1){	  //new case - check for change
+	  //	  if (efff!=oldefff) {
+	  if (efff!=oldefff && efff!=oldefff-1 && efff!=oldefff+1) {
+	  changeflagthree=0;
+	  EFFECTFILTER=efff;
+	}
+	}
+	  else {
+	    EFFECTFILTER=efff;
+	  }
+	  break;
+      case 1:
+
+	// knobs change groups X,Y,Z- preformed:
+	// X-START Y-WRAP Z-SPEED
+	// if enter this case then must be a change (from new mode knobs) to register...
+	
+	if (changeflagone==1){	  //new case - check for change
+	  // STEP NOW!
+	  //	  if (effr!=oldeffr){
+	  if (effr!=oldeffr && effr!=oldeffr-1 && effr!=oldeffr+1) {
+	    for (x=25;x<35;x++){
+	      settingsarray[x]=adc_buffer[SECOND]<<4; // 16 bit value
+	    }
+	  changeflagone=0;
+	  }
+	}
+	  else {
+	    for (x=25;x<35;x++){
+	      settingsarray[x]=adc_buffer[SECOND]<<4; // 16 bit value
+	    }
+	  }
+
+	if (changeflagtwo==1){	  //new case - check for change
+	  // WRAP!
+	  //	  if (effw!=oldeffw){
+	  if (effw!=oldeffw && effw!=oldeffw-1 && effw!=oldeffw+1) {
+	    for (x=11;x<25;x++){
+	      	      settingsarray[x]=adc_buffer[THIRD]<<4; // 16 bit value
+	    }
+	  changeflagtwo=0;
+	}
+	}
+	  else {
+	    for (x=11;x<25;x++){
+	      	      settingsarray[x]=adc_buffer[THIRD]<<4; // 16 bit value
+	    }
+	  }
+
+	if (changeflagthree==1){	  //new case - check for change
+	  // SPEED!
+	  //	  if (efff!=oldefff){
+	  if (efff!=oldefff && efff!=oldefff-1 && efff!=oldefff+1) {
+	    for (x=35;x<41;x++){
+	      	      settingsarray[x]=adc_buffer[FOURTH]<<4; // 16 bit value
+	    }	   
+	  changeflagthree=0;
+	}
+	}
+	  else {
+	    for (x=35;x<41;x++){
+	         settingsarray[x]=adc_buffer[FOURTH]<<4; // 16 bit value
+	    }	   
+	  }
+	    break;
+      case 2:
+	// knobs change groups X,Y,Z
+	// X and Y as chunk start/wrap
+	// Z as knob
+	break;
+      case 3:
+	// knobs change groups X,Y,Z
+	// algo walker???? TODO???
+	break;
+      case 4:
+	// knobs change mirror settings - how to toggle?
+	break;
+      case 5:
+	// knobs change mirror settings
+	break;
+      case 6:
+	// knobs change mirror settings
+	break;
+      case 7:
+	// knobs change mirror settings
+	break;
+	    }
+     
+      oldeffr=effr;
+      oldeffw=effw;
+      oldefff=efff;
+
+      if (oldmainmode!=mainmode) {
+	changeflagone=1;changeflagtwo=1;changeflagthree=1;
+      }
+
+      oldmainmode=mainmode;
+
+////
+
+      //#define SAMPLEWRAP ((settingsarray[12]>>1)+1)
+
+      settingsarray[12]=adc_buffer[SECOND]<<1; // wrap
+
+      settingsarray[51]=adc_buffer[THIRD]<<4; // expand TODO
+
+
+ for (x=0;x<STACK_SIZE*4;x+=4){
+   stacker[x+3]=adc_buffer[FIRST]>>7; // CPU!!!
+   //   stacker[x+3]=25;
+   //   stackery[x+3]=(adc_buffer[FIRST]>>8)%9;
+   //   stackery[x+3]=8;
+ }
+
+/// 9 JUNE
+
       /////////////////////////////
       // KKNOBBBSSS
 

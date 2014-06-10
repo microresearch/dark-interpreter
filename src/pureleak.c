@@ -1384,7 +1384,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
     case 23:
       addr=((PCADDRHI<<8)+PCADDRLO);
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
-      machine_pokeee(buffer,machine_peekkk(buffer,addr++),adc_buffer[machine_p88kkk(buffer,addr)%10]);     
+      machine_pokeee(buffer,machine_peekkk(buffer,addr),adc_buffer[machine_p88kkk(buffer,addr)%10]);     addr++;
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
       break;

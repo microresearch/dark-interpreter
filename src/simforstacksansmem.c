@@ -38,14 +38,14 @@ Based in part on SLUGens by Nicholas Collins.
 #define randi() (rand()%4096)
 //#define randi() (adc_buffer[9])
 #define float32_t float
-/*extern u16 sin_data[256];
+extern u16 sin_data[256];
 extern u16 *stacker;//[48]; // 16*3 MAX
 extern uint16_t adc_buffer[10];
-extern int16_t* audio_buffer;*/
-u16 sin_data[256];
+extern int16_t* audio_buffer;
+/*u16 sin_data[256];
 u16 stacker[STACK_SIZE*4]; // 16*3 MAX
 uint16_t adc_buffer[10];
-int16_t* audio_buffer;
+int16_t* audio_buffer;*/
 #else
 #include "simulation.h"
 #include <malloc.h>
@@ -191,7 +191,7 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    workingbuffer[(count+start)%32768]=sin_data[cc%256];
+    //    workingbuffer[(count+start)%32768]=sin_data[cc%256]; //TESTY
 #ifdef PCSIM
     //        printf("%c",workingbuffer[(count+start)%32768]);
     //if (count>32767) printf("SINECRASH%d\n",count);
@@ -221,7 +221,8 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     }*/
 
 #ifdef PCSIM
-signed char direction[2]={-1,1};
+//signed char direction[2]={-1,1};
+extern signed char direction[2];
 #else
 extern signed char direction[2];
 #endif
@@ -693,10 +694,10 @@ void simplesirinit(u16 *workingbuffer){
   //  beta=520.0/365.0;
   //    gamm=1.0/7.0;
     beta=(float32_t)workingbuffer[0]/65536.0f;
-    gamm=(float32_t)workingbuffer[1]/1000000.0f;
+    gamm=(float32_t)workingbuffer[1]/65536.0f;
   S0=1.0-1e-6;
   I0=1e-6;
-  step=0.01/((beta+gamm)*S0);
+  step=0.01f/((beta+gamm)*S0);
   S=S0; II=I0; R=1-S-II;
   // what else in init?
   }
@@ -873,10 +874,10 @@ void sicrinit(u16 *workingbuffer){
 //gamm=1.0/100.0;
 //Gamm=1.0/1000.0;
   
-beta=(float32_t)workingbuffer[0]/65536.0;
-epsilon=(float32_t)workingbuffer[1]/655360.0;
-gamm=(float32_t)workingbuffer[2]/6553600.0;
-Gamm=(float32_t)workingbuffer[3]/65536000.0;
+beta=(float32_t)workingbuffer[0]/65536.0f;
+epsilon=(float32_t)workingbuffer[1]/65536.0f;
+gamm=(float32_t)workingbuffer[2]/65536.0f;
+Gamm=(float32_t)workingbuffer[3]/65536.0f;
 mu=1.0f/(50.0f*365.0f);
 q=0.4f;
 S0=0.1f;
@@ -1099,10 +1100,10 @@ return count;
 
 void secondrosslerinit(u16 *workingbuffer){
   
-  a = (float32_t)workingbuffer[0]/65536.0;
-  b = (float32_t)workingbuffer[1]/65536.0;
-  c = (float32_t)workingbuffer[2]/65536.0;
-  h = (float32_t)workingbuffer[3]/65536.0;
+  a = (float32_t)workingbuffer[0]/65536.0f;
+  b = (float32_t)workingbuffer[1]/65536.0f;
+  c = (float32_t)workingbuffer[2]/65536.0f;
+  h = (float32_t)workingbuffer[3]/65536.0f;
   //  x0 = (float32_t)workingbuffer[4]/65536.0;
   //  yy0 = (float32_t)workingbuffer[5]/65536.0;
   //  z0 = (float32_t)workingbuffer[6]/65536.0;
@@ -1440,7 +1441,6 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer,
   spruceinit(buffer);
   oregoninit(buffer);
 
-
   return stack_pos;
 }
 
@@ -1699,7 +1699,7 @@ void tester(u8 SAMPLEDIRR){
 
 
 //void main(int argc, char **argv)
-void main()
+/*void main()
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x; 
@@ -1758,6 +1758,6 @@ void main()
 		   //		   printf("%c",buf16[x%32768]>>8);
 		   //		   x++;
 	 }
-}
+	 }*/
 #endif
 

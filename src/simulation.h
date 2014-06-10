@@ -18,7 +18,7 @@ typedef uint16_t u16;
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16 /// leave as 16
-#define STACK_SIZE 1
+#define STACK_SIZE 8
 #define NUM_FUNCS 33
 
 #define CONVY 0
@@ -195,7 +195,7 @@ struct stackey{
 
 struct stackeyyy{
   //   u16 (*functione) (u8 howmuch, u8 * cells, u16 count, u16 start, u16 wrap);  
-  u8 *buffer;
+  u8* buffer;
   u16 count;
   };
 

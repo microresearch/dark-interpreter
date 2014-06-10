@@ -37,7 +37,7 @@
 #include "CA.h"
 #include "settings.h"
 uint16_t *adc_buffer;
-typedef float float32_t;
+//typedef float float32_t;
 u8 digfilterflag;
 //int16_t src[BUFF_LEN], dst[BUFF_LEN];
 
@@ -83,7 +83,7 @@ u16 villager[VILLAGE_SIZE];
 u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
-u16 FOLDD[45]; // MAX size 44!!!
+//u16 FOLDD[45]; // MAX size 44!!!
 
 #endif
 // for knobwork
@@ -115,7 +115,7 @@ u16 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 
 signed char direction[2]={-1,1};
 
-u8 villagestackpos=0;
+u16 villagestackpos=0;
 u8 www[3]={12,15,0};
 u8 freqyy[3]={10,10,0};
 
@@ -146,10 +146,10 @@ extern u8 digfilterflag;
 //u8 testdirection;
 //u8 wormdir; // worm direction
 u8 table[21]; 
-u16 sin_data[256];  // sine LUT Array
+//u16 sin_data[256];  // sine LUT Array
 
 
-u8 villagepush(u8 villagepos, u16 start, u16 wrap){
+u16 villagepush(u16 villagepos, u16 start, u16 wrap){
   if (villagepos<(VILLAGE_SIZE-2)) /// size -2
     {
       villager[villagepos++]=start;
@@ -159,7 +159,7 @@ u8 villagepush(u8 villagepos, u16 start, u16 wrap){
   return villagepos;
 }
 
-u8 villagepop(u8 villagepos){
+u16 villagepop(u16 villagepos){
   if (villagepos>2)
     {
       villagepos-=2;
@@ -314,18 +314,9 @@ tmpsetting-=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 x,addr,tmp,tmppp,hdtmp,tmphardware,HARDWARE,knobby,coo=0;
-  u16 settings,setted;
-  u8 oldsettings,oldsetted,tmper,stackerstart,stackerwrap;
-  u8 mirror=0,mirrortoggle,villagemirror=0,mirrordel=0, fingermod,oldfingermod,fingerfing,whichdir=0,whichdiritis=0,speed,whichspeed=0,foldback=0, whichstack=0,step=0,whichstep=0,constrained=0,started=0,stackmuch=10,exespot=0,cpur=0,cpu,startrr=0,wraprr=0;
-  u16 startr,wrapr;
-  u16 constrain,foldbackset;
-  u16 m1flag=0,m2flag=0;
-  u8 effects;
+  u16 x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
   u8 machine_count=0,leak_count=0; 
-  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
-
-  signed char hwdir[2]={1,-1};
+  //  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
 
   inittable(3,4,randi());
 
@@ -341,7 +332,7 @@ void main(void)
       yi= 16383*sinf(phase); // was 2047
       phase=phase+w;
       sign_samp=16383+yi;     // dc offset translated for a 12 bit DAC - but is 16 bit?
-      sin_data[i]=sign_samp; // write value into array
+      //      sin_data[i]=sign_samp; // write value into array
     }
 
 #ifndef PCSIM
@@ -364,8 +355,9 @@ void main(void)
   I2S_Block_Init();
   I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
+
 #ifndef LACH
-  dohardwareswitch(2,0);
+  dohardwareswitch(0,0);
 #endif
 #endif // for ifndef PCSIM
 
@@ -381,17 +373,11 @@ void main(void)
   stacker=malloc(48*sizeof(int16_t));
   stackery=malloc(48*sizeof(int16_t));
   FOLDD=malloc(45*sizeof(int16_t));
-  //u16 FOLDD[45]; // MAX size 44!!!
   adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
-
   srandom(time(0));
-
-  // init int16_t src[BUFF_LEN], dst[BUFF_LEN];
-
   src=malloc(BUFF_LEN*sizeof(int16_t));
   dst=malloc(BUFF_LEN*sizeof(int16_t));
-
 
   for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
@@ -401,14 +387,12 @@ void main(void)
   for (x=0;x<32768;x++){
     audio_buffer[x]=rand()%65536;
   }
-
-
 #endif
 
-  u8 hwdel=0; u8 effectmod=1;
-  u16 hwpos=0,hwposss,wrapper;
-  u8 stack_pos=0;
-  u8 stack_posy=0;
+  u8 hwdel=0;
+  u16 hwpos=0,hwposss;
+  signed char stack_pos=0;
+  signed char stack_posy=0;
   u16 start,wrap;
 
   struct stackey stackyy[STACK_SIZE];
@@ -417,6 +401,8 @@ void main(void)
   u8 *audio_buf = (u8*) audio_buffer;
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
+
+  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
 
   // fill datagenbuffer???
 
@@ -450,7 +436,7 @@ void main(void)
     settingsarray[x]=32768;//>>15
   }//DIR
 
-  settingsarray[51]=0; //EFFECTS
+  settingsarray[51]=0; //was EFFECTS // is now EXPANSION TODO!
   settingsarray[52]=0;
   settingsarray[53]=0;
 	 
@@ -462,7 +448,7 @@ void main(void)
     }
 
   for (x=0;x<45;x++){
-    FOLDD[x]=randi()<<4;
+    //    FOLDD[x]=randi()<<4; // TESTY!
   }
 
   //pureleak
@@ -473,29 +459,34 @@ void main(void)
   }
 
   // CA
-  for (x=0;x<STACK_SIZE;x++){
-      start=0; wrap=32768; // TESTY!
-      //    start=randi()<<3;
-      //    wrap=randi()<3;
-    stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
-    villagestackpos=villagepush(villagestackpos,start,wrap);
+  for (x=0;x<(STACK_SIZE);x++){
+    //      start=0; wrap=32768; // TESTY!
+          start=randi()<<3;
+          wrap=randi()<3;
+	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
+	  //	  villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
   //  for (x=0;x<2;x++){ // TESTY!
-      //    start=randi()<<3;
-      start=0; wrap=32768; // TESTY!
-      //    wrap=randi()<3;
-    stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
+          start=randi()<<3;
+	  //start=0; wrap=32768; // TESTY!
+      wrap=randi()<3;
+      stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
     
-    //    villagestackpos=villagepush(villagestackpos,start,wrap);
+        villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   start=0;
   u16 count=0;
+
+  ///////////////////////////
+
+  u8 mastermode,mainmode,oldmainmode=0,changeflagone=0,changeflagtwo=0,changeflagthree=0,fingermode;
+  u8 eff[4];
 
   ///////////////////////////
 
@@ -513,9 +504,7 @@ void main(void)
   }
 #else
 
-
 #ifdef PCSIM
-
       // randomise adc_buffer
       for (x=0;x<10;x++){
 	adc_buffer[x]=randi();
@@ -525,7 +514,7 @@ void main(void)
 #endif
 
       func_runall(stackyy,stack_pos); // simulations
-      //      machine_run(m);
+      //            machine_run(m);
       //      machine_runnn(datagenbuffer);
       //  ca_runall(stackyyy,stack_posy); // CA
 
@@ -557,36 +546,107 @@ void main(void)
 	}
       } // end of machine count
 	*/
-      //#define SAMPLEWRAP ((settingsarray[12]>>1)+1)
 
-      settingsarray[12]=adc_buffer[SECOND]<<1; // wrap
+      //// MODE/KNOB CODE START
+      /////////////////////////////////////
+      
+      u8 xx;
+      mastermode=adc_buffer[FIRST]>>11; // 32=5 bits
 
-      settingsarray[51]=adc_buffer[THIRD]<<4; // expand TODO
+      eff[0]=adc_buffer[SECOND]>>5; // was 7 bits=128//jitter???
+      eff[1]=adc_buffer[THIRD]>>5;
+      eff[2]=adc_buffer[FOURTH]>>5;
+      
+      switch(mastermode){
+      case 0: // EFFMODE
+	xx=fingerdir(); // 0-3
+	if (xx!=5){
+	EFFECTREAD=eff[xx%3];
+	EFFECTWRITE=eff[(xx+1)%3];
+	EFFECTFILTER=eff[(xx+2)%3];
+	}
+	  break;
+      case 1:
 
+	// knobs change groups X,Y,Z- preformed:
+	// X-START Y-WRAP Z-SPEED
+	// if enter this case then must be a change (from new mode knobs) to register...
+	
+	if (fingerdirupdown()==0){
+	  // STEP NOW!
+	    for (x=25;x<35;x++){
+	      settingsarray[x]=adc_buffer[SECOND]<<4; // 16 bit value
+	    }
 
- for (x=0;x<STACK_SIZE*4;x+=4){
-   stacker[x+3]=adc_buffer[FIRST]>>7;
-   //   stacker[x+3]=25;
-   //   stackery[x+3]=(adc_buffer[FIRST]>>8)%9;
-   //   stackery[x+3]=8;
- }
+	    for (x=11;x<25;x++){
+	      	      settingsarray[x]=adc_buffer[THIRD]<<4; // 16 bit value
+	    }
+	    for (x=35;x<41;x++){
+	      	      settingsarray[x]=adc_buffer[FOURTH]<<4; // 16 bit value
+	    }	   
+	}
+	    break;
+      case 2:
+	// knobs change groups X,Y,Z
+	// X and Y as chunk start/wrap
+	// Z as knob
+	break;
+      case 3:
+	// knobs change groups X,Y,Z
+	// algo walker???? TODO???
+	break;
+      case 4:
+	// knobs change mirror settings - how to toggle?
+	break;
+      case 5:
+	// knobs change mirror settings
+	break;
+      case 6:
+	// knobs change mirror settings
+	break;
+      case 7:
+	// knobs change mirror settings
+	break;
+	    }
+
+      //      */
+      //// DEAL last with hardware:
+#ifdef LACH
+      // deal as step???TODO?TEST!!!!
+
+	  for (x=0;x<10;x++){
+	    settingsarray[25+x]=adc_buffer[FIFTH]<<4; // 16 bit value
+	  }
+#else
+      tmphardware=0;
+      for (x=0;x<256;x++){ // was 256
+	tmphardware+=adc_buffer[FIFTH]>>5; // 7 bits
+      }
+      HARDWARE=tmphardware>>8; //was >>8 to divide average
+#endif
+      /////////////////////////////////////
+      //// MODE/KNOB CODE END
+
 
 #ifndef LACH
       /////////////////////////////////////
-      // 4-hardware operations
+      // 4-hardware operations TODO: fix HW walkers...
 
+      
       /// general HW walk in/as tmp
       if (++hwdel>=HWSPEED){
-	  hwpos+=(HWSTEP*hwdir[HWDIR]);
+	  hwpos+=(HWSTEP*direction[HWDIR]);
 	  tmp=(HWSTART+(hwpos%HWWRAP))%32768; //to cover all directions
 	  hwdel=0;
-	  hwposss+=(HWSTEP*hwdir[HWDIR]);
+	  hwposss+=(HWSTEP*direction[HWDIR]);
 	  tmppp=(HWSTART+(hwposss%HWWRAP))%32768; //to cover all directions
-	  }
+      }
 
       if (digfilterflag&16){
-	hdtmp=(HWSTART+(hwpos%HWWRAP)); 
+       	hdtmp=(HWSTART+(hwpos%HWWRAP)); 
+	if (HDGENERCONS==0) settingsarray[42]=256; //(settingsarray[42]>>8)
 	dohardwareswitch(HARDWARE,HDGENERBASE+(datagenbuffer[hdtmp]%HDGENERCONS));
+	//dohardwareswitch(HARDWARE,0);
       }
       else
 	{
@@ -612,6 +672,7 @@ void main(void)
       if (digfilterflag&8){
 		  setmaximpwm(MAXIMERBASE+(buf16[tmp]%MAXIMERCONS));
 		  }
+     
 #endif
 #endif
 #endif

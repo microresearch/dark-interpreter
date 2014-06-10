@@ -126,6 +126,8 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
+  //res2=0; //TESTY!
+
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(res2){
   case 0:
@@ -200,6 +202,7 @@ RES: feedback on/off - jackin-> - lm358in->
     else digfilterflag=32;
     break;
     //////////////additions DONE
+   
   case 9:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
         GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
@@ -253,7 +256,7 @@ RES: feedback on/off - jackin-> - lm358in->
     else digfilterflag=49;//17+32
     break;
     ///////
-
+    
   case 13:
         //2-unhang all except input 
     // input is pb7

@@ -322,19 +322,46 @@ For Mater Lachrymarum IN is unused!
 
 * TUE 10 JUNE
 
-- think to add new datagens (from sci-am)-worms through allllll
-- layout/knobs
+597.wav (noin,hard)
+
+- new layout/knobs basic tests: fingerUP as setting but will need to
+  re-work fingercode and knobs togetherness (also if fingerUP should
+  set ALL knobs as fixed)
+
+//////
+
+- refine and add in IFDEFs
+- test on basic board/s
+
+LATER:
+
+- what of untied fingers?
+
+- add new datagens (from sci-am etc.)-worms through all, infectuous
+  groupings and processes in settings
+
+- per villager effects (how to attach) but no process attach (regions
+  only)... how many villagers we can have in memory???
+
+- refine execution and exespot
+
+- randi as one issue (as varies quite small)TODO
+
+- hardware is all same walker with shifts from base value!TODO!
+
+** DONE
+
+- crash when start with hardware not set to zero FIXED as tmp and
+  tmppp not set, also one divide by zero in HDGENERCONS (feels like
+  done this before but???)
+
+
 
 * MON 9 JUNE
 
 597.wav (noin,hard)
 
 ** NOTES: 
-
-- randi as one issue (as varies quite small)
-- hardware is all same walker with shifts from base value!TODO!
-
-////
 
 NEW: questions:
 
@@ -380,13 +407,12 @@ code etc...
 - small fixes to effectsDONE
 - expand AND contract the WRAPS _ TODO fully but tests well
 - SEIR fixed (wrong array)
-- SIMULATIONS to fix: IFSY(input conditions?), ////secondrosslerDONE,
+- SIMULATIONS to fix: IFSY(input conditions?)DONE, ////secondrosslerDONE,
 
 * TUE 27 MAY
 
 
 - where crash could be then (if still exists) - dir arrays are only more or less left
-
 - isolate and test/pcsim datagens
 - re-test granulation
 - strip code and figure out new finger setup - how can be pulled together more closely

@@ -581,7 +581,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
-	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
+	    //	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
 	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
@@ -694,7 +694,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp16=firstbuf[sampleposread%32768]|(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  }
-	  VILLAGEREAD=0; // TESTY!
+	  //	  VILLAGEREAD=0; // TESTY!
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    count=((sampleposread-startread)+dirry);
@@ -1091,7 +1091,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  tmpp=(EFFECTWRITE&63)>>2;
 
-	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
+	  //	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
@@ -1169,11 +1169,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	  }
 
-	  VILLAGEWRITE=3; // TESTY!!!!
+	  //	  VILLAGEWRITE=3; // TESTY!!!!
  
-	  //	  if (++del>=SAMPLESPEED){
-	  //	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
-	  dirry=1; //TESTY!
+	  	  if (++del>=SAMPLESPEED){
+	  	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
+	  //	  dirry=1; //TESTY!
 	    count=((samplepos-start)+dirry);
 	    //	    if (count<wrap && (samplepos+dirry)>start)
 		    if (count<wrap && count>0)
@@ -1228,7 +1228,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		}
 	  del=0;
-	  //	  }
+	  	  }
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp>12){
 
