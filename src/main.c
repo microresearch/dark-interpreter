@@ -146,7 +146,7 @@ extern u8 digfilterflag;
 //u8 testdirection;
 //u8 wormdir; // worm direction
 u8 table[21]; 
-//u16 sin_data[256];  // sine LUT Array
+u16 sin_data[256];  // sine LUT Array
 
 
 u16 villagepush(u16 villagepos, u16 start, u16 wrap){
@@ -332,7 +332,7 @@ void main(void)
       yi= 16383*sinf(phase); // was 2047
       phase=phase+w;
       sign_samp=16383+yi;     // dc offset translated for a 12 bit DAC - but is 16 bit?
-      //      sin_data[i]=sign_samp; // write value into array
+      sin_data[i]=sign_samp; // write value into array
     }
 
 #ifndef PCSIM

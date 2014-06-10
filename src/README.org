@@ -354,7 +354,7 @@ LATER:
 - crash when start with hardware not set to zero FIXED as tmp and
   tmppp not set, also one divide by zero in HDGENERCONS (feels like
   done this before but???)
-
+- small CA fixes and added KRUMMEL
 
 
 * MON 9 JUNE

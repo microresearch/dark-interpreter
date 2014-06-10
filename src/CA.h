@@ -16,36 +16,5 @@
 #define WIREY 6
 #define SIRY 7
 #define SIR16Y 8
-#define NUM_CA 9
-
-struct hodge{
-  u8 *cells;
-  u8 q,k1,k2,g,celllen;
-  u16 x;
-  u8 del;
-};
-
-struct CA{
-  u8 *cells;
-  u8 celllen,rule;
-  u8 del;
-};
-
-struct fire{
-  u8 *cells;
-  u8 probB,probI,celllen;
-  u8 del;
-};
-
-struct SIR{
-  u8 *cells;
-  u8 probI,probD,celllen;
-  u8 del;
-};
-
-struct SIR16{
-  u8 *cells;
-  u8 del;
-  u8 probM,probR,probC,probV;
-};
-
+#define KRUMMY 9
+#define NUM_CA 10

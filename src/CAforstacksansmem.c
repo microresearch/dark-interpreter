@@ -12,8 +12,10 @@
 #include "CA.h"
 #include "simulation.h"
 #define randi() rand()
-extern u8 table[21];
-extern u16 *stackery;//[48]; // 16*3 MAX
+//extern u8 table[21];
+u8 table[21];
+//extern u16 *stackery;//[48]; // 16*3 MAX
+u16 stackery[48];
 #else
 #include "CA.h"
 #include "simulation.h"
@@ -96,7 +98,7 @@ u16 runhodge(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   x++;
   if (x>(start+wrap)) x=start;
 #ifdef PCSIM  
-  //  //  //  //    printf("%c",cells[y]);
+printf("%c",cells[y]);
 #endif
   }
   return x;
@@ -170,7 +172,7 @@ u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   if (x>(start+wrap)) x=start;
 
 #ifdef PCSIM  
-  //    printf("%c",cells[x]);
+  printf("%c",cells[x]);
 #endif
   }
   return x;
@@ -234,12 +236,48 @@ u16 runlife(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
   else cells[y]=cells[x];
 
 #ifdef PCSIM  
-  //    printf("%c",cells[x]);
+    printf("%c",cells[x]);
 #endif
 
   //  //  printf("%c",cells[x]);
   x++;
   if (x>(start+wrap)) x=start;
+
+  }
+  return x;
+}
+
+//////////////////////////////////////////
+
+u16 runkrum(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
+
+  u16 i,y,place;
+  u8 n=cells[0];
+  //  n=4;
+  for (i=0;i<howmuch;i++){
+    y=x+32768;
+
+    // for each neighbour if neighbour=(src+1) mod n
+    // copy old neighbour to new/y
+
+  place=x-cells[4];
+  if (cells[place]==(cells[x]+1)%n) cells[y]=cells[place];
+
+  place+=cells[4]-1;
+  if (cells[place]==(cells[x]+1)%n) cells[y]=cells[place];
+
+  place+=2;
+  if (cells[place]==(cells[x]+1)%n) cells[y]=cells[place];
+
+  place+=cells[4]-1;
+  if (cells[place]==(cells[x]+1)%n) cells[y]=cells[place];
+
+  x++;
+  //  if (x>(start+wrap)) x=start;
+
+#ifdef PCSIM  
+     printf("%c",cells[x]);
+#endif
 
   }
   return x;
@@ -265,14 +303,20 @@ u16 runcel(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
       if (cells[y]>128)
 	state |= 0x1;
       y=x+i+cells[4];
+
+#ifdef PCSIM  
+      //      printf("cstate %d\n",(cells[1]>>state)&0x01);
+#endif
+
+
       if ((cells[1] >> state) & 1){
-	cells[y] = 255;
+	cells[y] = 0;
       }
       else{
-	cells[y] = 0;
+	cells[y] = 255;
       } 
 #ifdef PCSIM  
-      //    printf("%c",cells[x]);
+      //              printf("%c",cells[y]);
 #endif
 
   }
@@ -331,7 +375,7 @@ u16 runcel1d(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
     cells[y]=table[sum]<<4;  
 
 #ifdef PCSIM  
-	//    printf("%c",cells[x]);
+	printf("%c",cells[y]);
 #endif
     
   }
@@ -401,7 +445,7 @@ u16 runfire(uint8_t howmuch,u8* cells, u16 x, u16 start, u16 wrap){
     else cells[y]=cells[x];
 
 #ifdef PCSIM  
-    //    printf("%c",cells[x]);
+      printf("%c",cells[x]);
 #endif
 
     x++;
@@ -466,7 +510,7 @@ u16 runwire(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
     else cells[y]=cells[x];
 
 #ifdef PCSIM  
-    //    printf("%c",cells[x]);
+       printf("%c",cells[x]);
 #endif
 
     x++;
@@ -557,7 +601,7 @@ u16 runSIR(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
     else cells[y]=cells[x]; // blank cells
 
 #ifdef PCSIM  
-    //    printf("%c",cells[x]);
+       printf("%c",cells[x]);
 #endif
 
     x++;
@@ -705,7 +749,7 @@ u16 runSIR16(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
     x+=2;
 
 #ifdef PCSIM  
-    //    printf("%c",cells[x]);
+        printf("%c",cells[x]);
 #endif
 
   if (x>(start+wrap)) x=start;
@@ -742,6 +786,9 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
 	//	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
 
       switch(stackery[tmp+3]){
+      case KRUMMY:
+	stack[i].count=runkrum(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	break;
       case HODGEY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
 	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
@@ -818,7 +865,7 @@ signed char ca_pop(u8 stack_posy){
 
 //////////////////////////////////////////
 
-/*
+
 #ifdef PCSIM
 int main(void)
 {
@@ -828,19 +875,19 @@ int main(void)
   srandom(time(0));
 
   u8 stack_posy=0;
-  struct stackey stack[STACK_SIZE];
-  void *malloced[NUM_CA];
+  struct stackeyyy stack[STACK_SIZE];
+  //  void *malloced[NUM_CA];
 
 
   for (x=0;x<32768;x++){
     buffer[x]=randi()%65536;
   }
 
-  inittable(3,4,randi()%65536,table); //radius,states(k),rule - init with cell starter
+  inittable(3,4,randi()%65536); //radius,states(k),rule - init with cell starter
 
-    for (x=0;x<STACK_SIZE;x++){
+    for (x=0;x<1;x++){
       xx=rand()%65536;
-      stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%32,xx,xx+rand()%65536); // last as howmany, start.,wrap
+      stack_posy=ca_pushn(stack,9,buffer,stack_posy,100,0,65535); // last as howmany, start.,wrap
     }
 
     //    //    printf("stackposy: %d\n", stack_posy);
@@ -849,10 +896,10 @@ int main(void)
                while(1){
 		 ca_runall(stack,stack_posy);     
 
-		 		 if ((rand()%20)<10){stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%65536,rand()%65536,rand()%65536);//29-32
+		 //		 		 if ((rand()%20)<10){stack_posy=ca_pushn(stack,rand()%9,buffer,stack_posy,rand()%65536,rand()%65536,rand()%65536);//29-32
 				   //printf("pusn %d\n",stack_pos);
-		 		 }
-				 else stack_posy=ca_pop(stack,stack_posy);
+		 //		 }
+		 //		 else stack_posy=ca_pop(stack,stack_posy);
 		
 
 		 //		   		   for(x=0;x<48;x++){
@@ -860,11 +907,11 @@ int main(void)
 		 //		   }
 
 
-		 		 printf("%c",buffer[x]>>8);
-				 x++;
-				 if (x>=32768) x=0;
+		 //		 printf("%c",buffer[x]>>8);
+		 //		 x++;
+		 //		 if (x>=32768) x=0;
     	 }
 
 }
 #endif
-*/
+

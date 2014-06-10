@@ -191,7 +191,7 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
   for (i=0; i<howmuch; i++) {
     count++;
     if (count>=wrap) count=0;
-    //    workingbuffer[(count+start)%32768]=sin_data[cc%256]; //TESTY
+    workingbuffer[(count+start)%32768]=sin_data[cc%256]; //TESTY
 #ifdef PCSIM
     //        printf("%c",workingbuffer[(count+start)%32768]);
     //if (count>32767) printf("SINECRASH%d\n",count);
