@@ -328,9 +328,11 @@ For Mater Lachrymarum IN is unused!
 - new layout - mode quadrant as 1-groups/2-finger/3-mirror(inc
   eeg)/4-attach=finger/process/detach/knob
 
+- simulate whole in one space(double each op)
 - knob settings in fingers (esp for stack settings)
 - tweak speed of fingervalright
 - tweak speeds in settings.h
+- wormdir
 
 //////
 
@@ -342,13 +344,13 @@ For Mater Lachrymarum IN is unused!
 
 //////
 
-- EVE- re-test CPUintrev3 (esp ants/turmites)
-
 ** DONE:
 
 - fixed runcel in CAforstacksansmem//fixed cel errors in CAforstacksansmem
-- groups DONE and tested
+- groups/fingers DONE and tested
 - re-instated exestack from mainquestion.c 
+- re-test CPUintrev3 (esp ants/turmites) UPTO 6//corewars FIXES
+
 
 * TUE 10 JUNE
 

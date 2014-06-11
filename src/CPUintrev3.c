@@ -8,9 +8,13 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-extern u16 *settingsarray;
+/*extern u16 *settingsarray;
 extern int16_t* audio_buffer;
-extern uint16_t* adc_buffer;
+extern uint16_t* adc_buffer;*/
+u16 settingsarray[64];
+int16_t audio_buffer[65536];
+uint16_t adc_buffer[10];
+
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -26,7 +30,8 @@ extern u16 settingsarray[64];
 #include <math.h>
 
 #ifdef PCSIM
-extern u8 wormdir; // worm direction
+//extern u8 wormdir; // worm direction
+u8 wormdir; // worm direction
 #else
 extern u8 wormdir;
 #endif
@@ -152,9 +157,10 @@ void thread_run(thread* this, machine *m) {
 
     //    printf("
     //    printf("CPU: %d\n",this->m_CPU);
-    //    printf("%c",machine_peek(m,this->m_pc));
+    printf("%c",machine_p88k(m,this->m_pc));
 
 #endif
+
     switch(this->m_CPU)
       {
       case 0: // :LEAKY STACK! - working!
@@ -423,12 +429,14 @@ void thread_run(thread* this, machine *m) {
       instr=machine_p88k(m,this->m_pc);
 
       //      instr=machine_peek(m,this->m_pc);
-      //      printf("instr %d ",instr);
+      //            printf("instr %d\n",instr%5);
       switch(instr%5){
       case 0:
 	machine_poke(m,this->m_pc,255);
 	machine_poke(m,this->m_pc+1,255);
-	this->m_pc+=2;
+	//	this->m_pc+=2;
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
+
 	break;
       case 1:
 	if (machine_p88k(m,this->m_pc)<128){
@@ -449,9 +457,10 @@ void thread_run(thread* this, machine *m) {
 	break;
       case 4:
 	machine_poke(m,this->m_pc+1,adc_buffer[(this->m_reg8bit1>>8)%10]);
+	this->m_pc+=biotadir[this->m_reg8bit2%8];
 	  break;
-
       }
+
       if (machine_p88k(m,this->m_pc)==255) this->m_reg8bit2+=4;
       	wormdir=this->m_reg8bit2%8;
 	//      printf("%c",this->m_pc);
@@ -465,7 +474,7 @@ void thread_run(thread* this, machine *m) {
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       instr=machine_p88k(m,this->m_pc);
-      //      printf("instr %d ",instr);
+      //            printf("instr %d\n",instr%15);
       switch(instr%15){
       case 0:
 	this->m_reg16bit1+=2;
@@ -504,15 +513,17 @@ void thread_run(thread* this, machine *m) {
 	this->m_pc++;
 	break;
       case 9:	  
-	if (machine_peek(m,this->m_pc+1)==0) this->m_pc=this->m_start+this->m_reg16bit1;
-	//	this->m_pc++;
+	if (machine_peek(m,this->m_pc+1)==0) {
+	    this->m_pc=this->m_start+this->m_reg16bit1;
+	}
+	else this->m_pc++;
 	break;
       case 10:	  
-	if (machine_p88k(m,this->m_pc+1)<128) this->m_pc+=machine_p88k(m,this->m_pc+1);
+	if (machine_p88k(m,this->m_pc+1)<128 && machine_p88k(m,this->m_pc+1)>0) this->m_pc+=machine_p88k(m,this->m_pc+1);
 	else 	this->m_pc++;
 	break;
       case 11:	  
-	if (machine_p88k(m,this->m_pc-1)<128) machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
+	if (machine_p88k(m,this->m_pc-1)<128) machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc));
 	this->m_pc++;
 	break;
       case 12:	  
@@ -524,6 +535,7 @@ void thread_run(thread* this, machine *m) {
 	break;
       case 14:
 	machine_poke(m,this->m_pc,adc_buffer[((this->m_reg8bit1)>>8)%10]);
+	this->m_pc++;
 	break;
       }
       //      printf("%c",this->m_pc);
@@ -542,6 +554,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
 
       instr=machine_p88k(m,this->m_pc);
+      //      printf("instr %d\n",instr%30);
+
       switch(instr%30){
       case 0:
 	// MOV # to direct.
@@ -680,9 +694,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	//	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
+	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
 	//	printf("adde\n");
-	
+	this->m_pc+=3;
 	break;
       case 27:
 	this->m_pc+=3;
@@ -707,6 +721,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
       //      printf("instr %d ",instr);
+      //      printf("instr %d\n",instr%5);
+
       switch(instr%5){
       case 0:
 	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128)) cells[IP]++;
@@ -733,12 +749,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	}
 	this->m_pc++;
 	break;
-#ifndef PCSIM
       case 4:
 	machine_poke(m,this->m_pc,randi()%255);
-#endif
+	//	this->m_pc++;
 	break;
-
       }
       break;    
 
@@ -808,7 +822,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // but sans return stack
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
-      //      printf("instr %d ",instr);
+      //            printf("instr %d\n",instr%16);
       switch(instr%16){
       case 0:
 	flag=thread_pop(this);
@@ -884,6 +898,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 15:
 	machine_poke(m,machine_peek(m,this->m_pc+1),adc_buffer[thread_pop(this)%10]);      
+	this->m_pc++;
 	break;
 
       }
@@ -1144,10 +1159,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // start generic - add (add/sub/zero/copy/invert/swap)
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
+      machine_poke(m,this->m_pc,instr+1);
       this->m_pc++;
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
-
-      machine_poke(m,this->m_pc,instr+1);
       break;
     case 18:
       // generic - sub (add/sub/zero/copy/invert/swap)
@@ -1174,13 +1188,14 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc^255));
       this->m_pc++; 
       break;
+      ////////////////////////////////////////////////////??????
     case 22:
       // generic - swap (add/sub/zero/copy/invert/swap)
-      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc+1);
       machine_poke(m,this->m_pc+1,machine_p88k(m,this->m_pc));
       machine_poke(m,this->m_pc,instr);
-      this->m_pc++; 
+      this->m_pc+=2; 
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       break;
     case 23:
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
@@ -1191,6 +1206,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       // from wormcode.c
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
+      //      printf("instr %d\n",instr%15);
       switch(instr%15)
 	{
 	case 0:
@@ -1247,6 +1263,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  if (machine_p88k(m,this->m_pc+(biotadir[randi()%8]*2))==0){
 	    wormdir=biotadir[randi()%8];
 	    this->m_pc+=wormdir;
+	  }
+	  else {  wormdir=biotadir[randi()%8];
+	  this->m_pc+=wormdir;
 	  }
 	  break;
 	case 11:
@@ -1328,10 +1347,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       temp=(machine_p88k(m,this->m_pc-1)*machine_p88k(m,0))+(machine_p88k(m,this->m_pc)*machine_p88k(m,1))+(machine_p88k(m,this->m_pc+1)*machine_p88k(m,2));
       y=this->m_pc+32768;
-      if (y<3) y=3;
+      //      if (y<3) y=3;
       machine_poke(m,y,temp);
       this->m_pc++; 
-      if (this->m_pc<3) this->m_pc=3;
+      //      if (this->m_pc<3) this->m_pc=3;
 
     }
       this->m_delc=0;
@@ -1527,13 +1546,14 @@ void killcpu(machine *m, u8 killed){
   m->m_threadcount--;}
 }
 
-/*
+
 #ifdef PCSIM
-int main(void)
+//int main(void)
+int main(int argc, char **argv)
 {
   u16 xx; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
-
+  int number=atoi(argv[1]);
   srandom(time(0));
   for (xx=0;xx<65535;xx++){
     buffer[xx]=randi()%255;
@@ -1552,14 +1572,15 @@ int main(void)
   u8 flag,other;
   int16_t right_buffer[64]; u8 sz=128;
 
-	for (unsigned char n=0; n<100; n++)
+	for (unsigned char n=0; n<120; n++)
 	{
 	  addr=randi()%65536;
+	  //	  addr=0;
 	  // 	  cpustackpush(m,addr,addr+randi()%65536,randi()%25,randi()%255);
 	  //	  	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%255);
-	  //	  cpustackpush(m,addr,addr+randi()%65536,randi()%31,randi()%10);
-	  //	  cpustackpush(m,buffer, addr,addr+randi()%65536,randi()%31,1);
-	  	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
+	  	  cpustackpush(m,buffer,addr,addr+randi()%65536,randi()%31,randi()%10);
+	  //	  	  cpustackpush(m,buffer, addr,addr+randi()%65536,randi()%31,);
+	  //	  	  	  cpustackpush(m,buffer,addr,65535,number,100);
 	}
 
 
@@ -1584,12 +1605,12 @@ int main(void)
 
 	while(1) {
 	  machine_run(m); //cpu - WRAP own speed
-	  printf("%c",buffer[x]);
-	  x++;
+	  //	  	  printf("%c",buffer[x]);
+	  	  x++;
 
-	  	  for (u8 y=0;y<m->m_threadcount;y++){
-	    m->m_threads[y].m_CPU=rand()%31;
-	    }
+	  //	  	  for (u8 y=0;y<m->m_threadcount;y++){
+		    //	    m->m_threads[y].m_CPU=rand()%31;
+	  //	    }
 
 		  //	  	  if ((rand()%20)>10)	  cpustackpush(m,buffer,addr,addr+randi()%65536,6,1);
 		  //	  	  else cpustackpop(m);
@@ -1598,4 +1619,4 @@ int main(void)
 	}
 
 #endif
-*/
+
