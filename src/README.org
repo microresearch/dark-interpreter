@@ -325,8 +325,10 @@ For Mater Lachrymarum IN is unused!
 597.wav (noin,hard)
 
 - new layout/knobs basic tests: fingerUP as setting but will need to
-  re-work fingercode and knobs togetherness (also if fingerUP should
-  set ALL knobs as fixed)
+  re-work fingercode and knobs togetherness (also if fingers should
+  set ALL knobs as fixed or some and how some)
+
+- fingers navigate audio (up/down/left/right as audio and datadirs now)
 
 //////
 
