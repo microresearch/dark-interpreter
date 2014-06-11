@@ -1,3 +1,65 @@
+// 11 june
+
+
+	/*
+      machine_count++;
+      if (machine_count>=MACHINESPEED){
+
+      for (x=0;x<4;x++){
+	switch(exeperms[((EXESPOT%22)*4)+x]){
+	case 0:
+	  func_runall(stackyy,stack_pos); // simulations
+	  break;
+	case 1:
+	  ca_runall(stackyyy,stack_posy); // CA
+	  break;
+	case 2:
+	  machine_run(m);
+	    m->m_leakiness=leakiness;
+	    m->m_infectprob=infection;
+	    machine_count=0;
+	  break;
+	case 3:
+	  leak_count++;
+	  if (leak_count>=LEAKSPEED){
+	    machine_runnn(datagenbuffer);
+	    leak_count=0;
+	  }
+	}
+	}
+      } // end of machine count
+	*/
+
+
+  //  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
+
+
+	//	if (fingerdirupdown()==0){
+	if ((rand()%6)==1){
+	//SIM/CA/CPU:
+	  /*	  stacker[(adc_buffer[SECOND]>>4)%(STACK_SIZE*4)]++;
+	  stackery[(adc_buffer[THIRD]>>4)%(STACK_SIZE*4)]++;
+	  cpur=(adc_buffer[FOURTH]>>5)%(m->m_threadcount);
+	  */
+	  //stacker[(rand()%256)%(STACK_SIZE*4)]++;
+	  stackery[(rand()%256)%(STACK_SIZE*4)]++;
+	  cpur=((rand()%256))%(m->m_threadcount);
+
+	  cpu++;
+	  m->m_threads[cpur].m_CPU=cpu%31;
+	}
+      //	else if (fingerdirupdown()==1){
+	  //SIM/CA/CPU:
+	if ((rand()%2)==1){
+	  /*	  stacker[(adc_buffer[SECOND]>>4)%(STACK_SIZE*4)]--;
+	  stackery[(adc_buffer[THIRD]>>4)%(STACK_SIZE*4)]--;
+	  cpur=(adc_buffer[FOURTH]>>5)%(m->m_threadcount);*/
+	  //stacker[(rand()%256)%(STACK_SIZE*4)]--;
+	  stackery[(rand()%256)%(STACK_SIZE*4)]--;
+	  cpur=((rand()%256))%(m->m_threadcount);
+
+	  cpu--;
+	  m->m_threads[cpur].m_CPU=cpu%31;
 
 
 // 10 JUNE:

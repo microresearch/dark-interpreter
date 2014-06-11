@@ -15,6 +15,7 @@
  make stlink_flash
 */
 
+#define MAX_EXE_STACK 8
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
 //#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
 
@@ -149,6 +150,23 @@ u8 table[21];
 u16 sin_data[256];  // sine LUT Array
 
 
+
+u8 exestackpush(u8 exenum, u8* exestack, u8 exetype){
+  u8 tmp;
+  if (exenum<MAX_EXE_STACK){
+    exestack[exenum]=exetype;
+    exenum++;
+  }
+  return exenum;
+}
+
+u8 exestackpop(u8 exenum, u8* exestack){
+  if (exenum>0){
+    exenum--;
+  }
+  return exenum;
+  }
+
 u16 villagepush(u16 villagepos, u16 start, u16 wrap){
   if (villagepos<(VILLAGE_SIZE-2)) /// size -2
     {
@@ -223,9 +241,6 @@ u8 fingerdirupdown(void){
   u8 handleft, handright, left=0,right=0;
   u8 result=2;
 
-  // TESTY!
-  //  return (rand()%2);
-
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[UP]>>8;
   handright=adc_buffer[DOWN]>>8;
@@ -240,6 +255,27 @@ u8 fingerdirupdown(void){
   }
   return result;
 }
+
+signed char fingerdirupdownn(void){
+
+  u8 handleft, handright, left=0,right=0;
+  signed char result=0;
+
+  for (u8 x=0;x<16;x++){
+  handleft=adc_buffer[UP]>>8;
+  handright=adc_buffer[DOWN]>>8;
+  if (handleft>8) left++;
+  if (handright>8) right++;
+  if (left>8 && left>right) {
+    result=-1;
+  }
+  else if (right>8 && right>left) {
+    result=1;
+  }
+  }
+  return result;
+}
+
 
 u16 fingervalup16bits(u16 tmpsetting, u8 inc){
   u8 handup,handdown;
@@ -294,9 +330,29 @@ tmpsetting-=1;
 u8 fingervalright(u8 tmpsetting, u8 wrap){
   u8 handup,handdown;
   u8 ttss=0,sstt=0;u8 x;
+  for (x=0;x<32;x++){ // TODO: tweak for speed?
+    handup=adc_buffer[RIGHT]>>8; // 4bits=16
+    handdown=adc_buffer[LEFT]>>8;
+    if (handup>8) ttss++;
+    else if (handdown>8) sstt++;
+  }
+  if (ttss>sstt) {
+    tmpsetting+=1;
+    tmpsetting=tmpsetting%wrap;
+  }
+  else if (ttss<sstt) {
+tmpsetting-=1;
+ if (tmpsetting==255) tmpsetting=wrap-1;
+  }
+  return tmpsetting;
+}
+
+u8 fingervalupwrap(u8 tmpsetting, u8 wrap){
+  u8 handup,handdown;
+  u8 ttss=0,sstt=0;u8 x;
   for (x=0;x<16;x++){
-  handup=adc_buffer[RIGHT]>>8;
-  handdown=adc_buffer[LEFT]>>8;
+  handup=adc_buffer[UP]>>8;
+  handdown=adc_buffer[DOWN]>>8;
   if (handup>8) ttss++;
   else if (handdown>8) sstt++;
   }
@@ -311,12 +367,13 @@ tmpsetting-=1;
   return tmpsetting;
 }
 
+
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
-  u8 machine_count=0,leak_count=0; 
-  //  u8 exeperms[88]={0,1,2,3, 0,1,3,2, 0,2,3,1 ,0,2,1,3, 0,3,1,2, 0,3,2,1, 1,0,2,3, 1,0,3,2, 1,2,3,0, 1,2,0,3, 1,3,2,0, 1,3,0,2, 2,1,0,3, 2,1,3,0, 2,3,1,0, 2,3,0,1, 3,0,1,2, 3,0,2,1, 3,1,0,2, 3,1,2,0, 3,2,0,1, 3,2,1,0}; 
+  u8 machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0; 
+  u8 exestack[MAX_EXE_STACK];
 
   inittable(3,4,randi());
 
@@ -370,8 +427,8 @@ void main(void)
   audio_buffer=(u8*)malloc(65536);
   settingsarray=malloc(64*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
-  stacker=malloc(48*sizeof(int16_t));
-  stackery=malloc(48*sizeof(int16_t));
+  stacker=malloc(64*sizeof(int16_t));
+  stackery=malloc(64*sizeof(int16_t));
   FOLDD=malloc(45*sizeof(int16_t));
   adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
@@ -394,6 +451,7 @@ void main(void)
   signed char stack_pos=0;
   signed char stack_posy=0;
   u16 start,wrap;
+  u8 exenums=0;
 
   struct stackey stackyy[STACK_SIZE];
   struct stackeyyy stackyyy[STACK_SIZE];
@@ -436,6 +494,7 @@ void main(void)
     settingsarray[x]=32768;//>>15
   }//DIR
 
+  settingsarray[50]=255; // STACKMUCH
   settingsarray[51]=0; //was EFFECTS // is now EXPANSION TODO!
   settingsarray[52]=0;
   settingsarray[53]=0;
@@ -464,7 +523,7 @@ void main(void)
           start=randi()<<3;
           wrap=randi()<3;
 	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
-	  //	  villagestackpos=villagepush(villagestackpos,start,wrap);
+	  //villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   //simulationforstack:	
@@ -480,13 +539,24 @@ void main(void)
         villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
+
+    // execution stack - TESTER!
+    for (x=0;x<MAX_EXE_STACK;x++){
+      exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3;
+    }
+
+    //exenums=exestackpop(exenums,exestack);
+
+
   start=0;
-  u16 count=0;
+  u16 runner=0;
 
   ///////////////////////////
 
-  u8 mastermode,mainmode,oldmainmode=0,changeflagone=0,changeflagtwo=0,changeflagthree=0,fingermode;
+  u8 mastermode;
   u8 eff[4];
+  u8 groupstart,groupwrap;
+  u8 cpur=0,cpu=0;
 
   ///////////////////////////
 
@@ -513,65 +583,58 @@ void main(void)
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
 
-      func_runall(stackyy,stack_pos); // simulations
-      //            machine_run(m);
-      //      machine_runnn(datagenbuffer);
-      //  ca_runall(stackyyy,stack_posy); // CA
-
-	/*
-      machine_count++;
-      if (machine_count>=MACHINESPEED){
-
-      for (x=0;x<4;x++){
-	switch(exeperms[((EXESPOT%22)*4)+x]){
-	case 0:
-	  func_runall(stackyy,stack_pos); // simulations
-	  break;
-	case 1:
-	  ca_runall(stackyyy,stack_posy); // CA
-	  break;
-	case 2:
-	  machine_run(m);
-	    m->m_leakiness=leakiness;
-	    m->m_infectprob=infection;
-	    machine_count=0;
-	  break;
-	case 3:
-	  leak_count++;
-	  if (leak_count>=LEAKSPEED){
-	    machine_runnn(datagenbuffer);
-	    leak_count=0;
-	  }
-	}
-	}
-      } // end of machine count
-	*/
+	      for (x=0;x<exenums;x++){
+		switch(exestack[x]%4){
+		case 0:
+		  func_runall(stackyy,stack_pos); // simulations
+		  break;
+		case 1:
+		  ca_runall(stackyyy,stack_posy); // CA
+		  break;
+		case 2:
+		  machine_count++;
+		  if (machine_count>=MACHINESPEED){
+		  machine_run(m); //cpu - WRAP own speedTODO
+		  m->m_leakiness=leakiness;
+		  m->m_infectprob=infection;
+		  machine_count=0;
+		  }
+		  break;
+		case 3:
+		  leak_count++;
+		  if (leak_count>=LEAKSPEED){
+		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
+		    leak_count=0;
+		  }
+		    break;
+		    }
+	      }
 
       //// MODE/KNOB CODE START
       /////////////////////////////////////
       
       u8 xx;
-      mastermode=adc_buffer[FIRST]>>11; // 32=5 bits
+      mastermode=adc_buffer[FIRST]>>7; // 32=5 bits
 
       eff[0]=adc_buffer[SECOND]>>5; // was 7 bits=128//jitter???
       eff[1]=adc_buffer[THIRD]>>5;
       eff[2]=adc_buffer[FOURTH]>>5;
+
+      //***mode quadrant as 1-groups/2-finger/3-mirror(inc eeg)/4-attach=finger/process/detach/knob
+      //***8 per quadrant=32 total      
       
+      mastermode=15; // TESTY!!
+
       switch(mastermode){
-      case 0: // EFFMODE
-	xx=fingerdir(); // 0-3
+      case 0: // GROUPS0=EFFMODE
+	xx=fingerdir(); // 0-3 -change konb assign depends on fingers
 	if (xx!=5){
 	EFFECTREAD=eff[xx%3];
 	EFFECTWRITE=eff[(xx+1)%3];
 	EFFECTFILTER=eff[(xx+2)%3];
 	}
 	  break;
-      case 1:
-
-	// knobs change groups X,Y,Z- preformed:
-	// X-START Y-WRAP Z-SPEED
-	// if enter this case then must be a change (from new mode knobs) to register...
-	
+      case 1:	//GROUPS1// preformed= X-ALL STEP Y-WRAP Z-SPEED
 	if (fingerdirupdown()==0){
 	  // STEP NOW!
 	    for (x=25;x<35;x++){
@@ -586,28 +649,275 @@ void main(void)
 	    }	   
 	}
 	    break;
-      case 2:
-	// knobs change groups X,Y,Z
-	// X and Y as chunk start/wrap
-	// Z as knob
+      case 2: //GROUPS2// second group=R,W,F parameters
+	if (fingerdirupdown()==0){
+	  // READ - 2,5,13,19,27,30,37,44 - expand and contract these
+	  settingsarray[2]=adc_buffer[SECOND]<<4;
+	  settingsarray[5]=adc_buffer[SECOND]<<4;
+	  settingsarray[13]=adc_buffer[SECOND]<<4;
+	  settingsarray[19]=adc_buffer[SECOND]<<4;
+	  settingsarray[27]=adc_buffer[SECOND]<<4;
+	  settingsarray[30]=adc_buffer[SECOND]<<4;
+	  settingsarray[37]=adc_buffer[SECOND]<<4;
+	  settingsarray[44]=adc_buffer[SECOND]<<4;
+	  
+	  // WRITE - 1,4,12,16,18,26,29,36,43
+	  settingsarray[1]=adc_buffer[THIRD]<<4;
+	  settingsarray[4]=adc_buffer[THIRD]<<4;
+	  settingsarray[12]=adc_buffer[THIRD]<<4;
+	  settingsarray[16]=adc_buffer[THIRD]<<4;
+	  settingsarray[18]=adc_buffer[THIRD]<<4;
+	  settingsarray[26]=adc_buffer[THIRD]<<4;
+	  settingsarray[29]=adc_buffer[THIRD]<<4;
+	  settingsarray[36]=adc_buffer[THIRD]<<4;
+	  settingsarray[43]=adc_buffer[THIRD]<<4;
+
+	  // FILTER - 3,6,14,17,20,28,31,38,45
+	  settingsarray[3]=adc_buffer[FOURTH]<<4;
+	  settingsarray[6]=adc_buffer[FOURTH]<<4;
+	  settingsarray[14]=adc_buffer[FOURTH]<<4;
+	  settingsarray[17]=adc_buffer[FOURTH]<<4;
+	  settingsarray[20]=adc_buffer[FOURTH]<<4;
+	  settingsarray[28]=adc_buffer[FOURTH]<<4;
+	  settingsarray[31]=adc_buffer[FOURTH]<<4;
+	  settingsarray[38]=adc_buffer[FOURTH]<<4;
+	  settingsarray[45]=adc_buffer[FOURTH]<<4;
+	}
 	break;
-      case 3:
-	// knobs change groups X,Y,Z
-	// algo walker???? TODO???
+      case 3: //GROUPS3: expand in this case (or contract?) R/W/F
+	// R 52
+	if (fingerdirupdown()==0){
+	  settingsarray[52]=adc_buffer[SECOND]<<4;
+
+	// W 51
+	  settingsarray[51]=adc_buffer[THIRD]<<4;	  
+
+	// F 53
+	  settingsarray[53]=adc_buffer[FOURTH]<<4;
+	}
 	break;
-      case 4:
-	// knobs change mirror settings - how to toggle?
-	break;
+      case 4: //GROUPS4- HW settings (TODO: IFDEF)
+	// START: 0 // lmerbase-8 // f0106erbase-9 // maximerbase-10 // hdgener=41
+	// WRAP: 11 //lmercons-22 // 23            // 24             // 42
+	// STEP: 25	// SPEED: 35
+	if (fingerdirupdown()==0){
+	// start/base
+	  settingsarray[0]=adc_buffer[SECOND]<<4;
+	  settingsarray[8]=adc_buffer[SECOND]<<4;
+	  settingsarray[9]=adc_buffer[SECOND]<<4;
+	  settingsarray[10]=adc_buffer[SECOND]<<4;
+	  settingsarray[41]=adc_buffer[SECOND]<<4;
+
+	// wraps/cons
+	  settingsarray[11]=adc_buffer[THIRD]<<4;
+	  settingsarray[22]=adc_buffer[THIRD]<<4;
+	  settingsarray[23]=adc_buffer[THIRD]<<4;
+	  settingsarray[24]=adc_buffer[THIRD]<<4;
+	  settingsarray[42]=adc_buffer[THIRD]<<4;
+
+	// step and speed
+	  settingsarray[25]=adc_buffer[FOURTH]<<4;
+	  settingsarray[35]=adc_buffer[FOURTH]<<4;
+	}
+	////
       case 5:
-	// knobs change mirror settings
+	/// access stacks and CPUs- UP and DOWN! just CPUs now!
+	  /*
+	    SIM: STACKER[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
+	    CA: STACKERY[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
+	    CPUINT:
+	    cpur to max m->m_threadcount (max is 120=7 bits)
+	    m->m_threads[cpur].m_CPU=cpu%31;
+	  */
+	if (fingerdirupdown()==0){
+	//SIM/CA/CPU:
+	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]++;
+	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]++;
+	  cpur=(eff[2])%(m->m_threadcount);
+	  cpu++;
+	  m->m_threads[cpur].m_CPU=cpu%31;
+	}
+      	else if (fingerdirupdown()==1){
+	  //SIM/CA/CPU:
+	  //if ((rand()%2)==1){
+	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]--;
+	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]--;
+	  cpur=(eff[2])%(m->m_threadcount);
+	  cpu--;
+	  m->m_threads[cpur].m_CPU=cpu%31;
+	}
+
 	break;
-      case 6:
-	// knobs change mirror settings
+	////
+      case 6: //GROUPS5	// X and Y as chunk start/wrap	// Z as knob
+	// total 64
+	if (fingerdirupdown()==0){
+	  groupstart=eff[0]>>1; // 6bits
+	groupwrap=eff[1]>>1;
+	for (x=0;x<groupwrap;x++){
+	  settingsarray[(groupstart+x)%64]=adc_buffer[FOURTH]<<4;
+	}
+	}
 	break;
-      case 7:
-	// knobs change mirror settings
+      case 7: //GROUPS6 // algo group1: X,Y,Z
+	if (fingerdirupdown()==0){
+	  groupstart=datagenbuffer[adc_buffer[SECOND]<<4]>>2;// 16 bits//6 bits
+	  groupwrap=datagenbuffer[adc_buffer[THIRD]<<4]>>2;// 16 bits//6 bits
+	for (x=0;x<groupwrap;x++){
+	  settingsarray[(groupstart+x)%64]=adc_buffer[FOURTH]<<4;
+	}
+	}
 	break;
-	    }
+	///////////////////////////////////////////////////////////////////////////
+
+	// FINGERS
+	// 8-15
+	// and what do 3 knobs do (set what? keep as effects now R.W.F (but the would reset)TODO!
+
+      case 8: //FINGERS0 // set directions 54-63 left/right UP/DOWN to set
+	directionxx=fingervalupwrap(directionxx,10);
+	xx=fingerdirleftright();
+	if (xx!=2) settingsarray[54+directionxx]=xx<<15;
+	break;
+
+      case 9: //FINGERS1 // in code: left/right=navigate stacker,stackery and CPUs up/down inc/dec
+	//	48+48+120=216
+	codepos=fingervalright(codepos,216); // TODO is stacker fixed as so=216!!! TESTY!
+	if (codepos<48){
+	  stacker[codepos]+=fingerdirupdownn(); 
+	  stacker[codepos]%=32768;
+	}
+	else if (codepos<96){
+	  stackery[codepos-48]+=fingerdirupdownn();
+	  stackery[codepos-48]%=32768;
+	}
+	  else {
+	  cpur=(codepos-96)%(m->m_threadcount);
+	  cpu+=fingerdirupdownn();
+	  cpu%=31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	break;
+
+      case 10: //FINGERS2 // in villagers
+	villagepos=fingervalright(villagepos,VILLAGE_SIZE);
+	villager[villagepos]+=(fingerdirupdownn()*2);
+	villager[villagepos]%=32768;
+	break;
+
+      case 11: //FINGERS3 // into settings
+	settingspos=fingervalright(settingspos,64);
+	settingsarray[settingspos]+=(fingerdirupdownn()*2);
+	break;
+
+      case 12: //FINGERS4 // into stacks=push and pop = EXE,CA,SIM,CPU,PURE,VILLAGER
+	// HERE if we wanted to knobs could set START,WRAP and FUNC! TODO!!!! TESTY!!!
+	
+		whichpushpop=fingervalright(whichpushpop,8);
+	//	whichpushpop=7;
+	if (fingerdirupdown()==0){//THIS IS UP!!!!!
+	  // push which
+	  switch(whichpushpop){
+	  case 0:
+	    cpustackpush(m,datagenbuffer,STACKSTART,STACKWRAP,STACKFUNC%31,STACKMUCH);
+	    break;
+	  case 1:
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,audio_buf,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	
+	    break;
+	  case 2:
+	    stack_posy=ca_pushn(stackyyy,STACKFUNC%NUM_CA,datagenbuffer,stack_posy,STACKMUCH,STACKSTART,STACKWRAP);	    
+	    break;
+	  case 3:
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,buf16,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    break;
+	  case 4:
+	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
+	    break;
+	  case 5:
+	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
+	    break;
+	  case 6:
+	    cpustackpushhh(datagenbuffer,STACKSTART,STACKWRAP,STACKFUNC%31,STACKMUCH);
+	    break;
+	  case 7:
+	    exenums=exestackpush(exenums,exestack,STACKFUNC%4); //exetype=0-3;
+	  }
+      }
+      else if (fingerdirupdown()==1){
+	// pop which
+	  switch(whichpushpop){
+	  case 0:
+	    //pop CPU
+	    cpustackpop(m);
+	    break;
+	  case 1:
+	  case 2:
+	    //pop CA
+	    stack_posy=ca_pop(stack_posy);
+	    break;
+	  case 3:
+	  case 4:
+	    //pop SIM
+	    stack_pos=func_pop(stack_pos);
+	    break;
+	  case 5:
+	    //pop village
+	    villagestackpos=villagepop(villagestackpos);
+	    break;
+	  case 6:
+	    // pop pureleak
+	    cpustackpoppp(datagenbuffer);
+	      break;
+	  case 7:
+	    exenums=exestackpop(exenums,exestack);
+	  }
+      }
+	break;
+
+	//13/14/15=bare into CODE, VILLAGERS, SETTINGS (navigate and CHANGE SETTING)
+
+      case 13:
+	codepos=fingervalright(codepos,216); // TODO is stacker fixed as so=216!!! TESTY!
+	if (codepos<48){
+	  stacker[codepos]=(adc_buffer[DOWN]<<3);
+	}
+	else if (codepos<96){
+	  stackery[codepos-48]=(adc_buffer[DOWN]<<3);
+	}
+	  else {
+	  cpur=(codepos-96)%(m->m_threadcount);
+	  cpu=(adc_buffer[DOWN]>>7)%31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	break;
+
+      case 14:
+	villagepos=fingervalright(villagepos,VILLAGE_SIZE);
+	villager[villagepos]=(adc_buffer[DOWN]<<3);
+	// TEST on wrap which is 12
+	//	settingsarray[12]=fingervalright(settingsarray[12],254);
+	break;
+
+      case 15:
+	settingspos=fingervalright(settingspos,64);
+	settingsarray[settingspos]=(adc_buffer[DOWN]<<4);
+	//	break;
+
+
+	///////////////////////////////////////////////////////////////////////////
+	// MIRROR
+	// 16-23
+	// 8 mirror modes
+	// 3 knobs=//region//mirror walkers??? CHECK discard
+
+	///////////////////////////////////////////////////////////////////////////
+	// ATTACHMENT
+	// 24-31 - attach groups to:
+	// UPDOWNLEFTRIGHT=1-process/2-fingerbare/3-knob/4-detach
+	// knob1,2=group settings/extent
+	// knob3=setting
+
+      }
 
       //      */
       //// DEAL last with hardware:
@@ -627,11 +937,9 @@ void main(void)
       /////////////////////////////////////
       //// MODE/KNOB CODE END
 
-
 #ifndef LACH
       /////////////////////////////////////
       // 4-hardware operations TODO: fix HW walkers...
-
       
       /// general HW walk in/as tmp
       if (++hwdel>=HWSPEED){

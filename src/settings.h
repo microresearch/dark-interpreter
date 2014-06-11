@@ -42,9 +42,9 @@
 #define VILLAGEFSTEP (settingsarray[34]>>8)
 
 #define HWSPEED (settingsarray[35]>>8) // 8 bits
-#define SAMPLESPEED (settingsarray[36]>>13) // 16 bits to 3 bits
-#define SAMPLESPEEDREAD (settingsarray[37]>>13)
-#define SAMPLESPEEDFILT (settingsarray[38]>>13)
+#define SAMPLESPEED (settingsarray[36]>>8) // 16 bits to 3 bits
+#define SAMPLESPEEDREAD (settingsarray[37]>>8)
+#define SAMPLESPEEDFILT (settingsarray[38]>>8)
 #define LEAKSPEED (settingsarray[39]>>7)
 #define MACHINESPEED (settingsarray[40]>>10)
 
@@ -66,9 +66,11 @@
 // Excess settings/actions to walkers - WHERE to set?
 
 #define STACKFUNC (settingsarray[49]>>11)
-#define EXESPOT (settingsarray[50]>>11)  // execution order setting already constrained upto22
+#define STACKMUCH (settingsarray[50]>>10) 
 
 #define SAMPLEEXPAND (settingsarray[51]>>1) // test TODO for expansion
+#define SAMPLEREXPAND (settingsarray[52]>>1) // test TODO for expansion
+#define SAMPLEWEXPAND (settingsarray[53]>>1) // test TODO for expansion
 
 /// writeexpand above-51, readexpand-52, filterexpand-53
 

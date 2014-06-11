@@ -320,15 +320,43 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+
+* WED 11 JUNE
+
+599.wav (horbuchin,nohard,noplay), 601.wav/602(horbuchin,nohard,noplay)
+
+- new layout - mode quadrant as 1-groups/2-finger/3-mirror(inc
+  eeg)/4-attach=finger/process/detach/knob
+
+- knob settings in fingers (esp for stack settings)
+- tweak speed of fingervalright
+- tweak speeds in settings.h
+
+//////
+
+- check STACKSTART etc. are inited okayyyy in main.c
+- TODO:add EXPANDS to all audio.c
+- how to make villagers a bit clearer (also per villager effects see below)
+- clean up execution- WHAT to execute and where/how to add or remove?
+- bounce stacks AND CPU to villagers...
+
+//////
+
+- EVE- re-test CPUintrev3 (esp ants/turmites)
+
+** DONE:
+
+- fixed runcel in CAforstacksansmem//fixed cel errors in CAforstacksansmem
+- groups DONE and tested
+- re-instated exestack from mainquestion.c 
+
 * TUE 10 JUNE
 
 597.wav (noin,hard)
 
 - new layout/knobs basic tests: fingerUP as setting but will need to
   re-work fingercode and knobs togetherness (also if fingers should
-  set ALL knobs as fixed or some and how some)
-
-- fingers navigate audio (up/down/left/right as audio and datadirs now)
+  set ALL knobs as fixed or only some and how only some)
 
 //////
 
@@ -337,19 +365,13 @@ For Mater Lachrymarum IN is unused!
 
 LATER:
 
-- what of untied fingers?
-
-- add new datagens (from sci-am etc.)-worms through all, infectuous
-  groupings and processes in settings
-
+- worms through all, infectuous groupings and processes in settings
 - per villager effects (how to attach) but no process attach (regions
   only)... how many villagers we can have in memory???
-
-- refine execution and exespot
-
+- tie villagers also to CPU as well as stacker/stackery
 - randi as one issue (as varies quite small)TODO
-
-- hardware is all same walker with shifts from base value!TODO!
+- hardware is all same walker with shifts from base value!TODO! FIX!
+  (but shift is also important)
 
 ** DONE
 
@@ -358,7 +380,7 @@ LATER:
   done this before but???)
 - small CA fixes and added KRUMMEL
 
-
+  
 * MON 9 JUNE
 
 597.wav (noin,hard)

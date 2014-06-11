@@ -279,7 +279,7 @@ void thread_run(thread* this, machine *m) {
 	  else flag=1;
 	  break;
 	case 6:
-	  //    * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
+	  //  * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
 	  // left is -2
 
 	  if (machine_p88k(m,this->m_reg16bit1)==0 || (machine_p88k(m,this->m_reg16bit1+(this->m_reg16bit1+((this->m_reg8bit1-4)%8))))!=0) flag=1;

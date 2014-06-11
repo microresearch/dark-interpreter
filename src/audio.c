@@ -1169,7 +1169,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	  }
 
-	  //	  VILLAGEWRITE=3; // TESTY!!!!
+	  VILLAGEWRITE=0; // TESTY!!!!
  
 	  	  if (++del>=SAMPLESPEED){
 	  	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
