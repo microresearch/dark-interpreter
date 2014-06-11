@@ -70,7 +70,7 @@
 
 #define SAMPLEEXPAND (settingsarray[51]>>1) // test TODO for expansion
 #define SAMPLEREXPAND (settingsarray[52]>>1) // test TODO for expansion
-#define SAMPLEWEXPAND (settingsarray[53]>>1) // test TODO for expansion
+#define SAMPLEFEXPAND (settingsarray[53]>>1) // test TODO for expansion
 
 /// writeexpand above-51, readexpand-52, filterexpand-53
 

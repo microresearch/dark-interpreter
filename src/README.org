@@ -324,6 +324,10 @@ For Mater Lachrymarum IN is unused!
 
 - u16 settingsarrayattached
 
+-SEE TUE/WED TODO: hardware, villagers
+
+villagers: how many?, start/wrap/effect
+
 * WED 11 JUNE
 
 599.wav (horbuchin,nohard,noplay), 601.wav/602(horbuchin,nohard,noplay)
@@ -342,7 +346,11 @@ For Mater Lachrymarum IN is unused!
 - check STACKSTART etc. are inited okayyyy in main.c
 - TODO:add EXPANDS to all audio.c
 - how to make villagers a bit clearer (also per villager effects see below)
-- bounce stacks _and_ CPU to villagers - re-org villagers as blocks
+
+- bounce stacks _and_ CPU to villagers - live re-org villagers as blocks
+
+  m->m_threads[sel].m_start
+  m->m_threads[sel].m_wrap
 
 //////
 
@@ -358,18 +366,13 @@ For Mater Lachrymarum IN is unused!
 
 597.wav (noin,hard)
 
-- new layout/knobs basic tests: fingerUP as setting but will need to
-  re-work fingercode and knobs togetherness (also if fingers should
-  set ALL knobs as fixed or only some and how only some)
-
 //////TODO:
 
 - refine and add in IFDEFs
 - test on basic board/s
 
-LATER:
-
 - worms through all, infectuous groupings and processes in settings
+- walkers can also be like ants, turmites and so on - MODES/location/walker walkers(=mirror?)
 - per villager effects (how to attach) but no process attach (regions
   only)... how many villagers we can have in memory???
 - tie villagers also to CPU as well as stacker/stackery
@@ -390,14 +393,6 @@ LATER:
 597.wav (noin,hard)
 
 ** NOTES: 
-
-NEW: questions:
-
-- fingers into CPU and pureleak (how to choose execution - again more control)
-- nearly all settings are for walkers ???
-- exeperms doesn't include non execution of any (how many extra options?)
-- stacks or no stacks for execution (more control?)
-- walkers can also be like ants, turmites and so on - MODES/location/walker walkers(=mirror?)
 
 ////
 
