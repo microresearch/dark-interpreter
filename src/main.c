@@ -495,7 +495,8 @@ void main(void)
     settingsarray[x]=32768;//>>15
   }//DIR
 
-  settingsarray[50]=255; // STACKMUCH
+  settingsarray[50]=0; // STACKFUNC
+  settingsarray[50]=8192; // STACKMUCH=8 <<10
   settingsarray[51]=0; //was EFFECTS // is now EXPANSION TODO!
   settingsarray[52]=0;
   settingsarray[53]=0;

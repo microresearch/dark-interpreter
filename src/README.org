@@ -322,11 +322,10 @@ For Mater Lachrymarum IN is unused!
 
 * THU 12 JUN
 
-- u16 settingsarrayattached
+- finish mirror and attach=settingsarrayattached 
 
--SEE TUE/WED TODO: hardware, villagers
-
-villagers: how many?, start/wrap/effect
+- SEE TUE/WED TODO: hardware walkers, villagers
+- villagers: how many can we have?, start/wrap/effect
 
 * WED 11 JUNE
 
@@ -343,11 +342,7 @@ villagers: how many?, start/wrap/effect
 
 //////
 
-- check STACKSTART etc. are inited okayyyy in main.c
-- TODO:add EXPANDS to all audio.c
-- how to make villagers a bit clearer (also per villager effects see below)
-
-- bounce stacks _and_ CPU to villagers - live re-org villagers as blocks
+- bounce stacks _and_ CPU to villagers - live re-org villagers as blocks(change order)
 
   m->m_threads[sel].m_start
   m->m_threads[sel].m_wrap
@@ -359,8 +354,10 @@ villagers: how many?, start/wrap/effect
 - fixed runcel in CAforstacksansmem//fixed cel errors in CAforstacksansmem
 - groups/fingers DONE and tested
 - re-instated exestack from mainquestion.c 
-- re-test CPUintrev3 (esp ants/turmites) UPTO 6//corewars FIXES
-- clean up execution- WHAT to execute and where/how to add or remove?
+- re-tested CPUintrev3/pureleak (esp ants/turmites)FIXED
+- cleaned up execution- WHAT to execute and where/how to add or remove?
+- added EXPANDS to all audio.c UNTESTED!
+- checked STACKSTART etc. are inited okayyyy in main.c
 
 * TUE 10 JUNE
 
@@ -445,7 +442,6 @@ code etc...
 - what errors will valgrind detect (all arrays as malloced in PCSIM
   will work better)DONE-all arrays converted and checked with
   valgrind-no errors/below:
-
 - fixed for pointer/potential crash in audio.c
 - fixed other wierd/overflow/crash bug in runconvforaudio in audio.c
 
@@ -508,7 +504,6 @@ CRASH notes:
 - re-instated: - last of one of effects gives high pitch??? check
   out-runformforaudio was commented outRE_TEST-DONE and made global freq
 
-
 * SUN 11 MAY RIGA
 
 ** DONE:
@@ -517,6 +512,7 @@ CRASH notes:
 - put fix into sim with runform after valgrind tests DONE
 
 : valgrind  --undef-value-errors=no --leak-check=full ./DISIM
+:  valgrind  --undef-value-errors=no --leak-check=full --show-leak-kinds=all ./DISIM
 
 -runcel1d in ca needs a re-write DONE
 
