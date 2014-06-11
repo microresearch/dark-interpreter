@@ -84,6 +84,7 @@ u16 villager[VILLAGE_SIZE];
 u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
+u16 settingsarrayattached[64];
 //u16 FOLDD[45]; // MAX size 44!!!
 
 #endif

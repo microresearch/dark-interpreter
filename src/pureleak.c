@@ -7,9 +7,12 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-extern uint16_t *settingsarray;
+/*extern uint16_t *settingsarray;
 extern int16_t* audio_buffer;
-extern uint16_t* adc_buffer;
+extern uint16_t* adc_buffer;*/
+uint16_t settingsarray[64];
+int16_t audio_buffer[32768];
+uint16_t adc_buffer[10];
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -562,6 +565,7 @@ break;
 	break;
       case 4:
 	machine_pokeee(buffer,addr+1,adc_buffer[(BIT81>>8)%10]);
+	addr+=biotadir[BIT81%8];
 	  break;
 
       }
@@ -629,7 +633,7 @@ break;
       case 9:	  
 	y=((ADDRHI<<8)+ADDRLO);
 	if (machine_peekkk(buffer,addr+1)==0) addr=y+(BITADDRHI<<8)+BITADDRLO;
-	//	addr++;
+	else	addr++;
 	break;
       case 10:	  
 	if (machine_p88kkk(buffer,addr+1)<128) addr+=machine_p88kkk(buffer,addr+1);
@@ -880,12 +884,10 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	}
 	addr++;
 	break;
-#ifndef PCSIM
       case 4:
 	machine_pokeee(buffer,addr,randi()%255);
-#endif
+	addr++;
 	break;
-
       }
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
@@ -1045,6 +1047,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 15:
 	machine_pokeee(buffer,machine_peekkk(buffer,addr+1),adc_buffer[thread_poppp(buffer,offset)%10]);      
+	addr++;
 	break;
 
       }
@@ -1377,7 +1380,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       instr=machine_p88kkk(buffer,addr+1);
       machine_pokeee(buffer,addr+1,machine_p88kkk(buffer,addr));
       machine_pokeee(buffer,addr,instr);
-      addr++; 
+      addr+=2; 
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
       break;
@@ -1581,7 +1584,7 @@ void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
 
 ///////////////////////////////////////////////////////////////
 
-/*
+
 #ifdef PCSIM
 int main(void)
 {
@@ -1617,4 +1620,4 @@ int main(void)
 
 }
 #endif
-*/
+

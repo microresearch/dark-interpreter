@@ -320,16 +320,19 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+* THU 12 JUN
+
+- u16 settingsarrayattached
 
 * WED 11 JUNE
 
 599.wav (horbuchin,nohard,noplay), 601.wav/602(horbuchin,nohard,noplay)
 
-- new layout - mode quadrant as 1-groups/2-finger/3-mirror(inc
+- new layout - mode quadrant as 1-groupsX/2-fingerX/3-mirror(inc
   eeg)/4-attach=finger/process/detach/knob
 
-- simulate whole in one space(double each op)
-- knob settings in fingers (esp for stack settings)
+- simulate whole in one space(double each and every op as local memory/datagen????)
+- knob settings in fingers (eg. for stack settings, what else)
 - tweak speed of fingervalright
 - tweak speeds in settings.h
 - wormdir
@@ -339,8 +342,7 @@ For Mater Lachrymarum IN is unused!
 - check STACKSTART etc. are inited okayyyy in main.c
 - TODO:add EXPANDS to all audio.c
 - how to make villagers a bit clearer (also per villager effects see below)
-- clean up execution- WHAT to execute and where/how to add or remove?
-- bounce stacks AND CPU to villagers...
+- bounce stacks _and_ CPU to villagers - re-org villagers as blocks
 
 //////
 
@@ -350,7 +352,7 @@ For Mater Lachrymarum IN is unused!
 - groups/fingers DONE and tested
 - re-instated exestack from mainquestion.c 
 - re-test CPUintrev3 (esp ants/turmites) UPTO 6//corewars FIXES
-
+- clean up execution- WHAT to execute and where/how to add or remove?
 
 * TUE 10 JUNE
 
@@ -360,7 +362,7 @@ For Mater Lachrymarum IN is unused!
   re-work fingercode and knobs togetherness (also if fingers should
   set ALL knobs as fixed or only some and how only some)
 
-//////
+//////TODO:
 
 - refine and add in IFDEFs
 - test on basic board/s
