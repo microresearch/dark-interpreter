@@ -322,7 +322,7 @@ For Mater Lachrymarum IN is unused!
 
 * THU 12 JUN
 
-- finish mirror and attach=settingsarrayattached 
+- finish mirror and attach==settingsarrayattached 
 
 - SEE TUE/WED TODO: hardware walkers, villagers
 - villagers: how many can we have?, start/wrap/effect
@@ -339,9 +339,6 @@ For Mater Lachrymarum IN is unused!
 - tweak speed of fingervalright
 - tweak speeds in settings.h
 - wormdir
-
-//////
-
 - bounce stacks _and_ CPU to villagers - live re-org villagers as blocks(change order)
 
   m->m_threads[sel].m_start
@@ -349,7 +346,7 @@ For Mater Lachrymarum IN is unused!
 
 //////
 
-** DONE:
+** DONE
 
 - fixed runcel in CAforstacksansmem//fixed cel errors in CAforstacksansmem
 - groups/fingers DONE and tested
@@ -358,6 +355,7 @@ For Mater Lachrymarum IN is unused!
 - cleaned up execution- WHAT to execute and where/how to add or remove?
 - added EXPANDS to all audio.c UNTESTED!
 - checked STACKSTART etc. are inited okayyyy in main.c
+- audio.c conv and co. moved out of sz loop (but cannot be per villager effects)
 
 * TUE 10 JUNE
 
@@ -374,8 +372,7 @@ For Mater Lachrymarum IN is unused!
   only)... how many villagers we can have in memory???
 - tie villagers also to CPU as well as stacker/stackery
 - randi as one issue (as varies quite small)TODO
-- hardware is all same walker with shifts from base value!TODO! FIX!
-  (but shift is also important)
+- hardware is all same walker with shifts from base value!TODO! FIX!(but shift is also important)
 
 ** DONE
 
@@ -384,7 +381,6 @@ For Mater Lachrymarum IN is unused!
   done this before but???)
 - small CA fixes and added KRUMMEL
 
-  
 * MON 9 JUNE
 
 597.wav (noin,hard)

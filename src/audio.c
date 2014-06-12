@@ -892,6 +892,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 	  del=0;
 	  }
+	}
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp>12){
 	    switch(tmpp){
@@ -906,9 +907,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    case 15:
 	      //	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
-	  }
+	    }
 	  } // end of tmpp>12
-	}
+	
 
 	/////////////////////////////NO____LACH!!!!!!!!!
 #else
@@ -1076,13 +1077,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 	  del=0;
 	  }
+	}
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp==15){
 	      // 3 floats!
 	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
 	      runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
 	  } // end of tmpp==15
-	}
+	
 	}
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
@@ -1229,6 +1231,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 	  del=0;
 	  	  }
+	  }
+
 	  // process mono_buffer for extra effects 13/14/15
 	  if (tmpp>12){
 
@@ -1244,9 +1248,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    case 15:
 	      runformforaudio(sz/2,temp_buffer,mono_buffer);
 	      break;
-	  }
+	    }
 	  } // end of tmpp>12
-	}
+	  
 	  }
       	///!!!!!!////////////////////////////////END OF WRITEOUTSSS
 
