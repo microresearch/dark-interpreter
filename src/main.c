@@ -1076,14 +1076,15 @@ void main(void)
 	///////////////////////////////////////////////////////////////////////////
 	// MIRROR_MIRROR//swop=mirror region to region of...???
 	// 
-	// 1/settingsarray 2/villager 3/stacks/CPU 4/foldback
-	//24-1-1//25-2-2//26-3-3//27-4-4/28-2-3(start<->end only)//29-3->2 +30???
+	// 1/settingsarray 2/villager 3/stacksandCPU 4/foldback
+	//24-1-1//25-2-2//26-3-3//27-4-4/28-2-3(start<->end only)//29-3->2 +30could be???
 	//toggle swop or not?
 
 	//31->
 	// UPDOWNLEFTRIGHT=1-process-buf16int/2-fingerbare/3-knob/4-detach
 	// knob1,2=group settings/extent
 	// knob3=setting
+	// toggle or not???????
 
       }
 
