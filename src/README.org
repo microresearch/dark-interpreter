@@ -320,12 +320,16 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+
+* FRI 13 JUN
+
+- test mirror toggling and running
+
 * THU 12 JUN
 
 603.wav (horbuch,hard,nocode),604ad603butnoin
 
-- finish mirror and running mirrors//-TO TEST!
-- finish attach==settingsarrayattached////-TO TEST!
+- finish extramirror and attach////-TO TEST!
 
 - SEE TUE/WED TODO: hardware walkers, villagers
 - villagers: how many can we have?, start/wrap/effect
@@ -333,12 +337,14 @@ For Mater Lachrymarum IN is unused!
 - check that execution is working fully (examining datagen and note
   that pureleak gives us beginning bleeps as storage is there)
 
-- swaps can be in mirror on finger left/right#
+_ BELOW!!!
 
 ** DONE:
 - small fixes to villagers in audio.c, and new speed setup in main.c
   (TODO: change if we tweak speed in settings.h)
 - delay added in randi() into datagenbuffer
+- finished mirror and running mirrors//-TO TEST!
+
 
 * WED 11 JUNE
 

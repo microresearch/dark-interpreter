@@ -15,7 +15,7 @@
  make stlink_flash
 */
 
-#define FOLD_SIZE 44
+#define FOLD_SIZE 14
 #define MAX_EXE_STACK 8
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
 //#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
@@ -86,7 +86,7 @@ u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 settingsarrayattached[64];
-u16 FOLDD[45]; // MAX size 44!!!
+u16 FOLDD[FOLD_SIZE]; // MAX size 44!!!
 
 #endif
 // for knobwork
@@ -524,7 +524,7 @@ void main(void)
       cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
     }
 
-  for (x=0;x<45;x++){
+  for (x=0;x<14;x++){
         FOLDD[x]=randi()<<4; // TESTY!
   }
 
@@ -919,7 +919,7 @@ void main(void)
       case 15:
 	settingspos=fingervalright(settingspos,64);
 	settingsarray[settingspos]=(adc_buffer[DOWN]<<4);
-	//	break;
+	break;
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -931,8 +931,8 @@ void main(void)
 	// modes: mirror into 1/settingsarray 2/villager 3/stacks/CPU 4/foldback
 	// mirror operations: buf16 walker(set it), EEG, where are swaps(or swaps above)
 	// knob1/2/3: mirror walkers/settings
-	// TODO: swaps can be on finger left/right?
-	break;
+	///////////////////////////////////////////////////////////////////////////
+
       case 16: 
 	// set FOLD 0,1,2
 	FOLDD[0]=adc_buffer[SECOND]<<4;
@@ -1035,7 +1035,7 @@ void main(void)
 	}
 	  else {
 	  cpur=(tmper-96)%(m->m_threadcount);
-	  cpu=(randi()<<3);
+	  cpu=randi()>>7;
 	  cpu%=31;
 	  m->m_threads[cpur].m_CPU=cpu;
 	  }
@@ -1074,15 +1074,103 @@ void main(void)
 	break;
 
 	///////////////////////////////////////////////////////////////////////////
-	// ATTACHMENT
-	// 24-31 - attach groups to:
-	// UPDOWNLEFTRIGHT=1-process/2-fingerbare/3-knob/4-detach
+	// MIRROR_MIRROR//swop=mirror region to region of...???
+	// 
+	// 1/settingsarray 2/villager 3/stacks/CPU 4/foldback
+	//24-1-1//25-2-2//26-3-3//27-4-4/28-2-3(start<->end only)//29-3->2 +30???
+	//toggle swop or not?
+
+	//31->
+	// UPDOWNLEFTRIGHT=1-process-buf16int/2-fingerbare/3-knob/4-detach
 	// knob1,2=group settings/extent
 	// knob3=setting
 
       }
 
-      //      */
+      //// DEAL WITH MIRRORING
+
+      if (m1flag&1){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  settingsarray[(((FOLDD[3])>>10)+(x%((FOLDD[4]>>10)+1)))%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  coo++;
+	}
+      }
+
+      if (m1flag&2){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  settingsarray[(((FOLDD[4])>>10)+(x%((FOLDD[5]>>10)+1)))%64]=(randi()<<4);
+	  coo++;
+	}
+      }
+
+      if (m1flag&4){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  villager[(((FOLDD[6])>>10)+(x%((FOLDD[7]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	  coo++;
+	}
+      }
+
+      if (m1flag&8){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  villager[(((FOLDD[8])>>10)+(x%((FOLDD[9]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	  coo++;
+	}
+      }
+
+      if (m1flag&16){ 
+	for (x=0;x<((FOLDD[0]>>8)+1);x++){ // TODO: goes high enough
+	  tmper=(((FOLDD[10])>>8)+(x%((FOLDD[11]>>8)+1)))%216;
+  	if (tmper<48){
+	  stacker[tmper]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  stacker[tmper]%=32768;
+	}
+	else if (tmper<96){
+	  stackery[tmper-48]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  stackery[tmper-48]%=32768;
+	}
+	  else {
+	  cpur=(tmper-96)%(m->m_threadcount);
+	  cpu=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  cpu%=31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	    coo++;
+	}
+      }
+
+      if (m1flag&32){ 
+	for (x=0;x<((FOLDD[0]>>8)+1);x++){ // TODO: goes high enough
+	  tmper=(((FOLDD[10])>>8)+(x%((FOLDD[11]>>8)+1)))%216;
+  	if (tmper<48){
+	  stacker[tmper]=(randi()<<3);
+	}
+	else if (tmper<96){
+	  stackery[tmper-48]=(randi()<<3);
+	}
+	  else {
+	  cpur=(tmper-96)%(m->m_threadcount);
+	  cpu=randi()>>7;
+	  cpu%=31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	    coo++;
+	}
+      }
+
+      if (m1flag&64){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  FOLDD[(((FOLDD[11])>>10)+(x%((FOLDD[12]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	  	  coo++;
+	}
+      }
+
+      if (m1flag&128){ 
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  FOLDD[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>10)+1)))% FOLD_SIZE]=randi()<<4;
+	  	  coo++;
+	}
+      }
+
       //// DEAL last with hardware:
 #ifdef LACH
       // deal as step???TODO?TEST!!!!
