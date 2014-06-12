@@ -581,7 +581,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
-	    //	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
+	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
 	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
@@ -694,9 +694,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp16=firstbuf[sampleposread%32768]|(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  }
-	  //	  VILLAGEREAD=0; // TESTY!
+	  VILLAGEREAD=0; // TESTY!
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
+	    //	  dirry=1; // TESTY!
 	    count=((sampleposread-startread)+dirry);
 	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
@@ -722,8 +723,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else if (VILLAGEREAD==2) {
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    //tmp=1; // TSTER!!
-		    villagerpos+=(tmp*2);
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP))%villagestackpos; //to cover all directions
+		    villagerpos+=tmp; //???
+		    tmp=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%villagestackpos; //to cover all directions
 		    startread=villager[tmp];
 		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
 		    if (wrapread==0) wrapread=1;
@@ -1093,7 +1094,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  tmpp=(EFFECTWRITE&63)>>2;
 
-	  //	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
+	  tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
@@ -1173,9 +1174,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  VILLAGEWRITE=0; // TESTY!!!!
  
-	  	  if (++del>=SAMPLESPEED){
-	  	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
-	  //	  dirry=1; //TESTY!
+	  if (++del>=SAMPLESPEED){ 
+	      dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
+	  	  dirry=1; //TESTY!
 	    count=((samplepos-start)+dirry);
 	    //	    if (count<wrap && (samplepos+dirry)>start)
 		    if (count<wrap && count>0)
@@ -1188,6 +1189,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
+		    //		    samplepos=0;start=0;wrap=32767;
 		  }
 		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
@@ -1201,13 +1203,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else if (VILLAGEWRITE==2) {
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    villagewpos+=tmp*2;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    villagewpos+=tmp;
+		    tmp=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
 		    start=villager[tmp];
 		    wrap=(villager[tmp+1]%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
+		    //		    start=0; samplepos=0;
+		    //		    wrap=32767;
 		  }
 		  else {
 		  tmp=ANYSTEP*direction[DATADIRW];

@@ -15,6 +15,7 @@
  make stlink_flash
 */
 
+#define FOLD_SIZE 44
 #define MAX_EXE_STACK 8
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
 //#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
@@ -85,7 +86,7 @@ u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 settingsarrayattached[64];
-//u16 FOLDD[45]; // MAX size 44!!!
+u16 FOLDD[45]; // MAX size 44!!!
 
 #endif
 // for knobwork
@@ -372,8 +373,8 @@ tmpsetting-=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
-  u8 machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0; 
+  u16 coo,x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
+  u8 tmper,machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0,m1flag=0; 
   u8 exestack[MAX_EXE_STACK];
 
   inittable(3,4,randi());
@@ -465,8 +466,18 @@ void main(void)
 
   // fill datagenbuffer???
 
-  for (x=0;x<65535;x++){
-    datagenbuffer[x]=randi()%255;
+  /*  for (x=0;x<65535;x++){
+        datagenbuffer[x]=randi()%255;
+	}*/
+
+  /*  for (x=0;x<100;x++){
+  delay();
+  }*/
+
+  for (x=0;x<32768;x++){
+    buf16[x]=randi()<<4;
+    delayxx();
+    //    buf16[x]=rand()%32768;
   }
 
   // setup code for walkers
@@ -483,8 +494,13 @@ void main(void)
   }//step
 
   for (x=35;x<41;x++){
-    settingsarray[x]=8192;
+    settingsarray[x]=511;
   }//speed
+
+  for (x=43;x<46;x++){
+    settingsarray[x]=0;
+  }//start
+
 
 
   for (x=46;x<49;x++){
@@ -509,14 +525,14 @@ void main(void)
     }
 
   for (x=0;x<45;x++){
-    //    FOLDD[x]=randi()<<4; // TESTY!
+        FOLDD[x]=randi()<<4; // TESTY!
   }
 
   //pureleak
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
+    //    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
   }
 
   // CA
@@ -544,7 +560,7 @@ void main(void)
 
     // execution stack - TESTER!
     for (x=0;x<MAX_EXE_STACK;x++){
-      exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3;
+      exenums=exestackpush(exenums,exestack,2); //exetype=0-3 TESTY!
     }
 
     //exenums=exestackpop(exenums,exestack);
@@ -585,6 +601,7 @@ void main(void)
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
 
+      
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]%4){
 		case 0:
@@ -611,7 +628,6 @@ void main(void)
 		    break;
 		    }
 	      }
-
       //// MODE/KNOB CODE START
       /////////////////////////////////////
       
@@ -625,7 +641,7 @@ void main(void)
       //***mode quadrant as 1-groups/2-finger/3-mirror(inc eeg)/4-attach=finger/process/detach/knob
       //***8 per quadrant=32 total      
       
-      mastermode=15; // TESTY!!
+      mastermode=20; // TESTY!!
 
       switch(mastermode){
       case 0: // GROUPS0=EFFMODE
@@ -911,6 +927,151 @@ void main(void)
 	// 16-23
 	// 8 mirror modes
 	// 3 knobs=//region//mirror walkers??? CHECK discard
+	// mirror process set/unset by fingers
+	// modes: mirror into 1/settingsarray 2/villager 3/stacks/CPU 4/foldback
+	// mirror operations: buf16 walker(set it), EEG, where are swaps(or swaps above)
+	// knob1/2/3: mirror walkers/settings
+	// TODO: swaps can be on finger left/right?
+	break;
+      case 16: 
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){ //was >>9
+	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  coo++;
+	}
+	// toggle flag with the finger
+	if (fingerdirupdown()==0) m1flag|=1; //sets
+	else if (fingerdirupdown()==1) m1flag&=~1;
+	break;
+
+      case 17: 
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){ //was >>9
+	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=(randi()<<4);
+	  coo++;
+	}
+	// toggle flag with the finger
+	if (fingerdirupdown()==0) m1flag|=2; //sets
+	else if (fingerdirupdown()==1) m1flag&=~2; 
+	break;
+
+      case 18:
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	  coo++;
+	}
+	if (fingerdirupdown()==0) m1flag|=4; //sets
+	else if (fingerdirupdown()==1) m1flag&=~4; 
+	break;
+
+      case 19:
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	    coo++;
+	}
+
+	if (fingerdirupdown()==0) m1flag|=8; //sets
+	else if (fingerdirupdown()==1) m1flag&=~8; 
+	break;
+
+      case 20: // STACKS and CPU
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	for (x=0;x<((FOLDD[0]>>8)+1);x++){ // TODO: goes high enough
+	  tmper=(((FOLDD[1])>>8)+(x%((FOLDD[2]>>8)+1)))%216;
+  	if (tmper<48){
+	  stacker[tmper]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  stacker[tmper]%=32768;
+	}
+	else if (tmper<96){
+	  stackery[tmper-48]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  stackery[tmper-48]%=32768;
+	}
+	  else {
+	  cpur=(tmper-96)%(m->m_threadcount);
+	  cpu=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768]>>1;
+	  cpu%=31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	    coo++;
+	}
+	if (fingerdirupdown()==0) m1flag|=16; //sets
+	else if (fingerdirupdown()==1) m1flag&=~16; 
+	break;
+
+      case 21: // STACKS and CPU
+	// set FOLD 0,1,2
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){ // TODO: goes high enough
+	  tmper=(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%216;
+  	if (tmper<48){
+	  stacker[tmper]=(randi()<<3);
+	  stacker[tmper]%=32768;
+	}
+	else if (tmper<96){
+	  stackery[tmper-48]=(randi()<<3);
+	  stackery[tmper-48]%=32768;
+	}
+	  else {
+	  cpur=(tmper-96)%(m->m_threadcount);
+	  cpu=(randi()<<3);
+	  cpu%=31;
+	  m->m_threads[cpur].m_CPU=cpu;
+	  }
+	    coo++;
+	}
+	if (fingerdirupdown()==0) m1flag|=32; //sets
+	else if (fingerdirupdown()==1) m1flag&=~32; 
+	break;
+
+      case 22:
+	// set FOLD 0,1,2 ---> FOLDBACK!
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	  	  coo++;
+	}
+	if (fingerdirupdown()==0) m1flag|=64; //sets
+	else if (fingerdirupdown()==1) m1flag&=~64; 
+	break;
+
+      case 23:
+	// set FOLD 0,1,2 ---> FOLDBACK!
+	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[1]=adc_buffer[THIRD]<<4;
+	FOLDD[2]=adc_buffer[FOURTH]<<4;
+
+	for (x=0;x<((FOLDD[0]>>10)+1);x++){
+	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% FOLD_SIZE]=randi()<<4;
+	  	  coo++;
+	}
+	if (fingerdirupdown()==0) m1flag|=128; //sets
+	else if (fingerdirupdown()==1) m1flag&=~128; 
+	break;
 
 	///////////////////////////////////////////////////////////////////////////
 	// ATTACHMENT
