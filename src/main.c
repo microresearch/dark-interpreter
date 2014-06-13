@@ -734,7 +734,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  settingsarray[53]=adc_buffer[FOURTH]<<4;
 	}
 
-	else if (fingerdirupdown()==0){
+	else if (fingerdirupdown()==1){
 	  settingsarray[13]=adc_buffer[SECOND]<<4;
 
 	// W 51
