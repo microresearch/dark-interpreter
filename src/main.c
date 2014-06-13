@@ -90,7 +90,7 @@ u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 settingsarrayattached[64];
-u16 FOLDD[FOLD_SIZE]; // MAX size 44!!!
+u16 FOLDD[FOLD_SIZE]; // MAX size 14!
 
 #endif
 // for knobwork
@@ -146,7 +146,7 @@ u8* datagenbuffer = (u8*)0x10000000;
 #define randi() (rand()%4096)
 u8* datagenbuffer;
 extern int16_t* audio_buffer;
-u16* FOLDD; // MAX size 44!!!
+u16* FOLDD; // MAX size 14 now*sizeof(int16_t));
 #endif
 extern u8 digfilterflag;
 
@@ -438,8 +438,8 @@ void main(void)
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(64*sizeof(int16_t));
   stackery=malloc(64*sizeof(int16_t));
-  FOLDD=malloc(45*sizeof(int16_t));
-  adc_buffer=malloc(10*sizeof(int16_t));
+  FOLDD=malloc(14*sizeof(int16_t));
+adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
   srandom(time(0));
   src=malloc(BUFF_LEN*sizeof(int16_t));
@@ -535,7 +535,7 @@ void main(void)
       cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
     }
 
-  for (x=0;x<14;x++){
+  for (x=0;x<FOLD_SIZE;x++){
         FOLDD[x]=randi()<<4; // TESTY!
   }
 
@@ -733,6 +733,17 @@ void main(void)
 	// F 53
 	  settingsarray[53]=adc_buffer[FOURTH]<<4;
 	}
+
+	else if (fingerdirupdown()==0){
+	  settingsarray[13]=adc_buffer[SECOND]<<4;
+
+	// W 51
+	  settingsarray[12]=adc_buffer[THIRD]<<4;	  
+
+	// F 53
+	  settingsarray[15]=adc_buffer[FOURTH]<<4;
+	}
+
 
 
 	break;
@@ -1226,17 +1237,13 @@ void main(void)
 	  break;
 	}
 	}
-
 	break;
 
       case 31:
-	///infection across buffer=settings/villager/stacks1/2/CPU/foldback
-	///knob1/2/3????speed//other params
-	///navigate the infectuous///
-	/// but how to run infection (from random point) as CA:
-
-
-
+	///infection across buffer=settings or foldback
+	///knob1/2/3???? reset/speed/probability of infection
+	/// but how to run infection (from random point) as CA (need
+	///mark somehow settingsarray
 	break;
       }
 

@@ -341,7 +341,7 @@ TESTS:
 - what knob settings in fingersmode could be???
 - tweak speed of fingervalright
 - tweak speeds in settings.h (remember to update initialisation in main.c)
-- wormdir - how we can toggle use of this and if makes sense?
+- wormdir - how we can toggle use of this(bitwise on mode?) and if makes sense?TEST?
 
 ////
 
