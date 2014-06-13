@@ -29,12 +29,7 @@ extern u16 settingsarray[64];
 
 #include <math.h>
 
-#ifdef PCSIM
-//extern u8 wormdir; // worm direction
-u8 wormdir; // worm direction
-#else
-extern u8 wormdir;
-#endif
+extern u8 wormdir; // worm direction
 
 /* 
 
@@ -157,7 +152,7 @@ void thread_run(thread* this, machine *m) {
 
     //    printf("
     //    printf("CPU: %d\n",this->m_CPU);
-    printf("%c",machine_p88k(m,this->m_pc));
+    //    printf("%c",machine_p88k(m,this->m_pc));
 
 #endif
 
@@ -1210,79 +1205,79 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       switch(instr%15)
 	{
 	case 0:
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 1:
 	  //inc
 	  machine_poke(m,this->m_pc,instr+1);
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 2:
 	  machine_poke(m,this->m_pc,instr-1);
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 3:
 	  this->m_pc=this->m_start+machine_p88k(m,this->m_pc);
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 4:
 	  machine_poke(m,this->m_pc,randi()%255);
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 5:
 	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 6:
 	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc+biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 7:
 	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc-biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 8:
 	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc<<biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 9:
 	  machine_poke(m,this->m_pc,machine_p88k(m,this->m_pc>>biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 10:
 	  if (machine_p88k(m,this->m_pc+(biotadir[randi()%8]*2))==0){
-	    wormdir=biotadir[randi()%8];
-	    this->m_pc+=wormdir;
+	    y=biotadir[randi()%8];
+	    this->m_pc+=y;
 	  }
-	  else {  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  else {  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  }
 	  break;
 	case 11:
 	  machine_poke(m,(this->m_pc-biotadir[randi()%8]),instr);
 	  machine_poke(m,(this->m_pc+biotadir[randi()%8]),instr);
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 12:
 	  thread_push(this, machine_p88k(m,this->m_pc+biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
 	case 13:
 	  machine_poke(m,(this->m_pc+=biotadir[randi()%8]),thread_pop(this));
-	  wormdir=biotadir[randi()%8];
-	  this->m_pc+=wormdir;
+	  y=biotadir[randi()%8];
+	  this->m_pc+=y;
 	  break;
       case 14:
 	machine_poke(m,(this->m_pc+=biotadir[randi()%8]),adc_buffer[thread_pop(this)%10]);      

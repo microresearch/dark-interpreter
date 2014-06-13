@@ -26,12 +26,7 @@ extern u16 settingsarray[64];
 
 #include <math.h>
 
-#ifdef PCSIM
-extern u8 wormdir; // worm direction
-//u8 wormdir; // worm direction
-#else
-u8 wormdir;
-#endif
+extern u8 wormdir;
 
 /* 
 
@@ -1401,77 +1396,77 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       switch(instr%15)
 	{
 	case 0:
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 1:
 	  //inc
 	  machine_pokeee(buffer,addr,instr+1);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 2:
 	  machine_pokeee(buffer,addr,instr-1);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 3:
 	  y=(ADDRHI<<8)+ADDRLO;
 	  addr=y+machine_p88kkk(buffer,addr);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 4:
 	  machine_pokeee(buffer,addr,randi()%255);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 5:
 	  machine_pokeee(buffer,addr,machine_p88kkk(buffer,addr+biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 6:
 	  machine_pokeee(buffer,addr,machine_p88kkk(buffer,addr+biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 7:
 	  machine_pokeee(buffer,addr,machine_p88kkk(buffer,addr-biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 8:
 	  machine_pokeee(buffer,addr,machine_p88kkk(buffer,addr<<biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 9:
 	  machine_pokeee(buffer,addr,machine_p88kkk(buffer,addr>>biotadir[randi()%8]));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 10:
 	  if (machine_p88kkk(buffer,addr+(biotadir[randi()%8]*2))==0){
-	    wormdir=biotadir[randi()%8];
-	    addr+=wormdir;
+	    y=biotadir[randi()%8];
+	    addr+=y;
 	  }
 	  break;
 	case 11:
 	  machine_pokeee(buffer,(addr-biotadir[randi()%8]),instr);
 	  machine_pokeee(buffer,(addr+biotadir[randi()%8]),instr);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 12:
 	  thread_pushhh(buffer, machine_p88kkk(buffer,addr+biotadir[randi()%8]),offset);
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
 	case 13:
 	  machine_pokeee(buffer,(addr+=biotadir[randi()%8]),thread_poppp(buffer,offset));
-	  wormdir=biotadir[randi()%8];
-	  addr+=wormdir;
+	  y=biotadir[randi()%8];
+	  addr+=y;
 	  break;
       case 14:
 	machine_pokeee(buffer,(addr+=biotadir[randi()%8]),adc_buffer[thread_poppp(buffer,offset)%10]);      

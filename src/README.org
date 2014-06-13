@@ -323,34 +323,37 @@ For Mater Lachrymarum IN is unused!
 
 * FRI 13 JUN
 
+- last mirroraction 31 as somehow INFECTION
+
+TESTS:
+
 - finished extramirror and attach////-TO TEST+ test mirror toggling
   and running, attachments
-
-- last mirroraction 31 as somehow this infection from selected
-  point/area of selected system????
-
-- villagers: how many can we have?, start/wrap/effect - per villager
-  effects to test (as villageeff array)
 
 - check that execution is working fully (examining datagen and note
   that pureleak gives us beginning bleeps as storage is there)
 
-++from TUE/WED below
+- per villager effects to test (in write now) TO TEST/EXPAND
 
-- knob settings in fingersmode ???
+++from TUE/WED below->SAT:
+
+- villagers: how many can we have?
+- what knob settings in fingersmode could be???
 - tweak speed of fingervalright
 - tweak speeds in settings.h (remember to update initialisation in main.c)
-- wormdir!
+- wormdir - how we can toggle use of this and if makes sense?
 
-- refine and add in IFDEFs in main.c
-- test on basic board/s
+////
 
-- hardware is all same walker with shifts from base value!TODO! FIX!(but shift is also important)
+- test basic board/s _and_ other fingers
 
 ** DONE:
 
-- changed mirrors so is not always << and >> using eff[x]
+- changed mirrors so is not always << and >> using eff[x]->check
 - added knobs in stack/fingermode TO TEST
+- testcode in one instance for village_effects (note need to change tmp in village code) in audio.c
+- added IFDEFS for LACH in main
+- cpu and pureleak fixes for use of wormdir
 
 * THU 12 JUN
 

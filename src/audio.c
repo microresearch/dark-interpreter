@@ -27,6 +27,8 @@ extern int16_t *villager;
 typedef int int32_t;
 #define float32_t float
 int16_t	*left_buffer, *right_buffer, *temp_buffer, *mono_buffer;
+#define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+extern u8 village_effects[VILLAGE_SIZE/2]; 
 
 void initaudio(void){
   //int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
@@ -41,12 +43,14 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 #include "audio.h"
 #include "CPUint.h"
 #include "settings.h"
+#include "simulation.h"
 extern __IO uint16_t adc_buffer[10];
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 extern u16 settingsarray[64];
 extern u16 villager[192];
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
-
+#define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+extern u8 village_effects[VILLAGE_SIZE/2]; 
 #endif
 
 
@@ -54,7 +58,7 @@ extern signed char direction[2];
 
 extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
 
-//extern u8 wormdir;
+extern u8 wormdir;
 extern u8 villagestackpos;
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
@@ -148,7 +152,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  u16 tmp,tmper;
+  u16 tmp=0,villw=0,tmper;
   int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
@@ -1092,11 +1096,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	  VILLAGEWRITE=EFFECTWRITE&3;
-	  tmpp=(EFFECTWRITE&63)>>2;
+	  VILLAGEWRITE=2; // TESTY!!!!
 
 	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
+
+	  if (VILLAGEWRITE==2){
+	    tmpp=village_effects[villw/2];
+	  }
+	  else tmpp=(EFFECTWRITE&63)>>2;
+
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=firstbuf[samplepos%32768];
@@ -1171,8 +1181,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  default:
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	  }
-
-	  VILLAGEWRITE=2; // TESTY!!!!
  
 	  if (++del>=SAMPLESPEED){ 
 	      dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
@@ -1202,17 +1210,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		  else if (VILLAGEWRITE==2) {
 		    // advance to next in array based on new start and wrap
-		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    villw=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[tmp];
-		    wrap=(villager[tmp+1]%SAMPLEWRAP)+SAMPLEEXPAND;
+		    villw=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[villw];
+		    wrap=(villager[villw+1]%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
 		    #ifdef PCSIM
-		    printf("villager[tmp+1] %d \n",(villager[tmp+1]));
-		    printf("villager %d samplepos: %d wrap: %d\n",tmp,samplepos,wrap);
+		    //		    printf("villager[tmp+1] %d \n",(villager[tmp+1]));
+		    //		    printf("villager %d samplepos: %d wrap: %d\n",tmp,samplepos,wrap);
 			   #endif
 		    //		    start=0; samplepos=0;
 		    //		    wrap=32767;
@@ -1450,6 +1458,8 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
+ // if (wormdir>=8)  printf("woxxxxxrmdir:%d\n",wormdir);
+ //printf("woxxxxxrmdir:%d\n",wormdir);
  /// 	for (x=0;x<sz;x++){
 	  // 	  printf("%c",mono_buffer[x]);
  //	}

@@ -46,6 +46,9 @@ u8 digfilterflag;
 int16_t *villager,*stacker,*stackery,*settingsarray;
 int16_t *src, *dst;
 
+u8 village_effects[VILLAGE_SIZE/2]; // but where do we set this?
+u16 settingsarrayattached[64];
+
 void  dohardwareswitch(u8 one,u8 two){
   // nothing
 }
@@ -82,6 +85,7 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 __IO uint16_t adc_buffer[10];
 
 u16 villager[VILLAGE_SIZE];
+u8 village_effects[VILLAGE_SIZE/2]; // but where do we set this?
 u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
@@ -123,14 +127,14 @@ u8 www[3]={12,15,0};
 u8 freqyy[3]={10,10,0};
 
 #define delay()						 do {	\
-    register unsigned int i;					\
-    for (i = 0; i < 1000000; ++i)				\
+    register unsigned int ix;					\
+    for (ix = 0; ix < 1000000; ++ix)				\
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
 #define delayxx()						 do {	\
-    register unsigned int i;					\
-    for (i = 0; i < 1000; ++i)				\
+    register unsigned int ix;					\
+    for (ix = 0; ix < 1000; ++ix)				\
       __asm__ __volatile__ ("nop\n\t":::"memory");		\
   } while (0)
 
@@ -147,7 +151,7 @@ u16* FOLDD; // MAX size 44!!!
 extern u8 digfilterflag;
 
 //u8 testdirection;
-//u8 wormdir; // worm direction
+u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
 
@@ -169,9 +173,10 @@ u8 exestackpop(u8 exenum, u8* exestack){
   return exenum;
   }
 
-u16 villagepush(u16 villagepos, u16 start, u16 wrap){
+u16 villagepush(u16 villagepos, u16 start, u16 wrap,u8 effect){
   if (villagepos<(VILLAGE_SIZE-2)) /// size -2
     {
+      village_effects[villagepos/2]=effect;
       villager[villagepos++]=start;
       villager[villagepos++]=wrap;
       //        printf("pos:%d start:%d wrap:%d\n",villagepos,start,wrap);
@@ -380,7 +385,7 @@ void main(void)
   u8 exestack[MAX_EXE_STACK];
 
   inittable(3,4,randi());
-
+  wormdir=0;
   const float32_t pi= 3.141592;
   float32_t w;
   float32_t yi;
@@ -547,7 +552,6 @@ void main(void)
           start=randi()<<3;
           wrap=randi()<3;
 	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
-	  //villagestackpos=villagepush(villagestackpos,start,wrap);
   }
 
   //simulationforstack:	
@@ -559,21 +563,20 @@ void main(void)
       stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
-        villagestackpos=villagepush(villagestackpos,start,wrap);
+      villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
 	//	        printf("TESTY:%d\n",wrap);
   }
 
 
     // execution stack - TESTER!
     for (x=0;x<MAX_EXE_STACK;x++){
-      exenums=exestackpush(exenums,exestack,2); //exetype=0-3 TESTY!
+      exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 TESTY!
     }
 
     //exenums=exestackpop(exenums,exestack);
 
 
   start=0;
-  u16 runner=0;
 
   ///////////////////////////
 
@@ -619,7 +622,7 @@ void main(void)
 		case 2:
 		  machine_count++;
 		  if (machine_count>=MACHINESPEED){
-		  machine_run(m); //cpu - WRAP own speedTODO
+		    machine_run(m); //cpu - WRAP own speedTODO
 		  m->m_leakiness=leakiness;
 		  m->m_infectprob=infection;
 		  machine_count=0;
@@ -630,7 +633,7 @@ void main(void)
 		  if (leak_count>=LEAKSPEED){
 		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 		    leak_count=0;
-		  }
+		    		  }
 		    break;
 		    }
 	      }
@@ -651,11 +654,18 @@ void main(void)
 
       switch(mastermode){
       case 0: // GROUPS0=EFFMODE
+
 	xx=fingerdir(); // 0-3 -change konb assign depends on fingers
 	if (xx!=5){
+#ifdef LACH
+	EFFECTREAD=eff[xx%2];
+	EFFECTWRITE=eff[(xx+1)%2];
+	settingsarray[12]=adc_buffer[FOURTH]<<4;
+#else
 	EFFECTREAD=eff[xx%3];
 	EFFECTWRITE=eff[(xx+1)%3];
 	EFFECTFILTER=eff[(xx+2)%3];
+#endif
 	}
 	  break;
       case 1:	//GROUPS1// preformed= X-ALL STEP Y-WRAP Z-SPEED
@@ -697,6 +707,9 @@ void main(void)
 	  settingsarray[43]=adc_buffer[THIRD]<<4;
 
 	  // FILTER - 3,6,14,17,20,28,31,38,45
+#ifdef LACH
+	  settingsarray[12]=adc_buffer[FOURTH]<<4;
+#else
 	  settingsarray[3]=adc_buffer[FOURTH]<<4;
 	  settingsarray[6]=adc_buffer[FOURTH]<<4;
 	  settingsarray[14]=adc_buffer[FOURTH]<<4;
@@ -706,9 +719,10 @@ void main(void)
 	  settingsarray[31]=adc_buffer[FOURTH]<<4;
 	  settingsarray[38]=adc_buffer[FOURTH]<<4;
 	  settingsarray[45]=adc_buffer[FOURTH]<<4;
+#endif
 	}
 	break;
-      case 3: //GROUPS3: expand in this case (or contract?) R/W/F
+      case 3: //GROUPS3: expand in this case (or contract?-fingers) R/W/F
 	// R 52
 	if (fingerdirupdown()==0){
 	  settingsarray[52]=adc_buffer[SECOND]<<4;
@@ -719,6 +733,8 @@ void main(void)
 	// F 53
 	  settingsarray[53]=adc_buffer[FOURTH]<<4;
 	}
+
+
 	break;
       case 4: //GROUPS4- HW settings (TODO: IFDEF)
 	// START: 0 // lmerbase-8 // f0106erbase-9 // maximerbase-10 // hdgener=41
@@ -863,7 +879,7 @@ void main(void)
 	    stack_pos=func_pushn(stackyy,STACKFUNC%NUM_FUNCS,audio_buffer,stack_pos,STACKMUCH,STACKSTART,STACKWRAP);
 	    break;
 	  case 5:
-	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP);//pos/start/wrap
+	    villagestackpos=villagepush(villagestackpos,STACKSTART,STACKWRAP,STACKFUNC%16);//pos/start/wrap
 	    break;
 	  case 6:
 	    cpustackpushhh(datagenbuffer,STACKSTART,STACKWRAP,STACKFUNC%31,STACKMUCH);
@@ -1214,7 +1230,13 @@ void main(void)
 	break;
 
       case 31:
-	///???????? WHAT TO DO?????
+	///infection across buffer=settings/villager/stacks1/2/CPU/foldback
+	///knob1/2/3????speed//other params
+	///navigate the infectuous///
+	/// but how to run infection (from random point) as CA:
+
+
+
 	break;
       }
 

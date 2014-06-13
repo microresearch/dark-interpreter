@@ -6,7 +6,7 @@
 #endif
 
 #ifdef PCSIM
-//typedef unsigned char u8;
+typedef unsigned char u8;
 typedef uint16_t u16;
 #define float32_t float
 #endif
