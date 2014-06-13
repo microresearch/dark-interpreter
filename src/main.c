@@ -174,6 +174,8 @@ u16 villagepush(u16 villagepos, u16 start, u16 wrap){
     {
       villager[villagepos++]=start;
       villager[villagepos++]=wrap;
+      //        printf("pos:%d start:%d wrap:%d\n",villagepos,start,wrap);
+
       //      villagepos+=2;
 }
   return villagepos;
@@ -374,7 +376,7 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 coo,x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
-  u8 tmper,machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0,m1flag=0; 
+  u8 tmper,machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0,m1flag=0,villagerdest; 
   u8 exestack[MAX_EXE_STACK];
 
   inittable(3,4,randi());
@@ -480,6 +482,10 @@ void main(void)
     //    buf16[x]=rand()%32768;
   }
 
+  for (x=0;x<64;x++){
+    settingsarrayattached[x]=0;
+  }
+
   // setup code for walkers
   for (x=0;x<11;x++){
     settingsarray[x]=0;
@@ -511,7 +517,7 @@ void main(void)
     settingsarray[x]=32768;//>>15
   }//DIR
 
-  settingsarray[50]=0; // STACKFUNC
+  settingsarray[49]=0; // STACKFUNC
   settingsarray[50]=8192; // STACKMUCH=8 <<10
   settingsarray[51]=0; //was EFFECTS // is now EXPANSION TODO!
   settingsarray[52]=0;
@@ -547,14 +553,14 @@ void main(void)
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
   //  for (x=0;x<2;x++){ // TESTY!
-          start=randi()<<3;
-	  //start=0; wrap=32768; // TESTY!
-      wrap=randi()<3;
+                start=randi()<<3;
+      //      start=0; wrap=32767; // TESTY!
+            wrap=randi()<<3;
       stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
-    
         villagestackpos=villagepush(villagestackpos,start,wrap);
+	//	        printf("TESTY:%d\n",wrap);
   }
 
 
@@ -641,7 +647,7 @@ void main(void)
       //***mode quadrant as 1-groups/2-finger/3-mirror(inc eeg)/4-attach=finger/process/detach/knob
       //***8 per quadrant=32 total      
       
-      mastermode=20; // TESTY!!
+      mastermode=30; // TESTY!!
 
       switch(mastermode){
       case 0: // GROUPS0=EFFMODE
@@ -790,7 +796,7 @@ void main(void)
 
 	// FINGERS
 	// 8-15
-	// and what do 3 knobs do (set what? keep as effects now R.W.F (but the would reset)TODO!
+	// and what do 3 knobs set? TODO!!!
 
       case 8: //FINGERS0 // set directions 54-63 left/right UP/DOWN to set
 	directionxx=fingervalupwrap(directionxx,10);
@@ -829,8 +835,13 @@ void main(void)
 	break;
 
       case 12: //FINGERS4 // into stacks=push and pop = EXE,CA,SIM,CPU,PURE,VILLAGER
-	// HERE if we wanted to knobs could set START,WRAP and FUNC! TODO!!!! TESTY!!!
-	
+	// HERE if we wanted to knobs could set START,WRAP and FUNC! TO TESTY!!!
+
+	// START=7/WRAP=21/FUNC=49
+	settingsarray[7]=adc_buffer[SECOND]<<4;
+	settingsarray[21]=adc_buffer[THIRD]<<4;
+	settingsarray[49]=eff[2]<<9;
+
 		whichpushpop=fingervalright(whichpushpop,8);
 	//	whichpushpop=7;
 	if (fingerdirupdown()==0){//THIS IS UP!!!!!
@@ -935,12 +946,12 @@ void main(void)
 
       case 16: 
 	// set FOLD 0,1,2
-	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[0]=eff[0]; // all 7 bits TODO
 	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	FOLDD[2]=eff[2];
 
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){ //was >>9
-	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ //was >>9
+	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768];
 	  coo++;
 	}
 	// toggle flag with the finger
@@ -950,12 +961,12 @@ void main(void)
 
       case 17: 
 	// set FOLD 0,1,2
-	FOLDD[0]=adc_buffer[SECOND]<<4;
-	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	FOLDD[0]=eff[0];
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
 
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){ //was >>9
-	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=(randi()<<4);
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ //was >>9
+	  settingsarray[(((FOLDD[1])>>1)+(x%((FOLDD[2]>>1)+1)))%64]=(randi()<<4);
 	  coo++;
 	}
 	// toggle flag with the finger
@@ -965,12 +976,12 @@ void main(void)
 
       case 18:
 	// set FOLD 0,1,2
-	FOLDD[0]=adc_buffer[SECOND]<<4;
+	FOLDD[0]=eff[0];
 	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	FOLDD[2]=eff[2];
 
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){
-	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){
+	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>1)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768]>>1;
 	  coo++;
 	}
 	if (fingerdirupdown()==0) m1flag|=4; //sets
@@ -979,11 +990,11 @@ void main(void)
 
       case 19:
 	// set FOLD 0,1,2
-	FOLDD[0]=adc_buffer[SECOND]<<4;
-	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){
-	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	FOLDD[0]=eff[0];
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){
+	  villager[(((FOLDD[1])>>1)+(x%((FOLDD[2]>>1)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	    coo++;
 	}
 
@@ -1023,8 +1034,8 @@ void main(void)
 	FOLDD[0]=adc_buffer[SECOND]<<4;
 	FOLDD[1]=adc_buffer[THIRD]<<4;
 	FOLDD[2]=adc_buffer[FOURTH]<<4;
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){ // TODO: goes high enough
-	  tmper=(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%216;
+	for (x=0;x<((FOLDD[0]>>8)+1);x++){ // TODO: goes high enough
+	  tmper=(((FOLDD[1])>>8)+(x%((FOLDD[2]>>10)+1)))%216;
   	if (tmper<48){
 	  stacker[tmper]=(randi()<<3);
 	  stacker[tmper]%=32768;
@@ -1047,12 +1058,12 @@ void main(void)
 
       case 22:
 	// set FOLD 0,1,2 ---> FOLDBACK!
-	FOLDD[0]=adc_buffer[SECOND]<<4;
-	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	FOLDD[0]=eff[0];
+	FOLDD[1]=adc_buffer[THIRD];
+	FOLDD[2]=eff[2];
 
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){
-	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768]>>1;
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){
+	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>1)+1)))% FOLD_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768]>>1;
 	  	  coo++;
 	}
 	if (fingerdirupdown()==0) m1flag|=64; //sets
@@ -1061,12 +1072,12 @@ void main(void)
 
       case 23:
 	// set FOLD 0,1,2 ---> FOLDBACK!
-	FOLDD[0]=adc_buffer[SECOND]<<4;
-	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=adc_buffer[FOURTH]<<4;
+	FOLDD[0]=eff[0];
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
 
-	for (x=0;x<((FOLDD[0]>>10)+1);x++){
-	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))% FOLD_SIZE]=randi()<<4;
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){
+	  FOLDD[(((FOLDD[1])>>1)+(x%((FOLDD[2]>>1)+1)))% FOLD_SIZE]=randi()<<4;
 	  	  coo++;
 	}
 	if (fingerdirupdown()==0) m1flag|=128; //sets
@@ -1077,19 +1088,137 @@ void main(void)
 	// MIRROR_MIRROR//swop=mirror region to region of...???
 	// 
 	// 1/settingsarray 2/villager 3/stacksandCPU 4/foldback
-	//24-1-1//25-2-2//26-3-3//27-4-4/28-2-3(start<->end only)//29-3->2 +30could be???
+	//24-1-1//25-2-2//26-3-3//27-4-4/28-2-3(start<->end only)//29-3->2
 	//toggle swop or not?
 	// knobs=start/wrap/offset to copy+
+      case 24:
+	// settingsarray to itself
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	for (x=0;x<((FOLDD[1]>>1)+1);x++){
+	  settingsarray[(((FOLDD[0])>>1)+x)%64]=settingsarray[((FOLDD[2]>>1)+((FOLDD[1])>>1)+x)%64];
+	}
+	break;
 
-	//31->
+      case 25:
+	// villagerarray to itself
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	for (x=0;x<((FOLDD[1]>>1)+1);x++){ //was >>9
+	  //	  settingsarray[(((FOLDD[0])>>10)+x)%64]=settingsarray[FOLDD[2]+(((FOLDD[1])>>10)+x)%64];
+	  villager[(((FOLDD[0])>>1)+x)%VILLAGE_SIZE]=villager[((FOLDD[2]>>1)+((FOLDD[0])>>1)+x)%VILLAGE_SIZE];
+	}
+	break;
+
+      case 26:
+	// stacks and CPUs - how to deal with crossover (also missmatch of values?)??? TODO!
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=adc_buffer[THIRD];
+	FOLDD[2]=eff[2];
+	for (x=0;x<((FOLDD[1]>>4)+1);x++){
+	}
+	break;
+
+      case 27:
+	// foldback
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
+	  FOLDD[(((FOLDD[0])>>1)+x)% FOLD_SIZE]=FOLDD[((FOLDD[2]>>1)+((FOLDD[0])>>1)+x)% FOLD_SIZE];
+	}
+	break;
+
+      case 28:
+	// starts and ends only of stacks (not CPU) -> villagers
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	//	settingsarray[12]=128; // TESTY!!!!
+	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
+	  tmper=((FOLDD[0])+x)%(STACK_SIZE*2); // so both stacks entry point
+	  villagerdest=(((FOLDD[0])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
+	  if (tmper<STACK_SIZE){
+	    // deal with stacker
+	    villager[villagerdest*2]=stacker[tmper*4];  
+	    villager[(villagerdest*2)+1]=stacker[(tmper*4)+1];  
+	  }
+	  else {
+	    tmper-=STACK_SIZE;
+	    // deal with stackery
+	    villager[villagerdest*2]=stackery[tmper*4];  
+	    villager[(villagerdest*2)+1]=stackery[(tmper*4)+1];  
+	  }
+	}
+	break;
+
+      case 29:
+	// starts and ends only of villagers -> stacks
+	// starts and ends only of stacks (not CPU) -> villagers
+	FOLDD[0]=eff[0]; // 7 bits
+	FOLDD[1]=eff[1];
+	FOLDD[2]=eff[2];
+	//	settingsarray[12]=128; // TESTY!!!!
+	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
+	  tmper=((FOLDD[0])+x)%(STACK_SIZE*2); // so both stacks entry point
+	  villagerdest=(((FOLDD[0])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
+	  if (tmper<STACK_SIZE){
+	    // deal with stacker
+	    stacker[tmper*4]=villager[villagerdest*2];  
+	    stacker[(tmper*4)+1]=villager[(villagerdest*2)+1];  
+	  }
+	  else {
+	    tmper-=STACK_SIZE;
+	    // deal with stackery
+	    stackery[tmper*4]=villager[villagerdest*2];  
+	    stackery[(tmper*4)+1]=villager[(villagerdest*2)+1];  
+	  }
+	}
+
+	break;
+
+	//30->into settingsarray
 	// UPDOWNLEFTRIGHT=1-process-buf16int/2-fingerbare/3-knob/4-detach
 	// knob1,2=group settings/extent
 	// knob3=setting
-	// toggle or not???????
+	// TODO: to toggle
 
+      case 30:
+	groupstart=eff[0]>>1; // 6bits
+	groupwrap=eff[1]>>1;
+
+	for (x=0;x<groupwrap;x++){
+	switch(fingerdir()){
+	case 0:
+	  settingsarray[(groupstart+x)%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  settingsarrayattached[(groupstart+x)%64]=1;
+	  coo++;
+	  break;
+	case 2:
+	  settingsarray[(groupstart+x)%64]=adc_buffer[DOWN]<<4;
+	  settingsarrayattached[(groupstart+x)%64]=2;
+	  break;
+	case 3:
+	  settingsarray[(groupstart+x)%64]=adc_buffer[FOURTH]<<4;
+	  settingsarrayattached[(groupstart+x)%64]=3;
+	  break;
+	case 4:
+	  // DEtach
+	  settingsarrayattached[(groupstart+x)%64]=0;
+	  break;
+	}
+	}
+
+	break;
+
+      case 31:
+	///???????? WHAT TO DO?????
+	break;
       }
 
-      //// DEAL WITH MIRRORING
+      //// DEAL WITH toggled MIRRORING
 
       if (m1flag&1){ 
 	for (x=0;x<((FOLDD[0]>>10)+1);x++){
@@ -1170,6 +1299,23 @@ void main(void)
 	for (x=0;x<((FOLDD[0]>>10)+1);x++){
 	  FOLDD[(((FOLDD[12])>>10)+(x%((FOLDD[13]>>10)+1)))% FOLD_SIZE]=randi()<<4;
 	  	  coo++;
+	}
+      }
+
+      ///////////////////////////////
+      /// DEAL with settingsattach:
+
+      for (x=0;x<64;x++){
+	switch(settingsarrayattached[x]){
+	case 1:
+	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  break;
+	case 2:
+	  settingsarray[x]=adc_buffer[DOWN]<<4;
+	  break;
+	case 3:
+	  settingsarray[x]=adc_buffer[FOURTH]<<4;
+	  break;
 	}
       }
 

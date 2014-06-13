@@ -8,13 +8,13 @@
 #include <time.h>
 #include "CPUint.h"
 #include "settings.h"
-/*extern u16 *settingsarray;
+extern u16 *settingsarray;
 extern int16_t* audio_buffer;
-extern uint16_t* adc_buffer;*/
-u16 settingsarray[64];
+extern uint16_t* adc_buffer;
+/*u16 settingsarray[64];
 int16_t audio_buffer[65536];
 uint16_t adc_buffer[10];
-
+*/
 #define randi() rand()
 #else
 #include <malloc.h>
@@ -1549,7 +1549,7 @@ void killcpu(machine *m, u8 killed){
 
 #ifdef PCSIM
 //int main(void)
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
   u16 xx; u16 addr;
   u8 buffer[65536];// u16 *testi; u8 *testo;
@@ -1617,6 +1617,6 @@ int main(int argc, char **argv)
 
 	}
 	}
-
+*/
 #endif
 

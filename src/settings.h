@@ -24,7 +24,7 @@
 #define VILLAGEWWRAP ((settingsarray[18]>>10)+1) // 8 BITs
 #define VILLAGERWRAP ((settingsarray[19]>>10)+1) // 8 bits
 #define VILLAGEFWRAP ((settingsarray[20]>>10)+1) // 8 BITS
-#define STACKWRAP ((settingsarray[21]>>9)+1) //??? for villager
+#define STACKWRAP ((settingsarray[21]>>1)+1)
 
 #define LMERCONS ((settingsarray[22]>>1)+1)
 #define F0106ERCONS ((settingsarray[23]>>1)+1)

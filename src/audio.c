@@ -1094,7 +1094,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  tmpp=(EFFECTWRITE&63)>>2;
 
-	  tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
+	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
@@ -1172,7 +1172,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    temp_buffer[x]=firstbuf[samplepos%32768];
 	  }
 
-	  VILLAGEWRITE=0; // TESTY!!!!
+	  VILLAGEWRITE=2; // TESTY!!!!
  
 	  if (++del>=SAMPLESPEED){ 
 	      dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
@@ -1210,6 +1210,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
+		    #ifdef PCSIM
+		    printf("villager[tmp+1] %d \n",(villager[tmp+1]));
+		    printf("villager %d samplepos: %d wrap: %d\n",tmp,samplepos,wrap);
+			   #endif
 		    //		    start=0; samplepos=0;
 		    //		    wrap=32767;
 		  }

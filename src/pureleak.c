@@ -7,12 +7,12 @@
 #include "CPUint.h"
 #include "settings.h"
 #define randi() rand()
-/*extern uint16_t *settingsarray;
+extern uint16_t *settingsarray;
 extern int16_t* audio_buffer;
-extern uint16_t* adc_buffer;*/
-uint16_t settingsarray[64];
+extern uint16_t* adc_buffer;
+/*uint16_t settingsarray[64];
 int16_t audio_buffer[32768];
-uint16_t adc_buffer[10];
+uint16_t adc_buffer[10];*/
 #else
 #include <malloc.h>
 #include "CPUint.h"
@@ -27,7 +27,8 @@ extern u16 settingsarray[64];
 #include <math.h>
 
 #ifdef PCSIM
-u8 wormdir; // worm direction
+extern u8 wormdir; // worm direction
+//u8 wormdir; // worm direction
 #else
 u8 wormdir;
 #endif
@@ -1586,6 +1587,7 @@ void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
 
 
 #ifdef PCSIM
+/*
 int main(void)
 {
   u16 x; u16 addr,offset=0;
@@ -1618,6 +1620,6 @@ int main(void)
 
     }
 
-}
+}*/
 #endif
 

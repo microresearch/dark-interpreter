@@ -323,30 +323,45 @@ For Mater Lachrymarum IN is unused!
 
 * FRI 13 JUN
 
-- test mirror toggling and running
-- add new mirror code
-- BELOW!!
+- finished extramirror and attach////-TO TEST+ test mirror toggling
+  and running, attachments
+
+- last mirroraction 31 as somehow this infection from selected
+  point/area of selected system????
+
+- villagers: how many can we have?, start/wrap/effect - per villager
+  effects to test (as villageeff array)
+
+- check that execution is working fully (examining datagen and note
+  that pureleak gives us beginning bleeps as storage is there)
+
+++from TUE/WED below
+
+- knob settings in fingersmode ???
+- tweak speed of fingervalright
+- tweak speeds in settings.h (remember to update initialisation in main.c)
+- wormdir!
+
+- refine and add in IFDEFs in main.c
+- test on basic board/s
+
+- hardware is all same walker with shifts from base value!TODO! FIX!(but shift is also important)
+
+** DONE:
+
+- changed mirrors so is not always << and >> using eff[x]
+- added knobs in stack/fingermode TO TEST
 
 * THU 12 JUN
 
 603.wav (horbuch,hard,nocode),604ad603butnoin
 
-- finish extramirror and attach////-TO TEST!
-
-- SEE TUE/WED TODO: hardware walkers, villagers
-- villagers: how many can we have?, start/wrap/effect
-
-- check that execution is working fully (examining datagen and note
-  that pureleak gives us beginning bleeps as storage is there)
-
-_ BELOW!!!
 
 ** DONE:
 - small fixes to villagers in audio.c, and new speed setup in main.c
   (TODO: change if we tweak speed in settings.h)
 - delay added in randi() into datagenbuffer
 - finished mirror and running mirrors//-TO TEST!
-
 
 * WED 11 JUNE
 
@@ -360,15 +375,14 @@ _ BELOW!!!
 - tweak speed of fingervalright
 - tweak speeds in settings.h
 - wormdir
-- bounce stacks _and_ CPU to villagers - live re-org villagers as blocks(change order)
-
-  m->m_threads[sel].m_start
-  m->m_threads[sel].m_wrap
 
 //////
 
 ** DONE
 
+- bounce stacks _and_ CPU to villagers - live re-org villagers as blocks(change order)
+  m->m_threads[sel].m_start
+  m->m_threads[sel].m_wrap
 - fixed runcel in CAforstacksansmem//fixed cel errors in CAforstacksansmem
 - groups/fingers DONE and tested
 - re-instated exestack from mainquestion.c 
