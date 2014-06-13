@@ -47,7 +47,6 @@ int16_t *villager,*stacker,*stackery,*settingsarray;
 int16_t *src, *dst;
 
 u8 village_effects[VILLAGE_SIZE/2]; // but where do we set this?
-u16 settingsarrayattached[64];
 
 void  dohardwareswitch(u8 one,u8 two){
   // nothing
@@ -89,10 +88,13 @@ u8 village_effects[VILLAGE_SIZE/2]; // but where do we set this?
 u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
-u16 settingsarrayattached[64];
 u16 FOLDD[FOLD_SIZE]; // MAX size 14!
 
 #endif
+
+u8 settingsarrayattached[64];
+u8 settingsarrayinfected[64];
+
 // for knobwork
 // TENE: 2,0,3,4,1 // else: 3,0,2,4,1
 
@@ -381,7 +383,7 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 coo,x,addr,tmp=0,tmppp=0,hdtmp=0,tmphardware=0,HARDWARE=0;
-  u8 tmper,machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0,m1flag=0,villagerdest; 
+  u8 del=0,tmper,machine_count=0,leak_count=0,directionxx=0,codepos=0,villagepos=0,settingspos=0,whichpushpop=0,m1flag=0,villagerdest; 
   u8 exestack[MAX_EXE_STACK];
 
   inittable(3,4,randi());
@@ -480,6 +482,12 @@ adc_buffer=malloc(10*sizeof(int16_t));
   /*  for (x=0;x<100;x++){
   delay();
   }*/
+
+  for (x=0;x<64;x++){
+    if ((rand()%255) > (adc_buffer[SECOND]>>4)) settingsarrayinfected[x]=1; // infected
+    else settingsarrayinfected[x]=0;
+  }
+
 
   for (x=0;x<32768;x++){
     buf16[x]=randi()<<4;
@@ -1240,10 +1248,61 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	break;
 
       case 31:
-	///infection across buffer=settings or foldback
-	///knob1/2/3???? reset/speed/probability of infection
-	/// but how to run infection (from random point) as CA (need
-	///mark somehow settingsarray
+	///infection across buffer: knobs; speed,probability,buffer
+	//set according to probability
+	if (eff[0]==0){
+	  for (x=0;x<64;x++){
+	    if ((rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1; // infected
+	  else settingsarrayinfected[x]=0;
+	  }
+	  // run infection at speed eff[2] 
+
+	  for (x=0;x<64;x++){
+	    // infection - how many infected (not dead) round each one?
+	    if (++del==eff[0]){
+	      if (settingsarrayinfected[x]==0 && ((settingsarrayinfected[(x-1)%64]>=1 && settingsarrayinfected[x-1]<128) || (settingsarrayinfected[(x+1)%64]>=1 && settingsarrayinfected[x+1]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1;
+	    // inc
+	    if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128) settingsarrayinfected[x]++;
+	    }
+
+	  // overmap onto buffer eff[0]: 0=stay same/infect=reduce by days/dead=128=zero
+	    //0/settingsarray 1/villager 2/3/4//stacksandCPU 5/foldback	    
+	    switch(eff[2]>>4) // 8 cases
+	      {
+	      case 0:
+	      default:
+		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	settingsarray[x]-=settingsarrayinfected[x];
+		else if (settingsarrayinfected[x]>127) settingsarray[x]=0;
+		break;
+	      case 1:
+		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	stacker[x]-=settingsarrayinfected[x];
+		else if (settingsarrayinfected[x]>127) stacker[x]=0;
+		break;
+	      case 2:
+ 		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	stackery[x]-=settingsarrayinfected[x];
+		else if (settingsarrayinfected[x]>127) stackery[x]=0;
+		break;
+	      case 4:
+ 		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	{
+		  cpur=x%(m->m_threadcount);
+		  m->m_threads[cpur].m_CPU-=settingsarrayinfected[x];//cpu
+		  m->m_threads[cpur].m_CPU%=31;
+		}
+		else if (settingsarrayinfected[x]>127) {
+		  cpur=x%(m->m_threadcount);
+		  m->m_threads[cpur].m_CPU=0;//cpu
+		}
+		break;
+	      case 5:
+		if (x<14){
+		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	FOLDD[x]-=settingsarrayinfected[x]; // foldd max
+		else if (settingsarrayinfected[x]>127) FOLDD[x]=0; // foldd max
+		}
+		break;
+	      }
+	    /////
+	  }
+	}
 	break;
       }
 

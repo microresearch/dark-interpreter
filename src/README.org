@@ -323,9 +323,9 @@ For Mater Lachrymarum IN is unused!
 
 * FRI 13 JUN
 
-- last mirroraction 31 as somehow INFECTION
-
 TESTS:
+
+- last mirroraction 31 = infection
 
 - finished extramirror and attach////-TO TEST+ test mirror toggling
   and running, attachments
@@ -342,6 +342,7 @@ TESTS:
 - tweak speed of fingervalright
 - tweak speeds in settings.h (remember to update initialisation in main.c)
 - wormdir - how we can toggle use of this(bitwise on mode?) and if makes sense?TEST?
+// wormdir for read/write/filter WHERE?????
 
 ////
 
