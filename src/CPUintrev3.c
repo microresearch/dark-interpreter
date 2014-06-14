@@ -390,7 +390,7 @@ void thread_run(thread* this, machine *m) {
 	  //	  seven rooms: 
 	  temp= (this->m_pc)%7;
 	  for (u8 x=11;x<22;x++){//11-21
-	    settingsarray[x]=settingsarray[x]>>temp;
+	    //	    settingsarray[x]=settingsarray[x]>>temp;
 	  } // CONSTRAINT
 	  this->m_pc++;
 	  break;

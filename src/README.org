@@ -332,35 +332,49 @@ For Mater Lachrymarum IN is unused!
 
 607.wav (horbuch,hardware),609(hor,no hard),610(hor,hard),615,613,611,616(hor,nohard),612,614(hor,hard)
 
-simplify -> groups (maybe lose fingers), mirror and attach!
+TODO LAYOUT:
 
-attach works well!
+- simplify to 16 modes: groups (maybe lose fingers??), mirror and
+attach!  (or fingers are modulated by knobs) 4x4 modes somehow reflect
+knob use on each other
+
+also somehow modes as a continuum? wormdir and fingerdir???
+
+do execution changes/push pull as one group///stack???
 
 TODO:
 
-- swop/dump settings/stacks to datagen in one mode
-- per villager effects to test (in one write only now) TO copy across and TEST
+- push different buffers for datagens (buf16/audio_buffer)?
+
+- replace red rooms wrap reduction in pureleak and cpuintrev3 with???now removed
+
+- swop/dump all of settings/stacks to datagen in one mode (and back again)
+
+- per villager effects TO TEST
+
+- wormdir and fingerdir also (put in one of finger modes)
+- different hardware walkers
+
+???> depending on new modes:
 - case 4 needs non-hardware ifdef/group
 - case 5 has no knob/group interaction
 - case 7-15 fingers need knob settings
-- need to check toggling in wider context (full test)
 - finish case 26
-- wormdir and handdir also (put in one of finger modes)
-- size of execstack
 
 /// see below./////
 
 ** DONE
 
-- having to tweak finger settings right down...TODO
+- added all per villager effs/fixed problem there/TO TEST
+- checked toggling in wider context 
+- having to tweak finger settings right down...TODO CHECK
   re-check/tweak/change all (also see if simpler boards make
   difference)
 - checked that execution is working fully (examining datagen and note
   that pureleak gives us beginning bleeps as storage is there)
-- added audio wormdir code in WRITE only but still to toggle SOME WHERE!
+- added audio wormdir code in WRITE only but still to toggle SOMEWHERE!
 - tweaks to most modes
 - sampleexpand across all modes
-
 
 * FRI 13 JUNE
 

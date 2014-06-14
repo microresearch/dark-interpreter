@@ -153,11 +153,12 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  u16 tmp=0,villw=0,tmper;
+  u16 tmp=0,tmper;
   int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
   static u16 start=0,startfilt=0,wrapfilt=1,wrap=1,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
+  static u8 villr=0,villf=0,villw=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
   int16_t dirry;
@@ -198,8 +199,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	if (EFFECTREAD&64) {firstbuf=buf16int;secondbuf=audio_buffer;} // top bit now is buffer
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	VILLAGEREAD=(EFFECTREAD&3);	
-	tmpp=(EFFECTREAD&63)>>2;
+
       	for (x=0;x<sz/2;x++){
+	  if (VILLAGEREAD==2){
+	    tmpp=village_effects[villr/2];
+	  }
+	  else tmpp=(EFFECTREAD&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -341,9 +346,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startread=villager[tmp];
-		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;
+		    villr=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startread=villager[villr];
+		    wrapread=(villager[villr+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -380,8 +385,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (EFFECTREAD&64) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
 	VILLAGEREAD=EFFECTREAD&3;
-	tmpp=(EFFECTREAD&63)>>2;
       	for (x=0;x<sz/2;x++){
+	  if (VILLAGEREAD==2){
+	    tmpp=village_effects[villr/2];
+	  }
+	  else tmpp=(EFFECTREAD&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -551,9 +559,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startread=villager[tmp];
-		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;
+		    villr=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startread=villager[villr];
+		    wrapread=(villager[villr+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -585,10 +593,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (EFFECTREAD&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
-	    tmpp=(EFFECTREAD&63)>>2;
 	    //	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
 	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
+ 	  if (VILLAGEREAD==2){
+	    tmpp=village_effects[villr/2];
+	  }
+	  else tmpp=(EFFECTREAD&63)>>2;
 	  switch(tmpp){
 	  case 0:
 	  default:
@@ -729,9 +740,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    //tmp=1; // TSTER!!
 		    villagerpos+=tmp; //???
-		    tmp=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%villagestackpos; //to cover all directions
-		    startread=villager[tmp];
-		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
+		    villr=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%villagestackpos; //to cover all directions
+		    startread=villager[villr];
+		    wrapread=(villager[villr+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -770,9 +781,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 
 	VILLAGEWRITE=EFFECTWRITE&3;
-	tmpp=(EFFECTWRITE&63)>>2;
       	for (x=0;x<sz/2;x++){
-
+ 	  if (VILLAGEWRITE==2){
+	    tmpp=village_effects[villw/2];
+	  }
+	  else tmpp=(EFFECTWRITE&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  mono_buffer[x]=firstbuf[samplepos%32768];
@@ -871,9 +884,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[tmp];
-		    wrap=(villager[tmp+1]%SAMPLEWRAP)+SAMPLEEXPAND;
+		    villw=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[villw];
+		    wrap=(villager[villw+1]%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
@@ -929,8 +942,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 
 	VILLAGEWRITE=EFFECTWRITE&3;
-	tmpp=(EFFECTWRITE&63)>>2;
       	for (x=0;x<sz/2;x++){
+
+ 	  if (VILLAGEWRITE==2){
+	    tmpp=village_effects[villw/2];
+	  }
+	  else tmpp=(EFFECTWRITE&63)>>2;
+
 	  switch(tmpp){ 
 	  case 0:
 	    mono_buffer[x]=firstbuf[samplepos%32768];
@@ -1056,9 +1074,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    tmp=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[tmp];
-		    wrap=(villager[tmp+1]%SAMPLEWRAP)+SAMPLEEXPAND;
+		    villw=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[villw];
+		    wrap=(villager[villw+1]%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
@@ -1098,9 +1116,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  //	  VILLAGEWRITE=2; // TESTY!!!!
-
+	  //	  	  VILLAGEWRITE=0; // TESTY!!!!
 	  //	  tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
-	  //	  	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
+		  //	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
 
@@ -1109,9 +1127,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
 
+	  //	     printf("%d\n",samplepos);
+
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=firstbuf[samplepos%32768];
+	     //	     printf("%c",mono_buffer[x]);
+	     //	     printf("x: %d %d %c\n",x, samplepos%32768, mono_buffer[x]);
 	    break;
 	  case 1:
 	    // 	    mono_buffer[x]=secondbuf[samplepos%32768]; no sense
@@ -1198,6 +1220,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    start=SAMPLESTART;wrap=SAMPLEWRAP+SAMPLEEXPAND;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
+		    //		    printf("here samplepos=%d wrap=%d\n",samplepos,wrap);
 		    //		    samplepos=0;start=0;wrap=32767;
 		  }
 		  else if (VILLAGEWRITE==1) {
@@ -1211,7 +1234,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		  else if (VILLAGEWRITE==2) {
 		    // advance to next in array based on new start and wrap
-		    villw=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
 		    villw=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
 		    start=villager[villw];
@@ -1283,8 +1306,13 @@ if (digfilterflag&1){
 	if (EFFECTFILTER&64) firstbuf=buf16int; 
 	else firstbuf=audio_buffer;
 	VILLAGEFILT=EFFECTFILTER&3;
-	tmpp=(EFFECTFILTER&63)>>2;
+	//	tmpp=(EFFECTFILTER&63)>>2;
       	for (x=0;x<sz/2;x++){ 
+
+ 	  if (VILLAGEFILT==2){
+	    tmpp=village_effects[villf/2];
+	  }
+	  else tmpp=(EFFECTFILTER&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -1421,9 +1449,9 @@ if (digfilterflag&1){
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEFSTEP*direction[VILLAGEFDIR];
 		    villagefpos+=tmp;
-		    tmp=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startfilt=villager[tmp];
-		    wrapfilt=(villager[tmp+1]%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
+		    villf=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startfilt=villager[villf];
+		    wrapfilt=(villager[villf+1]%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
 		    if (wrapfilt==0) wrapfilt=1;
 		    if (SAMPLEDIRF==1) sampleposfilt=startfilt;
 		    else sampleposfilt=startfilt+wrapfilt;
@@ -1461,9 +1489,9 @@ if (digfilterflag&1){
 #ifdef PCSIM
  // if (wormdir>=8)  printf("woxxxxxrmdir:%d\n",wormdir);
  //printf("woxxxxxrmdir:%d\n",wormdir);
- /// 	for (x=0;x<sz;x++){
-	  // 	  printf("%c",mono_buffer[x]);
- //	}
+  for (x=0;x<sz/2;x++){
+    printf("%c",mono_buffer[x]);
+      }
 #endif
 
 #endif // for test eeg

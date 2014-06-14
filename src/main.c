@@ -16,7 +16,7 @@
 */
 
 #define FOLD_SIZE 14
-#define MAX_EXE_STACK 8
+#define MAX_EXE_STACK 4
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
 //#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
 
@@ -494,9 +494,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 
 
   for (x=0;x<32768;x++){
-    buf16[x]=randi()<<4;
+     buf16[x]=randi()<<4;
     delayxx();
-    //    buf16[x]=rand()%32768;
   }
 
   for (x=0;x<64;x++){
@@ -583,7 +582,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 
     // execution stack - TESTER!
         for (x=0;x<MAX_EXE_STACK;x++){
-      exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 TESTY!
+	        exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 TESTY!
+	  //      exenums=exestackpush(exenums,exestack,); //exetype=0-3 TESTY!
       }
 
     //exenums=exestackpop(exenums,exestack);
@@ -624,6 +624,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 #endif
 
       u8 ii;
+
       
 	      for (x=0;x<exenums;x++){
 		switch(exestack[x]){
@@ -650,10 +651,10 @@ adc_buffer=malloc(10*sizeof(int16_t));
 		  }
 		    break;
 		    }
-	      }
+		    }
       //// MODE/KNOB CODE START
       /////////////////////////////////////
-      
+
       u8 xx;
       mastermode=adc_buffer[FIRST]>>7; // 32=5 bits
 
@@ -675,8 +676,10 @@ adc_buffer=malloc(10*sizeof(int16_t));
       */
       
       //      mastermode=30; // TESTY!!
+      //      mastermode=32;
 
-      switch(mastermode){
+      /*
+	switch(mastermode){
       case 0: // GROUPS0=EFFMODE
 	xx=fingerdir(); // 0-3 -change knob assign depends on fingers
 	if (xx!=5){
@@ -816,13 +819,12 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	////
       case 5:
 	/// access stacks and CPUs- UP and DOWN! just CPUs now!
-	  /*
-	    SIM: STACKER[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
-	    CA: STACKERY[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
-	    CPUINT:
-	    cpur to max m->m_threadcount (max is 120=7 bits)
-	    m->m_threads[cpur].m_CPU=cpu%31;
-	  */
+	  
+	  //  SIM: STACKER[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
+//	    CA: STACKERY[STACK_SIZE*4]:16*4=48 start,wrap,howmuch,CPU
+//	    CPUINT:
+//	    cpur to max m->m_threadcount (max is 120=7 bits)
+//	    m->m_threads[cpur].m_CPU=cpu%31;
 	xx=fingerdirupdown();
 	if (xx==0){
 	//SIM/CA/CPU:
@@ -1351,7 +1353,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	}
 	break;
       }
-
+      */
       //// DEAL WITH toggled MIRRORING
 
       if (m1flag&1){ 
