@@ -323,6 +323,8 @@ For Mater Lachrymarum IN is unused!
 
 * FRI 13 JUN
 
+- swop settings/stacks to datagen...
+
 TESTS:
 
 - last mirroraction 31 = infection
