@@ -207,10 +207,10 @@ u8 fingerdir(void){
   handdown=adc_buffer[DOWN]>>8;
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
-  if (handupp>8) up++;
-  if (handdown>8) down++;
-  if (handleft>8) left++;
-  if (handright>8) right++;
+  if (handupp>2) up++;
+  if (handdown>2) down++;
+  if (handleft>2) left++;
+  if (handright>2) right++;
   if (up>8 && up>down && up>left && up>right) {
     result=0;
   }
@@ -230,42 +230,46 @@ u8 fingerdir(void){
 u8 fingerdirleftright(void){
 
   u8 handleft, handright, left=0,right=0;
-  u8 result=2; 
+  //  u8 result=2;
 
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
-  if (handleft>8) left++;
-  if (handright>8) right++;
+  if (handleft>2) left++;
+  if (handright>2) right++;
   if (left>8 && left>right) {
-    result=0;
+    return 0;
   }
   else if (right>8 && right>left) {
-    result=1;
+    return 1;
   }
   }
-  return result;
+  return 2;
 }
 
 u8 fingerdirupdown(void){
 
   u8 handleft, handright, left=0,right=0;
-  u8 result=2;
+  //  u8 result=2;
 
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[UP]>>8;
   handright=adc_buffer[DOWN]>>8;
-  if (handleft>8) left++;
-  if (handright>8) right++;
+  if (handleft>2) left++;
+  if (handright>2) right++;
+
   if (left>8 && left>right) {
-    result=0;
+    //    result=0; // UP
+    return 0;
   }
   else if (right>8 && right>left) {
-    result=1;
+    //    result=1; //DOWN
+    return 1;
   }
   }
-  return result;
+  return 2;
 }
+
 
 signed char fingerdirupdownn(void){
 
@@ -275,8 +279,8 @@ signed char fingerdirupdownn(void){
   for (u8 x=0;x<16;x++){
   handleft=adc_buffer[UP]>>8;
   handright=adc_buffer[DOWN]>>8;
-  if (handleft>8) left++;
-  if (handright>8) right++;
+  if (handleft>2) left++;
+  if (handright>2) right++;
   if (left>8 && left>right) {
     result=-1;
   }
@@ -295,8 +299,8 @@ u16 fingervalup16bits(u16 tmpsetting, u8 inc){
   for (x=0;x<16;x++){
   handup=adc_buffer[UP]>>8;
   handdown=adc_buffer[DOWN]>>8;
-  if (handup>8) ttss++;
-  else if (handdown>8) sstt++;
+  if (handup>2) ttss++;
+  else if (handdown>2) sstt++;
   }
   if (ttss>sstt) tmpsetting+=inc;
   else if (ttss<sstt) tmpsetting-=inc;
@@ -310,8 +314,8 @@ u8 fingervalup(u8 tmpsetting){
   for (x=0;x<16;x++){
   handup=adc_buffer[UP]>>8;
   handdown=adc_buffer[DOWN]>>8;
-  if (handup>8) ttss++;
-  else if (handdown>8) sstt++;
+  if (handup>2) ttss++;
+  else if (handdown>2) sstt++;
   }
   if (ttss>sstt) tmpsetting+=1;
   else if (ttss<sstt) tmpsetting-=1;
@@ -324,8 +328,8 @@ u8 fingervaleff(u8 tmpsetting){
   for (x=0;x<16;x++){
   handup=adc_buffer[RIGHT]>>8;
   handdown=adc_buffer[LEFT]>>8;
-  if (handup>8) ttss++;
-  else if (handdown>8) sstt++;
+  if (handup>2) ttss++;
+  else if (handdown>2) sstt++;
   }
   if (ttss>sstt) {
     tmpsetting+=1;
@@ -341,11 +345,11 @@ tmpsetting-=1;
 u8 fingervalright(u8 tmpsetting, u8 wrap){
   u8 handup,handdown;
   u8 ttss=0,sstt=0;u8 x;
-  for (x=0;x<32;x++){ // TODO: tweak for speed?
+  for (x=0;x<16;x++){ // TODO: tweak for speed?
     handup=adc_buffer[RIGHT]>>8; // 4bits=16
     handdown=adc_buffer[LEFT]>>8;
-    if (handup>8) ttss++;
-    else if (handdown>8) sstt++;
+    if (handup>2) ttss++;// was 8 - TODO: tweak
+    else if (handdown>2) sstt++;
   }
   if (ttss>sstt) {
     tmpsetting+=1;
@@ -364,8 +368,8 @@ u8 fingervalupwrap(u8 tmpsetting, u8 wrap){
   for (x=0;x<16;x++){
   handup=adc_buffer[UP]>>8;
   handdown=adc_buffer[DOWN]>>8;
-  if (handup>8) ttss++;
-  else if (handdown>8) sstt++;
+  if (handup>2) ttss++;
+  else if (handdown>2) sstt++;
   }
   if (ttss>sstt) {
     tmpsetting+=1;
@@ -523,7 +527,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 
 
   for (x=46;x<49;x++){
-    settingsarray[x]=65535;
+    settingsarray[x]=65535; // FMOD and co
   }//wrap
 
   for (x=54;x<64;x++){
@@ -551,7 +555,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-    //    cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
+        cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
   }
 
   // CA
@@ -571,15 +575,16 @@ adc_buffer=malloc(10*sizeof(int16_t));
       stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
-      villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
+            villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
+      //      villagestackpos=villagepush(villagestackpos,start,wrap,);
 	//	        printf("TESTY:%d\n",wrap);
   }
 
 
     // execution stack - TESTER!
-    for (x=0;x<MAX_EXE_STACK;x++){
+        for (x=0;x<MAX_EXE_STACK;x++){
       exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 TESTY!
-    }
+      }
 
     //exenums=exestackpop(exenums,exestack);
 
@@ -618,9 +623,10 @@ adc_buffer=malloc(10*sizeof(int16_t));
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
 
+      u8 ii;
       
 	      for (x=0;x<exenums;x++){
-		switch(exestack[x]%4){
+		switch(exestack[x]){
 		case 0:
 		  func_runall(stackyy,stack_pos); // simulations
 		  break;
@@ -641,7 +647,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 		  if (leak_count>=LEAKSPEED){
 		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
 		    leak_count=0;
-		    		  }
+		  }
 		    break;
 		    }
 	      }
@@ -657,13 +663,22 @@ adc_buffer=malloc(10*sizeof(int16_t));
 
       //***mode quadrant as 1-groups/2-finger/3-mirror(inc eeg)/4-attach=finger/process/detach/knob
       //***8 per quadrant=32 total      
+
+      /* // TESTCODE for tweaking fingers
+	xx=fingerdirupdown();
+      if (xx==0){//THIS IS UP!!!!!
+	  settingsarray[12]=65530;
+	}
+      if (xx==1){
+	  settingsarray[12]=8;
+	  }
+      */
       
-      mastermode=30; // TESTY!!
+      //      mastermode=30; // TESTY!!
 
       switch(mastermode){
       case 0: // GROUPS0=EFFMODE
-
-	xx=fingerdir(); // 0-3 -change konb assign depends on fingers
+	xx=fingerdir(); // 0-3 -change knob assign depends on fingers
 	if (xx!=5){
 #ifdef LACH
 	EFFECTREAD=eff[xx%2];
@@ -677,22 +692,38 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	}
 	  break;
       case 1:	//GROUPS1// preformed= X-ALL STEP Y-WRAP Z-SPEED
-	if (fingerdirupdown()==0){
+	xx=fingerdirupdown();
+	if (xx==0){
 	  // STEP NOW!
 	    for (x=25;x<35;x++){
-	      settingsarray[x]=adc_buffer[SECOND]<<4; // 16 bit value
+	      settingsarray[x]+=(adc_buffer[SECOND]>>4); // 16 bit value
 	    }
 
 	    for (x=11;x<25;x++){
-	      	      settingsarray[x]=adc_buffer[THIRD]<<4; // 16 bit value
+	      settingsarray[x]+=(adc_buffer[THIRD]>>4); // 16 bit value
 	    }
+
 	    for (x=35;x<41;x++){
-	      	      settingsarray[x]=adc_buffer[FOURTH]<<4; // 16 bit value
+	      settingsarray[x]+=(adc_buffer[FOURTH]>>4); // 16 bit value
 	    }	   
 	}
+	else if (xx==1){
+	  // STEP NOW!
+	    for (x=25;x<35;x++){
+	      settingsarray[x]-=(adc_buffer[SECOND]>>4); // 16 bit value
+	    }
+
+	    for (x=11;x<25;x++){
+	      settingsarray[x]-=(adc_buffer[THIRD]>>4); // 16 bit value
+	    }
+	    for (x=35;x<41;x++){
+	      settingsarray[x]-=(adc_buffer[FOURTH]>>4); // 16 bit value
+	    }	   
+	}
+
 	    break;
       case 2: //GROUPS2// second group=R,W,F parameters
-	if (fingerdirupdown()==0){
+	if (fingerdirupdown()==1){
 	  // READ - 2,5,13,19,27,30,37,44 - expand and contract these
 	  settingsarray[2]=adc_buffer[SECOND]<<4;
 	  settingsarray[5]=adc_buffer[SECOND]<<4;
@@ -732,7 +763,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	break;
       case 3: //GROUPS3: expand in this case (or contract?-fingers) R/W/F
 	// R 52
-	if (fingerdirupdown()==0){
+	xx=fingerdirupdown();
+	if (xx==0){ // expand
 	  settingsarray[52]=adc_buffer[SECOND]<<4;
 
 	// W 51
@@ -742,7 +774,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  settingsarray[53]=adc_buffer[FOURTH]<<4;
 	}
 
-	else if (fingerdirupdown()==1){
+	else if (xx==1){ // wrap
 	  settingsarray[13]=adc_buffer[SECOND]<<4;
 
 	// W 51
@@ -752,14 +784,16 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  settingsarray[15]=adc_buffer[FOURTH]<<4;
 	}
 
-
-
 	break;
       case 4: //GROUPS4- HW settings (TODO: IFDEF)
 	// START: 0 // lmerbase-8 // f0106erbase-9 // maximerbase-10 // hdgener=41
 	// WRAP: 11 //lmercons-22 // 23            // 24             // 42
 	// STEP: 25	// SPEED: 35
-	if (fingerdirupdown()==0){
+
+#ifdef LACH
+
+#else
+	if (fingerdirupdown()==1){
 	// start/base
 	  settingsarray[0]=adc_buffer[SECOND]<<4;
 	  settingsarray[8]=adc_buffer[SECOND]<<4;
@@ -777,6 +811,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	// step and speed
 	  settingsarray[25]=adc_buffer[FOURTH]<<4;
 	  settingsarray[35]=adc_buffer[FOURTH]<<4;
+#endif
 	}
 	////
       case 5:
@@ -788,21 +823,22 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	    cpur to max m->m_threadcount (max is 120=7 bits)
 	    m->m_threads[cpur].m_CPU=cpu%31;
 	  */
-	if (fingerdirupdown()==0){
+	xx=fingerdirupdown();
+	if (xx==0){
 	//SIM/CA/CPU:
-	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]++;
-	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]++;
-	  cpur=(eff[2])%(m->m_threadcount);
-	  cpu++;
-	  m->m_threads[cpur].m_CPU=cpu%31;
-	}
-      	else if (fingerdirupdown()==1){
-	  //SIM/CA/CPU:
-	  //if ((rand()%2)==1){
-	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]--;
-	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]--;
+	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]+=1;
+	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]+=1;
 	  cpur=(eff[2])%(m->m_threadcount);
 	  cpu--;
+	  m->m_threads[cpur].m_CPU=cpu%31;
+	}
+      	else if (xx==1){
+	  //SIM/CA/CPU:
+	  //if ((rand()%2)==1){
+	  stacker[(((eff[0]>>1)%STACK_SIZE)*4)+3]-=1;
+	  stackery[(((eff[1]>>1)%STACK_SIZE)*4)+3]-=1;
+	  cpur=(eff[2])%(m->m_threadcount);
+	  cpu-=1;
 	  m->m_threads[cpur].m_CPU=cpu%31;
 	}
 
@@ -810,7 +846,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	////
       case 6: //GROUPS5	// X and Y as chunk start/wrap	// Z as knob
 	// total 64
-	if (fingerdirupdown()==0){
+	if (fingerdirupdown()==1){
 	  groupstart=eff[0]>>1; // 6bits
 	groupwrap=eff[1]>>1;
 	for (x=0;x<groupwrap;x++){
@@ -819,7 +855,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	}
 	break;
       case 7: //GROUPS6 // algo group1: X,Y,Z
-	if (fingerdirupdown()==0){
+	if (fingerdirupdown()==1){
 	  groupstart=datagenbuffer[adc_buffer[SECOND]<<4]>>2;// 16 bits//6 bits
 	  groupwrap=datagenbuffer[adc_buffer[THIRD]<<4]>>2;// 16 bits//6 bits
 	for (x=0;x<groupwrap;x++){
@@ -876,10 +912,10 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	settingsarray[7]=adc_buffer[SECOND]<<4;
 	settingsarray[21]=adc_buffer[THIRD]<<4;
 	settingsarray[49]=eff[2]<<9;
-
-		whichpushpop=fingervalright(whichpushpop,8);
-	//	whichpushpop=7;
-	if (fingerdirupdown()==0){//THIS IS UP!!!!!
+	whichpushpop=fingervalright(whichpushpop,8);
+	//	whichpushpop=7; // TESTY!
+	xx=fingerdirupdown();
+	if (xx==0){//THIS IS UP!!!!!
 	  // push which
 	  switch(whichpushpop){
 	  case 0:
@@ -907,7 +943,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	    exenums=exestackpush(exenums,exestack,STACKFUNC%4); //exetype=0-3;
 	  }
       }
-      else if (fingerdirupdown()==1){
+	else if (xx==1){
+
 	// pop which
 	  switch(whichpushpop){
 	  case 0:
@@ -977,21 +1014,24 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	// modes: mirror into 1/settingsarray 2/villager 3/stacks/CPU 4/foldback
 	// mirror operations: buf16 walker(set it), EEG, where are swaps(or swaps above)
 	// knob1/2/3: mirror walkers/settings
+
+	/// NOTE DOWN=TO SET!!!
 	///////////////////////////////////////////////////////////////////////////
 
       case 16: 
 	// set FOLD 0,1,2
-	FOLDD[0]=eff[0]; // all 7 bits TODO
-	FOLDD[1]=adc_buffer[THIRD]<<4;
-	FOLDD[2]=eff[2];
+	FOLDD[0]=eff[0]; // how much
+	FOLDD[1]=adc_buffer[THIRD]<<4; // start
+	FOLDD[2]=eff[2]; // wrap
 
 	for (x=0;x<((FOLDD[0]>>1)+1);x++){ //was >>9
 	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768];
 	  coo++;
 	}
 	// toggle flag with the finger
-	if (fingerdirupdown()==0) m1flag|=1; //sets
-	else if (fingerdirupdown()==1) m1flag&=~1;
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=1; //sets
+	else if (xx==0) m1flag&=~1;
 	break;
 
       case 17: 
@@ -1005,8 +1045,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  coo++;
 	}
 	// toggle flag with the finger
-	if (fingerdirupdown()==0) m1flag|=2; //sets
-	else if (fingerdirupdown()==1) m1flag&=~2; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=2; //sets=DOWN
+	else if (xx==0) m1flag&=~2; 
 	break;
 
       case 18:
@@ -1019,8 +1060,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  villager[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>1)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768]>>1;
 	  coo++;
 	}
-	if (fingerdirupdown()==0) m1flag|=4; //sets
-	else if (fingerdirupdown()==1) m1flag&=~4; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=4; //sets
+	else if (xx==0) m1flag&=~4; 
 	break;
 
       case 19:
@@ -1032,9 +1074,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  villager[(((FOLDD[1])>>1)+(x%((FOLDD[2]>>1)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	    coo++;
 	}
-
-	if (fingerdirupdown()==0) m1flag|=8; //sets
-	else if (fingerdirupdown()==1) m1flag&=~8; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=8; //sets
+	else if (xx==0) m1flag&=~8; 
 	break;
 
       case 20: // STACKS and CPU
@@ -1060,8 +1102,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  }
 	    coo++;
 	}
-	if (fingerdirupdown()==0) m1flag|=16; //sets
-	else if (fingerdirupdown()==1) m1flag&=~16; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=16; //sets
+	else if (xx==0) m1flag&=~16; 
 	break;
 
       case 21: // STACKS and CPU
@@ -1087,8 +1130,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  }
 	    coo++;
 	}
-	if (fingerdirupdown()==0) m1flag|=32; //sets
-	else if (fingerdirupdown()==1) m1flag&=~32; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=32; //sets
+	else if (xx==0) m1flag&=~32; 
 	break;
 
       case 22:
@@ -1101,8 +1145,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  FOLDD[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>1)+1)))% FOLD_SIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>1)+1)))%32768]>>1;
 	  	  coo++;
 	}
-	if (fingerdirupdown()==0) m1flag|=64; //sets
-	else if (fingerdirupdown()==1) m1flag&=~64; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=64; //sets
+	else if (xx==0) m1flag&=~64; 
 	break;
 
       case 23:
@@ -1115,8 +1160,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  FOLDD[(((FOLDD[1])>>1)+(x%((FOLDD[2]>>1)+1)))% FOLD_SIZE]=randi()<<4;
 	  	  coo++;
 	}
-	if (fingerdirupdown()==0) m1flag|=128; //sets
-	else if (fingerdirupdown()==1) m1flag&=~128; 
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=128; //sets
+	else if (xx==0) m1flag&=~128; 
 	break;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1131,8 +1177,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[0]=eff[0]; // 7 bits
 	FOLDD[1]=eff[1];
 	FOLDD[2]=eff[2];
-	for (x=0;x<((FOLDD[1]>>1)+1);x++){
-	  settingsarray[(((FOLDD[0])>>1)+x)%64]=settingsarray[((FOLDD[2]>>1)+((FOLDD[1])>>1)+x)%64];
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){
+	  settingsarray[(((FOLDD[1])>>1)+x)%64]=settingsarray[((FOLDD[2]>>1)+FOLDD[1]+x)%64];
 	}
 	break;
 
@@ -1141,9 +1187,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[0]=eff[0]; // 7 bits
 	FOLDD[1]=eff[1];
 	FOLDD[2]=eff[2];
-	for (x=0;x<((FOLDD[1]>>1)+1);x++){ //was >>9
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ //was >>9
 	  //	  settingsarray[(((FOLDD[0])>>10)+x)%64]=settingsarray[FOLDD[2]+(((FOLDD[1])>>10)+x)%64];
-	  villager[(((FOLDD[0])>>1)+x)%VILLAGE_SIZE]=villager[((FOLDD[2]>>1)+((FOLDD[0])>>1)+x)%VILLAGE_SIZE];
+	  villager[(((FOLDD[1])>>1)+x)%VILLAGE_SIZE]=villager[((FOLDD[2]>>1)+((FOLDD[1])>>1)+x)%VILLAGE_SIZE];
 	}
 	break;
 
@@ -1152,7 +1198,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[0]=eff[0]; // 7 bits
 	FOLDD[1]=adc_buffer[THIRD];
 	FOLDD[2]=eff[2];
-	for (x=0;x<((FOLDD[1]>>4)+1);x++){
+	for (x=0;x<((FOLDD[0]>>4)+1);x++){
 	}
 	break;
 
@@ -1161,8 +1207,8 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[0]=eff[0]; // 7 bits
 	FOLDD[1]=eff[1];
 	FOLDD[2]=eff[2];
-	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
-	  FOLDD[(((FOLDD[0])>>1)+x)% FOLD_SIZE]=FOLDD[((FOLDD[2]>>1)+((FOLDD[0])>>1)+x)% FOLD_SIZE];
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ 
+	  FOLDD[(((FOLDD[1])>>1)+x)% FOLD_SIZE]=FOLDD[((FOLDD[2]>>1)+((FOLDD[1])>>1)+x)% FOLD_SIZE];
 	}
 	break;
 
@@ -1172,9 +1218,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[1]=eff[1];
 	FOLDD[2]=eff[2];
 	//	settingsarray[12]=128; // TESTY!!!!
-	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
-	  tmper=((FOLDD[0])+x)%(STACK_SIZE*2); // so both stacks entry point
-	  villagerdest=(((FOLDD[0])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ 
+	  tmper=((FOLDD[1])+x)%(STACK_SIZE*2); // so both stacks entry point
+	  villagerdest=(((FOLDD[1])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
 	  if (tmper<STACK_SIZE){
 	    // deal with stacker
 	    villager[villagerdest*2]=stacker[tmper*4];  
@@ -1196,9 +1242,9 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	FOLDD[1]=eff[1];
 	FOLDD[2]=eff[2];
 	//	settingsarray[12]=128; // TESTY!!!!
-	for (x=0;x<((FOLDD[1]>>1)+1);x++){ 
-	  tmper=((FOLDD[0])+x)%(STACK_SIZE*2); // so both stacks entry point
-	  villagerdest=(((FOLDD[0])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
+	for (x=0;x<((FOLDD[0]>>1)+1);x++){ 
+	  tmper=((FOLDD[1])+x)%(STACK_SIZE*2); // so both stacks entry point
+	  villagerdest=(((FOLDD[1])>>1)+x+(FOLDD[2]>>1))%(VILLAGE_SIZE/2); // village entry
 	  if (tmper<STACK_SIZE){
 	    // deal with stacker
 	    stacker[tmper*4]=villager[villagerdest*2];  
@@ -1231,15 +1277,15 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	  settingsarrayattached[(groupstart+x)%64]=1;
 	  coo++;
 	  break;
-	case 2:
+	case 1:
 	  settingsarray[(groupstart+x)%64]=adc_buffer[DOWN]<<4;
 	  settingsarrayattached[(groupstart+x)%64]=2;
 	  break;
-	case 3:
+	case 2:
 	  settingsarray[(groupstart+x)%64]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[(groupstart+x)%64]=3;
 	  break;
-	case 4:
+	case 3: //left
 	  // DEtach
 	  settingsarrayattached[(groupstart+x)%64]=0;
 	  break;

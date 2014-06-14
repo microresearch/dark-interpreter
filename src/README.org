@@ -236,6 +236,15 @@ the 3 boards and how they differ and can be used
 
 differences between the three synths
 
+++++ further notes
+
+The preliminary working of The Dark Interpreter (a dark mirror of the
+reader, somehow reflecting the state of the improviser) should be
+considered as part of the creation of a unique, skin-sensitive
+instrument. The border between this first stage and the improvisation
+and playing of the instrument is diffuse, the mirror surface
+(obsidian) is ill defined.
+
 *** Mater Lachrymarum 
 
 No analogue processing hardware so all settings which relate to
@@ -244,8 +253,6 @@ setting, is now repurposed as a constraint on all
 villagers/grains. Finger/skin controls are as on the Mater Suspiriorum.
 
 *** Mater Suspiriorum and Mater Tenebrarum
-
-
 
 These both share the same analogue processing hardware. Mater
 Tenebrarum adds a new head, earth, skin and finger board which breaks
@@ -321,21 +328,44 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
-* FRI 13 JUN
+* SAT 14 JUNE
 
-- swop settings/stacks to datagen...
+607.wav (horbuch,hardware),609(hor,no hard),610(hor,hard),615,613,611,616(hor,nohard),612,614(hor,hard)
+
+simplify -> groups (maybe lose fingers), mirror and attach!
+
+attach works well!
+
+TODO:
+
+- swop/dump settings/stacks to datagen in one mode
+- per villager effects to test (in one write only now) TO copy across and TEST
+- case 4 needs non-hardware ifdef/group
+- case 5 has no knob/group interaction
+- case 7-15 fingers need knob settings
+- need to check toggling in wider context (full test)
+- finish case 26
+- wormdir and handdir also (put in one of finger modes)
+- size of execstack
+
+/// see below./////
+
+** DONE
+
+- having to tweak finger settings right down...TODO
+  re-check/tweak/change all (also see if simpler boards make
+  difference)
+- checked that execution is working fully (examining datagen and note
+  that pureleak gives us beginning bleeps as storage is there)
+- added audio wormdir code in WRITE only but still to toggle SOME WHERE!
+- tweaks to most modes
+- sampleexpand across all modes
+
+
+* FRI 13 JUNE
+
 
 TESTS:
-
-- last mirroraction 31 = infection
-
-- finished extramirror and attach////-TO TEST+ test mirror toggling
-  and running, attachments
-
-- check that execution is working fully (examining datagen and note
-  that pureleak gives us beginning bleeps as storage is there)
-
-- per villager effects to test (in write now) TO TEST/EXPAND
 
 ++from TUE/WED below->SAT:
 
@@ -343,6 +373,8 @@ TESTS:
 - what knob settings in fingersmode could be???
 - tweak speed of fingervalright
 - tweak speeds in settings.h (remember to update initialisation in main.c)
+- hardware question
+
 - wormdir - how we can toggle use of this(bitwise on mode?) and if makes sense?TEST?
 // wormdir for read/write/filter WHERE?????
 
@@ -352,6 +384,9 @@ TESTS:
 
 ** DONE:
 
+
+- last mirroraction 31 = infection
+- finished extramirror and attach
 - changed mirrors so is not always << and >> using eff[x]->check
 - added knobs in stack/fingermode TO TEST
 - testcode in one instance for village_effects (note need to change tmp in village code) in audio.c

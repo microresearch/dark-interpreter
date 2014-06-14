@@ -53,6 +53,7 @@ int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFS
 extern u8 village_effects[VILLAGE_SIZE/2]; 
 #endif
 
+u16 newdirection[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 
 extern signed char direction[2];
 
@@ -322,7 +323,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    ////
 		else {
 		  if (VILLAGEREAD==0) {
-		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD+SAMPLEREXPAND;
 		    if (SAMPLEDIRR==1) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
@@ -332,7 +333,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);
+		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
@@ -533,7 +534,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		      }
 		else {
 		  if (VILLAGEREAD==0) {
-		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD+SAMPLEREXPAND;
 		    if (SAMPLEDIRR==1) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
@@ -543,7 +544,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);
+		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
@@ -552,7 +553,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    villagerpos+=tmp;
 		    tmp=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
 		    startread=villager[tmp];
-		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
+		    wrapread=(villager[tmp+1]%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -585,7 +586,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	    VILLAGEREAD=EFFECTREAD&3;
 	    tmpp=(EFFECTREAD&63)>>2;
-	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
+	    //	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
 	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
 	  switch(tmpp){
@@ -698,7 +699,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp16=firstbuf[sampleposread%32768]|(*src++);
 	  firstbuf[sampleposread%32768]=tmp16;
 	  }
-	  VILLAGEREAD=0; // TESTY!
+	  //	  VILLAGEREAD=0; // TESTY!
 	  if (++delread>=SAMPLESPEEDREAD){
 	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
 	    //	  dirry=1; // TESTY!
@@ -710,7 +711,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		else {
 		  if (VILLAGEREAD==0) {
-		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD;
+		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD+SAMPLEREXPAND;
 		    //		    startread=0;wrapread=32768; // TESTY!
 		    if (SAMPLEDIRR==1) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
@@ -721,7 +722,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anyposread+=tmp;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;
-		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);
+		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
@@ -852,7 +853,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		else {
 		  if (VILLAGEWRITE==0) {
-		    start=SAMPLESTART;wrap=SAMPLEWRAP;
+		    start=SAMPLESTART;wrap=SAMPLEWRAP+SAMPLEEXPAND;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		    count=samplepos;
@@ -863,7 +864,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);
+		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP)+SAMPLEEXPAND;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
@@ -1038,7 +1039,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		else {
 		  if (VILLAGEWRITE==0) {
-		    start=SAMPLESTART;wrap=SAMPLEWRAP;
+		    start=SAMPLESTART;wrap=SAMPLEWRAP+SAMPLEEXPAND;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		  }
@@ -1048,7 +1049,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);
+		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP)+SAMPLEEXPAND;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
@@ -1096,9 +1097,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	  VILLAGEWRITE=EFFECTWRITE&3;
-	  VILLAGEWRITE=2; // TESTY!!!!
+	  //	  VILLAGEWRITE=2; // TESTY!!!!
 
-	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
+	  //	  tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
+	  //	  	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
 
@@ -1118,9 +1120,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  // effects with/without clipping *, +, -, 
 	  case 2:
-	    //	  tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
-	  fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv * (float32_t)firstbuf[samplepos%32768] * FMOD;
-	  tmp32=fsum;
+	    //tmp32=secondbuf[samplepos%32768] * firstbuf[samplepos%32768];
+	    fsum=(float32_t)secondbuf[samplepos%32768] * morph_inv * (float32_t)firstbuf[samplepos%32768] * FMOD;
+	    tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
@@ -1183,8 +1185,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
  
 	  if (++del>=SAMPLESPEED){ 
-	      dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
-	  	  dirry=1; //TESTY!
+	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP; 
+	    //	    dirry=newdirection[wormdir];
 	    count=((samplepos-start)+dirry);
 	    //	    if (count<wrap && (samplepos+dirry)>start)
 		    if (count<wrap && count>0)
@@ -1193,8 +1195,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		else {
 		  if (VILLAGEWRITE==0) {
-		    start=SAMPLESTART;wrap=SAMPLEWRAP;
-
+		    start=SAMPLESTART;wrap=SAMPLEWRAP+SAMPLEEXPAND;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
 		    //		    samplepos=0;start=0;wrap=32767;
@@ -1204,7 +1205,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  anypos+=tmp;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);
+		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP)+SAMPLEEXPAND;
 		  //		  samplepos=0;
 		  wrap=0;start=0;
 		  }
@@ -1403,7 +1404,7 @@ if (digfilterflag&1){
 		  }
 		else {
 		  if (VILLAGEFILT==0) {
-		    startfilt=SAMPLESTARTFILT;wrapfilt=SAMPLEWRAPFILT;
+		    startfilt=SAMPLESTARTFILT;wrapfilt=SAMPLEWRAPFILT+SAMPLEFEXPAND;
 		    if (SAMPLEDIRF==1) sampleposfilt=startfilt; //forwards
 		    else sampleposfilt=startfilt+wrapfilt;
 		  }
@@ -1413,7 +1414,7 @@ if (digfilterflag&1){
 		  anyposfilt+=tmp;
 		  tmp=(ANYSTARTFILT+(anyposfilt%ANYWRAPFILT))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
-		  sampleposfilt=SAMPLESTARTFILT+(tmper%SAMPLEWRAPFILT);
+		  sampleposfilt=SAMPLESTARTFILT+(tmper%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
 		  wrapfilt=0;startfilt=0;
 		  }
 		  else if (VILLAGEFILT==2) {
@@ -1422,7 +1423,7 @@ if (digfilterflag&1){
 		    villagefpos+=tmp;
 		    tmp=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%villagestackpos; //villagestackpos always +-2
 		    startfilt=villager[tmp];
-		    wrapfilt=(villager[tmp+1]%SAMPLEWRAPFILT)+SAMPLEFEXPAND;;
+		    wrapfilt=(villager[tmp+1]%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
 		    if (wrapfilt==0) wrapfilt=1;
 		    if (SAMPLEDIRF==1) sampleposfilt=startfilt;
 		    else sampleposfilt=startfilt+wrapfilt;
