@@ -337,21 +337,18 @@ TODO LAYOUT:
 - simplify to 16 modes: groups (maybe lose fingers??), mirror and
 attach!  (or fingers are modulated by knobs) 4x4 modes somehow reflect
 knob use on each other
-
 also somehow modes as a continuum? wormdir and fingerdir???
-
 do execution changes/push pull as one group///stack???
 
-TODO:
+groups-finger-attach-execution//mirror
 
+TODO GENERAL:
+
+- are stack/cpu settings always constrained %32768 etc. or do we need to?
 - push different buffers for datagens (buf16/audio_buffer)?
-
 - replace red rooms wrap reduction in pureleak and cpuintrev3 with???now removed
-
 - swop/dump all of settings/stacks to datagen in one mode (and back again)
-
 - per villager effects TO TEST
-
 - wormdir and fingerdir also (put in one of finger modes)
 - different hardware walkers
 

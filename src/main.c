@@ -678,7 +678,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
       //      mastermode=30; // TESTY!!
       //      mastermode=32;
 
-      /*
+      
 	switch(mastermode){
       case 0: // GROUPS0=EFFMODE
 	xx=fingerdir(); // 0-3 -change knob assign depends on fingers
@@ -1353,7 +1353,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
 	}
 	break;
       }
-      */
+      
       //// DEAL WITH toggled MIRRORING
 
       if (m1flag&1){ 
