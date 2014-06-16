@@ -327,20 +327,37 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
-
 * MON 16 JUNE
 
-TEST:
+TODO:
 
-- re-test villager effects with corrected code
-- new layout below
+- stack and stacker as 16 bits values constrained for CPU and howmuch!
+
+- new layout below-RE_THINK
+
+random notes:
+
+fingers are _always_ navigation (through varying spaces which are set
+by _what????_)
+
+virus across, spawn walkers and kill walkers (like agents which can be
+controlled), dump section/all to datagen and back again...
+
+must inc. wormdir, worm processes (mirror worms in soil)
+
+hardware and audio/effects as somehow fixed to always control (how
+switch between 3 sets effects?)
+
+other model than stacks (as don;t like push and pull?) - reduce
+and increase number of running procs
 
 ** DONE:
 
 - test DISIM with new arrays as memoryDONEfixed still error in ca
-
+- re-tested villager effects with corrected code
 - check CPU and stack constraintsDONE-changed but do we need new way organise large array of all?
 - NOTED that constrained in place so don't need to do elsewhere...
+- re-organised settingsarray for new hardware offsets, add these to hardware, TESTED!
 
 * SAT 14 JUNE+
 
@@ -358,13 +375,10 @@ groups-finger-attach-execution//mirror
 
 TODO GENERAL:
 
-- are stack/cpu settings always constrained %32768 etc. or do we need to?
 - push different buffers for datagens (buf16/audio_buffer)?
 - replace red rooms wrap reduction in pureleak and cpuintrev3 with???now removed
 - swop/dump all of settings/stacks to datagen in one mode (and back again)
-- per villager effects TO TEST
 - wormdir and fingerdir also (put in one of finger modes)
-- different hardware walkers
 
 ???> depending on new modes:
 - case 4 needs non-hardware ifdef/group

@@ -18,7 +18,7 @@ typedef uint16_t u16;
 #define ONESIXTH 0.1666666666666667
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16 /// leave as 16
-#define STACK_SIZE 16
+#define STACK_SIZE 64
 #define NUM_FUNCS 33
 
 #define CONVY 0

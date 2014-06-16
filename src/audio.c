@@ -202,7 +202,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
-	    tmpp=village_effects[villr/2];
+	    tmpp=village_effects[villr/2]%16;
 	  }
 	  else tmpp=(EFFECTREAD&63)>>2;
 	  switch(tmpp){ 
@@ -1115,9 +1115,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 	  VILLAGEWRITE=EFFECTWRITE&3;
-	  //	  VILLAGEWRITE=2; // TESTY!!!!
-	  //	  	  VILLAGEWRITE=0; // TESTY!!!!
-	  //	  tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
+	  VILLAGEWRITE=2; // TESTY!!!!
+	  //tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
 		  //	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
 
 	  for (x=0;x<sz/2;x++){
