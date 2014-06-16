@@ -90,7 +90,6 @@ u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 FOLDD[FOLD_SIZE]; // MAX size 14!
-u8 [VILLAGE_SIZE/2];
 u8 settingsarrayattached[64];
 u8 settingsarrayinfected[64];
 #endif
