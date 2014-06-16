@@ -1452,10 +1452,10 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 	u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
-	start=stacker[tmp++]%32678;
-	wrap=stacker[tmp++]%32768;
-	howmuch=stacker[tmp++]%128;
-	x=start%NUM_FUNCS;
+	start=stacker[tmp++]>>1;
+	wrap=stacker[tmp++]>>1;
+	howmuch=stacker[tmp++]>>9; // 7 bits
+	x=(stacker[tmp]>>8)%NUM_FUNCS; // 6 bots
 	switch(x){ // type
       case CONVY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct CONV));

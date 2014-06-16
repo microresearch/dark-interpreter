@@ -1,4 +1,3 @@
-
 Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
@@ -248,9 +247,9 @@ and playing of the instrument is diffuse, the mirror surface
 *** Mater Lachrymarum 
 
 No analogue processing hardware so all settings which relate to
-hardware are redundant. The first knob, for hardware routing and
-setting, is now repurposed as a constraint on all
-villagers/grains. Finger/skin controls are as on the Mater Suspiriorum.
+hardware are redundant. The xxxxx knob, for hardware routing and
+setting, is now repurposed as . Finger/skin controls are as on the
+Mater Suspiriorum.
 
 *** Mater Suspiriorum and Mater Tenebrarum
 
@@ -260,7 +259,7 @@ out for flesh world most of the important digital and analogue signal
 paths and settings. This last synth also adds the crude
 EEG/micro-voltage fanged amplifier. All knob controls are the same for
 both synths, although the layout is different. Finger controls are
-also different.
+also arranged differently.
 
 ** knobs from top down and left to right (diagram for each)
 
@@ -276,10 +275,12 @@ for TENE is:
 
 for LACH/SUSP is:
 
-1 (was hard/now samplewrap)
+1 
          3
 	 4
 2	 5
+
+//REWRITE___
 
 1-The first knob strictly controls the hardware operations and signal
 routing, including opening up of routes, and settings to the skin (we
@@ -331,9 +332,15 @@ For Mater Lachrymarum IN is unused!
 
 TODO:
 
-- stack and stacker as 16 bits values constrained for CPU and howmuch!
+- new layout:
 
-- new layout below-RE_THINK
+1-mainmode=x8 || x8 // mirror/attach(using finger UP/DOWN)->mirror edge(LEFT/RIGHT as extent)
+2-knob for mainmode/mirror edge 
+3-action/agent? OR pull speeds out of settings?but how different each speed?
+4-attached knob
+5-HW//EFFECTWRITE in LACHS
+
+whether all cpu/pureleak and villager values should also be 16bit and >> in each 
 
 random notes:
 
@@ -353,11 +360,14 @@ and increase number of running procs
 
 ** DONE:
 
+- stacker and stackery as 16 bits values constrained for CPU and howmuch! DONE-TO_TEST!
+  (and fixed one mistake wit stacker there)
 - test DISIM with new arrays as memoryDONEfixed still error in ca
 - re-tested villager effects with corrected code
 - check CPU and stack constraintsDONE-changed but do we need new way organise large array of all?
-- NOTED that constrained in place so don't need to do elsewhere...
+  NOTED that constrained in place so don't need to do elsewhere...
 - re-organised settingsarray for new hardware offsets, add these to hardware, TESTED!
+- EFFECTREAD and co. replaced with array
 
 * SAT 14 JUNE+
 
@@ -379,12 +389,6 @@ TODO GENERAL:
 - replace red rooms wrap reduction in pureleak and cpuintrev3 with???now removed
 - swop/dump all of settings/stacks to datagen in one mode (and back again)
 - wormdir and fingerdir also (put in one of finger modes)
-
-???> depending on new modes:
-- case 4 needs non-hardware ifdef/group
-- case 5 has no knob/group interaction
-- case 7-15 fingers need knob settings
-- finish case 26
 
 /// see below./////
 
@@ -409,11 +413,8 @@ TESTS:
 
 ++from TUE/WED below->SAT:
 
-- villagers: how many can we have?
-- what knob settings in fingersmode could be???
 - tweak speed of fingervalright
 - tweak speeds in settings.h (remember to update initialisation in main.c)
-- hardware question
 
 - wormdir - how we can toggle use of this(bitwise on mode?) and if makes sense?TEST?
 // wormdir for read/write/filter WHERE?????

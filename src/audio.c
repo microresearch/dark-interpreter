@@ -57,7 +57,7 @@ u16 newdirection[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 
 extern signed char direction[2];
 
-extern u8 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
+extern u8 eff[3];
 
 extern u8 wormdir;
 extern u8 villagestackpos;
@@ -196,15 +196,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef LACH
 
-	if (EFFECTREAD&64) {firstbuf=buf16int;secondbuf=audio_buffer;} // top bit now is buffer
+	if (eff[0]&64) {firstbuf=buf16int;secondbuf=audio_buffer;} // top bit now is buffer
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
-	VILLAGEREAD=(EFFECTREAD&3);	
+	VILLAGEREAD=(eff[0]&3);	
 
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[villr/2]%16;
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(eff[0]&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -382,14 +382,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  if (EFFECTREAD&64) firstbuf=buf16int;
+	  if (eff[0]&64) firstbuf=buf16int;
 	else firstbuf=audio_buffer;
-	VILLAGEREAD=EFFECTREAD&3;
+	VILLAGEREAD=eff[0]&3;
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[villr/2];
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(eff[0]&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -590,16 +590,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-	    if (EFFECTREAD&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
+	    if (eff[0]&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
-	    VILLAGEREAD=EFFECTREAD&3;
+	    VILLAGEREAD=eff[0]&3;
 	    //	    tmpp=0; firstbuf=audio_buffer; // TESTY!!!
 	    morph_inv = 1.0 - (float32_t)FMOD,fsum;
 	    for (x=0;x<sz/2;x++){
  	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[villr/2];
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(eff[0]&63)>>2;
 	  switch(tmpp){
 	  case 0:
 	  default:
@@ -777,15 +777,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef LACH
 	// firstbuf, secondbuf
-	  if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
+	  if (eff[1]&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 
-	VILLAGEWRITE=EFFECTWRITE&3;
+	VILLAGEWRITE=eff[1]&3;
       	for (x=0;x<sz/2;x++){
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[villw/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(eff[1]&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  mono_buffer[x]=firstbuf[samplepos%32768];
@@ -938,16 +938,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
+	  if (eff[1]&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	  else  {secondbuf=buf16int;firstbuf=audio_buffer;}
 
-	VILLAGEWRITE=EFFECTWRITE&3;
+	VILLAGEWRITE=eff[1]&3;
       	for (x=0;x<sz/2;x++){
 
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[villw/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(eff[1]&63)>>2;
 
 	  switch(tmpp){ 
 	  case 0:
@@ -1112,9 +1112,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
-	    if (EFFECTWRITE&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
+	    if (eff[1]&64) {firstbuf=buf16int;secondbuf=audio_buffer;}
 	    else  {secondbuf=buf16int;firstbuf=audio_buffer;}
-	  VILLAGEWRITE=EFFECTWRITE&3;
+	  VILLAGEWRITE=eff[1]&3;
 	  VILLAGEWRITE=2; // TESTY!!!!
 	  //tmpp=0;firstbuf=buf16int;secondbuf=buf16int; // TESTYYY!!!
 		  //	  tmpp=0;firstbuf=audio_buffer;secondbuf=buf16int; // TESTYYY!!!
@@ -1124,7 +1124,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[villw/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(eff[1]&63)>>2;
 
 	  //	     printf("%d\n",samplepos);
 
@@ -1302,16 +1302,16 @@ if (digfilterflag&1){
 	morph_inv = 1.0 - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
-	if (EFFECTFILTER&64) firstbuf=buf16int; 
+	if (eff[2]&64) firstbuf=buf16int; 
 	else firstbuf=audio_buffer;
-	VILLAGEFILT=EFFECTFILTER&3;
-	//	tmpp=(EFFECTFILTER&63)>>2;
+	VILLAGEFILT=eff[2]&3;
+	//	tmpp=(eff[2]&63)>>2;
       	for (x=0;x<sz/2;x++){ 
 
  	  if (VILLAGEFILT==2){
 	    tmpp=village_effects[villf/2];
 	  }
-	  else tmpp=(EFFECTFILTER&63)>>2;
+	  else tmpp=(eff[2]&63)>>2;
 	  switch(tmpp){ 
 	  case 0:
 	  default:

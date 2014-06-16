@@ -778,10 +778,15 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
     u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=stack[i].functione(wrap,stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
-	start=stackery[tmp++]%32768;
+    /*	start=stackery[tmp++]%32768;
 	wrap=stackery[tmp++]%32768;
 	howmuch=stackery[tmp++]%32768;
-	x=stackery[tmp]%NUM_CA;
+	x=stackery[tmp]%NUM_CA;*/
+	start=stackery[tmp++]>>1;
+	wrap=stackery[tmp++]>>1;
+	howmuch=stackery[tmp++]>>9; // 7 bits
+	x=(stackery[tmp]>>8)%NUM_CA; // 6 bots
+
 	switch(x){
       case KRUMMY:
 	stack[i].count=runkrum(howmuch,stack[i].buffer,stack[i].count,start,wrap);

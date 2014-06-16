@@ -18,7 +18,6 @@
 #define FOLD_SIZE 14
 #define MAX_EXE_STACK 4
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 64 =128 // TESTY!
-//#define VILLAGE_SIZE 32 // was 64 *2=128 now 96*2=192 STACK_SIZE is 16
 
 #ifdef PCSIM
 #include <string.h>
@@ -119,7 +118,7 @@ u8 settingsarrayinfected[64];
 #define RIGHT 7
 #endif
 
-u16 EFFECTREAD,EFFECTWRITE,EFFECTFILTER;
+u16 eff[3]={0,0,0};
 
 signed char direction[2]={-1,1};
 
@@ -528,23 +527,12 @@ void main(void)
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
-  EFFECTREAD=0;EFFECTWRITE=0;EFFECTFILTER=0;
-
-  // fill datagenbuffer???
-
-  /*  for (x=0;x<65535;x++){
-        datagenbuffer[x]=randi()%255;
-	}*/
-
-  /*  for (x=0;x<100;x++){
-  delay();
-  }*/
-
   for (x=0;x<64;x++){
     if ((rand()%255) > (adc_buffer[SECOND]>>4)) settingsarrayinfected[x]=1; // infected
     else settingsarrayinfected[x]=0;
   }
 
+  // fill datagenbuffer???
 
   for (x=0;x<32768;x++){
      buf16[x]=randi()<<4;
@@ -597,7 +585,7 @@ void main(void)
     }
 
   for (x=0;x<FOLD_SIZE;x++){
-        FOLDD[x]=randi()<<4; // TESTY!
+        FOLDD[x]=randi()<<4; // TESTY! IF We use foldback?
   }
 
   //pureleak
@@ -610,18 +598,18 @@ void main(void)
   // CA
   for (x=0;x<(STACK_SIZE);x++){
     //      start=0; wrap=32768; // TESTY!
-          start=randi()<<3;
-          wrap=randi()<3;
-	  stack_posy=ca_pushn(stackyyy,randi()%NUM_CA,datagenbuffer,stack_posy,randi()%24,start,wrap); 
+          start=randi()<<4;
+          wrap=randi()<4;
+	  stack_posy=ca_pushn(stackyyy,randi()<<4,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
   }
 
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
   //  for (x=0;x<2;x++){ // TESTY!
-                start=randi()<<3;
+                start=randi()<<4;
       //      start=0; wrap=32767; // TESTY!
-            wrap=randi()<<3;
-      stack_pos=func_pushn(stackyy,randi()%NUM_FUNCS,buf16,stack_pos,randi()%24,start,wrap);
+            wrap=randi()<<4;
+      stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
     //    stack_pos=func_pushn(stackyy,0,buf16,stack_pos,randi()%24,start,wrap);
     //    printf("stackpos %d\n",stack_pos);
             villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
@@ -640,7 +628,7 @@ void main(void)
 
   ///////////////////////////
 
-  u8 fingermode;
+  u8 mainmode;
 
   ///////////////////////////
 
@@ -666,38 +654,35 @@ void main(void)
 
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
 #endif
-
-      u8 ii;
-
       
-	      for (x=0;x<exenums;x++){
-		switch(exestack[x]){
-		case 0:
-		  func_runall(stackyy,stack_pos); // simulations
-		  break;
-		case 1:
-		  ca_runall(stackyyy,stack_posy); // CA
-		  break;
-		case 2:
-		  machine_count++;
-		  if (machine_count>=MACHINESPEED){
-		    machine_run(m); //cpu - WRAP own speedTODO
-		  m->m_leakiness=leakiness;
-		  m->m_infectprob=infection;
-		  machine_count=0;
-		  }
-		  break;
-		case 3:
-		  leak_count++;
-		  if (leak_count>=LEAKSPEED){
-		    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
-		    leak_count=0;
-		  }
-		    break;
-		    }
-	      }
+      for (x=0;x<exenums;x++){
+	switch(exestack[x]){
+	case 0:
+	  func_runall(stackyy,stack_pos); // simulations
+	  break;
+	case 1:
+	  ca_runall(stackyyy,stack_posy); // CA
+	  break;
+	case 2:
+	  machine_count++;
+	  if (machine_count>=MACHINESPEED){
+	    machine_run(m); //cpu - WRAP own speedTODO
+	    m->m_leakiness=leakiness;
+	    m->m_infectprob=infection;
+	    machine_count=0;
+	  }
+	  break;
+	case 3:
+	  leak_count++;
+	  if (leak_count>=LEAKSPEED){
+	    machine_runnn(datagenbuffer); // pureleak WRAP own speedTODO-SLOW
+	    leak_count=0;
+	  }
+	  break;
+	}
+      }
 
-	      /////////////////////////////////////
+      /////////////////////////////////////
 	      
       //TODO MODECODE      /////////////////////////////////////
 
@@ -709,7 +694,7 @@ void main(void)
 
       // so full array is:
 
-      // effects 
+      // +effects 
       // 1-settings=64
       // 2-stacker=64x4(howmuch.start.end.cpu)=256
       // 3-stackery=64x4=256
@@ -717,8 +702,9 @@ void main(void)
       // 5-exestack=	 4
       // [5-foldback=xx?? = walker for datagen into xxxxx]
       // 6-villager=128
-	      //7	      village_effects=64 (64 total villagers)
+      //7	      village_effects=64 (64 total villagers)
       // 8datagen
+      //+ directions
  
       // <-> datagen (as ongoing, or not with its own walker which is
       // the foldback setting), finger, knob(s), EEG
@@ -728,101 +714,131 @@ void main(void)
       // + dump into datagen
 
       // navigate each array(sel-knob0) - set with knob(1) + toggle attachment/process (knob2)
-      // navigation of overlaid grids - walkers
+
+      // ??? navigation of overlaid grids - walkers????
+
       // how to: toggle wormcode navigation
 	      
       // toggle as down. bare finger as up...
 
-	      u8 xx,stackerpos,stackerypos,cpupos,exepos,villageepos;
+      u8 xx,stackerpos,stackerypos,cpupos,effectspos,villageepos,datagenpos;
 
-	      fingermode=6; // TESTY!
-	      switch(fingermode){
-	      case 0:
-	      settingspos+=fingerdirleftrightt();
-	      settingspos=settingspos%64;
-	      xx=fingerdirupdown();
-	      if (xx==1){
-	      settingsarray[settingspos]=adc_buffer[FIRST]<<4;
-	      }
-	      if (xx==0){
-		settingsarray[settingspos]=adc_buffer[UP]<<4;
-	      }
-	      break;
-	      case 1:
-	      stackerpos+=fingerdirleftrightt();
-	      xx=fingerdirupdown();
-	      if (xx==1){
-	      stacker[stackerpos]=adc_buffer[FIRST]<<4;
-	      }
-	      if (xx==0){
-		stacker[stackerpos]=adc_buffer[UP]<<4;
-	      }
-	      break;
-	      case 2:
-	      stackerypos+=fingerdirleftrightt();
-	      xx=fingerdirupdown();
-	      if (xx==1){
-	      stackery[stackerypos]=adc_buffer[FIRST]<<4;
-	      }
-	      if (xx==0){
-		stackery[stackerypos]=adc_buffer[UP]<<4;
-	      }
-	      break;
-	      case 3:
-	      cpupos+=fingerdirleftrightt();
-	      cpupos=cpupos%64;
-	      xx=fingerdirupdown();
-	      if (xx==1){
-		m->m_threads[cpupos].m_CPU=adc_buffer[FIRST]>>7; // 5 bits
-	      }
-	      if (xx==0){
-		m->m_threads[cpupos].m_CPU=adc_buffer[UP]>>7;
-	      }
-	      case 4:
-	      exepos+=fingerdirleftrightt();
-	      exepos=exepos%4;
-	      xx=fingerdirupdown();
-	      if (xx==1){
-		exestack[exepos]=adc_buffer[FIRST]>>10; // 2 bits
-	      }
-	      if (xx==0){
-		exestack[exepos]=adc_buffer[UP]>>10;
-	      }
-	      break;
-	      case 5:
-	      villagepos+=fingerdirleftrightt();
-	      villagepos=villagepos%128;
-	      xx=fingerdirupdown();
-	      if (xx==1){
-		villager[villagepos]=adc_buffer[FIRST]<<4;
-	      }
-	      if (xx==0){
-		villager[villagepos]=adc_buffer[UP]<<4;
-	      }
-	      break;
-	      case 6:
-	      villageepos+=fingerdirleftrightt();
-	      villageepos=villageepos%64;
-	      xx=fingerdirupdown();
-	      if (xx==1){
-		village_effects[villageepos]=adc_buffer[FIRST]>>8; // 4 bits
-	      }
-	      if (xx==0){
-		village_effects[villageepos]=adc_buffer[UP]>>8;
-	      }
-	      break;
+      //	      mainmode=6; // TESTY!
+      switch(mainmode){
+      case 0: //effects across three (ifnot lach)
+#ifdef LACH
+	// for LACH we set EFFECTREAD here and EFFECTWRITE instead of hardware below
+	xx=fingerdirupdown();
+	if (xx==1){
+	  eff[0]=adc_buffer[FIRST]>>5;
+	}
+	if (xx==0){
+	  eff[0]=adc_buffer[UP]>>5;
+	}
+	break;
+#else
+	effectspos+=fingerdirleftrightt();
+	effectspos=effectspos%3;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  eff[effectspos]=adc_buffer[FIRST]>>5;
+	}
+	if (xx==0){
+	  eff[effectspos]=adc_buffer[UP]>>5;
+	}
+ 	break;
+#endif
+      case 1:
+	settingspos+=fingerdirleftrightt();
+	settingspos=settingspos%64;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarray[settingspos]=adc_buffer[FIRST]<<4;
+	}
+	if (xx==0){
+	  settingsarray[settingspos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 2:
+	stackerpos+=fingerdirleftrightt();
+	xx=fingerdirupdown();
+	if (xx==1){
+	  stacker[stackerpos]=adc_buffer[FIRST]<<4;
+	}
+	if (xx==0){
+	  stacker[stackerpos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 3:
+	stackerypos+=fingerdirleftrightt();
+	xx=fingerdirupdown();
+	if (xx==1){
+	  stackery[stackerypos]=adc_buffer[FIRST]<<4;
+	}
+	if (xx==0){
+	  stackery[stackerypos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 4:
+	cpupos+=fingerdirleftrightt();
+	cpupos=cpupos%68; //64,65,66,67
+	xx=fingerdirupdown();
+	if (xx==1){
+	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[FIRST]>>7; // 5 bits
+	  else exestack[cpupos-64]=adc_buffer[FIRST]>>10; // 2 bits 
+	}
+	if (xx==0){
+	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[UP]>>7; // 5 bits
+	  else exestack[cpupos-64]=adc_buffer[UP]>>10; // 2 bits 
+	}
+	break;
+      case 5:
+	villagepos+=fingerdirleftrightt();
+	villagepos=villagepos%128;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  villager[villagepos]=adc_buffer[FIRST]<<4;
+	}
+	if (xx==0){
+	  villager[villagepos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 6:
+	villageepos+=fingerdirleftrightt();
+	villageepos=villageepos%64;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  village_effects[villageepos]=adc_buffer[FIRST]>>8; // 4 bits
+	}
+	if (xx==0){
+	  village_effects[villageepos]=adc_buffer[UP]>>8;
+	}
+	break;
+      case 7:
+	datagenpos+=fingerdirleftrightt();
+	datagenpos=datagenpos%32768;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  buf16[datagenpos]=adc_buffer[FIRST]<<4; 
+	}
+	if (xx==0){
+	  buf16[datagenpos]=adc_buffer[UP]<<4; 
+	}
+	break;
+      }
 
-	      }
+      // TODO: datagens as modifiers of position // insert into above as modifier
+      // wormdir also?
+      // swop positions?
+      // directions for each walker (=10 directions) + toggle wormdir(how?)
+      //+ furthermode for actions dependent on each mode - eg. swops????
+
       //END MODECODE      /////////////////////////////////////
-
 
       //// DEAL last with hardware:
 #ifdef LACH
-      // deal as step???TODO?TEST!!!!
-
-	  for (x=0;x<10;x++){
-	    settingsarray[25+x]=adc_buffer[FIFTH]<<4; // 16 bit value
-	  }
+      // EFFECTWRITE
+	  eff[1]=adc_buffer[FIFTH]>>5;
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
@@ -839,41 +855,31 @@ void main(void)
       
       /// general HW walk in/as tmp
       if (++hwdel>=HWSPEED){
-	  hwpos+=(HWSTEP*direction[HWDIR]);
-	  tmp=HWSTART+(hwpos%HWWRAP); //to cover all directions
-	  hwdel=0;
+	hwpos+=(HWSTEP*direction[HWDIR]);
+	tmp=HWSTART+(hwpos%HWWRAP); //to cover all directions
+	hwdel=0;
       }
 
       if (digfilterflag&16){
 	if (HDGENERCONS==0) settingsarray[42]=256; //(settingsarray[42]>>8)
 	dohardwareswitch(HARDWARE,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
-	//dohardwareswitch(HARDWARE,0);
       }
       else
 	{
 	  dohardwareswitch(HARDWARE,0);
-	  //	  if (hardware!=oldhardware) dohardwareswitch(hardware,0);
-	  //	  oldhardware=hardware;
 	}
 	     		   
-      // 3 datagenclocks->40106/lm/maxim - filterflag as bits as we also need signal which clocks we
-
       // just leave this running
 		     		     
-// LMEROFFSET, LMEROFFSETTWO, F0106EROFFSET, MAXIMEROFFSET
-      //      if (digfilterflag&2){
       set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
-      //      set40106pwm(32768);
-	  //      }
-	  
 
       if (digfilterflag&4){
 	setlmpwm(LMERBASE+(buf16[(tmp+LMEROFFSET)%32768]%LMERCONS),LMERBASE+(buf16[(tmp+LMEROFFSETTWO)%32768]%LMERCONS)); 
       }
 	  
       if (digfilterflag&8){
-		  setmaximpwm(MAXIMERBASE+(buf16[(tmp+MAXIMEROFFSET)%32768]%MAXIMERCONS));
-		  }
+	setmaximpwm(MAXIMERBASE+(buf16[(tmp+MAXIMEROFFSET)%32768]%MAXIMERCONS));
+      }
      
 #endif
 #endif
@@ -892,7 +898,7 @@ void assert_failed(uint8_t* file, uint32_t line)
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
   /* Infinite loop */
-    while (1)
+  while (1)
     {
     }
 }
@@ -907,12 +913,12 @@ void NMI_Handler(void)
 
 void HardFault_Handler(void)
 { 
-   while(1){};
+  while(1){};
 }
 
 void MemManage_Handler(void)
 { 
-    while(1){};
+  while(1){};
 }
 
 void BusFault_Handler(void)
