@@ -45,8 +45,9 @@ u8 digfilterflag;
 
 int16_t *villager,*stacker,*stackery,*settingsarray;
 int16_t *src, *dst;
-
-u8 village_effects[VILLAGE_SIZE/2]; // but where do we set this?
+u8 *village_effects;// [VILLAGE_SIZE/2];
+u8 *settingsarrayattached; //64
+u8 *settingsarrayinfected; //64
 
 void  dohardwareswitch(u8 one,u8 two){
   // nothing
@@ -89,11 +90,10 @@ u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 u16 settingsarray[64];
 u16 FOLDD[FOLD_SIZE]; // MAX size 14!
-
-#endif
-
+u8 [VILLAGE_SIZE/2];
 u8 settingsarrayattached[64];
 u8 settingsarrayinfected[64];
+#endif
 
 // for knobwork
 // TENE: 2,0,3,4,1 // else: 3,0,2,4,1
@@ -445,11 +445,14 @@ void main(void)
   stacker=malloc(64*sizeof(int16_t));
   stackery=malloc(64*sizeof(int16_t));
   FOLDD=malloc(14*sizeof(int16_t));
-adc_buffer=malloc(10*sizeof(int16_t));
+  adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
   srandom(time(0));
   src=malloc(BUFF_LEN*sizeof(int16_t));
   dst=malloc(BUFF_LEN*sizeof(int16_t));
+  village_effects=malloc(VILLAGE_SIZE/2);
+  settingsarrayattached=malloc(64);
+  settingsarrayinfected=malloc(64);
 
   for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
@@ -662,9 +665,6 @@ adc_buffer=malloc(10*sizeof(int16_t));
       eff[1]=adc_buffer[THIRD]>>5;
       eff[2]=adc_buffer[FOURTH]>>5;
 
-      //***mode quadrant as 1-groups/2-finger/3-mirror(inc eeg)/4-attach=finger/process/detach/knob
-      //***8 per quadrant=32 total      
-
       /* // TESTCODE for tweaking fingers
 	xx=fingerdirupdown();
       if (xx==0){//THIS IS UP!!!!!
@@ -676,9 +676,7 @@ adc_buffer=malloc(10*sizeof(int16_t));
       */
       
       //      mastermode=30; // TESTY!!
-      //      mastermode=32;
-
-      
+     
 	switch(mastermode){
       case 0: // GROUPS0=EFFMODE
 	xx=fingerdir(); // 0-3 -change knob assign depends on fingers

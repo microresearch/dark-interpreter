@@ -274,7 +274,7 @@ u16 runkrum(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   if (cells[place]==(cells[x]+1)%n) cells[y]=cells[place];
 
   x++;
-  //  if (x>(start+wrap)) x=start;
+  if (x>(start+wrap)) x=start;
 
 #ifdef PCSIM  
   //     printf("%c",cells[x]);
@@ -298,9 +298,10 @@ u16 runcel(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   if (x>(start+wrap)) x=start;
   if (cells[(x +1+ (cells[0]))%65536]>128)
       state |= 0x4;
-  if (cells[(x+(cells[0]))%65536]>128)
+  if (cells[(x+cells[0])%65536]>128)
       state |= 0x2;
-    if (cells[(x - 1 +(cells[0]))%65536]>128)
+  y=x-1;
+  if (cells[(y + cells[0])%65536]>128)
       state |= 0x1;
 
     y=(x+(cells[0]*2))%65536;// next row but one!
@@ -774,69 +775,72 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u8 typerr, u8* buffer, 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
   u8 i,x; 
   for (i=0;i<stack_posy;i++){
-	u8 tmp=i*4;
+    u8 tmp=i*4,howmuch; u16 start,wrap;
 
-	//	stack[i].count=stack[i].functione(stackery[tmp+1],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
-	x=stackery[tmp+3]%NUM_CA;
-      switch(x){
+	//	stack[i].count=stack[i].functione(wrap,stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
+	start=stackery[tmp++]%32768;
+	wrap=stackery[tmp++]%32768;
+	howmuch=stackery[tmp++]%32768;
+	x=stackery[tmp]%NUM_CA;
+	switch(x){
       case KRUMMY:
-	stack[i].count=runkrum(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runkrum(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case HODGEY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
 	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
 	//	hodgeinit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runhodge;
-	stack[i].count=runhodge(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runhodge(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case HODGENETY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
 	//	hodgeinit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runhodgenet;
-	stack[i].count=runhodgenet(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runhodgenet(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 
 	break;
       case LIFEY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
 	//	cainit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runlife;
-	stack[i].count=runlife(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runlife(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case CELY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
 	//	cainit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runcel;
-	stack[i].count=runcel(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runcel(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case CEL1DY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
 	//	cainit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runcel1d;
-	stack[i].count=runcel1d(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runcel1d(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case FIREY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct fire));
 	//	fireinit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runfire;
-	stack[i].count=runfire(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runfire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case WIREY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
 	//	cainit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runwire;
-	stack[i].count=runwire(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runwire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SIRY:
 	//	stack[stack_posy].unit=malloc(sizeof(struct SIR));
 	//	SIRinit(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runSIR;
-	stack[i].count=runSIR(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runSIR(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SIR16Y:
 	//	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
 	//	SIR16init(stack[stack_posy].unit,buffer);
 	//	stack[stack_posy].functione=runSIR16;
-	stack[i].count=runSIR16(stackery[tmp+2],stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+1]);
+	stack[i].count=runSIR16(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       }
   }

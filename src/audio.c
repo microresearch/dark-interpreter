@@ -28,7 +28,7 @@ typedef int int32_t;
 #define float32_t float
 int16_t	*left_buffer, *right_buffer, *temp_buffer, *mono_buffer;
 #define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
-extern u8 village_effects[VILLAGE_SIZE/2]; 
+extern u8* village_effects;
 
 void initaudio(void){
   //int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
@@ -1489,9 +1489,9 @@ if (digfilterflag&1){
 #ifdef PCSIM
  // if (wormdir>=8)  printf("woxxxxxrmdir:%d\n",wormdir);
  //printf("woxxxxxrmdir:%d\n",wormdir);
-  for (x=0;x<sz/2;x++){
-    printf("%c",mono_buffer[x]);
-      }
+ //  for (x=0;x<sz/2;x++){
+    //    printf("%c",mono_buffer[x]);
+ //      }
 #endif
 
 #endif // for test eeg

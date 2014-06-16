@@ -1449,211 +1449,213 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 
   u8 i,x;
       for (i=0;i<stack_pos;i++){
-	u8 tmp=i*4;
+	u8 tmp=i*4,howmuch; u16 start,wrap;
 
-	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
-
-	x=stacker[tmp+3]%NUM_FUNCS;
+	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
+	start=stacker[tmp++]%32678;
+	wrap=stacker[tmp++]%32768;
+	howmuch=stacker[tmp++]%128;
+	x=start%NUM_FUNCS;
 	switch(x){ // type
       case CONVY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct CONV));
 	//	convinit(stack[stack_pos].unit,buffer);
 	//	convinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runconv;
-	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runconv(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case FORMY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct FORM));
 	//	forminit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runform;
-	stack[i].count=runform(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runform(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SINEY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct siney));
 	//	sineinit(stack[stack_pos].buffer);
 	//	stack[stack_pos].functione=runsine;
-	stack[i].count=runsine(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runsine(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case INCY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runinc;
-	stack[i].count=runinc(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runinc(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case DECY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=rundec;
-	stack[i].count=rundec(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=rundec(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case LEFTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runleft;
-	stack[i].count=runleft(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runleft(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case RIGHTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runright;
-	stack[i].count=runright(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runright(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SWAPPY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runswap;
-	stack[i].count=runswap(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runswap(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case NEXTINCY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runnextinc;
-	stack[i].count=runnextinc(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runnextinc(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case NEXTDECY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runnextdec;
-	stack[i].count=runnextdec(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runnextdec(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case NEXTMULTY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runnextmult;
-	stack[i].count=runnextmult(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runnextmult(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case NEXTDIVY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runnextdiv;
-	stack[i].count=runnextdiv(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runnextdiv(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case COPYY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runcopy;
-	stack[i].count=runcopy(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runcopy(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case ZEROY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//       		stack[stack_pos].functione=runzero;
-	stack[i].count=runzero(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runzero(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case FULLY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runfull;
-	stack[i].count=runfull(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runfull(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case RANDY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runrand;
-	stack[i].count=runrand(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runrand(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case KNOBY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runknob;
-	stack[i].count=runknob(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runknob(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SWAPAUDIOY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runswapaudio;
-	stack[i].count=runswapaudio(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runswapaudio(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case ORAUDIOY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct generik));
 	//	geninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runORaudio;
-	stack[i].count=runORaudio(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runORaudio(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SIMPLESIRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct simpleSIR));
 	//	simplesirinit(buffer);
 	//		stack[stack_pos].functione=runsimplesir;
-	stack[i].count=runsimplesir(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runsimplesir(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SEIRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct SEIR));
 	//	seirinit(buffer);
 	//		stack[stack_pos].functione=runseir;
-	stack[i].count=runseir(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runseir(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SICRY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct SICR));
 	//	sicrinit(buffer);
 	//		stack[stack_pos].functione=runsicr;
-	stack[i].count=runsicr(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runsicr(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case IFSY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct IFS));
 	//	ifsinit(buffer);
 	//		stack[stack_pos].functione=runifs;
-	stack[i].count=runifs(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runifs(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case ROSSLERY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Rossler));
 	//	rosslerinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runrossler;
-	stack[i].count=runrossler(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runrossler(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SECONDROSSLERY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct secondRossler));
 	//	secondrosslerinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runsecondrossler;
-	stack[i].count=runsecondrossler(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runsecondrossler(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case BRUSSELY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Brussel));
 	//	brusselinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runbrussel;
-	stack[i].count=runbrussel(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runbrussel(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 
 	break;
       case SPRUCEY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Spruce));
 	//	spruceinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runspruce;
-	stack[i].count=runspruce(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runspruce(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case OREGONY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Oregon));
 	//	oregoninit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runoregon;
-	stack[i].count=runoregon(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runoregon(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case FITZY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct Fitz));
 	//	fitzinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runfitz;
-	stack[i].count=runfitz(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runfitz(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SWAPCHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
 	//	chunkinit(stack[stack_pos].buffer);
 	//		stack[stack_pos].functione=runswapchunk;
-	stack[i].count=runswapchunk(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runswapchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case CHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
 	//	chunkinit(stack[stack_pos].buffer);
 	//	stack[stack_pos].functione=runchunk;
-	stack[i].count=runchunk(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case DEREFCHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
 	//	chunkinit(stack[stack_pos].buffer);
 	//	stack[stack_pos].functione=runderefchunk;
-	stack[i].count=runderefchunk(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runderefchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case WALKERCHUNKY:
 	//	stack[stack_pos].unit=malloc(sizeof(struct chunkey));
 	//      chunkinit(stack[stack_pos].buffer);
 	//	stack[stack_pos].functione=runwalkerchunk;
-	stack[i].count=runwalkerchunk(stacker[tmp+2],stack[i].buffer,stack[i].count,stacker[tmp],stacker[tmp+1]);
+	stack[i].count=runwalkerchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	}
       }
 }

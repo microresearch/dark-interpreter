@@ -1,5 +1,17 @@
 * parts list
 
+DATE: 16 JUNE 2014
+
+to order: opa337 for top(x3 each), both pcb sets, more ARM/codec/LM/XTAL
+
+** PCBs:
+
+Top: 0x bare, 9x pre-made so far 
+
+Lower: 4x bare, 10x pre-made so far
+
++ 1x basic, 1x mid-range
+
 ** Resistors
 
 330Rx1bulk
@@ -9,20 +21,20 @@
 10K xmanybulk
 33Kx1->have76
 100K x1-bulk
-200K x2->have60
-390K x1->have60
+200K x2->have50
+390K x1->have50
 470Kx4-have100
 1Mx1bulk
-10Mx2(top)->have57
+10Mx2(top)->have50
 
 ** Caps
 
 18pF/22pF x2bulk
-220pFx1->have17
+220pFx1->have117
 1nFx3bulk
 10nF x2bulk
 100nF xMANY bulk
-470nF x1->(SEGOR)have49
+470nF x1->(SEGOR)have40
 1uFx2bulk
 2.2uFx2 have50
 4.7uFx1 have42
@@ -30,21 +42,24 @@
 
 ** Active
 
-LEDx1 have15
-AD620ARZ x1 -topSEGOR - have 5
-DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have35
-OPA337UAG4  x3 -top (mouser) have 22
-HCT40106x1 (have hcf)-works-have30
+TOP:
+AD620ARZ x1 -topSEGOR - have 5 (ordered 5 more)
+OPA337UAG4  x3 -top (mouser) have 5
+
+LEDx1 have11ordered30
+
+DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have37???
+HCT40106x1 (have hcf)-works-have27
 CD74HCT4053M96x1 have28
-HCT4066x3 have19
-LM13700MX/NOPB (mouser/reichelt) have21
+HCT4066x3 have119
+LM13700MX/NOPB x1(mouser/reichelt) have21
 LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
-LM1117-5Vx1  DT-5(mouser) have12
+LM1117-5Vx1  DT-5(mouser) have12+
 LM358x1 (reichelt) bulk
-MAX7400CSAx1 (mouser/reichelt) have5+ordered
-STM32F405RGT6x1 (mouser) have9+ordered
+MAX7400CSAx1 (mouser/reichelt) have15
+STM32F405RGT6x1 (mouser) have6
 8 MHz XTAL (SMD HC49)x1 (reichelt) have18
-WM8731 audio codec have17
+WM8731 audio codec have4
 
 ** other
 
@@ -52,9 +67,12 @@ POTIS: RK09K1130A5R XXX
 inductorx1: 81-BLM18BD252SN1D (mouser) have118
 JACKSx2 (Banzai) XXX
 switchx1 (ebay supplier) XXX
-connectorx2 (REICHELT: BL 2X25G8 2,54) x22
-connectorx1 (REICHELT: SL 2X25G 2,54) x11
 2.1mm DC socketx1 (SEGOR) -have25
-(offsets DA 20mm have72, screws?NON, bolts?have7)M3
-battery holder 9vx1 534-1294 (mouser) have3+ordered
+battery holder 9vx1 534-1294 (mouser) have28
+
+TOP:
+
+connectorx2 (REICHELT: BL 2X25G8 2,54) x22
+connectorx1 (REICHELT: SL 2X25G 2,54) x10
+(offsets DA 20mm have72, screws?need shorter, bolts?have36)M3
 

@@ -328,7 +328,21 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
-* SAT 14 JUNE
+* MON 16 JUNE
+
+TEST:
+
+- re-test villager effects with corrected code
+- new layout below
+
+** DONE:
+
+- test DISIM with new arrays as memoryDONEfixed still error in ca
+
+- check CPU and stack constraintsDONE-changed but do we need new way organise large array of all?
+- NOTED that constrained in place so don't need to do elsewhere...
+
+* SAT 14 JUNE+
 
 607.wav (horbuch,hardware),609(hor,no hard),610(hor,hard),615,613,611,616(hor,nohard),612,614(hor,hard)
 
@@ -362,6 +376,7 @@ TODO GENERAL:
 
 ** DONE
 
+- removed pureleak and cpu wrap reduction
 - added all per villager effs/fixed problem there/TO TEST
 - checked toggling in wider context 
 - having to tweak finger settings right down...TODO CHECK
@@ -404,7 +419,7 @@ TESTS:
 - added IFDEFS for LACH in main
 - cpu and pureleak fixes for use of wormdir
 
-* THU 12 JUN
+* THU 12 JUNE
 
 603.wav (horbuch,hard,nocode),604ad603butnoin
 

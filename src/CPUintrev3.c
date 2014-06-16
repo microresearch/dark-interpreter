@@ -156,7 +156,7 @@ void thread_run(thread* this, machine *m) {
 
 #endif
 
-    switch(this->m_CPU)
+    switch(this->m_CPU%31)
       {
       case 0: // :LEAKY STACK! - working!
       instr=machine_p88k(m,this->m_pc);
