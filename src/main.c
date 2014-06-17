@@ -689,8 +689,11 @@ void main(void)
       /// NOTES:
       // 1- effects and udlr(updownleftright) as wormdir/left/right/set ???
 
-      // if 1st knob is 4 modes with gradations need way transition
-      // without changing gradation (eg.exp/contract)
+      //1-mainmode
+      //2-settings
+      //3-setsettingknob
+      //4-eff
+      //5-HW/LACH=?
 
       // so full array is:
 
@@ -717,38 +720,15 @@ void main(void)
 
       // ??? navigation of overlaid grids - walkers????
 
-      // how to: toggle wormcode navigation
+      // how to: toggle wormcode navigation - in effects
 	      
       // toggle as down. bare finger as up...
 
-      u8 xx,stackerpos,stackerypos,cpupos,effectspos,villageepos,datagenpos;
+      u8 xx,stackerpos,stackerypos,cpupos,effectspos,villageepos,datagenpos,dirpos;
 
       //	      mainmode=6; // TESTY!
       switch(mainmode){
-      case 0: //effects across three (ifnot lach)
-#ifdef LACH
-	// for LACH we set EFFECTREAD here and EFFECTWRITE instead of hardware below
-	xx=fingerdirupdown();
-	if (xx==1){
-	  eff[0]=adc_buffer[FIRST]>>5;
-	}
-	if (xx==0){
-	  eff[0]=adc_buffer[UP]>>5;
-	}
-	break;
-#else
-	effectspos+=fingerdirleftrightt();
-	effectspos=effectspos%3;
-	xx=fingerdirupdown();
-	if (xx==1){
-	  eff[effectspos]=adc_buffer[FIRST]>>5;
-	}
-	if (xx==0){
-	  eff[effectspos]=adc_buffer[UP]>>5;
-	}
- 	break;
-#endif
-      case 1:
+      case 0:
 	settingspos+=fingerdirleftrightt();
 	settingspos=settingspos%64;
 	xx=fingerdirupdown();
@@ -759,7 +739,7 @@ void main(void)
 	  settingsarray[settingspos]=adc_buffer[UP]<<4;
 	}
 	break;
-      case 2:
+      case 1:
 	stackerpos+=fingerdirleftrightt();
 	xx=fingerdirupdown();
 	if (xx==1){
@@ -769,7 +749,7 @@ void main(void)
 	  stacker[stackerpos]=adc_buffer[UP]<<4;
 	}
 	break;
-      case 3:
+      case 2:
 	stackerypos+=fingerdirleftrightt();
 	xx=fingerdirupdown();
 	if (xx==1){
@@ -779,7 +759,7 @@ void main(void)
 	  stackery[stackerypos]=adc_buffer[UP]<<4;
 	}
 	break;
-      case 4:
+      case 3:
 	cpupos+=fingerdirleftrightt();
 	cpupos=cpupos%68; //64,65,66,67
 	xx=fingerdirupdown();
@@ -792,7 +772,7 @@ void main(void)
 	  else exestack[cpupos-64]=adc_buffer[UP]>>10; // 2 bits 
 	}
 	break;
-      case 5:
+      case 4:
 	villagepos+=fingerdirleftrightt();
 	villagepos=villagepos%128;
 	xx=fingerdirupdown();
@@ -803,7 +783,7 @@ void main(void)
 	  villager[villagepos]=adc_buffer[UP]<<4;
 	}
 	break;
-      case 6:
+      case 5:
 	villageepos+=fingerdirleftrightt();
 	villageepos=villageepos%64;
 	xx=fingerdirupdown();
@@ -814,7 +794,7 @@ void main(void)
 	  village_effects[villageepos]=adc_buffer[UP]>>8;
 	}
 	break;
-      case 7:
+      case 6:
 	datagenpos+=fingerdirleftrightt();
 	datagenpos=datagenpos%32768;
 	xx=fingerdirupdown();
@@ -825,12 +805,22 @@ void main(void)
 	  buf16[datagenpos]=adc_buffer[UP]<<4; 
 	}
 	break;
+      case 7: // directions
+	dirpos+=fingerdirleftrightt();
+	dirpos=dirpos%10;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarray[54+dirpos]=adc_buffer[FIRST]<<4; 
+	}
+	if (xx==0){
+	  settingsarray[54+dirpos]=adc_buffer[UP]<<4; 
+	}
+	break;
       }
 
-      // TODO: datagens as modifiers of position // insert into above as modifier
-      // wormdir also?
+      // TODO/notes: datagens as modifiers of position // insert into above as modifier
       // swop positions?
-      // directions for each walker (=10 directions) + toggle wormdir(how?)
+      //+ directions for each walker (=10 directions) + toggle wormdir here?
       //+ furthermode for actions dependent on each mode - eg. swops????
 
       //END MODECODE      /////////////////////////////////////

@@ -328,17 +328,30 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+
+* TUE 17 JUNE
+
+- effects out, worm in effects, effects as offsets from writes,
+effects knob, test effects, add DIRECTIONS into mainmode
+
+- redo IFDEFs last
+
 * MON 16 JUNE
 
 TODO:
 
-- new layout:
+- new layout/modified now:
 
-1-mainmode=x8 || x8 // mirror/attach(using finger UP/DOWN)->mirror edge(LEFT/RIGHT as extent)
-2-knob for mainmode/mirror edge 
-3-action/agent? OR pull speeds out of settings?but how different each speed?
+1-mainmode=x8 || x8 // mirror/attach(using finger UP/DOWNtoggle)->mirror edge(LEFT/RIGHT as extent)
+
+2-knob for mainmode //mirror edge 
+
+3-action/agent-continuum? OR pull speeds/other settings out of settings?but how
+different each speed?
+
 4-attached knob
-5-HW//EFFECTWRITE in LACHS
+
+5-HW//EFFECTWRITE in LACH
 
 whether all cpu/pureleak and villager values should also be 16bit and >> in each 
 
@@ -353,7 +366,8 @@ controlled), dump section/all to datagen and back again...
 must inc. wormdir, worm processes (mirror worms in soil)
 
 hardware and audio/effects as somehow fixed to always control (how
-switch between 3 sets effects?)
+switch between 2 or 3 sets effects other than reduce effects and have
+as one knob and then what instead of HW for LACH?)
 
 other model than stacks (as don;t like push and pull?) - reduce
 and increase number of running procs
