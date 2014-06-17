@@ -126,8 +126,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
-  //res2=0; //TESTY!
-
+  //  res2=30; //test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(res2){
   case 0:

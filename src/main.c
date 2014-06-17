@@ -123,8 +123,8 @@ u8 EFFECTWRITE;
 signed char direction[2]={-1,1};
 
 u16 villagestackpos=0;
-u8 www[3]={12,15,0};
-u8 freqyy[3]={10,10,0};
+u8 www[3]={10,10,0};
+u8 freqyy[3]={12,15,0};
 
 #define delay()						 do {	\
     register unsigned int ix;					\
@@ -705,15 +705,15 @@ void main(void)
       EFFECTWRITE=adc_buffer[FOURTH]>>5; // 7 bits = 128 rest of effects as offsets///
       // do we need to average or reduce to 64?
       // top bit as wormcode
-      mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 
-      //	      mainmode=6; // TESTY!
+      //      mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 
+      	      mainmode=0; // TESTY!
       switch(mainmode){
       case 0:
 	settingspos+=fingerdirleftrightt();
 	settingspos=settingspos%64;
 	xx=fingerdirupdown();
 	if (xx==1){
-	  settingsarray[settingspos]=adc_buffer[FIRST]<<4;
+	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
 	  settingsarray[settingspos]=adc_buffer[UP]<<4;
@@ -723,7 +723,7 @@ void main(void)
 	stackerpos+=fingerdirleftrightt();
 	xx=fingerdirupdown();
 	if (xx==1){
-	  stacker[stackerpos]=adc_buffer[FIRST]<<4;
+	  stacker[stackerpos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
 	  stacker[stackerpos]=adc_buffer[UP]<<4;
@@ -733,7 +733,7 @@ void main(void)
 	stackerypos+=fingerdirleftrightt();
 	xx=fingerdirupdown();
 	if (xx==1){
-	  stackery[stackerypos]=adc_buffer[FIRST]<<4;
+	  stackery[stackerypos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
 	  stackery[stackerypos]=adc_buffer[UP]<<4;
@@ -744,8 +744,8 @@ void main(void)
 	cpupos=cpupos%68; //64,65,66,67
 	xx=fingerdirupdown();
 	if (xx==1){
-	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[FIRST]>>7; // 5 bits
-	  else exestack[cpupos-64]=adc_buffer[FIRST]>>10; // 2 bits 
+	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[SECOND]>>7; // 5 bits
+	  else exestack[cpupos-64]=adc_buffer[SECOND]>>10; // 2 bits 
 	}
 	if (xx==0){
 	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[UP]>>7; // 5 bits
@@ -757,7 +757,7 @@ void main(void)
 	villagepos=villagepos%128;
 	xx=fingerdirupdown();
 	if (xx==1){
-	  villager[villagepos]=adc_buffer[FIRST]<<4;
+	  villager[villagepos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
 	  villager[villagepos]=adc_buffer[UP]<<4;
@@ -768,7 +768,7 @@ void main(void)
 	villageepos=villageepos%64;
 	xx=fingerdirupdown();
 	if (xx==1){
-	  village_effects[villageepos]=adc_buffer[FIRST]>>8; // 4 bits
+	  village_effects[villageepos]=adc_buffer[SECOND]>>8; // 4 bits
 	}
 	if (xx==0){
 	  village_effects[villageepos]=adc_buffer[UP]>>8;
@@ -779,7 +779,7 @@ void main(void)
 	datagenpos=datagenpos%32768;
 	xx=fingerdirupdown();
 	if (xx==1){
-	  buf16[datagenpos]=adc_buffer[FIRST]<<4; 
+	  buf16[datagenpos]=adc_buffer[SECOND]<<4; 
 	}
 	if (xx==0){
 	  buf16[datagenpos]=adc_buffer[UP]<<4; 
@@ -790,7 +790,7 @@ void main(void)
 	dirpos=dirpos%10;
 	xx=fingerdirupdown();
 	if (xx==1){
-	  settingsarray[54+dirpos]=adc_buffer[FIRST]<<4; 
+	  settingsarray[54+dirpos]=adc_buffer[SECOND]<<4; 
 	}
 	if (xx==0){
 	  settingsarray[54+dirpos]=adc_buffer[UP]<<4; 
@@ -830,6 +830,9 @@ void main(void)
 	}
 	}
 	break;
+
+	/////////// can bring this to 17 - algo sets/foldback/settingsarrayattached etc.
+
 	////////////////////////////////////////////////////////////
 
 	case 9:      // mirror and swaps inc. new datagen dump:
@@ -1022,7 +1025,7 @@ void main(void)
 	}
 	break;
 	////////////////
-	//8 left
+	//8 left - plug in earlier
 
 	////////////////
       case 31: // infection
@@ -1175,8 +1178,7 @@ void main(void)
 
       //// DEAL last with hardware:
 #ifdef LACH
-      // EFFECTWRITE
-	  eff[1]=adc_buffer[FIFTH]>>5;
+      // TODO!
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
