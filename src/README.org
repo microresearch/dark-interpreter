@@ -331,10 +331,27 @@ For Mater Lachrymarum IN is unused!
 
 * TUE 17 JUNE
 
-- effects out, worm in effects, effects as offsets from writes,
-effects knob, test effects, add DIRECTIONS into mainmode
+- TESTS:test effects, test new wormdir, test new mode code, TEST mirror/setting mode code
 
-- redo IFDEFs last
+TODO:
+- need set foldback settings in mainmode (replace or simply add in)
+- third ATTACH knob is underused (should always be attached)// added into mirror code
+
+/////
+
+- redo IFDEFs last, possibly also settings.h as IFDEFed for LACH!!!
+
+** DONE:
+
+- effects outX, worm in effectsX, effects as offsets from writesX, add
+  DIRECTIONS into mainmodeX
+- effects knobX
+- added mirror/settings code
+- village_size is 128=7 bits
+- mirror/swop/attach code now (watch as mirror is now sep.stacker/stackery/cpu)DONE
+- ALL above tests fine in valgrind/commit/add
+
+last audio file now as: audio_olderjune.c
 
 * MON 16 JUNE
 

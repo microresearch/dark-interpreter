@@ -52,8 +52,11 @@
 #define SAMPLESPEED (settingsarray[43]>>8) // 16 bits to 3 bits
 #define SAMPLESPEEDREAD (settingsarray[44]>>8)
 #define SAMPLESPEEDFILT (settingsarray[45]>>8)
-#define LEAKSPEED (settingsarray[46]>>8)
-#define MACHINESPEED (settingsarray[47]>>8)
+//#define LEAKSPEED (settingsarray[46]>>8)
+//#define MACHINESPEED (settingsarray[47]>>8)
+
+#define EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64
+#define EFFFOFFSET (settingsarray[47]>>10) // 6 bits as 64
 
 /// float mods in audio.c
 

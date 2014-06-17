@@ -1,3 +1,28 @@
+//17 june
+
+
+      // +effects 
+      // 1-settings=64
+      // 2-stacker=64x4(howmuch.start.end.cpu)=256
+      // 3-stackery=64x4=256
+      // 4-cpu=64
+      // 5-exestack=	 4
+      // [5-foldback=xx?? = walker for datagen into xxxxx]
+      // 6-villager=128
+      //7	      village_effects=64 (64 total villagers)
+      // 8datagen
+      //+ directions
+ 
+      // <-> datagen (as ongoing, or not with its own walker which is
+      // the foldback setting), finger, knob(s), EEG
+
+      // + processes across arrays...
+      // + swop across arrays and within arrays
+      // + dump into datagen
+      // ??? navigation of overlaid grids - walkers???means?	      
+      // toggle as down. bare finger as up...
+
+
 //16 june mode/mirror/attach code:
 
       u8 xx;
