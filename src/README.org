@@ -340,6 +340,7 @@ For Mater Lachrymarum IN is unused!
 
 * THU/FRI 
 
+- recheck audio.c
 - audio.c + or - 32768 between buf16 and audio_buffer - BACKUP/TEST!
 
 - should we use UP/DOWN for foldd[1] in cases 26+
@@ -358,7 +359,7 @@ For Mater Lachrymarum IN is unused!
 
 /////
 
-- re-check CPU,pureleak,audio and clean UP!
+- re-check/clean CPU,pureleak,audio
 
 - re-test all functions in sim
 

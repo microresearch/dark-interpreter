@@ -1,5 +1,5 @@
 /*
- * audio.c - just the callback 
+ * audio.c - justttt the callback 
 
 LINEIN/OUTR-main IO
 LINEIN/OUTL-filter
@@ -1522,14 +1522,9 @@ if (digfilterflag&1){
  }
 
 #endif // for LACH
-
-	// 4-out
-	//audio_comb_stereo(sz, dst, left_buffer, right_buffer);
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- // if (wormdir>=8)  printf("woxxxxxrmdir:%d\n",wormdir);
- //printf("woxxxxxrmdir:%d\n",wormdir);
  //  for (x=0;x<sz/2;x++){
     //    printf("%c",mono_buffer[x]);
  //      }
