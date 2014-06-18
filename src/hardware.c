@@ -86,24 +86,24 @@ RES: feedback on/off - jackin-> - lm358in->
 0-feedoff jackin xx
 1-feedoff xx     lmin
 2-feedon 
-3-feedon xx     lmin ??? makes no sense replaced with clock unhang
+3-feedon xx     lmin ??? makes no sense - NOW replaced with clock unhang
 
   */
 
   switch(res){
  case 0:
-   GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRH = (1<<8); // was H!
+   GPIOB->BSRRH = (1<<7); //JACK
+   GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
    break;
  case 1:
-   GPIOB->BSRRL = (1<<7);
+   GPIOB->BSRRL = (1<<7); //358 
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
    break;
  case 2:
    GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRL = (1<<8); // BSRRL sets BIT!
+   GPIOC->BSRRL = (1<<8); // BSRRL sets BIT! = feedback
    GPIOC->BSRRH = (1<<13); //
    break;
  case 3:
@@ -134,7 +134,7 @@ RES: feedback on/off - jackin-> - lm358in->
    //1-straightout
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6);// | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
-    GPIOB->BSRRL = (1<<2) | (1<<8);// | (1<<9);// this gets rid of hum
+    GPIOB->BSRRL = (1<<2) | (1<<8) | (1<<9);// this gets rid of hum
     GPIOC->BSRRL= (1<<10);
     digfilterflag=0;
    break;
@@ -196,7 +196,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<8) | (1<<9);
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<9);
-    GPIOC->BSRRL= (1<<1);
+    GPIOC->BSRRL= (1<<10);
     if (clockhangflag==0) digfilterflag=42;
     else digfilterflag=32;
     break;
@@ -205,15 +205,15 @@ RES: feedback on/off - jackin-> - lm358in->
   case 9:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
         GPIOB->ODR &= ~(1 | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<8) | (1<<9));
-        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2));		    
+        GPIOB->ODR |= ~((hdgen&2)>>1 | ((hdgen&4)<<1) | ((hdgen&8)<<1) | ((hdgen&16)<<1) | ((hdgen&32)<<1) | ((hdgen&64)<<2) | ((hdgen&128)<<2)); // checked		    
     
     // CPIOC->10 (8 bits total) - bottom bit
     // set PC11 always... WHY?
-    GPIOC->BSRRL=(1<<11);
+	GPIOC->BSRRL=(1<<11); // out to filter
     GPIOC->BSRRH=(1<<10);
-    GPIOC->ODR|=((hdgen&1)<<10); // bit 10
-    if (clockhangflag==0) digfilterflag=31; // flags to use hdgen
-    else digfilterflag=17;
+    GPIOC->ODR|=((hdgen&1)<<10); // bit 10 - filter distort bit
+    if (clockhangflag==0) digfilterflag=63; // flags to use hdgen
+    else digfilterflag=49;
     break;
   case 10:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so
@@ -254,7 +254,6 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=63; // flags to use hdgen
     else digfilterflag=49;//17+32
     break;
-    ///////
     
   case 13:
         //2-unhang all except input 
@@ -320,7 +319,6 @@ RES: feedback on/off - jackin-> - lm358in->
       break;
 
     //////
-
   case 17:
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
     GPIOB->BSRRL= (1<<4);
@@ -336,6 +334,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=15;
     else digfilterflag=1;
     break;
+
   case 18:
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<6);
     GPIOC->BSRRH= (1<<11);
@@ -455,7 +454,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<11);
     if (clockhangflag==0) digfilterflag=14;
-    else digfilterflag=0;
+    else digfilterflag=0; // 40106 always running anyways
     break;
   case 30:
     //filterpath->digital no distort
@@ -468,11 +467,11 @@ RES: feedback on/off - jackin-> - lm358in->
   case 31:
     //filterpath->digital distort
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
-    GPIOC->BSRRH= (1<<10) | (1<<8) | (1<<9);
+    GPIOC->BSRRH= (1<<11) | (1<<8) | (1<<9);
     GPIOB->BSRRL= (1<<4);
-    GPIOC->BSRRL= (1<<11);
+    GPIOC->BSRRL= (1<<10);
     if (clockhangflag==0) digfilterflag=11;
-    else digfilterflag=1;
+    else digfilterflag=1; // 40106 always running anyways
     break;
   }
 }

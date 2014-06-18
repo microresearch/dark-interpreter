@@ -329,26 +329,34 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+* WED 18 JUNE
+
+- TEST mirror/setting mode code (in full)
+- tune speed of fingers somehow - fractional 0.1 increments (float? - test first in test.c)
+
+- need set foldback settings in mainmode (add in)
+- fill out mainmodes
+//- third ATTACH knob is underused (should always be attached)// added into mirror codeDONE
+
+/////
+
+- redo IFDEFs last(hardware knob replaced with EFFECTREAD), also
+  settings.h as IFDEFed for LACH!!!
+
+- test LACH and SUSP (first with audio.c effects)
+
+** DONE
+
+- run through hardware.c: fixed odd mistake, 
+
+
 * TUE 17 JUNE
 
 617.wav (hardset,noin),618/619/620/621 (hardset,no/somein),
 
-TEST mirror/setting mode code (in full)
-
-TODO:
-
-- test new wormdir
-- tune speed of fingers somehow
-- need set foldback settings in mainmode (add in)
-- fill out mainmodes
-- third ATTACH knob is underused (should always be attached)// added into mirror code
-
-/////
-
-- redo IFDEFs last(what hardware could be replaced by)?, possibly also settings.h as IFDEFed for LACH!!!
-- test LACH and other board (first with audio.c effects)
-
 ** DONE:
+
+- test new wormdirDONE
 - test eff knob and offsetsDONE 
 - TESTS:test audio effects again
 - audio.c: fixed FMOD as were all the same FMOD (no FMODW etc), fixed
