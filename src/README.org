@@ -345,22 +345,24 @@ For Mater Lachrymarum IN is unused!
 - recordings/video/manual/website
 - test LACH and SUSP (first with audio.c effects)
 
+//tweaks?- is attach (3rd knob) underused? cases are: 9,16,25
+- should we use UP/DOWN for foldd[1] in cases 26+
+
 * WED 18 JUNE
+
+624*/623/622.wav(hard,timemachines),632,630,629,627/626(hard,voice),634,631(nohard,voice),
 
 ////IN STUDIO:
 
--measure M3 schrauben (order 6mm or??)
-
-- tuning speed of fingers - fractional 0.1 increments - TEST with first case FIRST!
-- TEST mirror/setting mode code (in full so far)
-- is attach (3rd knob) underused? cases are: 9,16,25
-- should we use UP/DOWN for foldd[1] in cases 26+
+- TEST mirror/setting mode code (each case//in full)
 
 /////
-EVENING:
+HOME EVENING:
 
+- re-measure M3 schrauben (8mm and check against other distanzbolzen at home)//order reichelt
 - re-check CPU,pureleak,audio and clean UP!
 - re-test functions in sim
+- check again all bit sizes in settings.h
 
 ////
 
@@ -369,6 +371,13 @@ EVENING:
 
 ** DONE
 
+- effect offset should be 7 bits as 128! also shifted where offset is so no lag in audio.c
+
+- tuning speed of fingers - now without float but with
+  fingerdirleftrighttx(vall) - which maintains state thoughDONE (vall
+  is speed) - also updownx DONE
+
+- small fixes - VALGRIND okay checked 18.43...
 - ADD additional CPUs in all (simX,cpuX,leakX,caX) which do NOTHING and update totals
 - main.c add in rest modes and check ALL by hand(few fixes eg. hardware)
 - run through hardware.c: fixed odd mistake

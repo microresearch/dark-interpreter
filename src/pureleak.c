@@ -186,7 +186,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
 	//            printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));
 #endif
 
-  switch(CPU%max_cpus)
+  switch(CPU%CPU_TOTAL)
     {
     case 0: // :LEAKY STACK! - working!
       addr=((PCADDRHI<<8)+PCADDRLO);

@@ -118,7 +118,7 @@ void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
 
     if (f==0) buff[s]=x;
     else buff[s]+=x; // as float
-    if (f==2) *(dst++)=(int16_t) ( 32768.0f * CutLevel ( (buff[s]) * 0.0003f, 1 ));
+    if (f==2) *(dst++)=(int16_t) ( 32768.0f * CutLevel ( (buff[s]) * 0.003f, 1 ));
     //    if (f==2) *(dst++)=(float)buff[s]*32768.0f* 0.003f;
 
   }
@@ -172,8 +172,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 villr=0,villf=0,villw=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
-  u8 EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
-  u8 EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%128;
+  u8 EFFECTREAD;
+  u8 EFFECTFILT;
   int16_t dirry;
   float32_t w0,w1,w2;
 
@@ -213,7 +213,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	//	if (EFFECTREAD&64) {audio_buffer=buf16int;buf16=audio_buffer;} // top bit now is buffer
 	//	  else  {buf16=buf16int;audio_buffer=audio_buffer;}
-		
+	EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;		
 	VILLAGEREAD=(EFFECTREAD&3);	
 
 	//	VILLAGEREAD=0; // TESTY!
@@ -407,7 +407,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  //	  if (EFFECTREAD&64) audio_buffer=buf16int;
 	  //	else audio_buffer=audio_buffer;
-	VILLAGEREAD=EFFECTREAD&3;
+	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
+	  VILLAGEREAD=EFFECTREAD&3;
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[villr/2];
@@ -540,7 +541,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  	  //	  tmp32=*src++ * *src++;
 	  fsum=(float32_t)buf16[sampleposread%32768] * morph_inv * (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
-	  (*src++);
+	  (src++);
 	  *rdst++ = *src; 
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -627,6 +628,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  {
 	    //	    if (EFFECTREAD&64) {audio_buffer=buf16int;buf16=audio_buffer;}
 	    //	    else  {buf16=buf16int;audio_buffer=audio_buffer;}
+	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
 	    VILLAGEREAD=EFFECTREAD&3;
 	    //	    tmpp=0; audio_buffer=audio_buffer; // TESTY!!!
 	    for (x=0;x<sz/2;x++){
@@ -634,8 +636,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmpp=village_effects[villr/2];
 	  }
 	  else tmpp=(EFFECTREAD&63)>>2;
-	  //	  tmpp=0; // TESTY!
-	  //	  VILLAGEREAD=0; // TESTY!
+	  //	  tmpp=15;
 	  switch(tmpp){
 	  case 0:
 	  default:
@@ -749,9 +750,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  //	  VILLAGEREAD=0; // TESTY!
 	  if (++delread>=SAMPLESPEEDREAD){
 	    //	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    if (EFFECTREAD&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTREAD&64) dirry=newdirection[wormdir];  // TESTY!
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
-	    //	  dirry=1; // TESTY!
+	    dirry=1; // TESTY!
 	    count=((sampleposread-startread)+dirry);
 	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
@@ -1170,9 +1171,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmpp=village_effects[villw/2];
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
-
+	  //	  tmpp=15; // TESTY!
 	  //	     printf("%d\n",samplepos);
-	  //	  tmpp=0; // TESTY!
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=audio_buffer[samplepos%32768];
@@ -1331,6 +1331,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      break;
 	    case 15:
 	      runformforaudio(sz/2,temp_buffer,mono_buffer);
+	      //	    runconvforaudio(sz/2,temp_buffer,mono_buffer,FMOD,FMODF,FMODW);
 	      break;
 	    }
 	  } // end of tmpp>12
@@ -1350,6 +1351,7 @@ if (digfilterflag&1){
 	  ////////////////////////////////////LDST effects also...
 	//	if (EFFECTFILT&64) audio_buffer=buf16int; 
 	//	else audio_buffer=audio_buffer;
+	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%128;
 	VILLAGEFILT=EFFECTFILT&3;
 	//	tmpp=(EFFECTFILT&63)>>2;
       	for (x=0;x<sz/2;x++){ 
@@ -1358,10 +1360,7 @@ if (digfilterflag&1){
 	    tmpp=village_effects[villf/2];
 	  }
 	  else tmpp=(EFFECTFILT&63)>>2;
-	  //	  VILLAGEFILT=0; // TESTY!
-	  //	  tmpp=15; // TESTY!
- 
-	  switch(tmpp){ 
+ 	  switch(tmpp){ 
 	  case 0:
 	  default:
 	  *ldst++=audio_buffer[sampleposfilt%32768];

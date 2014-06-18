@@ -1,0 +1,28 @@
+CC=	gcc
+STD=	_GNU_SOURCE
+WARN=	-Wall -Wreturn-type
+##CFLAGS= -funroll-loops -ffast-math -malign-double \
+ -omit-frame-pointer -fno-exceptions -O0 -g -DPCSIM -std=c99\
+
+CFLAGS = -std=c99 -DPCSIM -Wall -Wextra -Wformat=2 -Wcast-align -Wpointer-arith \
+    -Wbad-function-cast -Wstrict-prototypes -Winline -Wundef -Wnested-externs \
+    -Wcast-qual -Wshadow -Wwrite-strings -Wunreachable-code \
+    -Wstrict-aliasing=2 -ffloat-store -fno-common -fstrict-aliasing \
+    -Wstack-protector -fstack-protector-all -std=c99 -pedantic -O0 -ggdb3
+
+OPT = -O0 -g
+
+LIBS =  -lm
+
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(WARN) -g -O0 $<
+
+all:    DISIM
+
+
+DISIM: main.o  pureleak.o audio.o simforstacksansmem.o CPUintrev3.o CAforstacksansmem.o
+	$(CC) $(CFLAGS) $(OPT) -g main.o  pureleak.o audio.o simforstacksansmem.o CPUintrev3.o CAforstacksansmem.o -o DISIM $(LIBS)
+
+
+

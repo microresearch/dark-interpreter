@@ -55,8 +55,8 @@
 //#define LEAKSPEED (settingsarray[46]>>8)
 //#define MACHINESPEED (settingsarray[47]>>8)
 
-#define EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64
-#define EFFFOFFSET (settingsarray[47]>>10) // 6 bits as 64
+#define EFFROFFSET (settingsarray[46]>>9) // 7 bits as 128
+#define EFFFOFFSET (settingsarray[47]>>9) // 7 bits as 128
 
 /// float mods in audio.c
 

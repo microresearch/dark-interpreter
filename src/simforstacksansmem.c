@@ -37,18 +37,18 @@ Based in part on SLUGens by Nicholas Collins.
 #include <malloc.h>
 #define randi() (rand()%4096)
 #define float32_t float
-/*
+
 extern u16 sin_data[256];
 extern u16 *stacker;//[256]; // 16*3 MAX
 extern uint16_t adc_buffer[10];
 extern int16_t* audio_buffer;
-*/
- 
+
+/* 
 u16 sin_data[256];
 u16 stacker[256]; 
 uint16_t adc_buffer[10];
 int16_t* audio_buffer;
-
+*/
 #else
 #include "simulation.h"
 #include <malloc.h>
@@ -116,7 +116,7 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
     if (f==2){
       buffer[(start+count)%32768]=(float32_t)buff[s]*32768.0f;
 #ifdef PCSIM
-      printf("%c",buffer[count]%255);
+      //      printf("%c",buffer[count]%255);
 #endif
     }
       count++;
@@ -1497,7 +1497,7 @@ void tester(u8 SAMPLEDIRR){
 
 
 //void main(int argc, char **argv)
-void main()
+/* void main()
 {
   //  int cuu=atoi(argv[1]), pll=atoi(argv[2]);
   int x; 
@@ -1557,6 +1557,6 @@ void main()
 	   //		   printf("%c",buf16[x%32768]>>8);
 			   //		   x++;
 		   	   	 }
-	 }
+	 }*/
 #endif
 
