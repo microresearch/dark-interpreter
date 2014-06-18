@@ -10,7 +10,6 @@
 #define DATA_BUFSZ 65535
 
 #define MAX_FRED 60
-#define max_cpus 31
     
 #define STACK_SIZEE 16
 #define MAX_THREADS 64

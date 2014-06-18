@@ -591,11 +591,11 @@ void main(void)
     settingsarray[x]=32768;//>>15 = 1
   }//DIR
 	 
-  // CPUintrev2:
+  // CPUintrev3:
   for (x=0; x<100; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
+      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%CPU_TOTAL,randi()%24);
     }
 
   for (x=0;x<FOLD_SIZE;x++){
@@ -606,7 +606,7 @@ void main(void)
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-        cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%31,randi()%24);
+        cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%CPU_TOTAL,randi()%24);
   }
 
   // CA

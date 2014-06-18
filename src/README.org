@@ -360,7 +360,7 @@ For Mater Lachrymarum IN is unused!
 EVENING:
 
 - re-check CPU,pureleak,audio and clean UP!
-- retest formant and other functions in sim
+- re-test functions in sim
 
 ////
 
@@ -372,11 +372,9 @@ EVENING:
 - ADD additional CPUs in all (simX,cpuX,leakX,caX) which do NOTHING and update totals
 - main.c add in rest modes and check ALL by hand(few fixes eg. hardware)
 - run through hardware.c: fixed odd mistake
-
 - checking all FILES and remove stale TODO, clean:
   mainX,hardwareX,simX,CAX: fixes in sim
-
-- mismatch of bits in pushn in ca and simX
+- mismatch of bits in pushn in ca and simXfixed
 
 * TUE 17 JUNE
 
