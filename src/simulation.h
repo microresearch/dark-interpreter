@@ -6,7 +6,7 @@
 #endif
 
 #ifdef PCSIM
-//typedef unsigned char u8;
+typedef unsigned char u8;
 typedef uint16_t u16;
 #define float32_t float
 #endif
@@ -19,7 +19,7 @@ typedef uint16_t u16;
 #define BET(A, B, C)  (((A>=B)&&(A<=C))?1:0)    /* a between [b,c] */
 #define MAX_GROUPS 16 /// leave as 16
 #define STACK_SIZE 64
-#define NUM_FUNCS 33
+#define NUM_FUNCS 34
 
 #define CONVY 0
 #define SINEY 1
@@ -54,6 +54,7 @@ typedef uint16_t u16;
 #define DEREFCHUNKY 30
 #define WALKERCHUNKY 31
 #define SWAPCHUNKY 32
+#define NUNNY 33
 
 typedef struct{ float32_t x, y; } Point;
 
@@ -73,11 +74,11 @@ struct stackeyyy{
 
 void inittable(u8 r, u8 k, int rule);
 
-signed char func_pushn(struct stackey stack[STACK_SIZE], u8 typerr, u16* buffer, u8 stack_pos, u8 howmuch, u16 start, u16 wrap);
+signed char func_pushn(struct stackey stack[STACK_SIZE], u16 typerr, u16* buffer, u8 stack_pos, u16 howmuch, u16 start, u16 wrap);
 void func_runall(struct stackey stack[STACK_SIZE], u8 stack_pos);
 signed char func_pop(u8 stack_pos);
 
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy);
-signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap);
+signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer, u8 stack_posy, u16 howmuch, u16 start, u16 wrap);
 signed char ca_pop(u8 stack_posy);

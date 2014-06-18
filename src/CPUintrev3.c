@@ -1,36 +1,3 @@
-// was CPU.c but now with overlap, uint16_t blah
-
-#ifdef PCSIM
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "CPUint.h"
-#include "settings.h"
-extern u16 *settingsarray;
-extern int16_t* audio_buffer;
-extern uint16_t* adc_buffer;
-/*u16 settingsarray[64];
-int16_t audio_buffer[65536];
-uint16_t adc_buffer[10];
-*/
-#define randi() rand()
-#else
-#include <malloc.h>
-#include "CPUint.h"
-#include "settings.h"
-#include "audio.h"
-#define randi() (adc_buffer[9])
-extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
-extern u16 settingsarray[64];
-#endif
-
-#include <math.h>
-
-extern u8 wormdir; // worm direction
-
 /* 
 
 This program is free software; you can redistribute it and/or modify
@@ -52,31 +19,34 @@ Based in part on spork factory by Dave Griffiths.
 
 */
 
-/* 
-/////////////OLDER::::
+// was CPU.c but now with overlap, uint16_t blah
 
-- cpus link to grains - some variable/array for exchange of grains/cpu
-  start-end positions (or is just machine)?
+#ifdef PCSIM
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "CPUint.h"
+#include "settings.h"
+extern u16 *settingsarray;
+extern int16_t* audio_buffer;
+extern uint16_t* adc_buffer;
+#define randi() rand()
+#else
+#include <malloc.h>
+#include "CPUint.h"
+#include "settings.h"
+#include "audio.h"
+#define randi() (adc_buffer[9])
+extern __IO uint16_t adc_buffer[10];
+extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+extern u16 settingsarray[64];
+#endif
 
-- control of leakiness m->m_leakiness and other params, infection and so onDONE
+#include <math.h>
 
-- for wormcode steering buffer, also other cpus modded to read/write
-  instruction pointer to that extra buffer - where to pass ref??? some
-  kind of window or we just use sep. code for that?
-  
-//this is wormdir extern u8 variable now!
-
-- also that we should change wrap/jump in some CA inspired code ????
-
-- add hodge.c in case 16:DONE
-
-///
-
-- whether to push off threads from stack when full?
-
-*/
-
-#define CPU_TOTAL 31
+extern u8 wormdir; // worm direction
 
 void leak(machine *m);
 
@@ -142,8 +112,6 @@ void thread_run(thread* this, machine *m) {
 			6, 11, 5, 13};
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
-
-
   //  dircalc(biotadir,65536,256);
   m->m_memory=this->m_memory;
   if (++this->m_delc>=this->m_del){
@@ -156,7 +124,7 @@ void thread_run(thread* this, machine *m) {
 
 #endif
 
-    switch(this->m_CPU%31)
+    switch(this->m_CPU%32)
       {
       case 0: // :LEAKY STACK! - working!
       instr=machine_p88k(m,this->m_pc);
@@ -899,14 +867,13 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       }
       //      printf("%c",this->m_pc);
       break;    
-
+     
 ///////////////////////////////////////////////////////////////
 
     case 10:
       // befunge: http://en.wikipedia.org/wiki/Befunge
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       instr=machine_p88k(m,this->m_pc);
-      //      printf("instr %d ",instr);
       switch(instr%31){
       case 0:
       case 1:
@@ -934,7 +901,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	flag=thread_pop(this);
 	if (flag!=0) thread_push(this,thread_pop(this)/flag);
 	break;
-      case 14:
+        case 14:
 	flag=thread_pop(this);
 	if (flag!=0) thread_push(this,thread_pop(this)%flag);
 	break;
@@ -949,8 +916,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	else thread_push(this,0);
 	break;
       case 17: // right
-	this->m_reg8bit2=2;
-	break;
+	  this->m_reg8bit2=2;
+  	break;
       case 18: // left
 	this->m_reg8bit2=6;
 	break;
@@ -997,11 +964,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 30:
 	machine_poke(m,(thread_pop(this))*(thread_pop(this)),adc_buffer[thread_pop(this)%10]);      
 	break;
-
       }
       wormdir=this->m_reg8bit2%8;
       this->m_pc+=biotadir[wormdir];
-      //      printf("%c",this->m_pc);
       break;
 ///////////////////////////////////////////////////////////////
 
@@ -1346,10 +1311,14 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_poke(m,y,temp);
       this->m_pc++; 
       //      if (this->m_pc<3) this->m_pc=3;
-
-    }
+      break;
+      case 31:
+      if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
+      this->m_pc++; 
+      } // switch
       this->m_delc=0;
   } // if del
+
 }
 
 u8 thread_stack_count(thread* this, u8 c) { 
@@ -1426,6 +1395,7 @@ void machine_run(machine* this) {
   }
 		
   }
+
   for (unsigned char n=0; n<this->m_threadcount; n++) {
     thread_run(&this->m_threads[n],this);
     //    printf("running %d\n", n);

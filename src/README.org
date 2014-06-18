@@ -329,26 +329,54 @@ For Mater Lachrymarum IN is unused!
 [diagram]
 
 
+** notes
+
+      //KNOBS:
+      //1-mainmode
+      //2-settings//also mirror param
+      //3-setsettingknob (but only set in one mode?)
+      //4-effwrite+offsets
+      //5-HW/LACH=effread
+
+
+* THU/FRI 
+
+- tweaks
+- recordings/video/manual/website
+- test LACH and SUSP (first with audio.c effects)
+
 * WED 18 JUNE
 
-- TEST mirror/setting mode code (in full)
-- tune speed of fingers somehow - fractional 0.1 increments (float? - test first in test.c)
+////IN STUDIO:
 
-- need set foldback settings in mainmode (add in)
-- fill out mainmodes
-//- third ATTACH knob is underused (should always be attached)// added into mirror codeDONE
+-measure M3 schrauben (order 6mm or??)
+
+- tuning speed of fingers - fractional 0.1 increments - TEST with first case FIRST!
+- TEST mirror/setting mode code (in full so far)
+- is attach (3rd knob) underused? cases are: 9,16,25
+- should we use UP/DOWN for foldd[1] in cases 26+
 
 /////
+EVENING:
+
+- re-check CPU,pureleak,audio and clean UP!
+- retest formant and other functions in sim
+
+////
 
 - redo IFDEFs last(hardware knob replaced with EFFECTREAD), also
   settings.h as IFDEFed for LACH!!!
 
-- test LACH and SUSP (first with audio.c effects)
-
 ** DONE
 
-- run through hardware.c: fixed odd mistake, 
+- ADD additional CPUs in all (simX,cpuX,leakX,caX) which do NOTHING and update totals
+- main.c add in rest modes and check ALL by hand(few fixes eg. hardware)
+- run through hardware.c: fixed odd mistake
 
+- checking all FILES and remove stale TODO, clean:
+  mainX,hardwareX,simX,CAX: fixes in sim
+
+- mismatch of bits in pushn in ca and simX
 
 * TUE 17 JUNE
 
@@ -399,7 +427,6 @@ by _what????_)
 
 virus across, spawn walkers and kill walkers (like agents which can be
 controlled), dump section/all to datagen and back again...
-
 must inc. wormdir, worm processes (mirror worms in soil)
 
 hardware and audio/effects as somehow fixed to always control (how
@@ -725,7 +752,6 @@ Working on pcsim of all relevant files - completed...
 
 [- reduce always-running mirror ops?]
 
-
 * THU 8 MAY
 
 samples: 581*** hardware, no input
@@ -1007,7 +1033,6 @@ contagion within a small, medieval village and the actions of virus
 and leakage on the digital apparatus, the computer which is generating
 this simulation. There can be no better description of reality, aside
 from the dark interpreter.
-
 
 * FRI 25 APR
 

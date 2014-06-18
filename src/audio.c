@@ -27,7 +27,7 @@ extern int16_t *villager;
 typedef int int32_t;
 #define float32_t float
 int16_t	*left_buffer, *right_buffer, *temp_buffer, *mono_buffer;
-#define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+#define VILLAGE_SIZE (STACK_SIZE*2) // 128
 extern u8* village_effects;
 
 void initaudio(void){
@@ -49,7 +49,7 @@ int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 extern u16 settingsarray[64];
 extern u16 villager[192];
 int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
-#define VILLAGE_SIZE (STACK_SIZE*2) // was 64 *2=128 now 96*2=192 STACK_SIZE is 16 // TESTY!
+#define VILLAGE_SIZE (STACK_SIZE*2) //
 extern u8 village_effects[VILLAGE_SIZE/2]; 
 #define float float32_t
 #endif
@@ -205,7 +205,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	int16_t *ldst=left_buffer;
 	int16_t *rdst=right_buffer;
 	float32_t morph_inv,fsum;
-	settingsarray[48]=adc_buffer[2]<<4; // TESTY for FMODW!
+	//	settingsarray[48]=adc_buffer[2]<<4; // TESTY for FMODW!
 
 	morph_inv = 1.0 - (float32_t)FMOD;
 
@@ -1307,9 +1307,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  wrapper=ANYWRAP;
 		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
-		  // TODO - prototype for expansion
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
-
 		  if (wrap==0) wrap=1;
 		  if (SAMPLEDIRW==1) samplepos=start;
 		  else samplepos=start+wrap;

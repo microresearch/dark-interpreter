@@ -259,7 +259,7 @@ RES: feedback on/off - jackin-> - lm358in->
         //2-unhang all except input 
     // input is pb7
        hangflag=1;
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!seems okay
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test - seems okay
        GPIO_InitStructure.GPIO_Mode = 0x04;
       GPIO_Init(GPIOB, &GPIO_InitStructure);
          GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_11;
@@ -290,7 +290,7 @@ RES: feedback on/off - jackin-> - lm358in->
     // input is pb7
        hangflag=1;
     //  GPIO_Init(GPIOB, &GPIO_InitStructure);
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9; 
        GPIO_InitStructure.GPIO_Mode = 0x04;
       GPIO_Init(GPIOB, &GPIO_InitStructure);
   //  GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -325,7 +325,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL= (1<<11);
     // straight to filter and unhang filter options
     hangflag=1;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; 
        GPIO_InitStructure.GPIO_Mode = 0x04;
        GPIO_Init(GPIOB, &GPIO_InitStructure);
        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
@@ -341,7 +341,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL= (1<<0) | (1<<4) | (1<<5);
     // straight to 40106->filter and unhang filter options
        hangflag=1;
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
        GPIO_InitStructure.GPIO_Mode = 0x04;
        GPIO_Init(GPIOB, &GPIO_InitStructure);
        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
@@ -356,7 +356,7 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRL=(1<<11);
     // straight to filter->40106 and unhang filter options
        hangflag=1;
-       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9; //pin 9 floats crashes but test TODO!
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
        GPIO_InitStructure.GPIO_Mode = 0x04;
        GPIO_Init(GPIOB, &GPIO_InitStructure);
        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;

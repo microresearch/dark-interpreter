@@ -13,7 +13,9 @@
 #define max_cpus 31
     
 #define STACK_SIZEE 16
-#define MAX_THREADS 120
+#define MAX_THREADS 64
+
+#define CPU_TOTAL 31
 
 #define NOP 0
 #define ORG 1

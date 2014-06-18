@@ -1060,7 +1060,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(buffer,addr);
       //      printf("instr %d ",instr);
-      switch(instr%31){
+      switch(instr%CPU_TOTAL){
       case 0:
       case 1:
       case 2:
@@ -1553,6 +1553,14 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       machine_pokeee(buffer,y,temp);
       addr++; 
       //      if (addr<3) addr=3;
+      PCADDRHI=addr>>8; // hi/lo
+      PCADDRLO=addr&255;
+///////////////////////////////////////////////////////////////
+    case 31:
+      // null
+      addr=((PCADDRHI<<8)+PCADDRLO);
+      if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
+      addr++; 
       PCADDRHI=addr>>8; // hi/lo
       PCADDRLO=addr&255;
     }

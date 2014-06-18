@@ -27,16 +27,18 @@ extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 
 //////////////////////////////////////////
 
-// hodge from microbd simplified with circular buffer and init
+u16 runnoney(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
+  u8 i;
+  for (i=0;i<howmuch;i++){
+  x++;
+  if (x>(start+wrap)) x=start;
+  }
+  return x;
+}
 
-/*void hodgeinit(void* unity, u8* cells){
-  struct hodge* unit=unity;
-  unit->q=cells[0];unit->k1=cells[1];unit->k2=cells[2];unit->g=cells[3];
-  cells[4]=cells[4];
-  unit->cells=cells;
-  if (unit->k1==0) unit->k1=1;
-  if (cells[2]==0) cells[2]=1;
-  }*/
+//////////////////////////////////////////
+
+// hodge from microbd simplified with circular buffer and init
 
 u16 runhodge(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
@@ -181,15 +183,6 @@ u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 //////////////////////////////////////////
 
 //life - 2d CA - these all now use CA struct
-
-//void inittable(u8 r, u8 k, int rule);
-
-/*void cainit(void* unity, u8* cells){
-  struct CA* unit=unity;
-  cells[4]=cells[0]+1;
-  unit->rule=cells[1];
-  unit->cells=cells;
-  }*/
 
 u16 runlife(uint8_t howmuch, u8 *cells, u16 x, u16 start, u16 wrap){
 
@@ -382,14 +375,6 @@ u16 runcel1d(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 //forest fire
 
-/*void fireinit(void* unity, u8* cells){
-  struct fire* unit=unity;
-  unit->probB=cells[0]/32;
-  probI=cells[1]/10;
-  cells[4]=cells[2];
-  unit->cells=cells;  
-  }*/
-
 u16 runfire(uint8_t howmuch,u8* cells, u16 x, u16 start, u16 wrap){
 
   u8 sum=0;
@@ -397,7 +382,6 @@ u16 runfire(uint8_t howmuch,u8* cells, u16 x, u16 start, u16 wrap){
   u8 probB=cells[0]/32;
   u8 probI=cells[1]/10;
   cells[4]=cells[2];
-
 
   for (i=0;i<howmuch;i++){
 
@@ -459,13 +443,6 @@ head(1) becomes tail(255)
 tail(255) becomes copper(128-254)
 copper(?) stays copper unless just 1 or 2 neighbours are heads(1) then it becomes head(1)
 */
-
-// use struct CA
-
-/*void wireinit(void* unity, u8* cells){
-  struct CA* unit=unity;
-  cells[4]=cells[0];
-  }*/
 
 u8 headcount(u8 *cells,u16 place){
   u8 counter=0;
@@ -539,14 +516,6 @@ infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
 
-		 /*void SIRinit(void* unity, u8* cells){
-    struct SIR* unit=unity;
-  unit->probD=cells[0]/32;
-  probI=cells[1]/10;
-  cells[4]=cells[2];
-  unit->cells=cells;
-  }*/
-
 u16 runSIR(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   uint16_t y,yy; u8 i;
 
@@ -618,19 +587,6 @@ u16 runSIR(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 infection radius???, max population=15
 
  */
-
-/*void SIR16init(void* unity, u8* cells){
-  //  struct SIR16* unit=unity;
-  //  u16 i,y; u8 total,suscept,infected;
-
-  //with probabilities fixed for:
-
-- movement=probM
-- morbidity=probR
-- contact infection=probC
-- recovery=probV
-}*/
-
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
@@ -755,7 +711,7 @@ u16 runSIR16(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
 //stack_posy=ca_pushn(stack,0,datagenbuffer,stack_posy,1,10); // delay,howmany);
 
-signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u8 typerr, u8* buffer, u8 stack_posy, u8 howmuch, u16 start, u16 wrap){
+signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer, u8 stack_posy, u16 howmuch, u16 start, u16 wrap){
   if (stack_posy<STACK_SIZE)
     {
 
@@ -777,74 +733,43 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
   for (i=0;i<stack_posy;i++){
     u8 tmp=i*4,howmuch; u16 start,wrap;
 
-	//	stack[i].count=stack[i].functione(wrap,stack[i].buffer,stack[i].count,stackery[tmp],stackery[tmp+2]);
-    /*	start=stackery[tmp++]%32768;
-	wrap=stackery[tmp++]%32768;
-	howmuch=stackery[tmp++]%32768;
-	x=stackery[tmp]%NUM_CA;*/
-	start=stackery[tmp++]>>1;
-	wrap=stackery[tmp++]>>1;
-	howmuch=stackery[tmp++]>>9; // 7 bits
-	x=(stackery[tmp]>>8)%NUM_CA; // 6 bots
+    start=stackery[tmp++]>>1;
+    wrap=stackery[tmp++]>>1;
+    howmuch=stackery[tmp++]>>9; // 7 bits
+    x=(stackery[tmp]>>12)%NUM_CA; // 4 bits
 
 	switch(x){
+	case NONENY:
+	stack[i].count=runnoney(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	break;
       case KRUMMY:
 	stack[i].count=runkrum(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case HODGEY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
-	//	if (stack[stack_posy].unit==NULL) return stack_posy; TODO????
-	//	hodgeinit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runhodge;
 	stack[i].count=runhodge(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case HODGENETY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct hodge));
-	//	hodgeinit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runhodgenet;
 	stack[i].count=runhodgenet(howmuch,stack[i].buffer,stack[i].count,start,wrap);
-
 	break;
       case LIFEY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runlife;
 	stack[i].count=runlife(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case CELY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runcel;
 	stack[i].count=runcel(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case CEL1DY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runcel1d;
 	stack[i].count=runcel1d(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case FIREY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct fire));
-	//	fireinit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runfire;
 	stack[i].count=runfire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case WIREY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct CA));
-	//	cainit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runwire;
 	stack[i].count=runwire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SIRY:
-	//	stack[stack_posy].unit=malloc(sizeof(struct SIR));
-	//	SIRinit(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runSIR;
 	stack[i].count=runSIR(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       case SIR16Y:
-	//	stack[stack_posy].unit=malloc(sizeof(struct SIR16));
-	//	SIR16init(stack[stack_posy].unit,buffer);
-	//	stack[stack_posy].functione=runSIR16;
 	stack[i].count=runSIR16(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       }
@@ -855,18 +780,11 @@ signed char ca_pop(u8 stack_posy){
  	if (stack_posy>0)
 	{
 	  stack_posy--;
-	  //	  if (stack[stack_posy].unit!=NULL){
-	  //	  free(stack[stack_posy].unit);
-		  //	  stack[stack_posy].unit=NULL;
-		  //	  	  }
-	  //	  stack_posy--;
 	}
   return stack_posy;
 }
 
-
 //////////////////////////////////////////
-
 
 #ifdef PCSIM
 /*
