@@ -22,21 +22,22 @@
 #define ANYWRAPREAD ((settingsarray[18]>>1)+1)
 #define ANYWRAP ((settingsarray[19]>>1)+1)
 #define ANYWRAPFILT ((settingsarray[20]>>1)+1)
-#define VILLAGEWWRAP ((settingsarray[21]>>10)+1) // 8 BITs
-#define VILLAGERWRAP ((settingsarray[22]>>10)+1) // 8 bits
-#define VILLAGEFWRAP ((settingsarray[23]>>10)+1) // 8 BITS
 
-#define HDGENERCONS (settingsarray[24]>>8)// less than 255
+#define VILLAGEWWRAP ((settingsarray[21]>>9)+1) // 7 BITs=128
+#define VILLAGERWRAP ((settingsarray[22]>>9)+1) 
+#define VILLAGEFWRAP ((settingsarray[23]>>9)+1) 
+
+#define HDGENERCONS ((settingsarray[24]>>8)+1)// less than 256
 #define LMERCONS ((settingsarray[25]>>1)+1)
 #define F0106ERCONS ((settingsarray[26]>>1)+1)
 #define MAXIMERCONS ((settingsarray[27]>>1)+1)
 
-#define LMEROFFSET ((settingsarray[28]>>1)+1)
-#define LMEROFFSETTWO ((settingsarray[29]>>1)+1)
-#define F0106EROFFSET ((settingsarray[30]>>1)+1)
-#define MAXIMEROFFSET ((settingsarray[31]>>1)+1)
+#define LMEROFFSET (settingsarray[28]>>1)
+#define LMEROFFSETTWO (settingsarray[29]>>1)
+#define F0106EROFFSET (settingsarray[30]>>1)
+#define MAXIMEROFFSET (settingsarray[31]>>1)
 
-#define HWSTEP (settingsarray[32]>>8) // 16 bits to 8 bits
+#define HWSTEP (settingsarray[32]>>8) // 8 bits
 #define SAMPLESTEP (settingsarray[33]>>8)
 #define SAMPLESTEPREAD (settingsarray[34]>>8)
 #define SAMPLESTEPFILT (settingsarray[35]>>8)
@@ -49,7 +50,7 @@
 #define VILLAGEFSTEP (settingsarray[41]>>8)
 
 #define HWSPEED (settingsarray[42]>>8) // 8 bits
-#define SAMPLESPEED (settingsarray[43]>>8) // 16 bits to 3 bits
+#define SAMPLESPEED (settingsarray[43]>>8)
 #define SAMPLESPEEDREAD (settingsarray[44]>>8)
 #define SAMPLESPEEDFILT (settingsarray[45]>>8)
 //#define LEAKSPEED (settingsarray[46]>>8)

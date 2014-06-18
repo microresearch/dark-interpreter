@@ -52,7 +52,6 @@ up to limit
 - overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
   working in CPUint.cDONE 
 
-
 * TEXTS
 
 ** intro
@@ -341,42 +340,41 @@ For Mater Lachrymarum IN is unused!
 
 * THU/FRI 
 
-- tweaks
-- recordings/video/manual/website
+- audio.c + or - 32768 between buf16 and audio_buffer - BACKUP/TEST!
+
+- should we use UP/DOWN for foldd[1] in cases 26+
+- tweaks/re-test ALL
+
+- IFDEFs last(hardware knob replaced with EFFECTREAD), also
+  settings.h as IFDEFed for LACH!!!
+
 - test LACH and SUSP (first with audio.c effects)
 
-//tweaks?- is attach (3rd knob) underused? cases are: 9,16,25
-- should we use UP/DOWN for foldd[1] in cases 26+
+- recordings/video/manual/website
 
 * WED 18 JUNE
 
 624*/623/622.wav(hard,timemachines),632,630,629,627/626(hard,voice),634,631(nohard,voice),
 
-////IN STUDIO:
-
-- TEST mirror/setting mode code (each case//in full)
-
 /////
-HOME EVENING:
 
-- re-measure M3 schrauben (8mm and check against other distanzbolzen at home)//order reichelt
 - re-check CPU,pureleak,audio and clean UP!
-- re-test functions in sim
-- check again all bit sizes in settings.h
 
-////
-
-- redo IFDEFs last(hardware knob replaced with EFFECTREAD), also
-  settings.h as IFDEFed for LACH!!!
+- re-test all functions in sim
 
 ** DONE
 
+- fixed ++ mismatches in audio.c for ldst rdst++
+- *src++ as src++ in audio.c
+- HDGENERCONS in settings.h +1
+- in audio.c shifted villager >>1
+- check again all bit sizes in settings.hDONE-check against main.c
+- re-measure M3 schrauben (6mm)//order reicheltDONE
+- TESTED mirror/setting mode code (each case//in full)
 - effect offset should be 7 bits as 128! also shifted where offset is so no lag in audio.c
-
 - tuning speed of fingers - now without float but with
   fingerdirleftrighttx(vall) - which maintains state thoughDONE (vall
   is speed) - also updownx DONE
-
 - small fixes - VALGRIND okay checked 18.43...
 - ADD additional CPUs in all (simX,cpuX,leakX,caX) which do NOTHING and update totals
 - main.c add in rest modes and check ALL by hand(few fixes eg. hardware)

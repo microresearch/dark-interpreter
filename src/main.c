@@ -593,7 +593,6 @@ void main(void)
   struct stackey stackyy[STACK_SIZE];
   struct stackeyyy stackyyy[STACK_SIZE];
   u16 *buf16 = (u16*) datagenbuffer;
-  u8 *audio_buf = (u8*) audio_buffer;
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
@@ -641,7 +640,7 @@ void main(void)
   EFFECTWRITE=0;
 
   for (x=48;x<51;x++){
-    settingsarray[x]=65535;
+    settingsarray[x]=32768;
   }//fmods
 
   for (x=51;x<54;x++){
@@ -699,8 +698,6 @@ void main(void)
 	u8 mainmode,groupstart,groupwrap;
 	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos;
 	u16 foldpos,settingsposl,datagenpos;
-
-	float32_t settingsposf;
 
   while(1)
     {
@@ -1334,7 +1331,7 @@ void main(void)
       }
 
       if (digfilterflag&16){
-	if (HDGENERCONS==0) settingsarray[24]=256; //SET HDGENERCONS=1
+	//	if (HDGENERCONS==0) settingsarray[24]=256; //SET HDGENERCONS=1
 	dohardwareswitch(HARDWARE,HDGENERBASE+(datagenbuffer[tmp]%HDGENERCONS));
       }
       else
