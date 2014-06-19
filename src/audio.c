@@ -8,6 +8,7 @@ LINEIN/OUTL-filter
 
 #define STEREO_BUFSZ (BUFF_LEN/2) // 64
 #define MONO_BUFSZ (STEREO_BUFSZ/2) // 32
+#define randi() (adc_buffer[9]) // 12 bits
 
 #ifdef PCSIM
 #include <stdio.h>
@@ -26,15 +27,13 @@ extern int16_t *villager;
 #define  uint32_t int
 typedef int int32_t;
 #define float32_t float
-int16_t	*left_buffer, *right_buffer, *temp_buffer, *mono_buffer;
+int16_t	*left_buffer, *right_buffer, *mono_buffer;
 #define VILLAGE_SIZE (STACK_SIZE*2) // 128
 extern u8* village_effects;
 
 void initaudio(void){
-  //int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 left_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 right_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
-temp_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 }
 
@@ -48,7 +47,7 @@ extern __IO uint16_t adc_buffer[10];
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 extern u16 settingsarray[64];
 extern u16 villager[192];
-int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], temp_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
+int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define VILLAGE_SIZE (STACK_SIZE*2) //
 extern u8 village_effects[VILLAGE_SIZE/2]; 
 #define float float32_t
@@ -65,64 +64,63 @@ extern u8 *datagenbuffer;
 
 int16_t *audio_ptr;
 
-void runconvforaudio(u8 sz, int16_t *sorc, int16_t *dest, float32_t c0, float32_t c1, float32_t c2){
-  unsigned char i=0, tmpp;
-  for (i=0; i<sz; i++) {
-    //    tmp++;tmpp=(tmp-1)%sz;
-    tmpp=(i-1);
-    tmpp=tmpp%sz;
-    //    printf("sz %d tmpp %d\n",sz,tmpp);
-    *dest++ =((float)sorc[tmpp]*c0)+((float)sorc[i]*c1)+((float)sorc[(i+1)%sz]*c2);
-  }
-}
-
 extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
 
 extern u8 www[3],freqyy[3]; // where to INIT?
 
-float CutLevel ( float x, float lvl ) {
-	if ( x > lvl )
-		return lvl;
-	if ( x < -lvl )
-		return -lvl;
-	return x;
+const float32_t coef[5][11]= {
+{ 8.11044e-06,
+8.943665402, -36.83889529, 92.01697887, -154.337906, 181.6233289,
+-151.8651235, 89.09614114, -35.10298511, 8.388101016, -0.923313471 ///A
+},
+{4.36215e-06,
+8.90438318, -36.55179099, 91.05750846, -152.422234, 179.1170248, ///E
+-149.6496211,87.78352223, -34.60687431, 8.282228154, -0.914150747
+},
+{ 3.33819e-06,
+8.893102966, -36.49532826, 90.96543286, -152.4545478, 179.4835618,
+-150.315433, 88.43409371, -34.98612086, 8.407803364, -0.932568035 ///I
+},
+{1.13572e-06,
+8.994734087, -37.2084849, 93.22900521, -156.6929844, 184.596544, ///O
+-154.3755513, 90.49663749, -35.58964535, 8.478996281, -0.929252233
+},
+{4.09431e-07,
+8.997322763, -37.20218544, 93.11385476, -156.2530937, 183.7080141, ///U
+-153.2631681, 89.59539726, -35.12454591, 8.338655623, -0.910251753
 }
+}; 
 
-void runformforaudio(u8 sz, int16_t *src, int16_t *dst){
+static float memory[10]={0,0,0,0,0,0,0,0,0,0};
 
-  float buff[64]; float x; int16_t tmp; 
+float formant_filter(float in, u8 vowelnum)
+{
+  float res= (float) ( coef[vowelnum][0]* in +
+  coef[vowelnum][1] *memory[0] +
+  coef[vowelnum][2] *memory[1] +  
+  coef[vowelnum][3] *memory[2] +
+  coef[vowelnum][4] *memory[3] +
+  coef[vowelnum][5] *memory[4] +
+  coef[vowelnum][6] *memory[5] +
+  coef[vowelnum][7] *memory[6] +
+  coef[vowelnum][8] *memory[7] +
+  coef[vowelnum][9] *memory[8] +
+  coef[vowelnum][10] *memory[9] );  
 
-  for (u8 f = 0; f < 3; f++ ) {
-  u8 ff = freqyy[f]; // the three freqs
-
-  float freq = (float)ff*(50.0f/SAMPLE_FREQUENCY);
-  
-  float buf1Res = 0, buf2Res = 0;
-  float q = 1.0f - (float)www[f] * (Pi * 10.0f / SAMPLE_FREQUENCY);
-  float xp = 0;
-  
-  for (u8 s = 0; s < sz; s++ ) {
-    // x is our float sample
-    // Apply formant filter
-    tmp=src[s];
-    x=(float)tmp/32768.0f;
-    //    xp=0;
-    x = x + 2.0f * cosf ( PI_2 * freq ) * buf1Res * q - buf2Res * q * q;
-    buf2Res = buf1Res;
-    buf1Res = x;
-    x = 0.75f * xp + x;
-    //    xp = x;
-    //    x *= CutLevel ( sinf ( Pi * s / sz) * 5, 1 );
-
-    if (f==0) buff[s]=x;
-    else buff[s]+=x; // as float
-    if (f==2) *(dst++)=(int16_t) ( 32768.0f * CutLevel ( (buff[s]) * 0.003f, 1 ));
-    //    if (f==2) *(dst++)=(float)buff[s]*32768.0f* 0.003f;
-  }
-  }
-  }
+memory[9]= memory[8];
+memory[8]= memory[7];
+memory[7]= memory[6];
+memory[6]= memory[5];
+memory[5]= memory[4];
+memory[4]= memory[3];
+memory[3]= memory[2];
+memory[2]= memory[1];
+memory[1]= memory[0];
+memory[0]=(double) res;
+return res;
+}
 
 void Audio_Init(void)
 {
@@ -168,7 +166,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   int32_t tmp32;
   u8 x,tmpp;
   static u16 start=0,startfilt=0,wrapfilt=1,wrap=1,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-  static u8 villr=0,villf=0,villw=0;
+  u8 vill=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
   u8 EFFECTREAD;
@@ -206,16 +204,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef LACH
 
-	//	if (EFFECTREAD&64) {audio_buffer=buf16int;buf16=audio_buffer;} // top bit now is buffer
-	//	  else  {buf16=buf16int;audio_buffer=audio_buffer;}
 	EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;		
 	VILLAGEREAD=(EFFECTREAD&3);	
-
 	//	VILLAGEREAD=0; // TESTY!
 
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
-	    tmpp=village_effects[villr/2]%16;
+	    tmpp=village_effects[vill/2]%16;
 	  }
 	  else tmpp=(EFFECTREAD&63)>>2;
 	  //	  tmpp=0; // TESTY!
@@ -327,18 +322,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  /////
 	  if (++delread>=SAMPLESPEEDREAD){
-	    
-	    //	    dirry=direction[dirr]*SAMPLESTEPREAD;
-	    if (EFFECTREAD&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
-	    ///
 	    count=((sampleposread-startread)+dirry);
-	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
 		  {
 		    sampleposread+=dirry;//)%32768;
 		  }
-	    ////
 		else {
 		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD+SAMPLEREXPAND;
@@ -355,13 +345,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
-		    // advance to next in array based on new start and wrap
-
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    villr=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startread=villager[villr]>>1;
-		    wrapread=((villager[villr+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
+		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startread=villager[vill]>>1;
+		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -370,13 +358,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  //		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		  if (wrapread==0) wrapread=1;
@@ -395,13 +381,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  //	  if (EFFECTREAD&64) audio_buffer=buf16int;
-	  //	else audio_buffer=audio_buffer;
 	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
 	  VILLAGEREAD=EFFECTREAD&3;
-      	for (x=0;x<sz/2;x++){
+	  for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
-	    tmpp=village_effects[villr/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTREAD&63)>>2;
 	  //	  VILLAGEREAD=0;  // TESTY!
@@ -414,7 +398,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  audio_buffer[sampleposread%32768]=*src++;
 	  break;
 	  case 1:
-	  audio_buffer[sampleposread%32768]=*src;
+	    audio_buffer[sampleposread%32768]=*src; // LEFT
 	  *ldst++ = *src++;
 	  *rdst++ = *src++; 
 	  break;
@@ -422,7 +406,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 2:
 	    *ldst++ = *src++;
 	    *rdst++ = *src; 
-	    fsum=(float32_t)*src++ * morph_inv * ((float32_t)audio_buffer[sampleposread%32768]+32768) * FMOD;
+	    fsum=(float32_t)*src++ * morph_inv * ((float32_t)audio_buffer[sampleposread%32768]+32768) * FMOD; // shift = 32768 
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
@@ -438,9 +422,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 4:
 	  *ldst++ = *src++;
+	  fsum=(float32_t)*src++ * morph_inv * ((float32_t)buf16[sampleposread%32768]-32768) * FMOD;
 	  *rdst++ = *src; 
-	  fsum=(float32_t)*src++ * morph_inv * ((float32_t)audio_buffer[sampleposread%32768]+32768) * FMOD;
-
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
@@ -467,17 +450,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  // start of *(src-1)
+
 	  case 8:
 	  tmp16=*src;
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  tmp32= *(src++) * tmp16;
+	  tmp32= *(src++) * tmp16; //right * left
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
+
 	  case 9:
 	  *ldst++ = *src;
-	  //	  tmp32= *(src++) * (*src++);
-	  tmp16=*src++;
+	  tmp16=*src++; // left
 	  *rdst++ = *src; 
 	  fsum=(float32_t)tmp16 * morph_inv * (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
@@ -536,19 +520,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  case 15:
 	  tmp16=*src;
 	  *ldst++ = *src++;
+	  *rdst++ = *src; 
 	  fsum=(float32_t)tmp16 * morph_inv + (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
-	  *rdst++ = *src; 
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  }
 	  	  if (++delread>=SAMPLESPEEDREAD){
 		    //	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
 
-	    if (EFFECTREAD&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
-
 		    count=((sampleposread-startread)+dirry);
-		    //if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
 		      {
 			sampleposread+=dirry;//)%32768;
@@ -572,9 +554,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=tmp;
-		    villr=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startread=villager[villr]>>1;
-		    wrapread=((villager[villr+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
+		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startread=villager[vill]>>1;
+		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -583,13 +565,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;
 		  if (wrapread==0) wrapread=1;
@@ -603,14 +583,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-	    //	    if (EFFECTREAD&64) {audio_buffer=buf16int;buf16=audio_buffer;}
-	    //	    else  {buf16=buf16int;audio_buffer=audio_buffer;}
 	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
 	    VILLAGEREAD=EFFECTREAD&3;
-	    //	    tmpp=0; audio_buffer=audio_buffer; // TESTY!!!
 	    for (x=0;x<sz/2;x++){
  	  if (VILLAGEREAD==2){
-	    tmpp=village_effects[villr/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTREAD&63)>>2;
 	  //	  tmpp=15;
@@ -631,18 +608,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  buf16[sampleposread%32768]=audio_buffer[sampleposread%32768]+32768;
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
-	  ////////
-	  // Effects with/without clipping *, +, -, 
 	  case 3:
 	    (src++);
-	  //	  tmp32=(*src++)*buf16[sampleposread%32768];
 	    fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	    (src++);
-	  //	  tmp32=(*src++)*buf16[sampleposread%32768];
 	    fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -652,14 +625,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 5:
 	  (src++);
-	  //	  tmp32=(*src++)+buf16[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  (src++);
-	  //	  tmp32=(*src++)+buf16[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -693,14 +664,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 11:
 	  (src++);
-	  //	  	  tmp32=(*src++)+audio_buffer[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)audio_buffer[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 12:
 	  (src++);
-	  //	  tmp32=(*src++)+audio_buffer[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv + (float32_t)audio_buffer[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -723,14 +692,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp16=audio_buffer[sampleposread%32768]|(*src++);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  }
-	  //	  VILLAGEREAD=0; // TESTY!
+
 	  if (++delread>=SAMPLESPEEDREAD){
-	    //	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
-	    if (EFFECTREAD&64) dirry=newdirection[wormdir];  // TESTY!
+	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir];  // TESTY!
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
-	    dirry=1; // TESTY!
 	    count=((sampleposread-startread)+dirry);
-	    //	    if (count<wrapread && (sampleposread+dirry)>startread)
 		    if (count<wrapread && count>0)
 		  {
 		    sampleposread+=dirry;//)%32768;
@@ -738,7 +704,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else {
 		  if (VILLAGEREAD==0) {
 		    startread=SAMPLESTARTREAD;wrapread=SAMPLEWRAPREAD+SAMPLEREXPAND;
-		    //		    startread=0;wrapread=32768; // TESTY!
 		    if (SAMPLEDIRR==1) sampleposread=startread; //forwards
 		    else sampleposread=startread+wrapread;
 		  }
@@ -753,11 +718,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		  else if (VILLAGEREAD==2) {
 		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    //tmp=1; // TSTER!!
 		    villagerpos+=tmp; //???
-		    villr=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%villagestackpos; //to cover all directions
-		    startread=villager[villr]>>1;
-		    wrapread=((villager[villr+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
+		    vill=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%villagestackpos; //to cover all directions
+		    startread=villager[vill]>>1;
+		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
 		    if (wrapread==0) wrapread=1;
 		    if (SAMPLEDIRR==1) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -766,16 +730,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
 		  tmp=ANYSTEPREAD*direction[DATADIRR];
 		  anyposread+=tmp;
 		  wrapper=ANYWRAPREAD;
-		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD)+SAMPLEREXPAND;;
-		  //		  if (wrapread==0) wrapread=1;
 		  if (SAMPLEDIRR==1) sampleposread=startread;
 		  else sampleposread=startread+wrapread;
 		  }
@@ -792,16 +753,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	morph_inv = 1.0 - (float32_t)FMODW;
 
 #ifdef LACH
-	// audio_buffer, buf16
-	//	  if (EFFECTWRITE&64) {audio_buffer=buf16int;buf16=audio_buffer;}
-	//	  else  {buf16=buf16int;audio_buffer=audio_buffer;}
 
 	VILLAGEWRITE=EFFECTWRITE&3;
 	//	VILLAGEWRITE=0; // TESTY!
 
       	for (x=0;x<sz/2;x++){
  	  if (VILLAGEWRITE==2){
-	    tmpp=village_effects[villw/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
 	  //	  tmpp=0; // TESTY!
@@ -810,7 +768,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	  break;
 	  case 1:
-	    //	    tmp16=audio_buffer[samplepos%32768]%(buf16[samplepos%32768]-32768);
 	    tmp16=(buf16[samplepos%32768]-32768);
 	    if (audio_buffer[samplepos%32768]<tmp16) tmp16=audio_buffer[samplepos%32768];
 	    mono_buffer[x]=tmp16;
@@ -859,28 +816,44 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
-	    tmp16=(buf16[samplepos%32768]-32768)|audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)^audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 11:
-	    tmp16=(buf16[samplepos%32768]-32768)<<(audio_buffer[samplepos%32768])&7;
+	    tmp16=(buf16[samplepos%32768]-32768)<<(audio_buffer[samplepos%32768]&7);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 12:
+	    tmp16=(buf16[samplepos%32768]-32768)>>(audio_buffer[samplepos%32768]&7);
 	  break;
-	  tmp16=(buf16[samplepos%32768]-32768)>>(audio_buffer[samplepos%32768])&7;
- 	  default:
-	    temp_buffer[x]=audio_buffer[samplepos%32768];
+	  case 13:
+	    tmpp=samplepos-1;
+	    tmpp=tmpp%32768;
+	    mono_buffer[x]=((float)audio_buffer[tmpp]*FMOD)+((float)audio_buffer[samplepos%32768]*FMODF)+((float)audio_buffer[(samplepos+1)%32768]*FMODW);
+	    break;
+	  case 14:
+	    w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    tmpp=samplepos-1;
+	    tmpp=tmpp%32768;
+	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
+	    break;
+	  case 15:
+	    // convert to float
+	    w0=(float)tmp/32768.0f;
+	    // vowel number 0-4
+	    w0=formant_filter(w0, randi()%5);	    
+	    // convert back
+	      mono_buffer[x]=(float)w0*32768.0f;
+	    break;
 	  }
 
 	  	  if (++del>=SAMPLESPEED){
-		    //	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
-	    if (EFFECTWRITE&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);// samplepos is start or start+wrap++
 		    if (count<wrapread && count>0)
 	      {
-		    samplepos+=dirry;//)%32768;
+		    samplepos+=dirry;
 		  }
 		else {
 		  if (VILLAGEWRITE==0) {
@@ -889,7 +862,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else samplepos=start+wrap;
 		    count=samplepos;
 		  }
-
 		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
@@ -899,12 +871,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
-		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    villw=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[villw]>>1;
-		    wrap=((villager[villw+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
+		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[vill]>>1;
+		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
@@ -913,13 +884,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		  if (wrap==0) wrap=1;
@@ -930,52 +899,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  del=0;
 	  }
 	}
-	  // process mono_buffer for extra effects 13/14/15
-	  if (tmpp>12){
-	    switch(tmpp){
-	    case 13:
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,0.5,0.5,0.5);
-	    break;
-	    case 14:
-	      // 3 floats!
-	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
-	      break;
-	    case 15:
-	      //	      runformforaudio(sz/2,temp_buffer,mono_buffer);
-	      break;
-	    }
-	  } // end of tmpp>12
-	
-
 	/////////////////////////////NO____LACH!!!!!!!!!
 #else
 
 	if (digfilterflag&32 || digfilterflag&1){
 	ldst=left_buffer;
-
 	  ////////////////////////////////////LDST effects also...
-
-	//	  if (EFFECTWRITE&64) {audio_buffer=buf16int;buf16=audio_buffer;}
-	//	  else  {buf16=buf16int;audio_buffer=audio_buffer;}
 
 	VILLAGEWRITE=EFFECTWRITE&3;
       	for (x=0;x<sz/2;x++){
 
  	  if (VILLAGEWRITE==2){
-	    tmpp=village_effects[villw/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
 
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
-	  tmpp=0;
 	  switch(tmpp){ 
 	  case 0:
 	    mono_buffer[x]=audio_buffer[samplepos%32768];
 	  break;
-	  // effects with/without clipping *, +, -, 
 	  case 1:
-	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
@@ -1013,7 +957,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
-	    //	  tmp32=audio_buffer[samplepos%32768]* *ldst++;
 	    fsum=(float32_t)*ldst++ * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
@@ -1061,17 +1004,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
- 	  default:
-	    temp_buffer[x]=audio_buffer[samplepos%32768];
-	  }
+ 	  case 15:
+	    w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    tmpp=samplepos-1;
+	    tmpp=tmpp%32768;
+	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
+	    break;
+	  } 
+	}
 	  ////////////////////////--->>>>
 
 	  	  if (++del>=SAMPLESPEED){
-		    //	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP;
-	    if (EFFECTWRITE&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
-	    //	    if (count<wrap && (samplepos+dirry)>start)
 	    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
@@ -1095,9 +1041,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    villw=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[villw]>>1;
-		    wrap=((villager[villw+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
+		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[vill]>>1;
+		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
@@ -1106,13 +1052,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		  if (wrap==0) wrap=1;
@@ -1121,54 +1065,35 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		}
 	  del=0;
-	  }
+		  } // end del
 	}
-	  // process mono_buffer for extra effects 13/14/15
-	  if (tmpp==15){
-	      // 3 floats!
-	      w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
-	      runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
-	  } // end of tmpp==15
-	
-	}
-	else
+		else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
-	    //	    if (EFFECTWRITE&64) {audio_buffer=buf16int;buf16=audio_buffer;}
-	    //	    else  {buf16=buf16int;audio_buffer=audio_buffer;}
 	  VILLAGEWRITE=EFFECTWRITE&3;
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
 
 	  for (x=0;x<sz/2;x++){
 
 	  if (VILLAGEWRITE==2){
-	    tmpp=village_effects[villw/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
-	  //	  tmpp=15; // TESTY!
 	  //	     printf("%d\n",samplepos);
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=audio_buffer[samplepos%32768];
-	     //	     printf("%c",mono_buffer[x]);
-	     //	     printf("x: %d %d %c\n",x, samplepos%32768, mono_buffer[x]);
 	    break;
 	  case 1:
-	    // 	    mono_buffer[x]=buf16[samplepos%32768]; no sense
-	    //	    tmp16=audio_buffer[samplepos%32768]%(buf16[samplepos%32768]+1);
 	    tmp16=(buf16[samplepos%32768]-32768);
 	    if (audio_buffer[samplepos%32768]<tmp16) tmp16=audio_buffer[samplepos%32768];
-	  
-	  mono_buffer[x]=tmp16;
+	    mono_buffer[x]=tmp16;
 	  break;
-	  // effects with/without clipping *, +, -, 
 	  case 2:
-	    //tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	    tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
-	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1177,13 +1102,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
-	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
-	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv - (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1211,28 +1134,35 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=((adc_buffer[9]<<3)-32768)*audio_buffer[samplepos%32768];
 	  break;
 	  case 11:
-	    //	    tmp32=audio_buffer[samplepos%32768]+adc_buffer[9]<<3;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv + (float32_t)((adc_buffer[9]<<3)-32768) * FMODW;
  	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
-	    //	    tmp32=audio_buffer[samplepos%32768]*adc_buffer[9]<<3;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)((adc_buffer[9]<<3)-32768) * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
- 	  default:
-	    temp_buffer[x]=audio_buffer[samplepos%32768];
+	  case 14:
+	    w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    tmpp=samplepos-1;
+	    tmpp=tmpp%32768;
+	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
+	    break;
+	  case 15:
+	    // convert to float
+	    w0=(float)tmp/32768.0f;
+	    // vowel number 0-4
+	    w0=formant_filter(w0,randi()%5);
+	    // convert back
+	      mono_buffer[x]=(float)w0*32768.0f;
+	    break;
 	  }
  
 	  if (++del>=SAMPLESPEED){ 
-	    //	    dirry=direction[SAMPLEDIRW]*SAMPLESTEP; 
-	    //	    EFFECTWRITE|=64; // TESTY! WORMDIR
-	    if (EFFECTWRITE&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
-	    //	    if (count<wrap && (samplepos+dirry)>start)
 		    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
@@ -1242,8 +1172,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    start=SAMPLESTART;wrap=SAMPLEWRAP+SAMPLEEXPAND;
 		    if (SAMPLEDIRW==1) samplepos=start; //forwards
 		    else samplepos=start+wrap;
-		    //		    printf("here samplepos=%d wrap=%d\n",samplepos,wrap);
-		    //		    samplepos=0;start=0;wrap=32767;
 		  }
 		  else if (VILLAGEWRITE==1) {
 		  tmp=ANYSTEP*direction[DATADIRW];
@@ -1251,16 +1179,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP)+SAMPLEEXPAND;
-		  //		  samplepos=0;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
 		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=tmp;
-		    villw=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
-		    start=villager[villw]>>1;
-		    wrap=((villager[villw+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
+		    vill=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%villagestackpos; //villagestackpos always +-2
+		    start=villager[vill]>>1;
+		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (SAMPLEDIRW==1) samplepos=start;
 		    else samplepos=start+wrap;
@@ -1268,20 +1195,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    //		    printf("villager[tmp+1] %d \n",(villager[tmp+1]));
 		    //		    printf("villager %d samplepos: %d wrap: %d\n",tmp,samplepos,wrap);
 			   #endif
-		    //		    start=0; samplepos=0;
-		    //		    wrap=32767;
 		  }
 		  else {
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
 		  tmp=ANYSTEP*direction[DATADIRW];
 		  anypos+=tmp;
 		  wrapper=ANYWRAP;
-		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP)+SAMPLEEXPAND;
 		  if (wrap==0) wrap=1;
@@ -1292,30 +1215,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  del=0;
 	  	  }
 	  }
-
-	  // process mono_buffer for extra effects 13/14/15
-	  if (tmpp>12){
-
-	    switch(tmpp){
-	    case 13:
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,FMOD,FMODF,FMODW);
-	    break;
-	    case 14:
-	      // 3 floats!
-	      w0=(float32_t)buf16[0]/65536.0f;w1=(float32_t)buf16[1]/65536.0f;w2=(float32_t)buf16[2]/65536.0f;
-	    runconvforaudio(sz/2,temp_buffer,mono_buffer,w0,w1,w2);
-	      break;
-	    case 15:
-	      runformforaudio(sz/2,temp_buffer,mono_buffer);
-	      //	    runconvforaudio(sz/2,temp_buffer,mono_buffer,FMOD,FMODF,FMODW);
-	      break;
-	    }
-	  } // end of tmpp>12
-	  
 	  }
       	///!!!!!!////////////////////////////////END OF WRITEOUTSSS
 
-	///	///	///	///
+	///	///	///	/// FILTER process
 
 if (digfilterflag&1){ 
 
@@ -1325,17 +1228,15 @@ if (digfilterflag&1){
 	morph_inv = 1.0 - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
-	//	if (EFFECTFILT&64) audio_buffer=buf16int; 
-	//	else audio_buffer=audio_buffer;
 	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%128;
 	VILLAGEFILT=EFFECTFILT&3;
-	//	tmpp=(EFFECTFILT&63)>>2;
       	for (x=0;x<sz/2;x++){ 
 
  	  if (VILLAGEFILT==2){
-	    tmpp=village_effects[villf/2];
+	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=(EFFECTFILT&63)>>2;
+
  	  switch(tmpp){ 
 	  case 0:
 	  default:
@@ -1349,16 +1250,13 @@ if (digfilterflag&1){
 	    *ldst++ =0;
 	  rdst++;
 	    break;
-	  // effects with/without clipping *, +, -, 
 	  case 3:
-	    //	    tmp32=audio_buffer[sampleposfilt%32768]* *ldst++;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
 	  tmp32=fsum;
 	  *ldst++=tmp32;
 	  rdst++;
 	  break;
 	  case 4:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]* *ldst++;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1368,13 +1266,11 @@ if (digfilterflag&1){
 	  rdst++;
 	  break;
 	  case 5:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]* *rdst++;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 	  *ldst++=tmp32;
 	  break;
 	  case 6:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]* *rdst++;
 	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1388,7 +1284,6 @@ if (digfilterflag&1){
 	  *ldst++=tmp32;
 	  break;
 	  case 8:
-	    //	  tmp32=*ldst++ * *rdst++;
 	    fsum=(float32_t)(*ldst) * morph_inv * (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1396,15 +1291,17 @@ if (digfilterflag&1){
 #endif
 	  *ldst++=tmp32;
 	  break;
+	  ////////////////////
 	  case 9:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]+ *ldst++;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
+	    //	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)(*ldst) * FMODF;
 	  tmp32=fsum;
 	  *ldst++=tmp32;
+	  rdst++;
 	  break;
 	  case 10:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]+ *ldst++;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
+	    //	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*ldst) * FMODF;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)(*ldst) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1413,14 +1310,14 @@ if (digfilterflag&1){
 	  rdst++;
 	  break;
 	  case 11:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]+ *rdst++;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
+	    //	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 	  *ldst++=tmp32;
 	  break;
 	  case 12:
-	    //	  tmp32=audio_buffer[sampleposfilt%32768]+ *rdst++;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
+	    //	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(*rdst++) * FMODF;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1428,13 +1325,11 @@ if (digfilterflag&1){
 	  *ldst++=tmp32;
 	  break;
 	  case 13:
-	    //	  tmp32=*ldst++ + *rdst++;
-	    fsum=(float32_t)(*ldst) * morph_inv + (float32_t)(*rdst++) * FMODF;
+	    fsum=(*ldst) & *(rdst++);
 	  tmp32=fsum;
 	  *ldst++=tmp32;
 	  break;
 	  case 14:
-	    //	  tmp32=*ldst++ + *rdst++;
 	    fsum=(float32_t)(*ldst) * morph_inv + (float32_t)(*rdst++) * FMODF;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -1451,11 +1346,9 @@ if (digfilterflag&1){
 	  ///	  HERE////////////////////////--->>>>
 
 	  	  if (++delf==SAMPLESPEEDFILT){
-		    //	    dirry=direction[SAMPLEDIRF]*SAMPLESTEPFILT;
-	    if (EFFECTFILT&64) dirry=newdirection[wormdir]; 
+	    if (EFFECTFILT&64 && VILLAGEFILT!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRF]*SAMPLESTEPFILT;	    
 	    count=((sampleposfilt-startfilt)+dirry);
-	    //	    if (count<wrapfilt && (sampleposfilt+dirry)>startfilt)
 		    if (count<wrapfilt && count>0)
 		  {
 		    sampleposfilt+=dirry;//)%32768;
@@ -1476,12 +1369,11 @@ if (digfilterflag&1){
 		  wrapfilt=0;startfilt=0;
 		  }
 		  else if (VILLAGEFILT==2) {
-		    // advance to next in array based on new start and wrap
 		    tmp=VILLAGEFSTEP*direction[VILLAGEFDIR];
 		    villagefpos+=tmp;
-		    villf=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%villagestackpos; //villagestackpos always +-2
-		    startfilt=villager[villf]>>1;
-		    wrapfilt=((villager[villf+1]>>1)%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
+		    vill=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%villagestackpos; //villagestackpos always +-2
+		    startfilt=villager[vill]>>1;
+		    wrapfilt=((villager[vill+1]>>1)%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
 		    if (wrapfilt==0) wrapfilt=1;
 		    if (SAMPLEDIRF==1) sampleposfilt=startfilt;
 		    else sampleposfilt=startfilt+wrapfilt;
@@ -1490,13 +1382,11 @@ if (digfilterflag&1){
 		  tmp=ANYSTEPFILT*direction[DATADIRF];
 		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT; 
-		  		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  startfilt=buf16[tmp]>>1;
 		  tmp=ANYSTEPFILT*direction[DATADIRF];
 		  anyposfilt+=tmp;
 		  wrapper=ANYWRAPFILT;
-		  if (wrapper==0) wrapper=1;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  wrapfilt=((buf16[tmp]>>1)%SAMPLEWRAPFILT)+SAMPLEFEXPAND;
 		  if (wrapfilt==0) wrapfilt=1;
@@ -1507,7 +1397,6 @@ if (digfilterflag&1){
 	  delf=0;
 		  }
 	}
-
  }
 
 #endif // for LACH

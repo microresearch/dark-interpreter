@@ -63,7 +63,7 @@
 
 #define FMOD ((float32_t)settingsarray[48]/65536.0f)
 #define FMODF ((float32_t)settingsarray[49]/65536.0f)
-#define FMODW ((float32_t)settingsarray[50]/65536.0f)//
+#define FMODW ((float32_t)settingsarray[50]/65536.0f)// LEAVE ALL IN FOR LACH
 
 #define SAMPLEEXPAND (settingsarray[51]>>1) 
 #define SAMPLEREXPAND (settingsarray[52]>>1)

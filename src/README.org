@@ -341,7 +341,7 @@ For Mater Lachrymarum IN is unused!
 * THU 19 JUNE
 
 - re-test all functions in sim
-- recheck audio.c step by step!
+
 - IFDEFs last(hardware knob replaced with EFFECTREAD), also
   settings.h as IFDEFed for LACH!!!
 
@@ -353,6 +353,13 @@ For Mater Lachrymarum IN is unused!
 - recordings/video/manual/website
 
 ** DONE
+
+- rechecking audio.c: removed if (wrapper==0) wrapper=1 (as WRAPs are
+  always +1), fixed duplicate effects
+
+- TESTed audio walkers again: model fine (but what of wormdir-fixed as rogue case in village==0)
+
+- in audio.c we end up reprocessing with village_effect in 3 cases! REDO!!!
 
 - TODO!audio.c: + or - 32768 between buf16 and audio_buffer - TESTED!
 (audio backed up to audio-backjune.c)
