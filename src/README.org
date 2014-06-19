@@ -340,8 +340,11 @@ For Mater Lachrymarum IN is unused!
 
 * THU/FRI 
 
-- recheck audio.c
-- audio.c + or - 32768 between buf16 and audio_buffer - BACKUP/TEST!
+- re-test all functions in sim
+
+- recheck/TEST audio.c
+
+- TODO!audio.c: + or - 32768 between buf16 and audio_buffer - BACKUP/TEST!
 
 - should we use UP/DOWN for foldd[1] in cases 26+
 - tweaks/re-test ALL
@@ -357,15 +360,9 @@ For Mater Lachrymarum IN is unused!
 
 624*/623/622.wav(hard,timemachines),632,630,629,627/626(hard,voice),634,631(nohard,voice),
 
-/////
-
-- re-check/clean CPU,pureleak,audio
-
-- re-test all functions in sim
-
 ** DONE
 
-- fixed ++ mismatches in audio.c for ldst rdst++
+- fixed many ++ mismatches in audio.c for ldst rdst++ TO TEST
 - *src++ as src++ in audio.c
 - HDGENERCONS in settings.h +1
 - in audio.c shifted villager >>1
