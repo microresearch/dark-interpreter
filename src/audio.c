@@ -37,7 +37,6 @@ right_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 }
 
-
 #else
 #include "audio.h"
 #include "CPUint.h"
@@ -54,6 +53,10 @@ extern u8 village_effects[VILLAGE_SIZE/2];
 #endif
 
 u16 newdirection[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+
+#ifdef LACH
+extern u8 EFFECTREAD;
+#endif
 
 extern signed char direction[2];
 extern u8 EFFECTWRITE;
@@ -169,8 +172,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 vill=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
+#ifndef LACH
   u8 EFFECTREAD;
   u8 EFFECTFILT;
+#endif
   int16_t dirry;
   float32_t w0,w1,w2;
 
@@ -204,7 +209,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef LACH
 
-	EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;		
+	//	EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;		
 	VILLAGEREAD=(EFFECTREAD&3);	
 	//	VILLAGEREAD=0; // TESTY!
 

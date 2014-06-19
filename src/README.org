@@ -340,8 +340,8 @@ For Mater Lachrymarum IN is unused!
 
 * THU 19 JUNE
 
-- IFDEFs last(hardware knob replaced with EFFECTREAD), also
-  settings.h as IFDEFed for LACH!!!
+- settings.h as IFDEFed for LACH - double up and regroup
+- TODO: ifdef setup/init code and set EFFECTREAD there too
 
 ///FRI:
 - tweaks/re-test ALL (speeds in particular)
@@ -352,7 +352,9 @@ For Mater Lachrymarum IN is unused!
 
 ** DONE
 
-- re-test all functions in sim: put vars and inits INTO functions
+- IFDEFs - hardware knob replaced with EFFECTREAD ifdefs in main and in audio
+
+- re-test all functions in sim: put vars and inits INTO functionsDONE
 
 - rechecking audio.c: removed if (wrapper==0) wrapper=1 (as WRAPs are
   always +1), fixed duplicate effects

@@ -119,6 +119,9 @@ u8 settingsarrayinfected[64];
 #endif
 
 u8 EFFECTWRITE;
+#ifdef LACH
+u8 EFFECTREAD;
+#endif
 
 signed char direction[2]={-1,1};
 u8 setwalk[8]={239,240,1,17,16,15,254,238}; 
@@ -1316,6 +1319,7 @@ void main(void)
       //// DEAL last with hardware:
 #ifdef LACH
       // TODO! as EFFECTREAD!
+      EFFECTREAD=adc_buffer[FIFTH]>>5; // 7 bits
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
