@@ -187,7 +187,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifdef TEST_EEG
 	// write buf16 into mono
 	      	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=buf16[samplepos%32768];
+	  mono_buffer[x]=buf16[samplepos%32768]-32768;
 	  samplepos++;
 		}
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
@@ -228,25 +228,25 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 1:
 	  src++;
+	  buf16[sampleposread%32768]=(*src)+32768;
 	  audio_buffer[sampleposread%32768]=*src++;
-	  buf16[sampleposread%32768]=*src;
 	  break;
 	  case 2:
 	  src++;
-	  tmp16=buf16[sampleposread%32768];
-	  buf16[sampleposread%32768]=audio_buffer[sampleposread%32768];
+	  tmp16=buf16[sampleposread%32768]-32768;
+	  buf16[sampleposread%32768]=audio_buffer[sampleposread%32768]+32768;
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  // effects with/without clipping *, +, -, 
 	  case 3:
 	  src++;
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	  src++;
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -256,14 +256,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 5:
 	  src++;
 	  //	  tmp32=(*src++)+audio_buffer[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  src++;
 	  //	  tmp32=(*src++)+audio_buffer[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -272,17 +272,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 7:
 	  src++;
-	  tmp16=(*src++)-buf16[sampleposread%32768];
+	  tmp16=(*src++)-(buf16[sampleposread%32768]-32678);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
 	  src++;
-	  tmp16=buf16[sampleposread%32768]-(*src++);
+	  tmp16=(buf16[sampleposread%32768]-32768)-(*src++);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 9:
 	  src++;
-	  tmp16=buf16[sampleposread%32768] | (*src++);
+	  tmp16=(buf16[sampleposread%32768]-32768) | (*src++);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 10:
@@ -311,14 +311,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 14:
 	  src++;
-	  //	  tmp32=(*src++)*audio_buffer[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)audio_buffer[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 15:
 	  src++;
-	  //	  tmp32=(*src++)*audio_buffer[sampleposread%32768];
 	  fsum=(float32_t)*src++ * morph_inv * (float32_t)audio_buffer[sampleposread%32768] * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -441,8 +439,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 4:
 	  *ldst++ = *src++;
 	  *rdst++ = *src; 
-	  //	  tmp32=(*src++)+buf16[sampleposread%32768];
-	  //	  fsum=(float32_t)*src++ * morph_inv + (float32_t)audio_buffer[sampleposread%32768] * FMOD;
 	  fsum=(float32_t)*src++ * morph_inv * ((float32_t)audio_buffer[sampleposread%32768]+32768) * FMOD;
 
 	  tmp32=fsum;
@@ -522,10 +518,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  case 13:
 	  *ldst++ = *src;
-	  //repeats???
-	  //	  fsum=(float32_t)(float32_t)(audio_buffer[sampleposread%32768]+32768) * morph_inv + (float32_t)(audio_buffer[sampleposread%32768]+32768) * FMOD;
-	  	  //	  tmp32=*src++ * *src++;
-	  fsum=(float32_t)buf16[sampleposread%32768] * morph_inv * (float32_t)*src++ * FMOD;
+	  fsum=(float32_t)(buf16[sampleposread%32768]-32768) * morph_inv * (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src++; 
 #ifndef PCSIM
@@ -535,15 +528,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 14:
 	    tmper= *src;
-	  *ldst++ = *src++;
-	  tmp16=*src | tmper;
-	  *rdst++ = *src++; 
+	    *ldst++ = *src++;
+	    tmp16=*src | tmper;
+	    *rdst++ = *src++; 
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
  	  case 15:
 	  tmp16=*src;
 	  *ldst++ = *src++;
-	  //	  tmp32=*src++ + *src++;
 	  fsum=(float32_t)tmp16 * morph_inv + (float32_t)*src++ * FMOD;
 	  tmp32=fsum;
 	  *rdst++ = *src; 
@@ -630,13 +622,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 1:
 	    src++;
-	  buf16[sampleposread%32768]=*src;
-	  audio_buffer[sampleposread%32768]=*src++;
+	    buf16[sampleposread%32768]=(*src)+32768;
+	    audio_buffer[sampleposread%32768]=*src++;
 	  break;	    
 	  case 2:
 	    src+=2;
-	  tmp16=buf16[sampleposread%32768];
-	  buf16[sampleposread%32768]=audio_buffer[sampleposread%32768];
+	  tmp16=buf16[sampleposread%32768]-32768;
+	  buf16[sampleposread%32768]=audio_buffer[sampleposread%32768]+32768;
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  ////////
@@ -644,14 +636,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 3:
 	    (src++);
 	  //	  tmp32=(*src++)*buf16[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)buf16[sampleposread%32768] * FMOD;
+	    fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 4:
 	    (src++);
 	  //	  tmp32=(*src++)*buf16[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv * (float32_t)buf16[sampleposread%32768] * FMOD;
+	    fsum=(float32_t)*src++ * morph_inv * (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -661,14 +653,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 5:
 	  (src++);
 	  //	  tmp32=(*src++)+buf16[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
 	  case 6:
 	  (src++);
 	  //	  tmp32=(*src++)+buf16[sampleposread%32768];
-	  fsum=(float32_t)*src++ * morph_inv + (float32_t)buf16[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*src++ * morph_inv + (float32_t)(buf16[sampleposread%32768]-32768) * FMOD;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -677,17 +669,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 7:
 	  (src++);
-	  tmp16=(*src++)-buf16[sampleposread%32768];
+	  tmp16=(*src++)-(buf16[sampleposread%32768]-32768);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
 	  (src++);
-	  tmp16=buf16[sampleposread%32768]-(*src++);
+	  tmp16=buf16[sampleposread%32768]-(*src++)-32768;
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 9:
 	  (src++);
-	  tmp16=buf16[sampleposread%32768]|(*src++);
+	  tmp16=(buf16[sampleposread%32768]-32768)|(*src++);
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 10:
@@ -818,17 +810,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=audio_buffer[samplepos%32768];
 	  break;
 	  case 1:
-	  tmp16=audio_buffer[samplepos%32768]%buf16[samplepos%32768];
-	  mono_buffer[x]=tmp16;
+	    //	    tmp16=audio_buffer[samplepos%32768]%(buf16[samplepos%32768]-32768);
+	    tmp16=(buf16[samplepos%32768]-32768);
+	    if (audio_buffer[samplepos%32768]<tmp16) tmp16=audio_buffer[samplepos%32768];
+	    mono_buffer[x]=tmp16;
 	  break;
 	  // effects with/without clipping *, +, -, 
 	  case 2:
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -836,12 +830,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -849,32 +843,32 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	  tmp16=audio_buffer[samplepos%32768]-buf16[samplepos%32768];
+	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
-	  tmp16=buf16[samplepos%32768]-audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)-audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 8:
-	  tmp16=buf16[samplepos%32768]|audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)|audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 9:
-	  tmp16=buf16[samplepos%32768]&audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)&audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
-	  tmp16=buf16[samplepos%32768]|audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)|audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 11:
-	    tmp16=buf16[samplepos%32768]<<(audio_buffer[samplepos%32768])&7;
+	    tmp16=(buf16[samplepos%32768]-32768)<<(audio_buffer[samplepos%32768])&7;
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 12:
 	  break;
-	    tmp16=buf16[samplepos%32768]>>(audio_buffer[samplepos%32768])&7;
+	  tmp16=(buf16[samplepos%32768]-32768)>>(audio_buffer[samplepos%32768])&7;
  	  default:
 	    temp_buffer[x]=audio_buffer[samplepos%32768];
 	  }
@@ -982,13 +976,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  // effects with/without clipping *, +, -, 
 	  case 1:
 	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 2:
 	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -997,13 +991,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 3:
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1011,11 +1005,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
-	  tmp16=audio_buffer[samplepos%32768]-buf16[samplepos%32768];
+	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 6:
-	  tmp16=buf16[samplepos%32768]-audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)-audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
@@ -1039,13 +1033,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 10:
 	    //	  tmp32=*(ldst++)+buf16[samplepos%32768];
-	  fsum=(float32_t)*ldst++ * morph_inv + (float32_t)buf16[samplepos%32768] * FMODW;
+	    fsum=(float32_t)*ldst++ * morph_inv + (float32_t)(buf16[samplepos%32768]-32768) * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 11:
 	    //	  tmp32=*(ldst++)+buf16[samplepos%32768];
-	    fsum=(float32_t)*ldst++ * morph_inv + (float32_t)buf16[samplepos%32768] * FMODW;
+	    fsum=(float32_t)*ldst++ * morph_inv + (float32_t)(buf16[samplepos%32768]-32768) * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1053,17 +1047,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
-	    mono_buffer[x]=(adc_buffer[9]<<3) * audio_buffer[samplepos%32768];
+	    mono_buffer[x]=((adc_buffer[9]<<3)-32768) * audio_buffer[samplepos%32768];
 	  break;
 	  case 13:
 	    //	    tmp32=audio_buffer[samplepos%32768]+adc_buffer[9]<<3;
-	    fsum=(float32_t)(adc_buffer[9]<<3) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)((adc_buffer[9]<<3)-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
 	  case 14:
 	    //	    tmp32=audio_buffer[samplepos%32768]*adc_buffer[9]<<3;
-	    fsum=(float32_t)(adc_buffer[9]<<3) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)((adc_buffer[9]<<3)-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
@@ -1160,19 +1154,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    break;
 	  case 1:
 	    // 	    mono_buffer[x]=buf16[samplepos%32768]; no sense
-	    tmp16=audio_buffer[samplepos%32768]%(buf16[samplepos%32768]+1);
+	    //	    tmp16=audio_buffer[samplepos%32768]%(buf16[samplepos%32768]+1);
+	    tmp16=(buf16[samplepos%32768]-32768);
+	    if (audio_buffer[samplepos%32768]<tmp16) tmp16=audio_buffer[samplepos%32768];
+	  
 	  mono_buffer[x]=tmp16;
 	  break;
 	  // effects with/without clipping *, +, -, 
 	  case 2:
 	    //tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
-	    fsum=(float32_t)buf16[samplepos%32768] * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	    tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
 	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
-	    fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1181,13 +1178,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 4:
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
-	  fsum=(float32_t)buf16[samplepos%32768] * morph_inv - (float32_t)audio_buffer[samplepos%32768] * FMODW;
+	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv - (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
@@ -1195,33 +1192,33 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	  tmp16=audio_buffer[samplepos%32768]-buf16[samplepos%32768];
+	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
-	  tmp16=buf16[samplepos%32768]-audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768)-audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 8:
-	  tmp16=buf16[samplepos%32768] | audio_buffer[samplepos%32768];
+	    tmp16=(buf16[samplepos%32768]-32768) | audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 9:
-	  tmp16=audio_buffer[samplepos%32768] & buf16[samplepos%32768];
+	    tmp16=audio_buffer[samplepos%32768] & (buf16[samplepos%32768]-32768);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 10:
-	    mono_buffer[x]=(adc_buffer[9]<<3)*audio_buffer[samplepos%32768];
+	    mono_buffer[x]=((adc_buffer[9]<<3)-32768)*audio_buffer[samplepos%32768];
 	  break;
 	  case 11:
 	    //	    tmp32=audio_buffer[samplepos%32768]+adc_buffer[9]<<3;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv + (float32_t)(adc_buffer[9]<<3) * FMODW;
+	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv + (float32_t)((adc_buffer[9]<<3)-32768) * FMODW;
  	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
 	    //	    tmp32=audio_buffer[samplepos%32768]*adc_buffer[9]<<3;
-	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)(adc_buffer[9]<<3) * FMODW;
+	    fsum=(float32_t)audio_buffer[samplepos%32768] * morph_inv * (float32_t)((adc_buffer[9]<<3)-32768) * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;

@@ -696,7 +696,7 @@ void main(void)
       }
 
 	u8 mainmode,groupstart,groupwrap;
-	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos;
+	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy;
 	u16 foldpos,settingsposl,datagenpos;
 
   while(1)
@@ -757,8 +757,8 @@ void main(void)
       EFFECTWRITE=adc_buffer[FOURTH]>>5; // 7 bits = 128 rest of effects as offsets///
       // do we need to average or reduce to 64?
       // top bit as wormcode
-      mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
-      //            mainmode=29; 
+            mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
+      //                  mainmode=26; 
       switch(mainmode){
       case 0:
 	settingspos+=fingerdirleftrighttx(10);
@@ -1091,33 +1091,38 @@ void main(void)
 
       case 26:
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy=foldposy%64;
 	foldpos+=fingerdirleftrighttx(16);
 	foldpos=foldpos%64;
 	for (x=0;x<(FOLDD[0]);x++){
-	  settingsarray[(foldpos+x)%64]=settingsarray[(foldpos+(FOLDD[1]>>10)+x)%64];
+	  settingsarray[(foldpos+x)%64]=settingsarray[(foldpos+foldposy+x)%64];
 	}
 	break;
 
       case 27:
 	FOLDD[0]=adc_buffer[SECOND]>>5; // howmuch-128
+	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy=foldposy%128;
 	foldpos+=fingerdirleftrighttx(16);
 	foldpos=foldpos%64;
 	for (x=0;x<(FOLDD[0]);x++){
-	  villager[(foldpos+x)%VILLAGE_SIZE]=villager[(foldpos+(FOLDD[1]>>9)+x)%VILLAGE_SIZE];
+	  villager[(foldpos+x)%VILLAGE_SIZE]=villager[(foldpos+foldposy+x)%VILLAGE_SIZE];
 	}
 	break;
-
-	/// HERE!
-
+	///
       case 28: // various stack and villager exchanges - 
 	// starts and ends only of stacks (not CPU) -> villagers
 	
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy=foldposy%64;
 	foldpos+=fingerdirleftrighttx(16); // 16 bits
 	foldpos=foldpos%128;
+
 	for (x=0;x<(FOLDD[0]);x++){ // 64 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point // 7 bits=128
-	  villagerdest=(((foldpos)>>1)+x+(FOLDD[1]>>10))%(VILLAGE_SIZE/2); // village entry
+	  villagerdest=(((foldpos)>>1)+x+foldposy)%(VILLAGE_SIZE/2); // village entry
 	  if (tmper<STACK_SIZE){
 	    // deal with stacker
 	    villager[villagerdest*2]=stacker[tmper*4];  
@@ -1136,12 +1141,14 @@ void main(void)
 	// other way round
 	
 	FOLDD[0]=adc_buffer[SECOND]>>5; // howmuch-128
+	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy=foldposy%64;
 	foldpos+=fingerdirleftrighttx(16); // 16 bits
 	foldpos=foldpos%128;
 
 	for (x=0;x<(FOLDD[0]);x++){ 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point // 7 bits=128
-	  villagerdest=(((foldpos)>>1)+x+(FOLDD[1]>>10))%(VILLAGE_SIZE/2); // village entry
+	  villagerdest=(((foldpos)>>1)+x+foldposy)%(VILLAGE_SIZE/2); // village entry
 
 	  if (tmper<STACK_SIZE){
 	    // deal with stacker

@@ -338,23 +338,27 @@ For Mater Lachrymarum IN is unused!
       //5-HW/LACH=effread
 
 
-* THU/FRI 
+* THU 19 JUNE
 
 - re-test all functions in sim
+- recheck audio.c step by step!
 
-- recheck/TEST audio.c
-
-- TODO!audio.c: + or - 32768 between buf16 and audio_buffer - BACKUP/TEST!
-
-- should we use UP/DOWN for foldd[1] in cases 26+
-- tweaks/re-test ALL
-
+////
+- tweaks/re-test ALL (speeds in particular)
 - IFDEFs last(hardware knob replaced with EFFECTREAD), also
   settings.h as IFDEFed for LACH!!!
 
+///FRI:
 - test LACH and SUSP (first with audio.c effects)
-
+- test with battery and PSU(find)
 - recordings/video/manual/website
+
+** DONE
+
+- TODO!audio.c: + or - 32768 between buf16 and audio_buffer - TESTED!
+(audio backed up to audio-backjune.c)
+
+- use UP/DOWN for foldd[1] in cases 26+ UNTESTED (but should be fine)
 
 * WED 18 JUNE
 
@@ -380,7 +384,7 @@ For Mater Lachrymarum IN is unused!
 - checking all FILES and remove stale TODO, clean:
   mainX,hardwareX,simX,CAX: fixes in sim
 - mismatch of bits in pushn in ca and simXfixed
-
+  
 * TUE 17 JUNE
 
 617.wav (hardset,noin),618/619/620/621 (hardset,no/somein),

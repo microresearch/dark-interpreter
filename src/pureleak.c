@@ -21,7 +21,7 @@ uint16_t adc_buffer[10];*/
 //#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
-extern u16 settingsarray[64];
+//extern u16 settingsarray[64];
 #endif
 
 #include <math.h>
@@ -896,7 +896,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peekkk(buffer,addr);
       //      printf("instr %d ",instr);
 
-      wormdir=(SAMPLEDIRR*2)%8;
+      wormdir=randi()%8;
       addr=((PCADDRHI<<8)+PCADDRLO);
       y=biotadir[wormdir];
       addr+=y;
