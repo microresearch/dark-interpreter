@@ -342,14 +342,13 @@ For Mater Lachrymarum IN is unused!
 
 - re-test all functions in sim
 - recheck audio.c step by step!
-
-////
-- tweaks/re-test ALL (speeds in particular)
 - IFDEFs last(hardware knob replaced with EFFECTREAD), also
   settings.h as IFDEFed for LACH!!!
 
 ///FRI:
+- tweaks/re-test ALL (speeds in particular)
 - test LACH and SUSP (first with audio.c effects)
+- test with other fingers
 - test with battery and PSU(find)
 - recordings/video/manual/website
 
