@@ -340,8 +340,6 @@ For Mater Lachrymarum IN is unused!
 
 * THU 19 JUNE
 
-- re-test all functions in sim
-
 - IFDEFs last(hardware knob replaced with EFFECTREAD), also
   settings.h as IFDEFed for LACH!!!
 
@@ -353,6 +351,8 @@ For Mater Lachrymarum IN is unused!
 - recordings/video/manual/website
 
 ** DONE
+
+- re-test all functions in sim: put vars and inits INTO functions
 
 - rechecking audio.c: removed if (wrapper==0) wrapper=1 (as WRAPs are
   always +1), fixed duplicate effects
