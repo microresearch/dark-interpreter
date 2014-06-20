@@ -19,6 +19,14 @@
 #define MAX_EXE_STACK 4
 #define VILLAGE_SIZE (STACK_SIZE*2) // 128
 
+#ifdef LACH
+#define SETSIZE 32
+#define SETSHIFT 11
+#else
+#define SETSIZE 64
+#define SETSHIFT 10
+#endif
+
 #ifdef PCSIM
 #include <string.h>
 #include <sys/time.h>
@@ -616,6 +624,38 @@ void main(void)
   }
 
   //****** setup code for walkers
+#ifdef LACH
+  for (x=0;x<6;x++){
+    settingsarray[x]=0;
+  }//start
+
+  for (x=6;x<12;x++){
+    settingsarray[x]=65535;
+  }//wrap
+
+  for (x=12;x<18;x++){
+    settingsarray[x]=511; //>>8
+  }//step
+
+  for (x=18;x<20;x++){
+    settingsarray[x]=511;
+  }//speed
+
+  EFFECTWRITE=0;
+  EFFECTREAD=0;
+
+  for (x=20;x<23;x++){
+    settingsarray[x]=32768;
+  }//fmods
+
+  for (x=23;x<25;x++){
+    settingsarray[x]=0; 
+  }//expand
+
+  for (x=25;x<31;x++){
+    settingsarray[x]=32768;//>>15 = 1
+  }//DIR and speed
+#else
   for (x=0;x<14;x++){
     settingsarray[x]=0;
   }//start
@@ -653,6 +693,8 @@ void main(void)
   for (x=54;x<64;x++){
     settingsarray[x]=32768;//>>15 = 1
   }//DIR
+#endif
+
 	 
   // CPUintrev3:
   for (x=0; x<100; x++) // was 100
@@ -699,8 +741,8 @@ void main(void)
       }
 
 	u8 mainmode,groupstart,groupwrap;
-	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy;
-	u16 foldpos,settingsposl,datagenpos;
+	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos;
+	u16 foldposl,settingsposl,datagenpos;
 
   while(1)
     {
@@ -734,13 +776,19 @@ void main(void)
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-	  //	  machine_count++;
-	  //	  if (machine_count>=MACHINESPEED){
+#ifdef LACH
+	  machine_count++;
+	  if (machine_count>=MACHINESPEED){
 	    machine_run(m); //cpu
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
-	    //	    machine_count=0;
-	    //	  }
+	    	    machine_count=0;
+	    	  }
+#else
+	    machine_run(m); //cpu
+	    m->m_leakiness=leakiness;
+	    m->m_infectprob=infection;
+#endif
 	  break;
 	case 3:
 	  //	  leak_count++;
@@ -765,7 +813,7 @@ void main(void)
       switch(mainmode){
       case 0:
 	settingspos+=fingerdirleftrighttx(10);
-	settingspos=settingspos%64;
+	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
 	if (xx==1){
 	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
@@ -843,6 +891,16 @@ void main(void)
 	break;
       case 7: // directions
 	dirpos+=fingerdirleftrighttx(24);
+#ifdef LACH
+	dirpos=dirpos%6;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarray[25+dirpos]=adc_buffer[SECOND]<<4; 
+	}
+	if (xx==0){
+	  settingsarray[25+dirpos]=adc_buffer[UP]<<4; 
+	}
+#else
 	dirpos=dirpos%10;
 	xx=fingerdirupdown();
 	if (xx==1){
@@ -851,6 +909,7 @@ void main(void)
 	if (xx==0){
 	  settingsarray[54+dirpos]=adc_buffer[UP]<<4; 
 	}
+#endif
 	break; 
       case 8: // foldback
 	foldposss+=fingerdirleftrighttx(16);
@@ -865,7 +924,7 @@ void main(void)
 	break; 
       case 9: // settingsarrayattached
 	attachpos+=fingerdirleftrighttx(16);
-	attachpos=attachpos%64;
+	attachpos=attachpos%SETSIZE;
 	xx=fingerdirupdown();
 	if (xx==1){
 	  settingsarrayattached[attachpos]=adc_buffer[SECOND]>>10; 
@@ -877,7 +936,11 @@ void main(void)
 	//// algo groups
       case 10:
 	settingsposl+=fingerdirleftrightt();
+#ifdef LACH
+	groupstartt=datagenbuffer[settingsposl]>>3;// 16 bits//7 bits
+#else
 	groupstartt=datagenbuffer[settingsposl]>>2;// 16 bits//6 bits
+#endif
 	xx=fingerdirupdown();
 	if (xx==1){
 	  settingsarray[groupstartt]=adc_buffer[SECOND]<<4;
@@ -913,10 +976,10 @@ void main(void)
 	wormpos+=setwalk[wormdir];
 	xx=fingerdirupdown();
 	if (xx==1){
-	  settingsarray[(wormstart+wormpos)%64]=adc_buffer[SECOND]<<4;
+	  settingsarray[(wormstart+wormpos)%SETSIZE]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
-	  settingsarray[(wormstart+wormpos)%64]=adc_buffer[UP]<<4;
+	  settingsarray[(wormstart+wormpos)%SETSIZE]=adc_buffer[UP]<<4;
 	}
 	break;
       case 14: // wormdir walker across settingsarray//villagers14//foldback15
@@ -948,41 +1011,50 @@ void main(void)
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
 	groupstart+=fingerdirleftrighttx(16);
-	groupstart=groupstart%64;
+	groupstart=groupstart%SETSIZE;
 	groupsel+=fingerdirupdownx(32); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
 	switch(groupsel){
 	case 0:
-	  settingsarray[(groupstart+x)%64]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
-	  settingsarrayattached[(groupstart+x)%64]=1;
+	  settingsarray[(groupstart+x)%SETSIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  settingsarrayattached[(groupstart+x)%SETSIZE]=1;
 	  coo++;
 	  break;
 	case 1:
-	  settingsarray[(groupstart+x)%64]=adc_buffer[DOWN]<<4;
-	  settingsarrayattached[(groupstart+x)%64]=2;
+	  settingsarray[(groupstart+x)%SETSIZE]=adc_buffer[DOWN]<<4;
+	  settingsarrayattached[(groupstart+x)%SETSIZE]=2;
 	  break;
 	case 2:
-	  settingsarray[(groupstart+x)%64]=adc_buffer[THIRD]<<4;
-	  settingsarrayattached[(groupstart+x)%64]=3;
+	  settingsarray[(groupstart+x)%SETSIZE]=adc_buffer[THIRD]<<4;
+	  settingsarrayattached[(groupstart+x)%SETSIZE]=3;
 	  break;
 	case 3: 
 	  // DEtach
-	  settingsarrayattached[(groupstart+x)%64]=0;
+	  settingsarrayattached[(groupstart+x)%SETSIZE]=0;
 	  break;
 	}
 	}
 	break;
 	///////////////////////////MIRRORS
 	case 17:      // mirror and swaps inc. new datagen dump:
-	FOLDD[0]=adc_buffer[SECOND]>>6; // how much=6 bits
-	foldpos+=fingerdirleftrightt(); // 16 bits
 
+#ifdef LACH
+	FOLDD[0]=adc_buffer[SECOND]>>7; // how much=5 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
 	for (x=0;x<(FOLDD[0]);x++){ //was >>9
-	  settingsarray[(((foldpos)>>10)+x)%64]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  settingsarray[(((foldposl)>>11)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
 	  coo++;
 	}
+#else
+	FOLDD[0]=adc_buffer[SECOND]>>6; // how much=6 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<(FOLDD[0]);x++){ //was >>9
+	  settingsarray[(((foldposl)>>10)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+#endif
 	// toggle flag with the finger
 	xx=fingerdirupdown();
 	if (xx==1) m1flag|=1; //sets
@@ -990,11 +1062,16 @@ void main(void)
 	break;
 
 	case 18:      // mirror and swaps inc. new datagen dump:
+#ifdef LACH
+	FOLDD[0]=adc_buffer[SECOND]>>7; // how much
+	foldpos+=fingerdirleftrighttx(16);
+#else
 	FOLDD[0]=adc_buffer[SECOND]>>6; // how much
 	foldpos+=fingerdirleftrighttx(16);
-
+#endif
+	foldpos=foldpos%SETSIZE;
 	for (x=0;x<(FOLDD[0]);x++){ //was >>9
-	  settingsarray[(foldpos+x)%64]=randi()<<4;
+	  settingsarray[(foldpos+x)%SETSIZE]=randi()<<4;
 	}
 	// toggle flag with the finger
 	xx=fingerdirupdown();
@@ -1004,10 +1081,9 @@ void main(void)
 
       case 19:
 	FOLDD[0]=adc_buffer[SECOND]>>5; // how much = 7 bits as 128
-	foldpos+=fingerdirleftrightt(); // 16 bits
-
+	foldposl+=fingerdirleftrightt(); // 16 bits
 	for (x=0;x<(FOLDD[0]);x++){
-	  villager[(((foldpos)>>9)+x)% VILLAGE_SIZE]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  villager[(((foldposl)>>9)+x)% VILLAGE_SIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
 	  coo++;
 	}
 	xx=fingerdirupdown();
@@ -1018,7 +1094,7 @@ void main(void)
       case 20:
 	FOLDD[0]=adc_buffer[SECOND]>>5; // how much
 	foldpos+=fingerdirleftrighttx(16);
-
+	foldpos=foldpos%128;
 	for (x=0;x<(FOLDD[0]);x++){
 	  villager[((foldpos>>9)+x)% VILLAGE_SIZE]=randi()<<4;
 	}
@@ -1029,10 +1105,9 @@ void main(void)
 
 	case 21:
 	  FOLDD[0]=adc_buffer[SECOND]>>4; // howmuch-8 bits
-	  foldpos+=fingerdirleftrightt(); // 16 bits
-
+	  foldposl+=fingerdirleftrightt(); // 16 bits
 	for (x=0;x<(FOLDD[0]);x++){ 
-	  stacker[(((foldpos)>>8)+x)%256]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  stacker[(((foldposl)>>8)+x)%256]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
 	  coo++;
 	}
 	xx=fingerdirupdown();
@@ -1042,10 +1117,10 @@ void main(void)
 
 	case 22:
 	  FOLDD[0]=adc_buffer[SECOND]>>4; // howmuch-8 bits
-	  foldpos+=fingerdirleftrightt(); // 16 bits
+	  foldposl+=fingerdirleftrightt(); // 16 bits
 
 	for (x=0;x<(FOLDD[0]);x++){ 
-	  stackery[(((foldpos)>>8)+x)%256]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  stackery[(((foldposl)>>8)+x)%256]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
 	  coo++;
 	}
 	xx=fingerdirupdown();
@@ -1055,10 +1130,10 @@ void main(void)
 
       case 23: // cpu
 	  FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
-	  foldpos+=fingerdirleftrightt(); // 16 bits
+	  foldposl+=fingerdirleftrightt(); // 16 bits
 
 	for (x=0;x<(FOLDD[0]);x++){ 
-	  m->m_threads[(((foldpos)>>10)+x)%64].m_CPU=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768]>>11; // 5 bits
+	  m->m_threads[(((foldposl)>>10)+x)%64].m_CPU=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768]>>11; // 5 bits
 	  coo++;
 	}
 	xx=fingerdirupdown();
@@ -1068,9 +1143,9 @@ void main(void)
 
       case 24: // fold onto fold
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
-	foldpos+=fingerdirleftrightt(); // 16 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
 	for (x=0;x<((FOLDD[0]>>1));x++){
-	  FOLDD[(((foldpos)>>10)+x)% FOLD_SIZE]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  FOLDD[(((foldposl)>>10)+x)% FOLD_SIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
 	  coo++;
 	}
 	xx=fingerdirupdown();
@@ -1080,10 +1155,10 @@ void main(void)
 	///////////////////////////////////////////////////////
       case 25: // into attachment
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
-	foldpos+=fingerdirleftrightt(); // 16 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
 
 	for (x=0;x<(FOLDD[0]);x++){ //was >>9
-	  settingsarrayattached[(((foldpos)>>10)+x)%64]=buf16[((foldpos>>1)+(coo%(FOLDD[0]+1)))%32768]>>14; // last 2 bits
+	  settingsarrayattached[(((foldposl)>>10)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768]>>14; // last 2 bits
 	}
 
 	///////////////////////////////////////////
@@ -1093,13 +1168,17 @@ void main(void)
 	// stacker/y<->villager and vice versa
 
       case 26:
+#ifdef LACH
+	FOLDD[0]=adc_buffer[SECOND]>>7; // howmuch-32
+#else
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+#endif
 	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
-	foldposy=foldposy%64;
+	foldposy=foldposy%SETSIZE;
 	foldpos+=fingerdirleftrighttx(16);
-	foldpos=foldpos%64;
+	foldpos=foldpos%SETSIZE;
 	for (x=0;x<(FOLDD[0]);x++){
-	  settingsarray[(foldpos+x)%64]=settingsarray[(foldpos+foldposy+x)%64];
+	  settingsarray[(foldpos+x)%SETSIZE]=settingsarray[(foldpos+foldposy+x)%SETSIZE];
 	}
 	break;
 
@@ -1171,12 +1250,21 @@ void main(void)
 	FOLDD[0]=adc_buffer[SECOND]>>2; // howmuch=10 bits
 	foldpos+=fingerdirleftrightt(); // 16 bits
 	for (x=0;x<FOLDD[0];x++){ // 10 bits
+#ifdef LACH
+	  tmper=((foldpos>>6)+x)%736; // full house//10 bits=1024
+	  if (tmper<32) buf16[(foldpos+x)%32768]=settingsarray[tmper];
+	  else if (tmper<288) buf16[(foldpos+x)%32768]=stacker[tmper-32];
+	  else if (tmper<544) buf16[(foldpos+x)%32768]=stackery[tmper-288];
+	  else if (tmper<608) buf16[(foldpos+x)%32768]=m->m_threads[tmper-544].m_CPU<<11;
+	    else buf16[(foldpos+x)%32768]=villager[tmper-608];
+#else
 	  tmper=((foldpos>>6)+x)%768; // full house//10 bits=1024
 	  if (tmper<64) buf16[(foldpos+x)%32768]=settingsarray[tmper];
 	  else if (tmper<320) buf16[(foldpos+x)%32768]=stacker[tmper-64];
 	  else if (tmper<576) buf16[(foldpos+x)%32768]=stackery[tmper-320];
 	  else if (tmper<640) buf16[(foldpos+x)%32768]=m->m_threads[tmper-576].m_CPU<<11;
 	    else buf16[(foldpos+x)%32768]=villager[tmper-640];
+#endif
 	}
 	break;
 	////////////////
@@ -1184,16 +1272,16 @@ void main(void)
 	///infection across buffer: knobs; speed,probability,buffer
 	//set according to probability
 	if ((adc_buffer[SECOND]>>5)==0){
-	  for (x=0;x<64;x++){
+	  for (x=0;x<SETSIZE;x++){
 	    if ((rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1; // infected
 	  else settingsarrayinfected[x]=0;
 	  }
 	  // run infection at speed eff[0] 
 
-	  for (x=0;x<64;x++){
+	  for (x=0;x<SETSIZE;x++){
 	    // infection - how many infected (not dead) round each one?
 	    if (++del==(adc_buffer[SECOND]>>5)){
-	      if (settingsarrayinfected[x]==0 && ((settingsarrayinfected[(x-1)%64]>=1 && settingsarrayinfected[x-1]<128) || (settingsarrayinfected[(x+1)%64]>=1 && settingsarrayinfected[x+1]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1;
+	      if (settingsarrayinfected[x]==0 && ((settingsarrayinfected[(x-1)%SETSIZE]>=1 && settingsarrayinfected[x-1]<128) || (settingsarrayinfected[(x+1)%SETSIZE]>=1 && settingsarrayinfected[x+1]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1;
 	    // inc
 	    if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128) settingsarrayinfected[x]++;
 	    }
@@ -1244,15 +1332,15 @@ void main(void)
       //// DEAL WITH toggled MIRRORING
 
       if (m1flag&1){ 
-	for (x=0;x<((FOLDD[0]>>10));x++){
-	  settingsarray[(((FOLDD[1])>>10)+(x%((FOLDD[2]>>10)+1)))%64]=buf16[((FOLDD[3]>>1)+(coo%((FOLDD[4]>>10)+1)))%32768];
+	for (x=0;x<((FOLDD[0]>>SETSHIFT));x++){
+	  settingsarray[(((FOLDD[1])>>SETSHIFT)+(x%((FOLDD[2]>>SETSHIFT)+1)))%SETSIZE]=buf16[((FOLDD[3]>>1)+(coo%((FOLDD[4]>>SETSHIFT)+1)))%32768];
 	  coo++;
 	}
       }
 
       if (m1flag&2){ 
-	for (x=0;x<((FOLDD[0]>>10));x++){
-	  settingsarray[(((FOLDD[5])>>10)+(x%((FOLDD[6]>>10)+1)))%64]=(randi()<<4);
+	for (x=0;x<((FOLDD[0]>>SETSHIFT));x++){
+	  settingsarray[(((FOLDD[5])>>SETSHIFT)+(x%((FOLDD[6]>>SETSHIFT)+1)))%SETSIZE]=(randi()<<4);
 	  coo++;
 	}
       }
@@ -1302,7 +1390,7 @@ void main(void)
 
       /// DEAL with settingsattach:
 
-      for (x=0;x<64;x++){
+      for (x=0;x<SETSIZE;x++){
 	switch(settingsarrayattached[x]){
 	case 1:
 	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];

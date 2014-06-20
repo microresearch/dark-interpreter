@@ -340,6 +340,7 @@ For Mater Lachrymarum IN is unused!
 
 * THU 19 JUNE
 
+- re-check hardware and 40106 voltage
 - settings.h as IFDEFed for LACH - double up and regroup
 - TODO: ifdef setup/init code and set EFFECTREAD there too
 

@@ -2,7 +2,50 @@
 
 #ifdef LACH
 
+#define SAMPLESTART ((settingsarray[0])>>1) 
+#define SAMPLESTARTREAD ((settingsarray[1])>>1) 
+#define ANYSTART ((settingsarray[2])>>1) 
+#define ANYSTARTREAD ((settingsarray[3])>>1) 
+#define VILLAGEWSTART (settingsarray[4]>>10) //64 *2
+#define VILLAGERSTART (settingsarray[5]>>10)
+
+#define SAMPLEWRAP ((settingsarray[6]>>1)+1)
+#define SAMPLEWRAPREAD ((settingsarray[7]>>1)+1)
+#define ANYWRAPREAD ((settingsarray[8]>>1)+1)
+#define ANYWRAP ((settingsarray[9]>>1)+1)
+
+#define VILLAGEWWRAP ((settingsarray[10]>>9)+1) // 7 BITs=128
+#define VILLAGERWRAP ((settingsarray[11]>>9)+1) 
+
+#define SAMPLESTEP (settingsarray[12]>>8)
+#define SAMPLESTEPREAD (settingsarray[13]>>8)
+
+#define ANYSTEP (settingsarray[14]>>8)
+#define ANYSTEPREAD (settingsarray[15]>>8)
+#define VILLAGEWSTEP (settingsarray[16]>>8)
+#define VILLAGERSTEP (settingsarray[17]>>8)
+
+#define SAMPLESPEED (settingsarray[18]>>8)
+#define SAMPLESPEEDREAD (settingsarray[19]>>8)
+
+#define FMOD ((float32_t)settingsarray[20]/65536.0f)
+#define FMODF ((float32_t)settingsarray[21]/65536.0f)
+#define FMODW ((float32_t)settingsarray[22]/65536.0f)// LEAVE ALL IN FOR LACH
+
+#define SAMPLEEXPAND (settingsarray[23]>>1) 
+#define SAMPLEREXPAND (settingsarray[24]>>1)
+
+/////
+#define DATADIRR (settingsarray[25]>>15)
+#define DATADIRW (settingsarray[26]>>15)
+#define SAMPLEDIRR (settingsarray[27]>>15)
+#define SAMPLEDIRW (settingsarray[28]>>15)
+#define VILLAGEWDIR (settingsarray[29]>>15)
+#define VILLAGERDIR (settingsarray[30]>>15)
+#define MACHINESPEED (settingsarray[31]>>8)
+
 #else
+
 #define HWSTART ((settingsarray[0])>>1) //-LACH_TODO
 #define SAMPLESTART ((settingsarray[1])>>1) 
 #define SAMPLESTARTREAD ((settingsarray[2])>>1) 
@@ -83,4 +126,5 @@
 #define VILLAGEWDIR (settingsarray[61]>>15)
 #define VILLAGERDIR (settingsarray[62]>>15)
 #define VILLAGEFDIR (settingsarray[63]>>15)//-LACH_TODO
+
 #endif
