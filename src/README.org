@@ -210,7 +210,9 @@ outside, and in open daylight.
 * TO REMEMBER/TODO
 
 - always set define for board (TENE, LACH _or_ SUSP) in MAKEFILE and make clean first!!!
+
 - caps across potis for top-board
+
 - make clean after changes to settingsarray or MAKEFILE!
 
 * MANUAL IN PROGRESS
@@ -338,18 +340,26 @@ For Mater Lachrymarum IN is unused!
       //5-HW/LACH=effread
 
 
-* THU 19 JUNE
+* FRI 20 JUNE
 
-- re-check hardware and 40106 voltage
-- settings.h as IFDEFed for LACH - double up and regroup
-- TODO: ifdef setup/init code and set EFFECTREAD there too
-
-///FRI:
+TODO:
+- test with 9v 200mA PSU-to get!
+- FORMANT does not work with floats (only in test.c with doubles)REDO!
 - tweaks/re-test ALL (speeds in particular)
-- test LACH and SUSP (first with audio.c effects)
 - test with other fingers
-- test with battery and PSU(find)
 - recordings/video/manual/website
+
+////
+
+- test SUSP (first with audio.c effects) - re-check hardware and 40106 voltage
+
+** DONE
+
+- test LACH-okay! 
+- settings.h as IFDEFed for LACH - double up and regroup
+- ifdef setup/init code and set EFFECTREAD there too
+
+* THU 19 JUNE
 
 ** DONE
 
