@@ -837,16 +837,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*FMOD)+((float)audio_buffer[samplepos%32768]*FMODF)+((float)audio_buffer[(samplepos+1)%32768]*FMODW);
 	    break;
 	  case 14:
-	    w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) (buf16[2]-32768)/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
 	    break;
 	  case 15:
-	    w0=(float32_t) audio_buffer[0]/65536.0f;w1=(float32_t)audio_buffer[1]/65536.0f;w2=(float32_t)audio_buffer[2]/65536.0f;
+	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
-	    mono_buffer[x]=((float)buf16[tmpp]*w0)+((float)buf16[samplepos%32768]*w1)+((float)buf16[(samplepos+1)%32768]*w2);
+	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
 	    break;
 	  }
 
@@ -1008,7 +1008,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=tmp32;
 	  break;
  	  case 15:
-	    w0=(float32_t) buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) buf16[2]/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
@@ -1147,16 +1147,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=tmp32;
 	  break;
 	  case 14:
-	    w0=(float32_t)buf16[0]/65536.0f;w1=(float32_t) buf16[1]/65536.0f;w2=(float32_t) buf16[2]/65536.0f;
+	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) (buf16[2]-32768)/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
 	    break;
 	  case 15:
-	    w0=(float32_t) audio_buffer[0]/65536.0f;w1=(float32_t)audio_buffer[1]/65536.0f;w2=(float32_t)audio_buffer[2]/65536.0f;
+	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
-	    mono_buffer[x]=((float)buf16[tmpp]*w0)+((float)buf16[samplepos%32768]*w1)+((float)buf16[(samplepos+1)%32768]*w2);
+	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
 	    break;
 	  }
  
