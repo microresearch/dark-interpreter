@@ -24,7 +24,7 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 
 CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
-	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DSUSP \
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
 	-mthumb \
 	-c -lm -lc -fno-common -O2 \
 	-mcpu=cortex-m4 \

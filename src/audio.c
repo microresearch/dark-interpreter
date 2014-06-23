@@ -71,8 +71,6 @@ extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
 
-extern u8 www[3],freqyy[3]; // where to INIT?
-
 const float32_t coef[5][11]= {
 { 8.11044e-06,
 8.943665402, -36.83889529, 92.01697887, -154.337906, 181.6233289,
@@ -1082,6 +1080,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  else tmpp=(EFFECTWRITE&63)>>2;
 	  //	     printf("%d\n",samplepos);
+	  //	  tmpp=15;
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=audio_buffer[samplepos%32768];
@@ -1146,6 +1145,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
+	  case 13:
+	    tmpp=samplepos-1;
+	    tmpp=tmpp%32768;
+	    mono_buffer[x]=((float)audio_buffer[tmpp]*FMOD)+((float)audio_buffer[samplepos%32768]*FMODF)+((float)audio_buffer[(samplepos+1)%32768]*FMODW);
+	    break;
 	  case 14:
 	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) (buf16[2]-32768)/32768.0f;
 	    tmpp=samplepos-1;

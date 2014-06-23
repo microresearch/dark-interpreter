@@ -135,8 +135,6 @@ signed char direction[2]={-1,1};
 u8 setwalk[8]={239,240,1,17,16,15,254,238}; 
 
 u16 villagestackpos=0;
-u8 www[3]={10,10,0};
-u8 freqyy[3]={12,15,0};
 
 #define delay()						 do {	\
     register unsigned int ix;					\
@@ -398,8 +396,6 @@ signed char fingerdirupdownx(signed char vall){
   return tmp;
 }
 
-
-
 float32_t fingerdirleftrighttf(void){ 
 
   u8 handleft, handright, left=0,right=0;
@@ -517,7 +513,7 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 coo,x,addr,tmp=0,tmphardware=0;u8 HARDWARE=0;
-  u8 del=0,machine_count=0,leak_count=0,villagepos=0,settingspos=0,m1flag=0,villagerdest,cpur; 
+  u8 del=0,machine_count=0,tmpacht=0,villagepos=0,settingspos=0,m1flag=0,villagerdest,cpur; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper;
 
@@ -693,11 +689,10 @@ void main(void)
   for (x=54;x<64;x++){
     settingsarray[x]=32768;//>>15 = 1
   }//DIR
-#endif
+#endif //lACH
 
-	 
   // CPUintrev3:
-  for (x=0; x<100; x++) // was 100
+  for (x=0; x<64; x++) // was 100
     {
       addr=randi()<<3;
       cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%CPU_TOTAL,randi()%24);
@@ -744,6 +739,9 @@ void main(void)
 	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos;
 	u16 foldposl,settingsposl,datagenpos;
 
+	    m->m_leakiness=leakiness;
+	    m->m_infectprob=infection;
+
   while(1)
     {
 
@@ -780,22 +778,14 @@ void main(void)
 	  machine_count++;
 	  if (machine_count>=MACHINESPEED){
 	    machine_run(m); //cpu
-	    m->m_leakiness=leakiness;
-	    m->m_infectprob=infection;
 	    	    machine_count=0;
 	    	  }
 #else
 	    machine_run(m); //cpu
-	    m->m_leakiness=leakiness;
-	    m->m_infectprob=infection;
 #endif
 	  break;
 	case 3:
-	  //	  leak_count++;
-	  //	  if (leak_count>=LEAKSPEED){
 	    machine_runnn(datagenbuffer); // pureleak
-	    //	    leak_count=0;
-	    //	  }
 	  break;
 	}
       }
@@ -803,7 +793,6 @@ void main(void)
       /////////////////////////////////////
 	      
       //MODECODE      /////////////////////////////////////
-
 
       EFFECTWRITE=adc_buffer[FOURTH]>>5; // 7 bits = 128 rest of effects as offsets///
       // do we need to average or reduce to 64?
@@ -937,7 +926,7 @@ void main(void)
       case 10:
 	settingsposl+=fingerdirleftrightt();
 #ifdef LACH
-	groupstartt=datagenbuffer[settingsposl]>>3;// 16 bits//7 bits
+	groupstartt=datagenbuffer[settingsposl]>>3;// 16 bits//5 bits
 #else
 	groupstartt=datagenbuffer[settingsposl]>>2;// 16 bits//6 bits
 #endif
@@ -1127,7 +1116,7 @@ void main(void)
 	if (xx==1) m1flag|=32; //sets
 	else if (xx==0) m1flag&=~32; 
 	break;
-
+	//////
       case 23: // cpu
 	  FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
 	  foldposl+=fingerdirleftrightt(); // 16 bits
@@ -1157,7 +1146,7 @@ void main(void)
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
 	foldposl+=fingerdirleftrightt(); // 16 bits
 
-	for (x=0;x<(FOLDD[0]);x++){ //was >>9
+	for (x=0;x<(FOLDD[0]);x++){
 	  settingsarrayattached[(((foldposl)>>10)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768]>>14; // last 2 bits
 	}
 
@@ -1173,7 +1162,7 @@ void main(void)
 #else
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
 #endif
-	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy+=fingerdirupdownx(16); 
 	foldposy=foldposy%SETSIZE;
 	foldpos+=fingerdirleftrighttx(16);
 	foldpos=foldpos%SETSIZE;
@@ -1184,7 +1173,7 @@ void main(void)
 
       case 27:
 	FOLDD[0]=adc_buffer[SECOND]>>5; // howmuch-128
-	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy+=fingerdirupdownx(16);
 	foldposy=foldposy%128;
 	foldpos+=fingerdirleftrighttx(16);
 	foldpos=foldpos%64;
@@ -1197,11 +1186,11 @@ void main(void)
 	// starts and ends only of stacks (not CPU) -> villagers
 	
 	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
-	foldposy+=fingerdirupdownx(16); // TODO-redo as leftrighttx
+	foldposy+=fingerdirupdownx(16);
 	foldposy=foldposy%64;
-	foldpos+=fingerdirleftrighttx(16); // 16 bits
+	foldpos+=fingerdirleftrighttx(16);
 	foldpos=foldpos%128;
-
+	///////
 	for (x=0;x<(FOLDD[0]);x++){ // 64 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point // 7 bits=128
 	  villagerdest=(((foldpos)>>1)+x+foldposy)%(VILLAGE_SIZE/2); // village entry
@@ -1275,15 +1264,18 @@ void main(void)
 	  for (x=0;x<SETSIZE;x++){
 	    if ((rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1; // infected
 	  else settingsarrayinfected[x]=0;
-	  }
+	  } // reset!
+
 	  // run infection at speed eff[0] 
 
 	  for (x=0;x<SETSIZE;x++){
 	    // infection - how many infected (not dead) round each one?
 	    if (++del==(adc_buffer[SECOND]>>5)){
-	      if (settingsarrayinfected[x]==0 && ((settingsarrayinfected[(x-1)%SETSIZE]>=1 && settingsarrayinfected[x-1]<128) || (settingsarrayinfected[(x+1)%SETSIZE]>=1 && settingsarrayinfected[x+1]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1;
+	      tmpacht=(x-1)%SETSIZE;
+		if (settingsarrayinfected[x]==0 && ((settingsarrayinfected[tmpacht]>=1 && settingsarrayinfected[tmpacht]<128) || (settingsarrayinfected[(x+1)%SETSIZE]>=1 && settingsarrayinfected[(x+1)%SETSIZE]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x]=1;
 	    // inc
 	    if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128) settingsarrayinfected[x]++;
+	    del=0;
 	    }
 
 	  // overmap onto buffer eff[0]: 0=stay same/infect=reduce by days/dead=128=zero
@@ -1346,14 +1338,14 @@ void main(void)
       }
 
       if (m1flag&4){ 
-	for (x=0;x<((FOLDD[0]>>10));x++){
-	  villager[(((FOLDD[7])>>9)+(x%((FOLDD[8]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[9]>>1)+(coo%((FOLDD[10]>>10)+1)))%32768];
+	for (x=0;x<((FOLDD[0]>>9));x++){
+	  villager[(((FOLDD[7])>>9)+(x%((FOLDD[8]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[9]>>1)+(coo%((FOLDD[10]>>9)+1)))%32768];
 	  coo++;
 	}
       }
 
       if (m1flag&8){ 
-	for (x=0;x<((FOLDD[0]>>10));x++){
+	for (x=0;x<((FOLDD[0]>>9));x++){
 	  villager[(((FOLDD[11])>>9)+(x%((FOLDD[12]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
 	  coo++;
 	}
@@ -1382,8 +1374,8 @@ void main(void)
       }
 
       if (m1flag&128){ 
-	for (x=0;x<((FOLDD[0]>>10));x++){
-	  FOLDD[(((FOLDD[24])>>10)+(x%((FOLDD[25]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[26]>>1)+(coo%((FOLDD[27]>>10)+1)))%32768];
+	for (x=0;x<((FOLDD[0]>>11));x++){
+	  FOLDD[(((FOLDD[24])>>11)+(x%((FOLDD[25]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[26]>>1)+(coo%((FOLDD[27]>>11)+1)))%32768];
 	  	  coo++;
 	}
       }

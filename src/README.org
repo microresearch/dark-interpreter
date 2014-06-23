@@ -232,37 +232,41 @@ it _is_ (inside) the body.
 The Dark Interpreter is thus _not_ to be controlled. It is an obsidian
 electronic mirror, the earth and skin itself.
 
-the 3 boards and how they differ and can be used
+The preliminary working of The Dark Interpreter (reflecting the state
+of the improviser) should be considered as part of the creation of a
+unique, skin-sensitive instrument. The border between this first stage
+and the improvisation and playing of the instrument is diffuse, the
+mirror surface (obsidian) is ill-defined. The Dark Interpreter leads a
+path for skin, fingers, earth and head. 
 
-differences between the three synths
+To define the uses and potential paths of The Dark Interpreter we
+refer to the five knobs/potentiometers and the finger-board, the gold
+set of contacts which in the case of Tenebrarum is seperate from the
+two pronged fangs (for head and earth use).
 
-++++ further notes
-
-The preliminary working of The Dark Interpreter (a dark mirror of the
-reader, somehow reflecting the state of the improviser) should be
-considered as part of the creation of a unique, skin-sensitive
-instrument. The border between this first stage and the improvisation
-and playing of the instrument is diffuse, the mirror surface
-(obsidian) is ill defined.
+** The three synths and how they differ and can be used:
 
 *** Mater Lachrymarum 
 
 No analogue processing hardware so all settings which relate to
-hardware are redundant. The xxxxx knob, for hardware routing and
-setting, is now repurposed as . Finger/skin controls are as on the
-Mater Suspiriorum.
+hardware are redundant. The fifth knob, which in other synths is tied
+to hardware routing and settings, is now repurposed as recording
+effects. Finger/skin controls are as on the Mater Suspiriorum.
 
 *** Mater Suspiriorum and Mater Tenebrarum
 
 These both share the same analogue processing hardware. Mater
 Tenebrarum adds a new head, earth, skin and finger board which breaks
-out for flesh world most of the important digital and analogue signal
-paths and settings. This last synth also adds the crude
-EEG/micro-voltage fanged amplifier. All knob controls are the same for
-both synths, although the layout is different. Finger controls are
-also arranged differently.
+out for the flesh world most of the important digital and analogue
+signal paths and settings, allowing for the unhanging of settings from
+digital dependence and re-placement on the skin. 
 
-** knobs from top down and left to right (diagram for each)
+The Tenebrarum also adds the crude EEG/micro-voltage fanged amplifier
+for head and earth. All knob controls are the same for both synths,
+although the layout is different. Finger controls are also arranged
+differently.
+
+** The knobs from top down and left to right (diagram for each)
 
 for TENE is:
 
@@ -281,38 +285,7 @@ for LACH/SUSP is:
 	 4
 2	 5
 
-//REWRITE___
-
-1-The first knob strictly controls the hardware operations and signal
-routing, including opening up of routes, and settings to the skin (we
-call this unhanging of hardware options). Here we can set the signal
-path through analogue filters, digital filters and various
-distortions. We also control feedback of input to output and use of
-one finger pad as an input for other electrical impulses.
-
-2-The second knob controls audio effects acting on the incoming audio,
-the output audio signal and the digital filter (when selected). Thi8s
-knob sets the effect parameters (type of effect, use of data buffer or
-audio, village/grain orientation). Effects can also be placed under
-the control of plague generation (see foldback/mirror below). The effect
-parameters are applied to one of the three signals (in, out, filter)
-according to the setting of the third knob and the directional finger
-pads (see fingerpads below).
-
-3-The third knob is a modifier which sets the behaviour of the four
-finger pads in setting and unsetting various control parameters such
-as effects:
-
-effects
-push and pop on the black stack of operations
-directions of villagers
-speed
-constraint
-foldback settings. about foldback/mirror
-
-//REDO4 and 5. 4 selects what parameter to set and 5 what the setting is
-
-** fingerpoints (2 diagrams)
+** The fingerpoints or finger-board (2 diagrams)
 
 *** Mater Lachrymarum and Mater Suspiriorum
 
@@ -329,32 +302,103 @@ For Mater Lachrymarum IN is unused!
 
 [diagram]
 
+** The knobs and their functions
 
-** notes
+//REWRITING_>
 
-      //KNOBS:
-      //1-mainmode
-      //2-settings//also mirror param
-      //3-setsettingknob (but only set in one mode?)
-      //4-effwrite+offsets
-      //5-HW/LACH=effread
+1- These first three knobs are the same in all synths (placement only
+differing). This first knob selects one of 32 modes, divided into
+basic modes and mirror settings, which effect how The Dark Interpreter
+develops and is played/reflected. The modes are roughly as
+follows. Each mode effects the beviour of the finger-board and the
+second and third knobs. All modes allow for entry into the core plague
+code (fingers in the code), audio settings, villager parameters and
+mirror settings. Behaviour is different for each set of modes (see
+below).
 
+Basic modes:
 
-* FRI 20 JUNE
+Basic modes allow for setting of specific audio, code, villager or
+mirror settings primarily using the second knob (see below) and the
+finger-board for setting and navigation/selection of
+settings. Code/data can also be used to select settings under various
+modes. 
+
+Mirror modes:
+
+Mirror modes allow for the attachment and recursive folding back of
+code onto its own settings.
+
+up=unset
+down=set
+
+2- This knob controls specific settings within the first 16 basic
+modes (only when we have a finger on the DOWN pad of the
+finger-board). In the case of the later 16 mirror modes, this knob
+controls the extent of mirroring and in the last case (31) key plague
+or infection-mirror parameters.
+
+3- This third knob is only used when certain parameters are attached
+to it by way of some of the mirror modes. Attachments can also be made
+to code and finger-down pad.
+
+4-The fourth knob controls audio effects acting on the output audio
+signal. This knob sets the effect parameters (type of effect, use of
+data buffer or audio, village/grain orientation and gathering). 
+
+In the case of Suspiriorum and Tenebrarum the effect parameters are
+applied to one of the three signals (in, out, and filter feedback) by
+way of an offset from this main control (this offset can be set and
+influenced by the mode setting).
+
+In the case of Lachrymarum (no analogue hardware), this knob controls
+the output audio effects _only_.
+
+5-The last knob strictly controls the hardware operations and signal
+routing, including opening up of routes, and settings to the skin (we
+call this unhanging of hardware options). Here we can set the signal
+path through analogue filters, digital filters and various
+distortions. We also control feedback of input to output and use of
+one finger pad as an input for other electrical impulses.
+
+In the case of Lachrymarum (no analogue hardware), this last knob
+controls incoming audio effect parameters (as above).
+
+** The hardware
+
+** The Background
+      
+* MON 23 JUNE
+
+638.wav(SUSP-no hardsett),642/641/639(SUSP,hard),644(TENE,nohard),645(TENE><HARD)`
+
+QUESTIONS: 
+
+- if attachment should include randi()?
 
 TODO:
-- test with 9v 200mA PSU
-- tweaks/re-test last effect+ALL (speeds in particular)
+
+- test with 9v 200mA PSU(TUE)
 - test with other fingers
 - recordings/video/manual/website
 
-////
+** DONE:
 
-- test SUSP (first with audio.c effects) - re-check hardware and 40106 voltage
-- FORMANT does not work with floats (only in test.c with doubles)-replaced!
+- RECHECK MAIN.C: fixeda few bits,
+- re-check hardware and 40106 voltage
+- check last effects replacement DONE
+
+* FRI 20 JUNE
+
+
+note: resonator in nsynth.c - after 	setabc(frame->F1hz, frame->B1hz, &r1c);
+
+
 
 ** DONE
 
+- test SUSP (first with audio.c effects) 
+- FORMANT does not work with floats (only in test.c with doubles)-replaced!
 - test LACH-okay! 
 - settings.h as IFDEFed for LACH - double up and regroup
 - ifdef setup/init code and set EFFECTREAD there too
