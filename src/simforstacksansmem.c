@@ -76,7 +76,7 @@ u16 runnone(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
 
 // formantz
 
-const u16 SAMPLE_FREQUENCY = 48000;
+const u16 SAMPLE_FREQUENCY = 32000;
 const float32_t Pi = 3.1415926535f;
 const float32_t PI_2 = 6.28318531f;
 

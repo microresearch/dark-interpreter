@@ -53,7 +53,7 @@ C-PB9=Z
 void reset_switches(void);
 void reset_clocks(void);
 
-void dohardwareswitch(uint16_t modder, u8 hdgen){
+void dohardwareswitch(u8 modder, u8 hdgen){
   u8 res,res2;
   static uint8_t hangflag=0, clockhangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
@@ -61,8 +61,14 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
   //PC8 is feedback switch
 
-  res= modder>>5; // top 2 bits
-  res2=modder&31; // //
+
+  //  modder=128; //TESTY!!!
+  //  res= modder>>5; // top 2 bits
+  //  res2=modder&31; // //
+
+  // try res as bottom
+  res= modder&3;
+  res2=modder>>2;
 
   if ((res2>16 || res2<9) && hangflag==1){ // new hangers=9->16
     hangflag=0;
@@ -79,17 +85,15 @@ void dohardwareswitch(uint16_t modder, u8 hdgen){
       res2=0;
 #endif
 
-  //  res=2;
   /*
 RES: feedback on/off - jackin-> - lm358in->
-
 0-feedoff jackin xx
 1-feedoff xx     lmin
 2-feedon 
 3-feedon xx     lmin ??? makes no sense - NOW replaced with clock unhang
-
   */
 
+      //      res=2; // tetsy!!
   switch(res){
  case 0:
    GPIOB->BSRRH = (1<<7); //JACK
@@ -127,6 +131,7 @@ RES: feedback on/off - jackin-> - lm358in->
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
   //  res2=30; //test for digfilterflag//TESTY!
+  //  res2=0;  //TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(res2){
   case 0:

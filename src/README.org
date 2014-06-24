@@ -368,19 +368,37 @@ controls incoming audio effect parameters (as above).
 
 ** The Background
       
-* MON 23 JUNE
 
-638.wav(SUSP-no hardsett),642/641/639(SUSP,hard),644(TENE,nohard),645(TENE><HARD)`
+* TUE 24 JUNE
+
+655,650,648, 647 (hard, srcin), 649 (noard,srcin), 651(hard,vocal),656/654(nohard,voin)
 
 QUESTIONS: 
 
-- if attachment should include randi()?
+- if attachment should include randi() (how?)
+- are effects too jittery ? possibly - both effects and hardware too crowded somehow
+- RE-ORDERED hardware so input options are lowest - but somehow nice
+  as seperate flag for input options (but where to set?)
+- mode finger speeds
+- re-test datagens AGAIN!!!
 
 TODO:
 
-- test with 9v 200mA PSU(TUE)
-- test with other fingers
-- recordings/video/manual/website
+- test with 9v 200mA PSU(WED)
+- recordings/video/manual-in progress/website
+
+** DONE
+
+//- sample rates: 8000, 32000, 44100 in main.c   Codec_Init(32000); // was 48000 (+sim)
+- set to 32000/32K!
+
+- test with other fingersDONE-fine!
+
+
+
+* MON 23 JUNE
+
+638.wav(SUSP-no hardsett),642/641/639(SUSP,hard),644(TENE,nohard),645(TENE><HARD)`
 
 ** DONE:
 

@@ -215,7 +215,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2]%16;
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(EFFECTREAD&60)>>2;
 	  //	  tmpp=0; // TESTY!
 
 	  switch(tmpp){ 
@@ -390,7 +390,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(EFFECTREAD&60)>>2;
 	  //	  VILLAGEREAD=0;  // TESTY!
 	  //	  tmpp=0;  // TESTY!
 	  switch(tmpp){ 
@@ -587,12 +587,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	else  // READIN NO DIG FILTER
 	  {
 	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
+	    EFFECTREAD=0;
 	    VILLAGEREAD=EFFECTREAD&3;
+	    
 	    for (x=0;x<sz/2;x++){
  	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTREAD&63)>>2;
+	  else tmpp=(EFFECTREAD&60)>>2;
 	  //	  tmpp=15;
 	  switch(tmpp){
 	  case 0:
@@ -764,7 +766,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(EFFECTWRITE&60)>>2;
 	  //	  tmpp=0; // TESTY!
 	  switch(tmpp){ 
 	  case 0:
@@ -913,7 +915,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(EFFECTWRITE&60)>>2;
 
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
 	  switch(tmpp){ 
@@ -1070,15 +1072,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 		else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
-	  VILLAGEWRITE=EFFECTWRITE&3;
+	    ///	    	    VILLAGEWRITE=EFFECTWRITE&3;
+	    VILLAGEWRITE=(EFFECTWRITE>>1)&3; // 3 bits leave top TESTY!
+	    //	    VILLAGEWRITE=2;
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
-
+	  
 	  for (x=0;x<sz/2;x++){
 
 	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&63)>>2;
+	  else tmpp=(EFFECTWRITE&60)>>2;
+	  tmpp=0; // TESTY!
 	  //	     printf("%d\n",samplepos);
 	  //	  tmpp=15;
 	  switch(tmpp){ 
@@ -1240,7 +1245,7 @@ if (digfilterflag&1){
  	  if (VILLAGEFILT==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTFILT&63)>>2;
+	  else tmpp=(EFFECTFILT&60)>>2;
 
  	  switch(tmpp){ 
 	  case 0:

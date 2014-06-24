@@ -544,7 +544,7 @@ void main(void)
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000); // was 48000
+  Codec_Init(32000); // was 48000
   delay();
 
 #ifndef LACH
@@ -797,7 +797,7 @@ void main(void)
       EFFECTWRITE=adc_buffer[FOURTH]>>5; // 7 bits = 128 rest of effects as offsets///
       // do we need to average or reduce to 64?
       // top bit as wormcode
-            mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
+      mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
       //                  mainmode=26; 
       switch(mainmode){
       case 0:
@@ -1384,6 +1384,8 @@ void main(void)
 
       for (x=0;x<SETSIZE;x++){
 	switch(settingsarrayattached[x]){
+	case 0:
+	  break;
 	case 1:
 	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
 	  break;
