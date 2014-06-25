@@ -373,24 +373,29 @@ controls incoming audio effect parameters (as above).
 
 * WED 25 JUNE
 
+667/666(notsohard),665,664(hard),663(hardbass),662(hard),661*(vocalnohard),
+660(vocalnohard-eeg),659(feedback),657(time,nohard),658(time,hard)
+
 TODO:
 
+- recordings/video/manual-in progress/website
+
+** DONE:
+
+
+- whether mode 1 (TENE) should be attach or not? NOT!
+- mode finger speeds to tweak (as whole)?
+- switched mirror and settingsarray code so mirror stays longer
+- also extend wormdir across all walkers TODO after TEST!
 - hole in attach for mode1 DONE-TEST!
 - extra first mode for inputs (on fingers)/taken out of hardware knob-NO LACH-DONE-TEST!
-
 - where to set wormdir: TODO:new wormdir array,,, >> for effectsDONE
-  (also extend wormdir across all walkers after TEST!)
 
 for mode 7: up=set wormflag for dir ser by knob 2/right=unsetworm/right/left=so//down=dirbyfinger
 
 - if attachment should include randi() (how it could?) - in case of
-  TENE instead of attach finger is eeg/randiDONE
+  TENE instead of attach finger is eeg/randiDONE-TEST!
 
-/////
-
-- mode finger speeds to tweak!
-
-- recordings/video/manual-in progress/website
 
 * TUE 24 JUNE
 

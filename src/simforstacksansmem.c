@@ -38,18 +38,17 @@ Based in part on SLUGens by Nicholas Collins.
 #define randi() (rand()%4096)
 #define float32_t float
 
-/*
+
 extern u16 sin_data[256];
 extern u16 *stacker;//[256]; // 16*3 MAX
 extern uint16_t adc_buffer[10];
 extern int16_t* audio_buffer;
-*/
- 
+/* 
 u16 sin_data[256];
 u16 stacker[256]; 
 uint16_t adc_buffer[10];
 int16_t* audio_buffer;
-
+*/
 #else
 #include "simulation.h"
 #include <malloc.h>
@@ -182,7 +181,8 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
 */
 
 #ifdef PCSIM
-signed char direction[2]={-1,1};
+//signed char direction[2]={-1,1};
+extern signed char direction[2];
 #else
 extern signed char direction[2];
 #endif
@@ -924,7 +924,6 @@ return count;
   Point p1,p2;
 
 void ifsinit(u16 *workingbuffer){
-  u8 i,iter;
   
   p1.x=0.1f;
   p1.y=0.1f;         
@@ -1174,7 +1173,7 @@ return count;
 
 u16 runspruce(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
 
-  float32_t k1,k2,alpha,betaa,muuu,rho,delta,epsilonn,qq,qu,muu;
+  float32_t k1,k2,alpha,betaa,muuu,rho,delta;
   float32_t dx, dy; 
   u8 i;
   static float32_t x= 0.9f; 
@@ -1490,7 +1489,7 @@ void tester(u8 SAMPLEDIRR){
 }
 
 
-void main(int argc, char **argv)
+/*void main(int argc, char **argv)
 {
   int x; 
   u16 howmuch,i;
@@ -1547,6 +1546,6 @@ void main(int argc, char **argv)
 	   //		   printf("%c",buf16[x%32768]>>8);
 			   //		   x++;
 		   	   	 }
-	 }
+				 }*/
 #endif
 

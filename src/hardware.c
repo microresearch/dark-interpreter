@@ -88,7 +88,6 @@ RES: feedback on/off - jackin-> - lm358in->
 
   switch(inp){
  case 0:
-  default:
    GPIOB->BSRRH = (1<<7); //JACK
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
