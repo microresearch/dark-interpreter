@@ -53,36 +53,29 @@ C-PB9=Z
 void reset_switches(void);
 void reset_clocks(void);
 
+extern u8 inp;
+
 void dohardwareswitch(u8 modder, u8 hdgen){
-  u8 res,res2;
+  u8 res2;
   static uint8_t hangflag=0, clockhangflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
   //PC8 is feedback switch
 
-
-  //  modder=128; //TESTY!!!
-  //  res= modder>>5; // top 2 bits
-  //  res2=modder&31; // //
-
-  // try res as bottom
-  res= modder&3;
-  res2=modder>>2;
-
-  if ((res2>16 || res2<9) && hangflag==1){ // new hangers=9->16
+  if ((modder>16 || modder<9) && hangflag==1){ // new hangers=9->16
     hangflag=0;
     reset_switches();
   }
 
-  if (res!=3 && clockhangflag==1){
+  if (inp!=3 && clockhangflag==1){
     clockhangflag=0;
     reset_clocks();
     }
 
 #ifdef TEST_STRAIGHT
-      res=0;
-      res2=0;
+      inp=0;
+      modder=0;
 #endif
 
   /*
@@ -93,9 +86,9 @@ RES: feedback on/off - jackin-> - lm358in->
 3-feedon xx     lmin ??? makes no sense - NOW replaced with clock unhang
   */
 
-      //      res=2; // tetsy!!
-  switch(res){
+  switch(inp){
  case 0:
+  default:
    GPIOB->BSRRH = (1<<7); //JACK
    GPIOC->BSRRH = (1<<8);
    GPIOC->BSRRL = (1<<13);
@@ -130,10 +123,10 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
-  //  res2=30; //test for digfilterflag//TESTY!
-  //  res2=0;  //TESTY!
+  //  modder=30; //test for digfilterflag//TESTY!
+  //  modder=0;  //TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
-  switch(res2){
+  switch(modder){
   case 0:
   case 1:
    //1-straightout

@@ -61,6 +61,7 @@ extern u8 EFFECTREAD;
 extern signed char direction[2];
 extern u8 EFFECTWRITE;
 extern u8 wormdir;
+extern u8 wormflag[10];
 extern u8 villagestackpos;
 extern u8 digfilterflag;
 extern u8 *datagenbuffer;
@@ -207,15 +208,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef LACH
 
-	//	EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;		
 	VILLAGEREAD=(EFFECTREAD&3);	
-	//	VILLAGEREAD=0; // TESTY!
 
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2]%16;
 	  }
-	  else tmpp=(EFFECTREAD&60)>>2;
+	  else tmpp=EFFECTREAD>>2;
 	  //	  tmpp=0; // TESTY!
 
 	  switch(tmpp){ 
@@ -325,7 +324,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  /////
 	  if (++delread>=SAMPLESPEEDREAD){
-	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
+	    if (wormflag[4] && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
 	    count=((sampleposread-startread)+dirry);
 		    if (count<wrapread && count>0)
@@ -384,13 +383,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
+	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
 	  VILLAGEREAD=EFFECTREAD&3;
 	  for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTREAD&60)>>2;
+	  else tmpp=EFFECTREAD>>2;
 	  //	  VILLAGEREAD=0;  // TESTY!
 	  //	  tmpp=0;  // TESTY!
 	  switch(tmpp){ 
@@ -530,9 +529,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  	  if (++delread>=SAMPLESPEEDREAD){
 		    //	    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;
-
-	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
-	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
+		    if (wormflag[4] && VILLAGEREAD!=0) dirry=newdirection[wormdir]; 
+		    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
 		    count=((sampleposread-startread)+dirry);
 		    if (count<wrapread && count>0)
 		      {
@@ -586,7 +584,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%128;
+	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
 	    EFFECTREAD=0;
 	    VILLAGEREAD=EFFECTREAD&3;
 	    
@@ -594,7 +592,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTREAD&60)>>2;
+	  else tmpp=EFFECTREAD>>2;
 	  //	  tmpp=15;
 	  switch(tmpp){
 	  case 0:
@@ -699,7 +697,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 
 	  if (++delread>=SAMPLESPEEDREAD){
-	    if (EFFECTREAD&64 && VILLAGEREAD!=0) dirry=newdirection[wormdir];  // TESTY!
+	    if (wormflag[4] && VILLAGEREAD!=0) dirry=newdirection[wormdir];  
 	    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
 	    count=((sampleposread-startread)+dirry);
 		    if (count<wrapread && count>0)
@@ -766,7 +764,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&60)>>2;
+	  else tmpp=EFFECTWRITE>>2;
 	  //	  tmpp=0; // TESTY!
 	  switch(tmpp){ 
 	  case 0:
@@ -851,8 +849,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 
 	  	  if (++del>=SAMPLESPEED){
-	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
-	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
+		    if (wormflag[5] && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
+		    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);// samplepos is start or start+wrap++
 		    if (count<wrapread && count>0)
 	      {
@@ -915,7 +913,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
  	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&60)>>2;
+	  else tmpp=EFFECTWRITE>>2;
 
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
 	  switch(tmpp){ 
@@ -1018,8 +1016,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  ////////////////////////--->>>>
 
 	  	  if (++del>=SAMPLESPEED){
-	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
-	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
+		    if (wormflag[5] && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
+		    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
 	    if (count<wrap && count>0)
 		  {
@@ -1073,7 +1071,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
 	    ///	    	    VILLAGEWRITE=EFFECTWRITE&3;
-	    VILLAGEWRITE=(EFFECTWRITE>>1)&3; // 3 bits leave top TESTY!
+	    VILLAGEWRITE=EFFECTWRITE&3;
 	    //	    VILLAGEWRITE=2;
 	  //	  VILLAGEWRITE=0; // TESTY!!!!
 	  
@@ -1082,7 +1080,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (VILLAGEWRITE==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTWRITE&60)>>2;
+	  else tmpp=EFFECTWRITE&60>>2;
 	  tmpp=0; // TESTY!
 	  //	     printf("%d\n",samplepos);
 	  //	  tmpp=15;
@@ -1170,7 +1168,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
  
 	  if (++del>=SAMPLESPEED){ 
-	    if (EFFECTWRITE&64 && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
+	    if (wormflag[5] && VILLAGEWRITE!=0) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
 		    if (count<wrap && count>0)
@@ -1238,14 +1236,14 @@ if (digfilterflag&1){
 	morph_inv = 1.0 - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
-	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%128;
+	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%64;
 	VILLAGEFILT=EFFECTFILT&3;
       	for (x=0;x<sz/2;x++){ 
 
  	  if (VILLAGEFILT==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=(EFFECTFILT&60)>>2;
+	  else tmpp=EFFECTFILT>>2;
 
  	  switch(tmpp){ 
 	  case 0:
@@ -1356,8 +1354,8 @@ if (digfilterflag&1){
 	  ///	  HERE////////////////////////--->>>>
 
 	  	  if (++delf==SAMPLESPEEDFILT){
-	    if (EFFECTFILT&64 && VILLAGEFILT!=0) dirry=newdirection[wormdir]; 
-	    else dirry=direction[SAMPLEDIRF]*SAMPLESTEPFILT;	    
+		    if (wormflag[6] && VILLAGEFILT!=0) dirry=newdirection[wormdir]; 
+		    else dirry=direction[SAMPLEDIRF]*SAMPLESTEPFILT;	    
 	    count=((sampleposfilt-startfilt)+dirry);
 		    if (count<wrapfilt && count>0)
 		  {

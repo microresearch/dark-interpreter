@@ -132,8 +132,9 @@ u8 EFFECTREAD;
 #endif
 
 signed char direction[2]={-1,1};
+u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
 u8 setwalk[8]={239,240,1,17,16,15,254,238}; 
-
+u8 inp;
 u16 villagestackpos=0;
 
 #define delay()						 do {	\
@@ -518,7 +519,7 @@ void main(void)
   u16 tmper;
 
   inittable(3,4,randi());
-  wormdir=0;
+  //  wormdir=0;
   const float32_t pi= 3.141592;
   float32_t w;
   float32_t yi;
@@ -737,7 +738,7 @@ void main(void)
 
 	u8 mainmode,groupstart,groupwrap;
 	u8 xx,stackerpos,stackerypos,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos;
-	u16 foldposl,settingsposl,datagenpos;
+	u16 foldposl,settingsposl,datagenpos,stackerposl;
 
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
@@ -794,16 +795,19 @@ void main(void)
 	      
       //MODECODE      /////////////////////////////////////
 
-      EFFECTWRITE=adc_buffer[FOURTH]>>5; // 7 bits = 128 rest of effects as offsets///
-      // do we need to average or reduce to 64?
+      EFFECTWRITE=adc_buffer[FOURTH]>>6; // now 6 bits///=64 was7 bitsrest of effects as offsets///
       // top bit as wormcode
       mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
       //                  mainmode=26; 
       switch(mainmode){
+#ifdef LACH
       case 0:
 	settingspos+=fingerdirleftrighttx(10);
 	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
+	// a hole
+	settingsarrayattached[settingspos]=0; 
+
 	if (xx==1){
 	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
 	}
@@ -811,7 +815,6 @@ void main(void)
 	  settingsarray[settingspos]=adc_buffer[UP]<<4;
 	}
 	break;
-	/////////////////////////////
       case 1:
 	stackerpos+=fingerdirleftrighttx(4);
 	xx=fingerdirupdown();
@@ -832,6 +835,39 @@ void main(void)
 	  stackery[stackerypos]=adc_buffer[UP]<<4;
 	}
 	break;
+#else
+      case 0: // up/down/left/right as INPUT:  TO TEST!
+	inp=fingerdir();
+	break;
+      case 1:
+	settingspos+=fingerdirleftrighttx(10);
+	settingspos=settingspos%SETSIZE;
+	xx=fingerdirupdown();
+	// a hole
+	settingsarrayattached[settingspos]=0; 
+
+	if (xx==1){
+	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  settingsarray[settingspos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 2: // now with stackery
+	stackerposl+=fingerdirleftrighttx(4); //16 bit
+	stackerposl=stackerposl%512;
+	xx=fingerdirupdown();
+	
+	if (xx==1){
+	  if (stackerposl<256) stacker[stackerposl]=adc_buffer[SECOND]<<4;
+	  else stackery[stackerposl-256]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  if (stackerposl<256) stacker[stackerposl]=adc_buffer[UP]<<4;
+	  else stackery[stackerposl-256]=adc_buffer[UP]<<4;
+	}
+	break;
+#endif
       case 3:
 	cpupos+=fingerdirleftrighttx(4);
 	cpupos=cpupos%68; //64,65,66,67
@@ -878,26 +914,22 @@ void main(void)
 	  buf16[datagenpos]=adc_buffer[UP]<<4; 
 	}
 	break;
-      case 7: // directions
-	dirpos+=fingerdirleftrighttx(24);
+      case 7: // directions - redone...
+	dirpos=adc_buffer[SECOND]>>8; // 4 bits
 #ifdef LACH
 	dirpos=dirpos%6;
-	xx=fingerdirupdown();
-	if (xx==1){
-	  settingsarray[25+dirpos]=adc_buffer[SECOND]<<4; 
-	}
-	if (xx==0){
-	  settingsarray[25+dirpos]=adc_buffer[UP]<<4; 
-	}
+	xx=fingerdir();
+	if (xx==0) wormflag[dirpos]=1; // up
+	else if (xx==1) { settingsarray[25+dirpos]=(1<<15); wormflag[dirpos]=0;} //right
+	else if (xx==3) { settingsarray[25+dirpos]=0; wormflag[dirpos]=0;} // left=0
+	else if (xx==2) { settingsarray[25+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;} 
 #else
 	dirpos=dirpos%10;
-	xx=fingerdirupdown();
-	if (xx==1){
-	  settingsarray[54+dirpos]=adc_buffer[SECOND]<<4; 
-	}
-	if (xx==0){
-	  settingsarray[54+dirpos]=adc_buffer[UP]<<4; 
-	}
+	xx=fingerdir();
+	if (xx==0) wormflag[dirpos]=1; // up
+	else if (xx==1) { settingsarray[54+dirpos]=(1<<15); wormflag[dirpos]=0;} //right
+	else if (xx==3) { settingsarray[54+dirpos]=0; wormflag[dirpos]=0;} // left=0
+	else if (xx==2) { settingsarray[54+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;} 
 #endif
 	break; 
       case 8: // foldback
@@ -1390,7 +1422,11 @@ void main(void)
 	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
 	  break;
 	case 2:
+#ifdef TENE
+	  settingsarray[x]=adc_buffer[9]<<4;
+#else
 	  settingsarray[x]=adc_buffer[DOWN]<<4;
+#endif
 	  break;
 	case 3:
 	  settingsarray[x]=adc_buffer[THIRD]<<4;
@@ -1401,11 +1437,11 @@ void main(void)
       //// DEAL last with hardware:
 #ifdef LACH
       // TODO! as EFFECTREAD!
-      EFFECTREAD=adc_buffer[FIFTH]>>5; // 7 bits
+      EFFECTREAD=adc_buffer[FIFTH]>>6; // 6 bits
 #else
       tmphardware=0;
       for (x=0;x<256;x++){ // was 256
-	tmphardware+=adc_buffer[FIFTH]>>5; // 7 bits
+	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now!
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
 #endif

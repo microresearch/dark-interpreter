@@ -318,11 +318,14 @@ below).
 
 Basic modes:
 
-Basic modes allow for setting of specific audio, code, villager or
+Basic modes allow for setting of specific input, audio, code, villager or
 mirror settings primarily using the second knob (see below) and the
 finger-board for setting and navigation/selection of
 settings. Code/data can also be used to select settings under various
 modes. 
+
+We also control feedback of input to output and use of one finger pad
+as an input for other electrical impulses.
 
 Mirror modes:
 
@@ -358,8 +361,7 @@ the output audio effects _only_.
 routing, including opening up of routes, and settings to the skin (we
 call this unhanging of hardware options). Here we can set the signal
 path through analogue filters, digital filters and various
-distortions. We also control feedback of input to output and use of
-one finger pad as an input for other electrical impulses.
+distortions. 
 
 In the case of Lachrymarum (no analogue hardware), this last knob
 controls incoming audio effect parameters (as above).
@@ -369,28 +371,39 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
+* WED 25 JUNE
+
+TODO:
+
+- hole in attach for mode1 DONE-TEST!
+- extra first mode for inputs (on fingers)/taken out of hardware knob-NO LACH-DONE-TEST!
+
+- where to set wormdir: TODO:new wormdir array,,, >> for effectsDONE
+  (also extend wormdir across all walkers after TEST!)
+
+for mode 7: up=set wormflag for dir ser by knob 2/right=unsetworm/right/left=so//down=dirbyfinger
+
+- if attachment should include randi() (how it could?) - in case of
+  TENE instead of attach finger is eeg/randiDONE
+
+/////
+
+- mode finger speeds to tweak!
+
+- recordings/video/manual-in progress/website
+
 * TUE 24 JUNE
 
 655,650,648, 647 (hard, srcin), 649 (noard,srcin), 651(hard,vocal),656/654(nohard,voin)
 
-QUESTIONS: 
+** DONE
 
-- if attachment should include randi() (how?)
-- are effects too jittery ? possibly - both effects and hardware too crowded somehow
 - RE-ORDERED hardware so input options are lowest - but somehow nice
   as seperate flag for input options (but where to set?)
-- mode finger speeds
-- re-test datagens AGAIN!!!
-
-TODO:
-
-- test with 9v 200mA PSU(WED)
-- recordings/video/manual-in progress/website
-
-** DONE
 
 //- sample rates: 8000, 32000, 44100 in main.c   Codec_Init(32000); // was 48000 (+sim)
 - set to 32000/32K!
+- are effects too jittery ? possibly - both effects and hardware too crowded somehow
 
 - test with other fingersDONE-fine!
 
