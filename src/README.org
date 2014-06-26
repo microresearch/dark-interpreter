@@ -371,6 +371,10 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
+* THU 26 JUNE
+
+- check if can bounce back datagen->whole space in mode 30 - DONE/TEST!
+
 * WED 25 JUNE
 
 667/666(notsohard),665,664(hard),663(hardbass),662(hard),661*(vocalnohard),

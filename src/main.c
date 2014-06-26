@@ -1277,9 +1277,13 @@ void main(void)
 	}
 	break;
 
-      case 30: // dump (all?) to datagen?
+      case 30: // dump (all?) to datagen//back
 	FOLDD[0]=adc_buffer[SECOND]>>2; // howmuch=10 bits
 	foldpos+=fingerdirleftrightt(); // 16 bits
+
+	xx=fingerdirupdown();
+	if (xx==1) {
+
 	for (x=0;x<FOLDD[0];x++){ // 10 bits
 #ifdef LACH
 	  tmper=((foldpos>>6)+x)%736; // full house//10 bits=1024
@@ -1296,6 +1300,26 @@ void main(void)
 	  else if (tmper<640) buf16[(foldpos+x)%32768]=m->m_threads[tmper-576].m_CPU<<11;
 	    else buf16[(foldpos+x)%32768]=villager[tmper-640];
 #endif
+	}
+	}
+	else if (xx==0) {
+	for (x=0;x<FOLDD[0];x++){ // 10 bits
+#ifdef LACH
+	  tmper=((foldpos>>6)+x)%736; // full house//10 bits=1024
+	  if (tmper<32) settingsarray[tmper]=buf16[(foldpos+x)%32768];
+	  else if (tmper<288) stacker[tmper-32]=buf16[(foldpos+x)%32768];
+	  else if (tmper<544) stackery[tmper-288]buf16[(foldpos+x)%32768];
+	  else if (tmper<608) m->m_threads[tmper-544].m_CPU=buf16[(foldpos+x)%32768]>>11;
+	    else villager[tmper-608]buf16[(foldpos+x)%32768];
+#else
+	  tmper=((foldpos>>6)+x)%768; // full house//10 bits=1024
+	  if (tmper<64) settingsarray[tmper]=buf16[(foldpos+x)%32768];
+	  else if (tmper<320) stacker[tmper-64]=buf16[(foldpos+x)%32768];
+	  else if (tmper<576) stackery[tmper-320]=buf16[(foldpos+x)%32768];
+	  else if (tmper<640) m->m_threads[tmper-576].m_CPU=buf16[(foldpos+x)%32768]>>11;
+	    else villager[tmper-640]=buf16[(foldpos+x)%32768];
+#endif
+	}
 	}
 	break;
 	////////////////
