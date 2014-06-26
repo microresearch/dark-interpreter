@@ -373,7 +373,16 @@ controls incoming audio effect parameters (as above).
 
 * THU 26 JUNE
 
-- check if can bounce back datagen->whole space in mode 30 - DONE/TEST!
+- some way to fold back speeds of fingers(set these % of MAINMODE/firstknob)=fingerspeed 1-33!NBOTDONE
+
+** DONE:
+
+- - test changes to fingerdirleftrighttx,tested updownOK, fingerdirOK in modesDONE
+
+- check if can bounce back datagen->whole space in mode 30 - DONE/
+
+note: fingerdirupdown is 0 for up // 1 for down... in mode 30:
+down dumps settings to buf16...  up dumps buf16 to settings
 
 * WED 25 JUNE
 
@@ -400,7 +409,6 @@ for mode 7: up=set wormflag for dir ser by knob 2/right=unsetworm/right/left=so/
 - if attachment should include randi() (how it could?) - in case of
   TENE instead of attach finger is eeg/randiDONE-TEST!
 
-
 * TUE 24 JUNE
 
 655,650,648, 647 (hard, srcin), 649 (noard,srcin), 651(hard,vocal),656/654(nohard,voin)
@@ -415,7 +423,6 @@ for mode 7: up=set wormflag for dir ser by knob 2/right=unsetworm/right/left=so/
 - are effects too jittery ? possibly - both effects and hardware too crowded somehow
 
 - test with other fingersDONE-fine!
-
 
 
 * MON 23 JUNE

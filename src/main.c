@@ -204,7 +204,7 @@ u8 fingerdir(void){
   u8 handupp, handdown;
   u8 result=5;
 
-  for (u8 x=0;x<16;x++){
+  for (u8 x=0;x<8;x++){
   handupp=adc_buffer[UP]>>8; 
   handdown=adc_buffer[DOWN]>>8;
   handleft=adc_buffer[LEFT]>>8;
@@ -213,16 +213,16 @@ u8 fingerdir(void){
   if (handdown>2) down++;
   if (handleft>2) left++;
   if (handright>2) right++;
-  if (up>8 && up>down && up>left && up>right) {
+  if (up>4 && up>down && up>left && up>right) {
     result=0;
   }
-  else if (down>8 && down>left && down>right) {
+  else if (down>4 && down>left && down>right) {
     result=2; 
   }
-  else if (left>8 && left>right) {
+  else if (left>4 && left>right) {
     result=3;
   }
-  else if (right>8) {
+  else if (right>4) {
     result=1;
   }
   }
@@ -322,15 +322,15 @@ signed char fingerdirleftrightt(void){
   u8 handleft, handright, left=0,right=0;
   signed char result=0;
 
-  for (u8 x=0;x<16;x++){
+  for (u8 x=0;x<8;x++){
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
   if (handleft>2) left++;
   if (handright>2) right++;
-  if (left>8 && left>right) {
+  if (left>4 && left>right) {
     result=-1;
   }
-  else if (right>8 && right>left) {
+  else if (right>4 && right>left) {
     result=1;
   }
   }
@@ -341,15 +341,15 @@ signed char fingerdirleftrighttx(signed char vall){
   u8 handleft, handright, left=0,right=0;
   static signed char result=0; signed char tmp;
 
-  for (u8 x=0;x<16;x++){
+  for (u8 x=0;x<8;x++){
   handleft=adc_buffer[LEFT]>>8;
   handright=adc_buffer[RIGHT]>>8;
   if (handleft>2) left++;
   if (handright>2) right++;
-  if (left>8 && left>right) {
+  if (left>4 && left>right) {
     tmp=-1;
   }
-  else if (right>8 && right>left) {
+  else if (right>4 && right>left) {
     tmp=1;
   }
   }
@@ -737,7 +737,7 @@ void main(void)
 	  //      exenums=exestackpush(exenums,exestack,); //exetype=0-3 TESTY!
       }
 
-	u8 mainmode,groupstart,groupwrap;
+	u8 mainmode,groupstart,groupwrap; signed char fingerspeed;
 	u8 xx,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos;
 	u16 foldposl,settingsposl,datagenpos,stackerposl;
 
@@ -799,12 +799,13 @@ void main(void)
       EFFECTWRITE=adc_buffer[FOURTH]>>6; // now 6 bits///=64 was7 bitsrest of effects as offsets///
       // top bit as wormcode
       mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
-      //      mainmode=1; // testy!!!
+      fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
+      //g      mainmode=1; // testy!!!
 
       switch(mainmode){
 #ifdef LACH
       case 0:
-	settingspos+=fingerdirleftrighttx(8);
+	settingspos+=fingerdirleftrighttx(12);
 	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
 	// a hole
@@ -843,7 +844,7 @@ void main(void)
 	if (xx!=5) inp=xx;
 	break;
       case 1:
-	settingspos+=fingerdirleftrighttx(12);
+	settingspos+=fingerdirleftrighttx(4);
 	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
 	// a hole
@@ -856,7 +857,7 @@ void main(void)
 	  //settingsarrayattached[settingspos]=2; 
 	  settingsarrayattached[settingspos]=0; 
 	  	  settingsarray[settingspos]=adc_buffer[UP]<<4;
-	}
+		  }
 	break;
       case 2: // now with stackery
 	stackerposl+=fingerdirleftrighttx(4); //16 bit
@@ -1277,8 +1278,10 @@ void main(void)
 	}
 	break;
 
-      case 30: // dump (all?) to datagen//back
-	FOLDD[0]=adc_buffer[SECOND]>>2; // howmuch=10 bits
+      case 30: // dump (all) to datagen//back
+	// test leftrightt	settingsarray[15]+=fingerdirleftrightt(); // 16 bits
+	
+	FOLDD[0]=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
 	foldpos+=fingerdirleftrightt(); // 16 bits
 
 	xx=fingerdirupdown();
