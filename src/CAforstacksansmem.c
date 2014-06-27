@@ -25,6 +25,10 @@ extern u8 table[21];
 extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 #endif
 
+extern u8 *datagenbuffer;
+//extern u16 *buf16;
+//extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
+
 //////////////////////////////////////////
 
 u16 runnoney(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
@@ -729,14 +733,20 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer,
 }
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
-  u8 i,x; 
-  for (i=0;i<stack_posy;i++){
+  static u8 i=0; u8 x,bufsel; u8 *buffer; 
+  //  for (i=0;i<stack_posy;i++){
+  if (i>=stack_posy) i=0;
     u8 tmp=i*4,howmuch; u16 start,wrap;
 
     start=stackery[tmp++]>>1;
     wrap=stackery[tmp++]>>1;
-    howmuch=stackery[tmp++]>>9; // 7 bits
+    howmuch=stackery[tmp]>>9; // 7 bits
+    bufsel=stackery[tmp++]>>15; // last bit
+
     x=(stackery[tmp]>>12)%NUM_CA; // 4 bits
+
+    if (bufsel) buffer=datagenbuffer;
+    //	else buffer=audio_buffer; // 8 BITZ!
 
 	switch(x){
 	case NONENY:
@@ -773,7 +783,8 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
 	stack[i].count=runSIR16(howmuch,stack[i].buffer,stack[i].count,start,wrap);
 	break;
       }
-  }
+	//  }
+	i++;
 }
 
 signed char ca_pop(u8 stack_posy){

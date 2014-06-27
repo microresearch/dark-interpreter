@@ -136,6 +136,7 @@ u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
 u8 setwalk[8]={239,240,1,17,16,15,254,238}; 
 u8 inp;
 u16 villagestackpos=0;
+u16 *buf16;
 
 #define delay()						 do {	\
     register unsigned int ix;					\
@@ -567,7 +568,7 @@ void main(void)
 
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
-  audio_buffer=(u8*)malloc(65536);
+  audio_buffer=(u16*)malloc(32768);
   settingsarray=malloc(64*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(4*64*sizeof(int16_t));
@@ -601,7 +602,7 @@ void main(void)
 
   struct stackey stackyy[STACK_SIZE];
   struct stackeyyy stackyyy[STACK_SIZE];
-  u16 *buf16 = (u16*) datagenbuffer;
+  buf16 = (u16*) datagenbuffer;
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
@@ -697,7 +698,7 @@ void main(void)
   for (x=0; x<64; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,randi()<<3,randi()%CPU_TOTAL,randi()%24);
+      cpustackpush(m,datagenbuffer,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24); // was <<3
     }
 
   for (x=0;x<FOLD_SIZE;x++){
@@ -708,7 +709,7 @@ void main(void)
 
   for (x=0;x<100;x++){
     addr=randi()<<3;
-        cpustackpushhh(datagenbuffer,addr,randi()<<3,randi()%CPU_TOTAL,randi()%24);
+    cpustackpushhh(datagenbuffer,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24);// was <<3
   }
 
   // CA
@@ -733,7 +734,7 @@ void main(void)
 
     // execution stack - TESTER!
         for (x=0;x<MAX_EXE_STACK;x++){
-	        exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 TESTY!
+	        exenums=exestackpush(exenums,exestack,randi()%5); //exetype=0-3 TESTY!
 	  //      exenums=exestackpush(exenums,exestack,); //exetype=0-3 TESTY!
       }
 
@@ -788,6 +789,8 @@ void main(void)
 	  break;
 	case 3:
 	    machine_runnn(datagenbuffer); // pureleak
+	  break;
+	case 4:
 	  break;
 	}
       }
@@ -880,11 +883,11 @@ void main(void)
 	xx=fingerdirupdown();
 	if (xx==1){
 	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[SECOND]>>7; // 5 bits
-	  else exestack[cpupos-64]=adc_buffer[SECOND]>>10; // 2 bits 
+	  else exestack[cpupos-64]=(adc_buffer[SECOND]>>9)%5; // 3 bits 
 	}
 	if (xx==0){
 	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[UP]>>7; // 5 bits
-	  else exestack[cpupos-64]=adc_buffer[UP]>>10; // 2 bits 
+	  else exestack[cpupos-64]=(adc_buffer[UP]>>9)%5; // 3 bits 
 	}
 	break;
       case 4:

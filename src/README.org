@@ -371,9 +371,34 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
-* THU 26 JUNE
+* FRI 27 JUNE
 
-- some way to fold back speeds of fingers(set these % of MAINMODE/firstknob)=fingerspeed 1-33!NBOTDONE
+- set bit (say top of howmuch) for which buffer ca and sim work on
+
+bufsel (1 or 0) is top bit of howmuch now
+
+- reduce and expand all stack sizes as a mode:
+
+CPU: ->m_threadcount(max MAX_THREADS)
+CA: stack_posy (max STACK_SIZE)
+sim: stack_pos (max STACK_SIZE)
+villagers: villagestackpos (in twos)(max VILLAGE_SIZE)
+
+// select stack (left/right) (knob and set)
+
+- which modes work best// trim modes!
+
+//
+
+- some way to fold back speeds of fingers(set these % of
+  MAINMODE/firstknob)=fingerspeed 1-33!NOTDONE-retest!
+
+** DONE
+
+- timeslicing in sim, ca DONE/TEST- cpu and leak as unsliced!
+- extra execstack option for nothing happening!
+
+* THU 26 JUNE
 
 ** DONE:
 

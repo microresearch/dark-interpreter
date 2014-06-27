@@ -58,10 +58,12 @@ int16_t* audio_buffer;
 #include "arm_math.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 extern u16 sin_data[256];
 extern u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 #endif
+
+extern u16 *buf16;
 
 //////////////////////////////////////////////////////////
 
@@ -115,8 +117,8 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
       buff[s]+=x; // as float32_t
     if (f==2){
       buffer[(start+count)%32768]=(float32_t)buff[s]*32768.0f;
-#ifdef PCSIM
-            printf("%c",buffer[start+count]%255);
+#ifdef PCSIM 
+      //      //            printf("%c",buffer[start+count]%255);
 #endif
     }
       count++;
@@ -146,8 +148,8 @@ u16 runconv(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     workingbuffer[y]=((float32_t)workingbuffer[tmp%32768]*c0)+((float32_t)workingbuffer[(count+start)%32768]*c1)+((float32_t)workingbuffer[(count+start+1)%32768]*c2);
 
 #ifdef PCSIM
-    //    //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[(count+start)%32768]);
-    printf("%c",workingbuffer[start+count]%255);
+    //    //    //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, workingbuffer[(count+start)%32768]);
+    //    //    printf("%c",workingbuffer[start+count]%255);
 #endif
   }
   return count;
@@ -165,7 +167,7 @@ u16 runsine(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=sin_data[cc%256]; 
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    printf("%c",workingbuffer[(count+start)%32768]);
 #endif
     cc++;
   }
@@ -207,7 +209,7 @@ u16 runchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap
     else othercount=otherwrap;
     }
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -231,7 +233,7 @@ u16 runderefchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16
     else othercount=otherwrap;
     }
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -258,8 +260,8 @@ u16 runwalkerchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u1
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+otherstart)%32768];
 
 #ifdef PCSIM
-        printf("%c",workingbuffer[(count+start)%32768]);
-    //    printf("x: %d\n",othercount);
+    //    //        printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    printf("x: %d\n",othercount);
 #endif
   }
   return count;
@@ -288,7 +290,7 @@ u16 runswapchunk(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 
     workingbuffer[(count+start)%32768]=workingbuffer[(othercount+otherstart)%32768];
     workingbuffer[(othercount+otherstart)%32768]=tmp;
 #ifdef PCSIM
-           printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    //           printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -307,7 +309,7 @@ u16 runinc(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
     if (count>=wrap) count=0;
         workingbuffer[(count+start)%32768]=cop++;
 #ifdef PCSIM
-printf("%c",workingbuffer[(count+start)%32768]);
+	//	//printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
 workingbuffer[0]=cop;
@@ -322,7 +324,7 @@ u16 rundec(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=cop--;
 #ifdef PCSIM
-printf("%c",workingbuffer[(count+start)%32768]);
+    //    //printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
 workingbuffer[0]=cop;
@@ -336,8 +338,8 @@ u16 runleft(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]<<1;
 #ifdef PCSIM
-    //    //    printf("%d %d\n",count,workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d %d\n",count,workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
 return count;
@@ -350,8 +352,8 @@ u16 runright(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+start)%32768]>>1;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -366,8 +368,8 @@ u16 runswap(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     workingbuffer[(count+start)%32768]=workingbuffer[(count+1+start)%32768];
     workingbuffer[(count+1+start)%32768]=temp;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -380,8 +382,8 @@ u16 runnextinc(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
     if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+1+start)%32768]+1;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -395,8 +397,8 @@ u16 runnextdec(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
     if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]=workingbuffer[(count+1+start)%32768]-1;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -409,8 +411,8 @@ u16 runnextmult(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 w
     if (count>=(wrap-1)) count=0;
     workingbuffer[(count+start)%32768]*=workingbuffer[(count+1+start)%32768];
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -423,8 +425,8 @@ u16 runnextdiv(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
     if (count>=(wrap-1)) count=0;
     if ((workingbuffer[(count+1+start)%32768])>0)   workingbuffer[(count+start)%32768]/=workingbuffer[(count+1+start)%32768];
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -438,8 +440,8 @@ u16 runcopy(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count>=(wrap-1)) count=0;
     workingbuffer[(count+1+start)%32768]=workingbuffer[(count+start)%32768];
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -452,8 +454,8 @@ u16 runzero(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=0;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -466,8 +468,8 @@ u16 runfull(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
     if (count>=wrap) count=0;
     workingbuffer[(count+start)%32768]=65535;
 #ifdef PCSIM
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffer[(count+start)%32768]);
+    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //printf("%c", workingbuffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -481,8 +483,8 @@ u16 runrand(uint8_t howmuch, u16 *buffer, u16 count, u16 start, u16 wrap){
         if (count>=wrap) count=0;
            workingbuffeur[(count+start)%32768]=randi()%255;
 #ifdef PCSIM
-	   //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
-printf("%c", workingbuffeur[count+start]);
+	   //	   //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+	   //printf("%c", workingbuffeur[count+start]);
 #endif
   }
   return count;
@@ -498,14 +500,14 @@ u16 runknob(uint8_t howmuch, u16 *buffer, u16 count, u16 start, u16 wrap){
 #ifdef TENE
 	//    workingbuffeur[(count+start)%32768]=adc_buffer[2]>>4; // TOP knob in either case!
     buffer[(count+start)%32768]=adc_buffer[2]<<4; // TOP knob in either case!
-    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
+    //    //    //    printf("%d\n",workingbuffer[(count+start)%32768]);
 #else
     //        workingbuffeur[(count+start)%32768]=adc_buffer[3]>>4; // 8 bits
         buffer[(count+start)%32768]=adc_buffer[3]<<4; // 16 bits
 #endif
 
 #ifdef PCSIM
-    printf("%c",buffer[(count+start)%32768]);
+	//    printf("%c",buffer[(count+start)%32768]);
 #endif
   }
   return count;
@@ -644,7 +646,7 @@ void Runge_Kutta(void)
     }
 
   S=tmpPop[0]; II=tmpPop[1]; R=tmpPop[2];
-  //  //  printf("%g %g %g\n",S,II,R);
+  //  //  //  printf("%g %g %g\n",S,II,R);
 
   return;
 }
@@ -670,8 +672,8 @@ u16 runsimplesir(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 
 	Runge_Kutta();//  t+=step;
 	workingbuffer[(count+start)%32768]=(u16)((float)II*1000000000.0f);
 #ifdef PCSIM
-	//		printf("count %d %g %d\n",count,II,workingbuffer[(count+start)%32768] );
-printf("%c",workingbuffer[(count+start)%32768]);
+	//	//		printf("count %d %g %d\n",count,II,workingbuffer[(count+start)%32768] );
+	//printf("%c",workingbuffer[(count+start)%32768]);
 #endif    
   }
 
@@ -727,7 +729,7 @@ void seirDiff(float32_t Pop[MAX_GROUPS+1])
   for(i=2;i<=n;i++)
     {
       dPopp[i]= gamm*n*Pop[i-1] - gamm*n*Pop[i] - mu*Pop[i];
-      //      //  printf("dp: %g\n",dPopp[i]);
+      //      //      //  printf("dp: %g\n",dPopp[i]);
     }
 
   return;
@@ -779,7 +781,7 @@ void seir_Runge_Kutta(void)
     }
   dPop4[0]=dPop[0];
   S=S+(dPop1[0]/6.0f + dPop2[0]/3.0f + dPop3[0]/3.0f + dPop4[0]/6.0f)*step;
-  //  //  printf("S: %g\n",S);
+  //  //  //  printf("S: %g\n",S);
   return;
 }
 
@@ -798,8 +800,8 @@ u16 runseir(uint8_t howmuch,u16 *workingbuffer, u16 count, u16 start, u16 wrap){
     seir_Runge_Kutta();//  t+=step;
     workingbuffer[(count+start)%32768]=S*65536.0f;
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
-    //    //    if (count>32767) printf("SEIRCRASH%d\n",count);
+    //    printf("%c",workingbuffer[(count+start)%32768]);
+    //    //    //    if (count>32767) printf("SEIRCRASH%d\n",count);
 #endif
   }
 return count;
@@ -909,7 +911,7 @@ step=0.01/((beta+gamm+mu+Gamm)*S0);
     sicr_Runge_Kutta();//  t+=step;
     workingbuffer[(count+start)%32768]=(u16)(S*1000000.0f);
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
+    //    printf("%c",workingbuffer[(count+start)%32768]);
 #endif
   }
 return count;
@@ -976,8 +978,8 @@ u16 runifs(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
 
       workingbuffer[(count+start)%32768]=(u16)p2.y;
 #ifdef PCSIM
-printf("%d\n",workingbuffer[(count+start)%32768]);
-      //      //    if (count>32767) printf("IFSCRASH%d\n",count);
+      //printf("%d\n",workingbuffer[(count+start)%32768]);
+      //      //      //    if (count>32767) printf("IFSCRASH%d\n",count);
 
 #endif
   /*    iter=randi()%row;
@@ -1031,7 +1033,7 @@ u16 runrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
       workingbuffer[(count+start)%32768]=(u16)(lz1*1024.0f);
 
 #ifdef PCSIM
-    printf("%c",workingbuffer[(count+start)%32768]);
+      //    printf("%c",workingbuffer[(count+start)%32768]);
 #endif
 
   }
@@ -1121,8 +1123,8 @@ u16 runsecondrossler(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, 
 
 		workingbuffer[(count+start)%32768]=(u16)((xnm1+dx)*1024.0f);
 #ifdef PCSIM
-		printf("%c",workingbuffer[(count+start)%32768]);
-		//			    //    if (count>32767) printf("ROSS2CRASH%d\n",count);
+		//		printf("%c",workingbuffer[(count+start)%32768]);
+		//		//			    //    if (count>32767) printf("ROSS2CRASH%d\n",count);
 
 #endif
 	}
@@ -1161,8 +1163,8 @@ u16 runbrussel(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wr
 	workingbuffer[(count+start)%32768]=y*32768;
 	}
 #ifdef PCSIM
-    //    //printf("brussels: x %f y %f\n",x,y); 
-    printf("%d\n",workingbuffer[(count+start)%32768]); 
+    //    //    //printf("brussels: x %f y %f\n",x,y); 
+    //    printf("%d\n",workingbuffer[(count+start)%32768]); 
 #endif
 return count;
 }
@@ -1203,7 +1205,7 @@ u16 runspruce(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
 	}
 
 #ifdef PCSIM
-	printf("%c",workingbuffer[(count+start)%32768]);
+	//	printf("%c",workingbuffer[(count+start)%32768]);
 #endif
 return count;
 }
@@ -1242,7 +1244,7 @@ u16 runoregon(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
 		workingbuffer[(count+start)%32768]=x*65536.0f;
 	}
 #ifdef PCSIM
-	printf("%c",workingbuffer[(count+start)%32768]);
+	//	printf("%c",workingbuffer[(count+start)%32768]);
 #endif
 
 return count;
@@ -1283,8 +1285,8 @@ u16 runfitz(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap)
        workingbuffer[(count+start)%32768]=(u16)z;//workingbuffer[x+2]=zz;
 
 #ifdef PCSIM
-       //	//        printf("fitz: %c",u); 
-            printf("%c",workingbuffer[(count+start)%32768]); 
+       //       //	//        printf("fitz: %c",u); 
+       //            printf("%c",workingbuffer[(count+start)%32768]); 
 #endif
 
   }
@@ -1297,7 +1299,7 @@ void passingarraytest(uint8_t *buffer) {
   u8 *m_memory; u16 i;
   m_memory=buffer;
   for (i=0;i<65535;i++){
-    //    printf("%d %d\n",i, m_memory[i]);
+    //    //    printf("%d %d\n",i, m_memory[i]);
   }
 }
 
@@ -1334,121 +1336,125 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u16 typerr, u16* buffer
 
 
 void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
-
-  u8 i,x;
-      for (i=0;i<stack_pos;i++){
+  static u8 i=0;
+  u8 x,bufsel; u16 *buffer;
+  // for (i=0;i<stack_pos;i++){
+  if (i>=stack_pos) i=0;
 	u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
 	start=stacker[tmp++]>>1;
 	wrap=stacker[tmp++]>>1;
-	howmuch=stacker[tmp++]>>9; // 7 bits
-
+	howmuch=stacker[tmp]>>9; // 7 bits
+	bufsel=stacker[tmp++]>>15; // last bit
 	x=(stacker[tmp]>>10)%NUM_FUNCS; // 6 bits
+	if (bufsel) buffer=buf16;
+	else buffer=audio_buffer;
 	switch(x){ // type
 	case NUNNY:
-	stack[i].count=runnone(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnone(howmuch,buffer,stack[i].count,start,wrap);
 	break;
 	case CONVY:
-	stack[i].count=runconv(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runconv(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case FORMY:
-	stack[i].count=runform(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runform(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SINEY:
-	stack[i].count=runsine(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runsine(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case INCY:
-	stack[i].count=runinc(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runinc(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case DECY:
-	stack[i].count=rundec(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=rundec(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case LEFTY:
-	stack[i].count=runleft(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runleft(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case RIGHTY:
-	stack[i].count=runright(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runright(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SWAPPY:
-	stack[i].count=runswap(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runswap(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case NEXTINCY:
-	stack[i].count=runnextinc(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnextinc(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case NEXTDECY:
-	stack[i].count=runnextdec(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnextdec(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case NEXTMULTY:
-	stack[i].count=runnextmult(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnextmult(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case NEXTDIVY:
-	stack[i].count=runnextdiv(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnextdiv(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case COPYY:
-	stack[i].count=runcopy(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runcopy(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case ZEROY:
-	stack[i].count=runzero(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runzero(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case FULLY:
-	stack[i].count=runfull(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runfull(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case RANDY:
-	stack[i].count=runrand(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runrand(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case KNOBY:
-	stack[i].count=runknob(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runknob(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SWAPAUDIOY:
-	stack[i].count=runswapaudio(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runswapaudio(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case ORAUDIOY:
-	stack[i].count=runORaudio(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runORaudio(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SIMPLESIRY:
-	stack[i].count=runsimplesir(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runsimplesir(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SEIRY:
-	stack[i].count=runseir(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runseir(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SICRY:
-	stack[i].count=runsicr(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runsicr(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case IFSY:
-	stack[i].count=runifs(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runifs(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case ROSSLERY:
-	stack[i].count=runrossler(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runrossler(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SECONDROSSLERY:
-	stack[i].count=runsecondrossler(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runsecondrossler(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case BRUSSELY:
-	stack[i].count=runbrussel(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runbrussel(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SPRUCEY:
-	stack[i].count=runspruce(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runspruce(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case OREGONY:
-	stack[i].count=runoregon(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runoregon(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case FITZY:
-	stack[i].count=runfitz(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runfitz(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SWAPCHUNKY:
-	stack[i].count=runswapchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runswapchunk(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case CHUNKY:
-	stack[i].count=runchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runchunk(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case DEREFCHUNKY:
-	stack[i].count=runderefchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runderefchunk(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case WALKERCHUNKY:
-	stack[i].count=runwalkerchunk(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runwalkerchunk(howmuch,buffer,stack[i].count,start,wrap);
 	}
-      }
+	i++;
+	//      }
 }
 
 signed char func_pop(u8 stack_pos){
@@ -1485,7 +1491,7 @@ void tester(u8 SAMPLEDIRR){
    //   sampleposread=startread;//+wrapread;
    //   count=0;
  }
- // // printf("pos: %d\n", sampleposread);
+ // // // printf("pos: %d\n", sampleposread);
 }
 
 
@@ -1530,7 +1536,7 @@ void tester(u8 SAMPLEDIRR){
 
   //  forminit(unity, xxx,0,3);
 
-//  //  printf("test%d\n",256<<7);
+////  //  printf("test%d\n",256<<7);
 //  	 for (x=0;x<1;x++){
   u16 addr=rand()%32768;u16 xx,xxxx;
   u16 which=(rand()%31)<<10;//
@@ -1543,7 +1549,7 @@ void tester(u8 SAMPLEDIRR){
 
 		   		   	 while(1){
 		   	   func_runall(stackyy,stack_pos); // simulations
-	   //		   printf("%c",buf16[x%32768]>>8);
+//	   //		   printf("%c",buf16[x%32768]>>8);
 			   //		   x++;
 		   	   	 }
 				 }*/
