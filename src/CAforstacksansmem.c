@@ -15,6 +15,7 @@
 extern u8 table[21];
 //u8 table[21];
 extern u16 *stackery;//[48]; // 16*3 MAX
+extern int16_t *audio_buffer;
 //u16 stackery[48];
 #else
 #include "CA.h"
@@ -23,11 +24,12 @@ extern u16 *stackery;//[48]; // 16*3 MAX
 extern __IO uint16_t adc_buffer[10];
 extern u8 table[21];
 extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
+extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 #endif
 
 extern u8 *datagenbuffer;
 //extern u16 *buf16;
-extern int16_t audio_buffer[32768];// __attribute__ ((section (".data")));
+
 
 //////////////////////////////////////////
 
@@ -127,7 +129,7 @@ u16 runhodgenet(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
 
   for (i=0;i<howmuch;i++){
 
-  place=x-cells[4]-1;
+    place=x-cells[4]-1;
   if (cells[place]==cells[0]) numill++; if (cells[place]>0) numinf++;  
   sum+=cells[place];
 
@@ -734,7 +736,7 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer,
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
   static u8 i=0; u8 x,bufsel; u8 *buffer; 
-  u8 *audiobuf=(u8*)audio_buffer;
+  //  u8 *audiobuf=(u8*)audio_buffer;
   //  for (i=0;i<stack_posy;i++){
   if (i>=stack_posy) i=0;
     u8 tmp=i*4,howmuch; u16 start,wrap;
@@ -742,47 +744,48 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
     start=stackery[tmp++]>>1;
     wrap=stackery[tmp++]>>1;
     howmuch=stackery[tmp]>>9; // 7 bits
-    bufsel=stackery[tmp++]>>15; // last bit
+    bufsel=stackery[tmp++]>>15; // top bit
 
     x=(stackery[tmp]>>12)%NUM_CA; // 4 bits
-
-    if (bufsel) buffer=datagenbuffer;
-    else buffer=audiobuf;
+    //    buffer=datagenbuffer;
+    //    buffer=(u8*)audio_buffer;
+    if (bufsel) buffer=(u8*)datagenbuffer;
+        else buffer=(u8*)audio_buffer;
     //	else buffer=audio_buffer; // 8 BITZ!
 
 	switch(x){
 	case NONENY:
-	stack[i].count=runnoney(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runnoney(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case KRUMMY:
-	stack[i].count=runkrum(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runkrum(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case HODGEY:
-	stack[i].count=runhodge(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runhodge(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case HODGENETY:
-	stack[i].count=runhodgenet(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runhodgenet(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case LIFEY:
-	stack[i].count=runlife(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runlife(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case CELY:
-	stack[i].count=runcel(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runcel(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case CEL1DY:
-	stack[i].count=runcel1d(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runcel1d(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case FIREY:
-	stack[i].count=runfire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runfire(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case WIREY:
-	stack[i].count=runwire(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runwire(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SIRY:
-	stack[i].count=runSIR(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runSIR(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       case SIR16Y:
-	stack[i].count=runSIR16(howmuch,stack[i].buffer,stack[i].count,start,wrap);
+	stack[i].count=runSIR16(howmuch,buffer,stack[i].count,start,wrap);
 	break;
       }
 	//  }

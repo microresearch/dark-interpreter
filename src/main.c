@@ -568,7 +568,7 @@ void main(void)
 
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
-  audio_buffer=(u16*)malloc(65536);
+  audio_buffer=(int16_t*)malloc(32768*sizeof(int16_t));
   settingsarray=malloc(64*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(4*64*sizeof(int16_t));
@@ -805,7 +805,7 @@ void main(void)
       // top bit as wormcode
       mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
-      //     mainmode=1; // testy!!!
+      mainmode=30; // testy!!!
 
       switch(mainmode){
 #ifdef LACH
@@ -1321,7 +1321,7 @@ void main(void)
 	foldpos+=fingerdirleftrightt(); // 16 bits
 
 	xx=fingerdirupdown();
-	if (xx==1) {
+	if (xx==1) { //down
 
 	for (x=0;x<FOLDD[0];x++){ // 10 bits
 #ifdef LACH
