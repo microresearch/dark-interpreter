@@ -27,7 +27,7 @@ extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
 
 extern u8 *datagenbuffer;
 //extern u16 *buf16;
-//extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
+extern int16_t audio_buffer[32768];// __attribute__ ((section (".data")));
 
 //////////////////////////////////////////
 
@@ -734,6 +734,7 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer,
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
   static u8 i=0; u8 x,bufsel; u8 *buffer; 
+  u8 *audiobuf=(u8*)audio_buffer;
   //  for (i=0;i<stack_posy;i++){
   if (i>=stack_posy) i=0;
     u8 tmp=i*4,howmuch; u16 start,wrap;
@@ -746,6 +747,7 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
     x=(stackery[tmp]>>12)%NUM_CA; // 4 bits
 
     if (bufsel) buffer=datagenbuffer;
+    else buffer=audiobuf;
     //	else buffer=audio_buffer; // 8 BITZ!
 
 	switch(x){

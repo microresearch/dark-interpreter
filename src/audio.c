@@ -168,7 +168,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   int32_t tmp32;
   u8 x,tmpp;
   static u16 start=0,startfilt=0,wrapfilt=1,wrap=1,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-  u8 vill=0;
+  static u8 vill=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
 #ifndef LACH
@@ -1463,9 +1463,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- //  for (x=0;x<sz/2;x++){
-    //    printf("%c",mono_buffer[x]);
- //      }
+   for (x=0;x<sz/2;x++){
+      printf("%c",mono_buffer[x]);
+    }
 #endif
 
 #endif // for test eeg

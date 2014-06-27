@@ -40,7 +40,8 @@ extern uint16_t* adc_buffer;
 #include "audio.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+//extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+//extern u8 *datagenbuffer;
 extern u16 settingsarray[64];
 #endif
 
@@ -50,7 +51,7 @@ extern u8 wormdir; // worm direction
 
 void leak(machine *m);
 
-void thread_create(thread *this, u8* buffer,u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
+void thread_create(thread *this, u16 address, u16 wrapaddress, uint8_t which, u8 delay) { // ??? or we steer each of these?
   this->m_infection=0;
   this->m_CPU=which;
   this->m_del=delay; this->m_delc=0;
@@ -61,7 +62,6 @@ void thread_create(thread *this, u8* buffer,u16 address, u16 wrapaddress, uint8_
   this->m_reg8bit2=randi()%255;
   this->m_reg16bit1=address;
   this->m_stack_pos=-1;
-  this->m_memory=buffer;
 
     for (u8 n=0; n<STACK_SIZEE; n++)
       {
@@ -69,11 +69,11 @@ void thread_create(thread *this, u8* buffer,u16 address, u16 wrapaddress, uint8_
       }
 }
 
-void cpustackpush(machine *this, u8* buffer, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
+void cpustackpush(machine *this, u16 address, u16 wrapaddress,u8 cputype, u8 delay){
   if (this->m_threadcount>=MAX_THREADS) return;
   else {
     //    printf("Thread %d Thread buffer %ld\n",this->m_threadcount,buffer);
-    thread_create(&this->m_threads[this->m_threadcount], buffer, address, wrapaddress,cputype,delay);// last is CPU type!
+    thread_create(&this->m_threads[this->m_threadcount], address, wrapaddress,cputype,delay);// last is CPU type!
   this->m_threadcount++;
   }
 }
@@ -113,7 +113,6 @@ void thread_run(thread* this, machine *m) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
   //  dircalc(biotadir,65536,256);
-  m->m_memory=this->m_memory;
   if (++this->m_delc>=this->m_del){
 
 #ifdef PCSIM
@@ -657,7 +656,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       case 26:
 	// SPL
 	//- add new thread at address x
-	cpustackpush(m,this->m_memory,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
+	cpustackpush(m,machine_peek(m,this->m_pc+1),machine_peek(m,this->m_pc+2),6,this->m_del);
 	//	printf("adde\n");
 	this->m_pc+=3;
 	break;

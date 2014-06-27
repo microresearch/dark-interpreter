@@ -373,30 +373,20 @@ controls incoming audio effect parameters (as above).
 
 * FRI 27 JUNE
 
-- set bit (say top of howmuch) for which buffer ca and sim work on
-
-bufsel (1 or 0) is top bit of howmuch now
-
-- reduce and expand all stack sizes as a mode:
-
-CPU: ->m_threadcount(max MAX_THREADS)
-CA: stack_posy (max STACK_SIZE)
-sim: stack_pos (max STACK_SIZE)
-villagers: villagestackpos (in twos)(max VILLAGE_SIZE)
-
-// select stack (left/right) (knob and set)
-
 - which modes work best// trim modes!
-
-//
 
 - some way to fold back speeds of fingers(set these % of
   MAINMODE/firstknob)=fingerspeed 1-33!NOTDONE-retest!
 
 ** DONE
 
+- fixed bug in village effects as not static (so always 0)
+- testing gdb/valgrind (was error in pcsim code now okay)- passed
+- reduce and expand all stack sizes as a mode 6 (replacing)
 - timeslicing in sim, ca DONE/TEST- cpu and leak as unsliced!
 - extra execstack option for nothing happening!
+- set bit (say top of howmuch) for which buffer ca and sim work on
+bufsel (1 or 0) is top bit of howmuch now
 
 * THU 26 JUNE
 

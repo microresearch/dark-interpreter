@@ -568,7 +568,7 @@ void main(void)
 
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
-  audio_buffer=(u16*)malloc(32768);
+  audio_buffer=(u16*)malloc(65536);
   settingsarray=malloc(64*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(4*64*sizeof(int16_t));
@@ -698,7 +698,7 @@ void main(void)
   for (x=0; x<64; x++) // was 100
     {
       addr=randi()<<3;
-      cpustackpush(m,datagenbuffer,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24); // was <<3
+      cpustackpush(m,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24); // was <<3
     }
 
   for (x=0;x<FOLD_SIZE;x++){
@@ -739,11 +739,12 @@ void main(void)
       }
 
 	u8 mainmode,groupstart,groupwrap; signed char fingerspeed;
-	u8 xx,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos;
+	u8 xx,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos,stackpos;
 	u16 foldposl,settingsposl,datagenpos,stackerposl;
 
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
+	    m->m_memory=datagenbuffer;
 
   while(1)
     {
@@ -762,7 +763,8 @@ void main(void)
 #ifdef PCSIM
       // randomise adc_buffer
       for (x=0;x<10;x++){
-	adc_buffer[x]=randi();
+	adc_buffer[x]+=(randi()%4096);
+	adc_buffer[x]=adc_buffer[x]%4096;
       }
 
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
@@ -803,7 +805,7 @@ void main(void)
       // top bit as wormcode
       mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
-      //g      mainmode=1; // testy!!!
+      //     mainmode=1; // testy!!!
 
       switch(mainmode){
 #ifdef LACH
@@ -913,7 +915,38 @@ void main(void)
 	}
 	break;
       case 6:
-	datagenpos+=fingerdirleftrightt();
+	/*
+	  CPU: ->m_threadcount(max MAX_THREADS=64) all 64!!
+	  CA: stack_posy (max STACK_SIZE)
+	  sim: stack_pos (max STACK_SIZE)
+	  villagers: villagestackpos (in twos)(max VILLAGE_SIZE) 64*2
+
+	  select stack (left/right) (knob and set)
+	*/
+
+	stackpos+=fingerdirleftrighttx(16);
+	stackpos=stackpos%4;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  if (stackpos==0) m->m_threadcount=0;//adc_buffer[SECOND]>>6; // 6bits
+	  else if (stackpos==1) stack_posy=adc_buffer[SECOND]>>6; // 6bits
+	  else if (stackpos==2) stack_pos=adc_buffer[SECOND]>>6; // 6bits
+	  else 
+	    {
+	      villagestackpos=(adc_buffer[SECOND]>>6)*2; // 6bits
+	      if (villagestackpos==0) villagestackpos=2;
+	    }
+	}
+	else if (xx==0){
+	  if (stackpos==0) m->m_threadcount=0;//adc_buffer[UP]>>6; // 6bits
+	  else if (stackpos==1) stack_posy=adc_buffer[UP]>>6; // 6bits
+	  else if (stackpos==2) stack_pos=adc_buffer[UP]>>6; // 6bits
+	  else {
+	    villagestackpos=(adc_buffer[UP]>>6)*2; // 6bits
+	    if (villagestackpos==0) villagestackpos=2;
+	  }
+	}
+	/*	datagenpos+=fingerdirleftrightt();
 	datagenpos=datagenpos%32768;
 	xx=fingerdirupdown();
 	if (xx==1){
@@ -921,8 +954,8 @@ void main(void)
 	}
 	if (xx==0){
 	  buf16[datagenpos]=adc_buffer[UP]<<4; 
-	}
-	break;
+	  }*/
+	  break;
       case 7: // directions - redone...
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits
 #ifdef LACH
@@ -1529,7 +1562,7 @@ void main(void)
 #endif
       //#endif 
     }
-}
+      }
 
 #ifdef  USE_FULL_ASSERT
 
