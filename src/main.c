@@ -805,7 +805,7 @@ void main(void)
       // top bit as wormcode
       mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
-      mainmode=30; // testy!!!
+      //      mainmode=30; // testy!!!
 
       switch(mainmode){
 #ifdef LACH
