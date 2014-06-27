@@ -373,13 +373,78 @@ controls incoming audio effect parameters (as above).
 
 * FRI 27 JUNE
 
-- which modes work best// trim modes!
+control of settings(?)ATTACHgroups// direction(worm?)//  processes=foldback and process on these parameters
+
+knob=groupsel/speeds
+knob=offset
+left/right = contract/expand size
+up/down = attach/unhang what?
+
+offset/size for a group... what to attach/detach(1 or 2 knobs are free) = can also be a process
+
+////
+
+- which modes work best?// or a new scheme - see above
+
+0-set setting 
+1-which input-NEEDbut is kind of knobless -switched with 1 
+2-set stacker/stackery
+3-set cpu
+4-set villager
+5-set villager effects
+
+6-set max stacks TEST (could be part of settingsarray if take speeds
+out - 4 speeds - 2 in case of LACH and where we set 4 speeds)
+
+7-directions
+
+[8-foldback settings???]
+
+[9-settingsarrayattached is set??? 1-8]
+
+[10-datagenbbuffer defines settings - settingsarray
+11-^villager
+12-^foldback
+
+13-worm across settings set
+14-^villager
+15^fold - ditch maybe?]
+
+16----- attaching to group! RE_TEST
+
+//could also attach group to stack/villagers
+
+17-foldback on settingsarray - buf16
+18-^randi - could be ONE but how as we use all fingers?
+
+19-on villager
+20-^randi - could be ONE
+
+21-on stacker
+22-stackery - AS ONE
+
+23-on cpu
+24-on foldback itself
+[25-on settingsarrayattached ???]
+26-copy settingsarray to itself*
+27-villager*
+
+28-villager->stack*
+29-stack->village- AS ONE back/forth with finger
+
+30-datagen and back****
+31-virus*
+
+// trim modes???but would have to be to 16
+
+/////
 
 - some way to fold back speeds of fingers(set these % of
   MAINMODE/firstknob)=fingerspeed 1-33!NOTDONE-retest!
 
 ** DONE
 
+- TENE mode 0 exchanged for 1
 - fixed bug in village effects as not static (so always 0)
 - testing gdb/valgrind (was error in pcsim code now okay)- passed
 - reduce and expand all stack sizes as a mode 6 (replacing)

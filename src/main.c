@@ -828,7 +828,7 @@ void main(void)
 	xx=fingerdirupdown();
 	if (xx==1){
 	  stacker[stackerpos]=adc_buffer[SECOND]<<4;
-#	}
+	}
 	if (xx==0){
 	  stacker[stackerpos]=adc_buffer[UP]<<4;
 	}
@@ -844,11 +844,7 @@ void main(void)
 	}
 	break;
 #else
-      case 0: // up/down/left/right as INPUT:  TO TEST!
-	xx=fingerdir();
-	if (xx!=5) inp=xx;
-	break;
-      case 1:
+      case 0:
 	settingspos+=fingerdirleftrighttx(4);
 	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
@@ -863,6 +859,10 @@ void main(void)
 	  settingsarrayattached[settingspos]=0; 
 	  	  settingsarray[settingspos]=adc_buffer[UP]<<4;
 		  }
+	break;
+      case 1: // up/down/left/right as INPUT:  TO TEST!
+	xx=fingerdir();
+	if (xx!=5) inp=xx;
 	break;
       case 2: // now with stackery
 	stackerposl+=fingerdirleftrighttx(4); //16 bit
