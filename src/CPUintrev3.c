@@ -40,7 +40,7 @@ extern uint16_t* adc_buffer;
 #include "audio.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-//extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 //extern u8 *datagenbuffer;
 extern u16 settingsarray[64];
 #endif
