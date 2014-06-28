@@ -656,6 +656,12 @@ u8 cpuattached[64];
   for (x=25;x<31;x++){
     settingsarray[x]=32768;//>>15 = 1
   }//DIR and speed
+
+  // initialise foldoffset and foldtop
+  settingsarray[23]=32768;
+    settingsarray[24]=0;
+
+
 #else
   for (x=0;x<14;x++){
     settingsarray[x]=0;
@@ -664,6 +670,7 @@ u8 cpuattached[64];
   for (x=14;x<28;x++){
     settingsarray[x]=65535;
   }//wrap
+
 
   // new hardware offsets
   for (x=28;x<32;x++){
@@ -690,6 +697,11 @@ u8 cpuattached[64];
   for (x=51;x<54;x++){
     settingsarray[x]=0; 
   }//expand
+
+  // initialise foldoffset and foldtop and machinespeed
+  settingsarray[51]=65535;
+  settingsarray[52]=0;
+  settingsarray[53]=32768;
 
   for (x=54;x<64;x++){
     settingsarray[x]=32768;//>>15 = 1

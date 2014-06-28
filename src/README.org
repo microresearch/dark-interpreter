@@ -373,7 +373,7 @@ controls incoming audio effect parameters (as above).
 
 * SAT 28 JUNE
 
-671.wav
+672/671.wav(noin)
 
 options: keep as is, reduce modes and keep as is, new mode/knob scheme
 more or less as below (opted to reduce modes and remove mirror)
