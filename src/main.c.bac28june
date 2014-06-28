@@ -808,7 +808,7 @@ void main(void)
       mainmode=1; // testy!!!
 
       switch(mainmode){
-#ifdef LACH // TODO!
+#ifdef LACH
       case 0:
 	settingspos+=fingerdirleftrighttx(12);
 	settingspos=settingspos%SETSIZE;
@@ -823,17 +823,107 @@ void main(void)
 	  settingsarray[settingspos]=adc_buffer[UP]<<4;
 	}
 	break;
+      case 1:
+	stackerpos+=fingerdirleftrighttx(12);
+	xx=fingerdirupdown();
+	if (xx==1){
+	  stacker[stackerpos]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  stacker[stackerpos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 2:
+	stackerypos+=fingerdirleftrighttx(4);
+	xx=fingerdirupdown();
+	if (xx==1){
+	  stackery[stackerypos]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  stackery[stackerypos]=adc_buffer[UP]<<4;
+	}
+	break;
 #else
-      case 0: // up/down/left/right as INPUT:  TO TEST!
+      case 0:
+	settingspos+=fingerdirleftrighttx(4);
+	settingspos=settingspos%SETSIZE;
+	xx=fingerdirupdown();
+	// a hole
+	if (xx==1){
+	  settingsarrayattached[settingspos]=0; 
+	  //	  settingsarrayattached[settingspos]=4; 
+	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  //settingsarrayattached[settingspos]=2; 
+	  settingsarrayattached[settingspos]=0; 
+	  	  settingsarray[settingspos]=adc_buffer[UP]<<4;
+		  }
+	break;
+      case 1: // up/down/left/right as INPUT:  TO TEST!
 	xx=fingerdir();
 	if (xx!=5) inp=xx;
 	break;
+      case 2: // now with stackery
+	stackerposl+=fingerdirleftrighttx(4); //16 bit
+	stackerposl=stackerposl%512;
+	xx=fingerdirupdown();
+	
+	if (xx==1){
+	  if (stackerposl<256) stacker[stackerposl]=adc_buffer[SECOND]<<4;
+	  else stackery[stackerposl-256]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  if (stackerposl<256) stacker[stackerposl]=adc_buffer[UP]<<4;
+	  else stackery[stackerposl-256]=adc_buffer[UP]<<4;
+	}
+	break;
 #endif
-
-      case 1:
+      case 3:
+	cpupos+=fingerdirleftrighttx(4);
+	cpupos=cpupos%68; //64,65,66,67
+	xx=fingerdirupdown();
+	if (xx==1){
+	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[SECOND]>>7; // 5 bits
+	  else exestack[cpupos-64]=(adc_buffer[SECOND]>>9)%5; // 3 bits 
+	}
+	if (xx==0){
+	  if (cpupos<63) m->m_threads[cpupos].m_CPU=adc_buffer[UP]>>7; // 5 bits
+	  else exestack[cpupos-64]=(adc_buffer[UP]>>9)%5; // 3 bits 
+	}
+	break;
+      case 4:
+	villagepos+=fingerdirleftrighttx(4);
+	villagepos=villagepos%128;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  villager[villagepos]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  villager[villagepos]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 5:
+	villageepos+=fingerdirleftrighttx(4);
+	villageepos=villageepos%64;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  village_effects[villageepos]=adc_buffer[SECOND]>>8; // 4 bits
+	}
+	if (xx==0){
+	  village_effects[villageepos]=adc_buffer[UP]>>8;
+	}
+	break;
+      case 6:
 	/*
+	  CPU: ->m_threadcount(max MAX_THREADS=64) all 64!!
+	  CA: stack_posy (max STACK_SIZE)
+	  sim: stack_pos (max STACK_SIZE)
+	  villagers: villagestackpos (in twos)(max VILLAGE_SIZE) 64*2
+
 	  select stack (left/right) (knob and set)
 	*/
+
 	stackpos+=fingerdirleftrighttx(16);
 	stackpos=stackpos%4;
 	xx=fingerdirupdown();
@@ -856,8 +946,17 @@ void main(void)
 	    if (villagestackpos==0) villagestackpos=2;
 	  }
 	}
+	/*	datagenpos+=fingerdirleftrightt();
+	datagenpos=datagenpos%32768;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  buf16[datagenpos]=adc_buffer[SECOND]<<4; 
+	}
+	if (xx==0){
+	  buf16[datagenpos]=adc_buffer[UP]<<4; 
+	  }*/
 	  break;
-      case 2: // directions - redone...
+      case 7: // directions - redone...
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits
 #ifdef LACH
 	dirpos=dirpos%6;
@@ -875,8 +974,103 @@ void main(void)
 	else if (xx==2) { settingsarray[54+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;} 
 #endif
 	break; 
+      case 8: // foldback
+	foldposss+=fingerdirleftrighttx(8);
+	foldposss=foldposss%FOLD_SIZE;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  FOLDD[foldposss]=adc_buffer[SECOND]<<4; 
+	}
+	if (xx==0){
+	  FOLDD[foldposss]=adc_buffer[UP]<<4; 
+	}
+	break; 
+      case 9: // settingsarrayattached
+	attachpos+=fingerdirleftrighttx(8);
+	attachpos=attachpos%SETSIZE;
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarrayattached[attachpos]=adc_buffer[SECOND]>>10; // 2 bits
+	}
+	if (xx==0){
+	  settingsarrayattached[attachpos]=adc_buffer[UP]>>10; 
+	}
+	break; 
+	//// algo groups
+      case 10:
+	settingsposl+=fingerdirleftrightt();
+#ifdef LACH
+	groupstartt=datagenbuffer[settingsposl]>>3;// 16 bits//5 bits
+#else
+	groupstartt=datagenbuffer[settingsposl]>>2;// 16 bits//6 bits
+#endif
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarray[groupstartt]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  settingsarray[groupstartt]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 11: // villager
+	settingsposl+=fingerdirleftrightt();
+	groupstartt=datagenbuffer[settingsposl]>>1;// 16 bits//7 bits
+	xx=fingerdirupdown();
+	if (xx==1){
+	  villager[groupstartt]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  villager[groupstartt]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 12: // foldback
+	settingsposl+=fingerdirleftrightt();
+	groupstartt=datagenbuffer[settingsposl]>>3;// 16 bits//5 bits
+	xx=fingerdirupdown();
+	if (xx==1){
+	  FOLDD[groupstartt%FOLD_SIZE]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  FOLDD[groupstartt%FOLD_SIZE]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 13: // wormdir walker across settingsarray//villagers14//foldback15
+	wormstart+=fingerdirleftrighttx(8);
+	wormpos+=setwalk[wormdir];
+	xx=fingerdirupdown();
+	if (xx==1){
+	  settingsarray[(wormstart+wormpos)%SETSIZE]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  settingsarray[(wormstart+wormpos)%SETSIZE]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 14: // wormdir walker across settingsarray//villagers14//foldback15
+	wormstart+=fingerdirleftrightt();
+	wormpos+=setwalk[wormdir];
+	xx=fingerdirupdown();
+	if (xx==1){
+	  villager[(wormstart+wormpos)%VILLAGE_SIZE]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  villager[(wormstart+wormpos)%VILLAGE_SIZE]=adc_buffer[UP]<<4;
+	}
+	break;
+      case 15: // wormdir walker across settingsarray//villagers14//foldback15
+	wormstart+=fingerdirleftrightt();
+	wormpos+=setwalk[wormdir];
+	xx=fingerdirupdown();
+	if (xx==1){
+	  FOLDD[(wormstart+wormpos)%FOLD_SIZE]=adc_buffer[SECOND]<<4;
+	}
+	if (xx==0){
+	  FOLDD[(wormstart+wormpos)%FOLD_SIZE]=adc_buffer[UP]<<4;
+	}
+	break;
 
-      case 3: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects//8foldback
+	////////////////////////////////////////////////////////////SETTED AND MIRROR
+
+      case 16: //SETTED!
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
 	groupstart+=fingerdirleftrighttx(8);
@@ -911,6 +1105,129 @@ void main(void)
 	}
 	}
 	break;
+	///////////////////////////MIRRORS
+	case 17:      // mirror and swaps inc. new datagen dump:
+
+#ifdef LACH
+	FOLDD[0]=adc_buffer[SECOND]>>7; // how much=5 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<(FOLDD[0]);x++){ //was >>9
+	  settingsarray[(((foldposl)>>11)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+#else
+	FOLDD[0]=adc_buffer[SECOND]>>6; // how much=6 bits
+	foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<(FOLDD[0]);x++){ //was >>9
+	  settingsarray[(((foldposl)>>10)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+#endif
+	// toggle flag with the finger
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=1; //sets
+	else if (xx==0) m1flag&=~1;
+	break;
+
+	case 18:      // mirror and swaps inc. new datagen dump:
+#ifdef LACH
+	FOLDD[0]=adc_buffer[SECOND]>>7; // how much
+	foldpos+=fingerdirleftrighttx(8);
+#else
+	FOLDD[0]=adc_buffer[SECOND]>>6; // how much
+	foldpos+=fingerdirleftrighttx(8);
+#endif
+	foldpos=foldpos%SETSIZE;
+	for (x=0;x<(FOLDD[0]);x++){ //was >>9
+	  settingsarray[(foldpos+x)%SETSIZE]=randi()<<4;
+	}
+	// toggle flag with the finger
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=2; //sets
+	else if (xx==0) m1flag&=~2;
+	break;
+
+      case 19:
+	FOLDD[0]=adc_buffer[SECOND]>>5; // how much = 7 bits as 128
+	foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<(FOLDD[0]);x++){
+	  villager[(((foldposl)>>9)+x)% VILLAGE_SIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=4; //sets
+	else if (xx==0) m1flag&=~4; 
+	break;
+
+      case 20:
+	FOLDD[0]=adc_buffer[SECOND]>>5; // how much
+	foldpos+=fingerdirleftrighttx(8);
+	foldpos=foldpos%128;
+	for (x=0;x<(FOLDD[0]);x++){
+	  villager[((foldpos>>9)+x)% VILLAGE_SIZE]=randi()<<4;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=8; //sets
+	else if (xx==0) m1flag&=~8; 
+	break;
+
+	case 21:
+	  FOLDD[0]=adc_buffer[SECOND]>>4; // howmuch-8 bits
+	  foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<(FOLDD[0]);x++){ 
+	  stacker[(((foldposl)>>8)+x)%256]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=16; //sets
+	else if (xx==0) m1flag&=~16; 
+	break;
+
+	case 22:
+	  FOLDD[0]=adc_buffer[SECOND]>>4; // howmuch-8 bits
+	  foldposl+=fingerdirleftrightt(); // 16 bits
+
+	for (x=0;x<(FOLDD[0]);x++){ 
+	  stackery[(((foldposl)>>8)+x)%256]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=32; //sets
+	else if (xx==0) m1flag&=~32; 
+	break;
+	//////
+      case 23: // cpu
+	  FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	  foldposl+=fingerdirleftrightt(); // 16 bits
+
+	for (x=0;x<(FOLDD[0]);x++){ 
+	  m->m_threads[(((foldposl)>>10)+x)%64].m_CPU=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768]>>11; // 5 bits
+	  coo++;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=64; //sets
+	else if (xx==0) m1flag&=~64; 
+	break;
+
+      case 24: // fold onto fold
+	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldposl+=fingerdirleftrightt(); // 16 bits
+	for (x=0;x<((FOLDD[0]>>1));x++){
+	  FOLDD[(((foldposl)>>10)+x)% FOLD_SIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768];
+	  coo++;
+	}
+	xx=fingerdirupdown();
+	if (xx==1) m1flag|=128; //sets
+	else if (xx==0) m1flag&=~128; 
+	break;
+	///////////////////////////////////////////////////////
+      case 25: // into attachment
+	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldposl+=fingerdirleftrightt(); // 16 bits
+
+	for (x=0;x<(FOLDD[0]);x++){
+	  settingsarrayattached[(((foldposl)>>10)+x)%SETSIZE]=buf16[((foldposl>>1)+(coo%(FOLDD[0]+1)))%32768]>>14; // last 2 bits
+	}
 
 	///////////////////////////////////////////
 	// swops now 
@@ -1116,7 +1433,6 @@ void main(void)
 	  break;
 	case 1:
 	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
-	  coo++;
 	  break;
 	case 2:
 #ifdef TENE
@@ -1129,10 +1445,70 @@ void main(void)
 	  settingsarray[x]=adc_buffer[THIRD]<<4;
 	  break;
 	case 4:
-	  settingsarray[x]=adc_buffer[SECOND]<<4; // where?
+	  settingsarray[x]=adc_buffer[SECOND]<<4;
 	  break;
 	}
       }
+
+      //// DEAL WITH toggled MIRRORING
+
+      if (m1flag&1){ 
+	for (x=0;x<((FOLDD[0]>>SETSHIFT));x++){
+	  settingsarray[(((FOLDD[1])>>SETSHIFT)+(x%((FOLDD[2]>>SETSHIFT)+1)))%SETSIZE]=buf16[((FOLDD[3]>>1)+(coo%((FOLDD[4]>>SETSHIFT)+1)))%32768];
+	  coo++;
+	}
+      }
+
+      if (m1flag&2){ 
+	for (x=0;x<((FOLDD[0]>>SETSHIFT));x++){
+	  settingsarray[(((FOLDD[5])>>SETSHIFT)+(x%((FOLDD[6]>>SETSHIFT)+1)))%SETSIZE]=(randi()<<4);
+	  coo++;
+	}
+      }
+
+      if (m1flag&4){ 
+	for (x=0;x<((FOLDD[0]>>9));x++){
+	  villager[(((FOLDD[7])>>9)+(x%((FOLDD[8]>>9)+1)))% VILLAGE_SIZE]=buf16[((FOLDD[9]>>1)+(coo%((FOLDD[10]>>9)+1)))%32768];
+	  coo++;
+	}
+      }
+
+      if (m1flag&8){ 
+	for (x=0;x<((FOLDD[0]>>9));x++){
+	  villager[(((FOLDD[11])>>9)+(x%((FOLDD[12]>>9)+1)))% VILLAGE_SIZE]=(randi()<<3);
+	  coo++;
+	}
+      }
+
+      if (m1flag&16){ 
+	for (x=0;x<((FOLDD[0]>>8));x++){ // goes high enough -8 bits
+	  stacker[(((FOLDD[13])>>8)+(x%((FOLDD[14]>>8)+1)))% 256]=buf16[((FOLDD[15]>>1)+(coo%((FOLDD[16]>>8)+1)))%32768];
+	    coo++;
+	}
+      }
+
+      if (m1flag&32){ 
+	for (x=0;x<((FOLDD[0]>>8));x++){ // goes high enough -8 bits
+	  stackery[(((FOLDD[17])>>8)+(x%((FOLDD[18]>>8)+1)))% 256]=buf16[((FOLDD[19]>>1)+(coo%((FOLDD[20]>>8)+1)))%32768];
+	    coo++;
+	}
+      }
+
+      if (m1flag&64){ // cpu 
+	for (x=0;x<((FOLDD[0]>>10));x++){ // 6 bits
+	  //	  stackery[tmper]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>8)+1)))%32768];
+	  m->m_threads[(((FOLDD[21])>>10)+(x%((FOLDD[22]>>10)+1)))% 64].m_CPU=buf16[((foldpos>>1)+(coo%(FOLDD[23]+1)))%32768]>>11;
+	    coo++;
+	}
+      }
+
+      if (m1flag&128){ 
+	for (x=0;x<((FOLDD[0]>>11));x++){
+	  FOLDD[(((FOLDD[24])>>11)+(x%((FOLDD[25]>>10)+1)))% FOLD_SIZE]=buf16[((FOLDD[26]>>1)+(coo%((FOLDD[27]>>11)+1)))%32768];
+	  	  coo++;
+	}
+      }
+
 
       //// DEAL last with hardware:
 #ifdef LACH

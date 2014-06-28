@@ -371,14 +371,20 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
+* SAT 28 JUNE
+
+options: keep as is, reduce modes and keep as is, new mode/knob scheme
+more or less as below
+
 * FRI 27 JUNE
 
-control of settings(?)ATTACHgroups// direction(worm?)//  processes=foldback and process on these parameters
+control of settings(?)=ATTACHgroups// direction(worm?)//
+processes=foldback and process on these parameters
 
 knob=groupsel/speeds
 knob=offset
 left/right = contract/expand size
-up/down = attach/unhang what?
+up/down = attach/unhang what? or as modes
 
 offset/size for a group... what to attach/detach(1 or 2 knobs are free) = can also be a process
 
