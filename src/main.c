@@ -810,7 +810,7 @@ u8 cpuattached[64];
 	xx=fingerdirupdown();
 	// a hole
 	if (xx==1){
-	settingsarrayattached[settingspos]=0; 
+	  settingsarrayattached[settingspos]=0; // this would need to be set last!
 	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){

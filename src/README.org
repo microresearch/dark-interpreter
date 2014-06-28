@@ -373,12 +373,18 @@ controls incoming audio effect parameters (as above).
 
 * SAT 28 JUNE
 
+671.wav
+
 options: keep as is, reduce modes and keep as is, new mode/knob scheme
 more or less as below (opted to reduce modes and remove mirror)
 
 - backed up last to: main.c.bac28june
 
+
+
 ** DONE:
+
+- retrying sans slicing in ca/sim (commented out)- so now runs full stack
 
 removing foldback. expanding attachments. 
 where we set foldoffset and foldtop - in settings.h replace expands

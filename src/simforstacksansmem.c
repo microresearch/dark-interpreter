@@ -1336,10 +1336,11 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u16 typerr, u16* buffer
 
 
 void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
-  static u8 i=0;
+  //static u8 i=0;
+  u8 i;
   u8 x,bufsel; u16 *buffer;
-  // for (i=0;i<stack_pos;i++){
-  if (i>=stack_pos) i=0;
+  for (i=0;i<stack_pos;i++){
+    //  if (i>=stack_pos) i=0;
 	u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
@@ -1453,8 +1454,8 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
       case WALKERCHUNKY:
 	stack[i].count=runwalkerchunk(howmuch,buffer,stack[i].count,start,wrap);
 	}
-	i++;
-	//      }
+	//	i++;
+	      }
 }
 
 signed char func_pop(u8 stack_pos){
