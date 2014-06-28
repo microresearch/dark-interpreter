@@ -15,7 +15,6 @@
  make stlink_flash
 */
 
-#define FOLD_SIZE 28
 #define MAX_EXE_STACK 4
 #define VILLAGE_SIZE (STACK_SIZE*2) // 128
 
@@ -96,9 +95,6 @@ u8 village_effects[STACK_SIZE]; // is half village_size
 u16 stackery[STACK_SIZE*4]; // 64*4 MAX now
 u16 stacker[STACK_SIZE*4]; // 64*4 MAX
 u16 settingsarray[64];
-u16 FOLDD[FOLD_SIZE]; // 28
-u8 settingsarrayattached[64];
-u8 settingsarrayinfected[64];
 #endif
 
 // for knobwork
@@ -158,7 +154,6 @@ u8* datagenbuffer = (u8*)0x10000000;
 #define randi() (rand()%4096)
 u8* datagenbuffer;
 extern int16_t* audio_buffer;
-u16* FOLDD; // MAX size 28 now*sizeof(int16_t));
 #endif
 extern u8 digfilterflag;
 
@@ -517,7 +512,15 @@ void main(void)
   u16 coo,x,addr,tmp=0,tmphardware=0;u8 HARDWARE=0;
   u8 del=0,machine_count=0,tmpacht=0,villagepos=0,settingspos=0,m1flag=0,villagerdest,cpur; 
   u8 exestack[MAX_EXE_STACK];
-  u16 tmper;
+  u16 tmper,foldy;
+
+u8 settingsarrayinfected[64];
+u8 settingsarrayattached[64];
+u8 stackerattached[64];
+u8 stackeryattached[64];
+u8 villagerattached[128];
+u8 villagereffattached[64];
+u8 cpuattached[64];
 
   inittable(3,4,randi());
   //  wormdir=0;
@@ -573,7 +576,6 @@ void main(void)
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(4*64*sizeof(int16_t));
   stackery=malloc(4*64*sizeof(int16_t));
-  FOLDD=malloc(28*sizeof(int16_t));
   adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
   srandom(time(0));
@@ -701,10 +703,6 @@ void main(void)
       cpustackpush(m,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24); // was <<3
     }
 
-  for (x=0;x<FOLD_SIZE;x++){
-        FOLDD[x]=randi()<<4; 
-  }
-
   //pureleak
 
   for (x=0;x<100;x++){
@@ -739,7 +737,7 @@ void main(void)
       }
 
 	u8 mainmode,groupstart,groupwrap; signed char fingerspeed;
-	u8 xx,cpupos,villageepos,dirpos,groupsel,foldposss,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos,stackpos;
+	u8 xx,cpupos,villageepos,dirpos,groupsel,attachpos,groupstartt,wormstart,wormpos,foldposy,foldpos,stackpos;
 	u16 foldposl,settingsposl,datagenpos,stackerposl;
 
 	    m->m_leakiness=leakiness;
@@ -779,15 +777,11 @@ void main(void)
 	  ca_runall(stackyyy,stack_posy); // CA
 	  break;
 	case 2:
-#ifdef LACH
 	  machine_count++;
 	  if (machine_count>=MACHINESPEED){
 	    machine_run(m); //cpu
 	    	    machine_count=0;
 	    	  }
-#else
-	    machine_run(m); //cpu
-#endif
 	  break;
 	case 3:
 	    machine_runnn(datagenbuffer); // pureleak
@@ -803,9 +797,10 @@ void main(void)
 
       EFFECTWRITE=adc_buffer[FOURTH]>>6; // now 6 bits///=64 was7 bitsrest of effects as offsets///
       // top bit as wormcode
-      mainmode=adc_buffer[FIRST]>>7; // 5 bits = 32 // TESTY! TODO!
+      mainmode=adc_buffer[FIRST]>>8; // 5 bits = 32 // TESTY! TODO! now 4 bits=16
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
-      mainmode=1; // testy!!!
+      // also some other major setting on this
+      //      mainmode=1; // testy!!!
 
       switch(mainmode){
 #ifdef LACH // TODO!
@@ -824,7 +819,7 @@ void main(void)
 	}
 	break;
 #else
-      case 0: // up/down/left/right as INPUT:  TO TEST!
+      case 0: // up/down/left/right as INPUT
 	xx=fingerdir();
 	if (xx!=5) inp=xx;
 	break;
@@ -876,7 +871,8 @@ void main(void)
 #endif
 	break; 
 
-      case 3: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects//8foldback
+
+      case 3: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
 	groupstart+=fingerdirleftrighttx(8);
@@ -887,7 +883,7 @@ void main(void)
 	for (x=0;x<groupwrap;x++){
 	switch(groupsel){
 	case 0:
-	  settingsarray[(groupstart+x)%SETSIZE]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  settingsarray[(groupstart+x)%SETSIZE]=buf16[((FOLDOFFSET>>1)+(coo%((groupwrap)+1)))%32768];
 	  settingsarrayattached[(groupstart+x)%SETSIZE]=1;//up
 	  coo++;
 	  break;
@@ -897,7 +893,6 @@ void main(void)
 #else
 	  settingsarray[(groupstart+x)%SETSIZE]=adc_buffer[DOWN]<<4;
 #endif
-
 	  settingsarrayattached[(groupstart+x)%SETSIZE]=2;
 	  break;
 	case 2:
@@ -912,48 +907,188 @@ void main(void)
 	}
 	break;
 
+      case 4: //SETTED! 	//expand for 4stacker/5stackery//6CPU//7villager/8village_effects
+	groupwrap=adc_buffer[SECOND]>>6; // 6bits
+	// 6 bits groupstart by way of finger LEFT/RIGHT
+	groupstart+=fingerdirleftrighttx(8);
+	groupstart=groupstart%STACK_SIZE;
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+
+	for (x=0;x<groupwrap;x++){
+	switch(groupsel){
+	case 0:
+	  stackerattached[(groupstart+x)%SETSIZE]=1;//up
+	  coo++;
+	  break;
+	case 1:
+	  stackerattached[(groupstart+x)%SETSIZE]=2;
+	  break;
+	case 2:
+	  stackerattached[(groupstart+x)%SETSIZE]=3;
+	  break;
+	case 3: 
+	  // DEtach
+	  stackerattached[(groupstart+x)%SETSIZE]=0;
+	  break;
+	}
+	}
+	break;
+
+      case 5: //SETTED! 	//expand for 4stacker/5stackery//6CPU//7villager/8village_effects
+	groupwrap=adc_buffer[SECOND]>>6; // 6bits
+	// 6 bits groupstart by way of finger LEFT/RIGHT
+	groupstart+=fingerdirleftrighttx(8);
+	groupstart=groupstart%STACK_SIZE;
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+
+	for (x=0;x<groupwrap;x++){
+	switch(groupsel){
+	case 0:
+	  stackeryattached[(groupstart+x)%SETSIZE]=1;//up
+	  coo++;
+	  break;
+	case 1:
+	  stackeryattached[(groupstart+x)%SETSIZE]=2;
+	  break;
+	case 2:
+	  stackeryattached[(groupstart+x)%SETSIZE]=3;
+	  break;
+	case 3: 
+	  // DEtach
+	  stackeryattached[(groupstart+x)%SETSIZE]=0;
+	  break;
+	}
+	}
+	break;
+
+      case 6: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
+	groupwrap=adc_buffer[SECOND]>>5; // 7bits
+	// 6 bits groupstart by way of finger LEFT/RIGHT
+	groupstart+=fingerdirleftrighttx(8);
+	groupstart=groupstart%(STACK_SIZE);
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+
+	for (x=0;x<groupwrap;x++){
+	switch(groupsel){
+	case 0:
+	  cpuattached[(groupstart+x)%SETSIZE]=1;//up
+	  coo++;
+	  break;
+	case 1:
+	  cpuattached[(groupstart+x)%SETSIZE]=2;
+	  break;
+	case 2:
+	  cpuattached[(groupstart+x)%SETSIZE]=3;
+	  break;
+	case 3: 
+	  // DEtach
+	  cpuattached[(groupstart+x)%SETSIZE]=0;
+	  break;
+	}
+	}
+	break;
+
+      case 7: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
+	groupwrap=adc_buffer[SECOND]>>5; // 7bits
+	// 6 bits groupstart by way of finger LEFT/RIGHT
+	groupstart+=fingerdirleftrighttx(8);
+	groupstart=groupstart%(STACK_SIZE*2);
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+
+	for (x=0;x<groupwrap;x++){
+	switch(groupsel){
+	case 0:
+	  villagerattached[(groupstart+x)%SETSIZE]=1;//up
+	  coo++;
+	  break;
+	case 1:
+	  villagerattached[(groupstart+x)%SETSIZE]=2;
+	  break;
+	case 2:
+	  villagerattached[(groupstart+x)%SETSIZE]=3;
+	  break;
+	case 3: 
+	  // DEtach
+	  villagerattached[(groupstart+x)%SETSIZE]=0;
+	  break;
+	}
+	}
+	break;
+
+      case 8: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
+	groupwrap=adc_buffer[SECOND]>>5; // 7bits
+	// 6 bits groupstart by way of finger LEFT/RIGHT
+	groupstart+=fingerdirleftrighttx(8);
+	groupstart=groupstart%(STACK_SIZE*2);
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+
+	for (x=0;x<groupwrap;x++){
+	switch(groupsel){
+	case 0:
+	  villagereffattached[(groupstart+x)%SETSIZE]=1;//up
+	  coo++;
+	  break;
+	case 1:
+	  villagereffattached[(groupstart+x)%SETSIZE]=2;
+	  break;
+	case 2:
+	  villagereffattached[(groupstart+x)%SETSIZE]=3;
+	  break;
+	case 3: 
+	  // DEtach
+	  villagereffattached[(groupstart+x)%SETSIZE]=0;
+	  break;
+	}
+	}
+	break;
+
 	///////////////////////////////////////////
 	// swops now 
 	// settingsarray<->settingsarray
 	// villager<->villager
 	// stacker/y<->villager and vice versa
 
-      case 26:
+      case 9:
 #ifdef LACH
-	FOLDD[0]=adc_buffer[SECOND]>>7; // howmuch-32
+	foldy=adc_buffer[SECOND]>>7; // howmuch-32
 #else
-	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldy=adc_buffer[SECOND]>>6; // howmuch-64
 #endif
 	foldposy+=fingerdirupdownx(8); 
 	foldposy=foldposy%SETSIZE;
 	foldpos+=fingerdirleftrighttx(8);
 	foldpos=foldpos%SETSIZE;
-	for (x=0;x<(FOLDD[0]);x++){
+	for (x=0;x<(foldy);x++){
 	  settingsarray[(foldpos+x)%SETSIZE]=settingsarray[(foldpos+foldposy+x)%SETSIZE];
 	}
 	break;
 
-      case 27:
-	FOLDD[0]=adc_buffer[SECOND]>>5; // howmuch-128
+      case 10:
+	foldy=adc_buffer[SECOND]>>5; // howmuch-128
 	foldposy+=fingerdirupdownx(8);
 	foldposy=foldposy%128;
 	foldpos+=fingerdirleftrighttx(8);
 	foldpos=foldpos%64;
-	for (x=0;x<(FOLDD[0]);x++){
+	for (x=0;x<(foldy);x++){
 	  villager[(foldpos+x)%VILLAGE_SIZE]=villager[(foldpos+foldposy+x)%VILLAGE_SIZE];
 	}
 	break;
 	///
-      case 28: // various stack and villager exchanges - 
+      case 11: // various stack and villager exchanges - 
 	// starts and ends only of stacks (not CPU) -> villagers
 	
-	FOLDD[0]=adc_buffer[SECOND]>>6; // howmuch-64
+	foldy=adc_buffer[SECOND]>>6; // howmuch-64
 	foldposy+=fingerdirupdownx(8);
 	foldposy=foldposy%64;
 	foldpos+=fingerdirleftrighttx(8);
 	foldpos=foldpos%128;
 	///////
-	for (x=0;x<(FOLDD[0]);x++){ // 64 
+	for (x=0;x<(foldy);x++){ // 64 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point // 7 bits=128
 	  villagerdest=(((foldpos)>>1)+x+foldposy)%(VILLAGE_SIZE/2); // village entry
 	  if (tmper<STACK_SIZE){
@@ -970,16 +1105,16 @@ void main(void)
 	}
 	break;
 
-      case 29: // various stack and villager exchanges - 
+      case 12: // various stack and villager exchanges - 
 	// other way round
 	
-	FOLDD[0]=adc_buffer[SECOND]>>5; // howmuch-128
+	foldy=adc_buffer[SECOND]>>5; // howmuch-128
 	foldposy+=fingerdirupdownx(8); // TODO-redo as leftrighttx
 	foldposy=foldposy%64;
 	foldpos+=fingerdirleftrighttx(8); // 16 bits
 	foldpos=foldpos%128;
 
-	for (x=0;x<(FOLDD[0]);x++){ 
+	for (x=0;x<(foldy);x++){ 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point // 7 bits=128
 	  villagerdest=(((foldpos)>>1)+x+foldposy)%(VILLAGE_SIZE/2); // village entry
 
@@ -997,16 +1132,16 @@ void main(void)
 	}
 	break;
 
-      case 30: // dump (all) to datagen//back
+      case 13: // dump (all) to datagen//back
 	// test leftrightt	settingsarray[15]+=fingerdirleftrightt(); // 16 bits
 	
-	FOLDD[0]=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
+	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
 	foldpos+=fingerdirleftrightt(); // 16 bits
 
 	xx=fingerdirupdown();
 	if (xx==1) { //down
 
-	for (x=0;x<FOLDD[0];x++){ // 10 bits
+	for (x=0;x<foldy;x++){ // 10 bits
 #ifdef LACH
 	  tmper=((foldpos>>6)+x)%736; // full house//10 bits=1024
 	  if (tmper<32) buf16[(foldpos+x)%32768]=settingsarray[tmper];
@@ -1025,7 +1160,7 @@ void main(void)
 	}
 	}
 	else if (xx==0) {
-	for (x=0;x<FOLDD[0];x++){ // 10 bits
+	for (x=0;x<foldy;x++){ // 10 bits
 #ifdef LACH
 	  tmper=((foldpos>>6)+x)%736; // full house//10 bits=1024
 	  if (tmper<32) settingsarray[tmper]=buf16[(foldpos+x)%32768];
@@ -1045,7 +1180,7 @@ void main(void)
 	}
 	break;
 	////////////////
-      case 31: // infection
+      case 14: // infection
 	///infection across buffer: knobs; speed,probability,buffer
 	//set according to probability
 	if ((adc_buffer[SECOND]>>5)==0){
@@ -1093,29 +1228,29 @@ void main(void)
 		  m->m_threads[x%(m->m_threadcount)].m_CPU=0;//cpu
 		}
 		break;
-	      case 5:
+		/*	      case 5:
 		if (x<14){
-		if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	FOLDD[x]-=settingsarrayinfected[x]; // foldd max
+		  if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	FOLDD[x]-=settingsarrayinfected[x]; // foldd max
 		else if (settingsarrayinfected[x]>127) FOLDD[x%FOLD_SIZE]=0; // foldd max
 		}
-		break;
+		break;*/
 	      }
 	    /////
 	  }
 	}
 	break;
-
+	// TODO: add one more mode!!!
       }
 
       //END MODECODE      /////////////////////////////////////
-      /// DEAL with settingsattach:
+      /// DEAL with settingsattach and other attachs....
 
       for (x=0;x<SETSIZE;x++){
 	switch(settingsarrayattached[x]){
 	case 0:
 	  break;
 	case 1:
-	  settingsarray[x]=buf16[((FOLDD[1]>>1)+(coo%((FOLDD[2]>>10)+1)))%32768];
+	  settingsarray[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
 	  coo++;
 	  break;
 	case 2:
@@ -1133,6 +1268,106 @@ void main(void)
 	  break;
 	}
       }
+
+      for (x=0;x<64;x++){
+	switch(stackerattached[x]){
+	case 0:
+	  break;
+	case 1:
+	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  coo++;
+	  break;
+	case 2:
+#ifdef TENE
+	  stacker[x]=adc_buffer[9]<<4;
+#else
+	  stacker[x]=adc_buffer[DOWN]<<4;
+#endif
+	  break;
+	case 3:
+	  stacker[x]=adc_buffer[THIRD]<<4;
+	  break;
+	case 4:
+	  stacker[x]=adc_buffer[SECOND]<<4; // where?
+	  break;
+	}
+      }
+
+      for (x=0;x<64;x++){
+	switch(villagereffattached[x]){
+	case 0:
+	  break;
+	case 1:
+	  village_effects[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  coo++;
+	  break;
+	case 2:
+#ifdef TENE
+	  village_effects[x]=adc_buffer[9]<<4;
+#else
+	  village_effects[x]=adc_buffer[DOWN]<<4;
+#endif
+	  break;
+	case 3:
+	  village_effects[x]=adc_buffer[THIRD]<<4;
+	  break;
+	case 4:
+	  village_effects[x]=adc_buffer[SECOND]<<4; // where?
+	  break;
+	}
+      }
+
+      for (x=0;x<128;x++){
+	switch(villagerattached[x]){
+	case 0:
+	  break;
+	case 1:
+	  villager[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  coo++;
+	  break;
+	case 2:
+#ifdef TENE
+	  villager[x]=adc_buffer[9]<<4;
+#else
+	  villager[x]=adc_buffer[DOWN]<<4;
+#endif
+	  break;
+	case 3:
+	  villager[x]=adc_buffer[THIRD]<<4;
+	  break;
+	case 4:
+	  villager[x]=adc_buffer[SECOND]<<4; // where?
+	  break;
+	}
+      }
+
+
+      for (x=0;x<64;x++){
+	switch(stackerattached[x]){
+	case 0:
+	  break;
+	case 1:
+	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  coo++;
+	  break;
+	case 2:
+#ifdef TENE
+	  stacker[x]=adc_buffer[9]<<4;
+#else
+	  stacker[x]=adc_buffer[DOWN]<<4;
+#endif
+	  break;
+	case 3:
+	  stacker[x]=adc_buffer[THIRD]<<4;
+	  break;
+	case 4:
+	  stacker[x]=adc_buffer[SECOND]<<4; // where?
+	  break;
+	}
+      }
+
+
+
 
       //// DEAL last with hardware:
 #ifdef LACH

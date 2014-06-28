@@ -374,7 +374,14 @@ controls incoming audio effect parameters (as above).
 * SAT 28 JUNE
 
 options: keep as is, reduce modes and keep as is, new mode/knob scheme
-more or less as below
+more or less as below (opted to reduce modes and remove mirror)
+
+- backed up last to: main.c.bac28june
+
+** DONE:
+
+removing foldback. expanding attachments. 
+where we set foldoffset and foldtop - in settings.h replace expands
 
 * FRI 27 JUNE
 
@@ -432,9 +439,9 @@ out - 4 speeds - 2 in case of LACH and where we set 4 speeds)
 23-on cpu
 24-on foldback itself
 [25-on settingsarrayattached ???]
+
 26-copy settingsarray to itself*
 27-villager*
-
 28-villager->stack*
 29-stack->village- AS ONE back/forth with finger
 

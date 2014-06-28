@@ -32,8 +32,10 @@
 #define FMODF ((float32_t)settingsarray[21]/65536.0f)
 #define FMODW ((float32_t)settingsarray[22]/65536.0f)// LEAVE ALL IN FOR LACH
 
-#define SAMPLEEXPAND (settingsarray[23]>>1) 
-#define SAMPLEREXPAND (settingsarray[24]>>1)
+//#define SAMPLEEXPAND (settingsarray[23]>>1) 
+//#define SAMPLEREXPAND (settingsarray[24]>>1)
+#define FOLDTOP (settingsarray[23]) 
+#define FOLDOFFSET (settingsarray[24]) 
 
 /////
 #define DATADIRR (settingsarray[25]>>15)
@@ -111,9 +113,12 @@
 #define FMODF ((float32_t)settingsarray[49]/65536.0f)
 #define FMODW ((float32_t)settingsarray[50]/65536.0f)// LEAVE ALL IN FOR LACH
 
-#define SAMPLEEXPAND (settingsarray[51]>>1) 
-#define SAMPLEREXPAND (settingsarray[52]>>1)
-#define SAMPLEFEXPAND (settingsarray[53]>>1)//-LACH_TODO
+#define FOLDTOP (settingsarray[51]) 
+#define FOLDOFFSET (settingsarray[52]) 
+#define MACHINESPEED (settingsarray[53]>>8)
+//#define SAMPLEEXPAND (settingsarray[51]>>1) 
+//#define SAMPLEREXPAND (settingsarray[52]>>1)
+//#define SAMPLEFEXPAND (settingsarray[53]>>1)//-LACH_TODO
 
 /////
 #define HWDIR (settingsarray[54]>>15) //-LACH_TODO
