@@ -601,7 +601,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	else  // READIN NO DIG FILTER
 	  {
 	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
-	    EFFECTREAD=0;
+	    //	    EFFECTREAD=0;
 	    VILLAGEREAD=EFFECTREAD&3;
 	    
 	    for (x=0;x<sz/2;x++){
@@ -868,7 +868,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
-	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
+	    //	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
+	    mono_buffer[x]=((float)(buf16[tmpp])*w0)+((float)(buf16[samplepos%32768])*w1)+((float)(buf16[(samplepos+1)%32768])*w2);
+
 	    break;
 	  }
 
@@ -1203,7 +1205,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
-	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
+	    //	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
+	    mono_buffer[x]=((float)(buf16[tmpp])*w0)+((float)(buf16[samplepos%32768])*w1)+((float)(buf16[(samplepos+1)%32768])*w2);
 	    break;
 	  }
  

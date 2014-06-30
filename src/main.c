@@ -813,7 +813,7 @@ u8 cpuattached[64];
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
       // also some other major setting on this
       //      mainmode=1; // testy!!!
-
+      mainmode=9;
       switch(mainmode){
 #ifdef LACH // TODO!
       case 0:
@@ -822,7 +822,7 @@ u8 cpuattached[64];
 	xx=fingerdirupdown();
 	// a hole
 	if (xx==1){
-	  settingsarrayattached[settingspos]=0; // this would need to be set last!
+	  settingsarrayattached[settingspos]=0; 
 	  settingsarray[settingspos]=adc_buffer[SECOND]<<4;
 	}
 	if (xx==0){
@@ -834,9 +834,12 @@ u8 cpuattached[64];
       case 0: // up/down/left/right as INPUT
 	xx=fingerdir();
 	if (xx!=5) inp=xx;
+	// also effectread offset is on second knob
+	//EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64 //-LACH_TODO
+	settingsarrayattached[46]=0; 
+	settingsarray[46]=adc_buffer[SECOND]<<4;
 	break;
 #endif
-
       case 1:
 	/*
 	  select stack (left/right) (knob and set)
@@ -864,6 +867,7 @@ u8 cpuattached[64];
 	  }
 	}
 	  break;
+	  ///////////////////////////////////
       case 2: // directions - redone...
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits
 #ifdef LACH
@@ -1059,13 +1063,45 @@ u8 cpuattached[64];
 	}
 	break;
 
+	//algo-attach into all:
+      case 9:
+	foldy=adc_buffer[SECOND]>>6; // how many from knob2 = 5 bits
+
+	for (x=0;x<foldy;x++){
+
+	settingsposl+=fingerdirleftrighttx(8);
+	settingsposl=settingsposl%32768;	
+	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel=groupsel%4;
+	tmper=buf16[(settingsposl+(datagenpos%foldy))%32768];
+	datagenpos++;
+#ifdef LACH
+	tmper=(tmper>>6)%416;
+	if (tmper<32) settingsarrayattached[tmper]=groupsel;
+	else 	if (tmper<96) stackerattached[tmper-32]=groupsel;
+	else 	if (tmper<160) stackeryattached[tmper-96]=groupsel;
+	else 	if (tmper<288) villagerattached[tmper-160]=groupsel;
+	else 	if (tmper<352) villagereffattached[tmper-288]=groupsel;
+	else 	cpuattached[tmper-352]=groupsel;
+#else
+	tmper=(tmper>>6)%448;
+	if (tmper<64) settingsarrayattached[tmper]=groupsel;
+	else 	if (tmper<128) stackerattached[tmper-64]=groupsel;
+	else 	if (tmper<192) stackeryattached[tmper-128]=groupsel;
+	else 	if (tmper<320) villagerattached[tmper-192]=groupsel;
+	else 	if (tmper<384) villagereffattached[tmper-320]=groupsel;
+	else 	cpuattached[tmper-384]=groupsel;
+#endif
+	}
+	break;
+
 	///////////////////////////////////////////
 	// swops now 
 	// settingsarray<->settingsarray
 	// villager<->villager
 	// stacker/y<->villager and vice versa
 
-      case 9:
+      case 10:
 #ifdef LACH
 	foldy=adc_buffer[SECOND]>>7; // howmuch-32
 #else
@@ -1080,7 +1116,7 @@ u8 cpuattached[64];
 	}
 	break;
 
-      case 10:
+      case 11:
 	foldy=adc_buffer[SECOND]>>5; // howmuch-128
 	foldposy+=fingerdirupdownx(8);
 	foldposy=foldposy%128;
@@ -1091,7 +1127,7 @@ u8 cpuattached[64];
 	}
 	break;
 	///
-      case 11: // various stack and villager exchanges - 
+      case 12: // various stack and villager exchanges - 
 	// starts and ends only of stacks (not CPU) -> villagers
 	
 	foldy=adc_buffer[SECOND]>>6; // howmuch-64
@@ -1117,7 +1153,7 @@ u8 cpuattached[64];
 	}
 	break;
 
-      case 12: // various stack and villager exchanges - 
+      case 13: // various stack and villager exchanges - 
 	// other way round
 	
 	foldy=adc_buffer[SECOND]>>5; // howmuch-128
@@ -1144,7 +1180,7 @@ u8 cpuattached[64];
 	}
 	break;
 
-      case 13: // dump (all) to datagen//back
+      case 14: // dump (all) to datagen//back
 	// test leftrightt	settingsarray[15]+=fingerdirleftrightt(); // 16 bits
 	
 	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
@@ -1192,7 +1228,7 @@ u8 cpuattached[64];
 	}
 	break;
 	////////////////
-      case 14: // infection
+      case 15: // infection
 	///infection across buffer: knobs; speed,probability,buffer
 	//set according to probability
 	if ((adc_buffer[SECOND]>>5)==0){
@@ -1240,18 +1276,19 @@ u8 cpuattached[64];
 		  m->m_threads[x%(m->m_threadcount)].m_CPU=0;//cpu
 		}
 		break;
-		/*	      case 5:
+	      case 5:
 		if (x<14){
-		  if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	FOLDD[x]-=settingsarrayinfected[x]; // foldd max
-		else if (settingsarrayinfected[x]>127) FOLDD[x%FOLD_SIZE]=0; // foldd max
+		  if (settingsarrayinfected[x]>0 && settingsarrayinfected[x]<128)	villager[x]-=settingsarrayinfected[x]; // foldd max
+		else if (settingsarrayinfected[x]>127) villager[x]=0; // foldd max
 		}
-		break;*/
+		break;
+		// case 6.7?
 	      }
 	    /////
 	  }
 	}
 	break;
-	// TODO: add one more mode!!!
+	// TODO: add one more mode!!! what could be?
       }
 
       //END MODECODE      /////////////////////////////////////
@@ -1355,25 +1392,25 @@ u8 cpuattached[64];
 
 
       for (x=0;x<64;x++){
-	switch(stackerattached[x]){
+	switch(stackeryattached[x]){
 	case 0:
 	  break;
 	case 1:
-	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  stackery[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
 	  coo++;
 	  break;
 	case 2:
 #ifdef TENE
-	  stacker[x]=adc_buffer[9]<<4;
+	  stackery[x]=adc_buffer[9]<<4;
 #else
-	  stacker[x]=adc_buffer[DOWN]<<4;
+	  stackery[x]=adc_buffer[DOWN]<<4;
 #endif
 	  break;
 	case 3:
-	  stacker[x]=adc_buffer[THIRD]<<4;
+	  stackery[x]=adc_buffer[THIRD]<<4;
 	  break;
 	case 4:
-	  stacker[x]=adc_buffer[SECOND]<<4; // where?
+	  stackery[x]=adc_buffer[SECOND]<<4; // where?
 	  break;
 	}
       }
