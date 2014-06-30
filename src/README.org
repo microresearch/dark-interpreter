@@ -378,8 +378,13 @@ controls incoming audio effect parameters (as above).
 
 * MON 30 JUNE
 
+- finger_as_speed in navigation mode (2) DONE - to TEST!
+
 ** DONE
 
+- do we use fingerspeed(also on first knob) - TEST
+???? - what else on mainmode knob (some kind of contraction in reverse)=samplewraps! ????
+[commented at moment]
 - changes last effect in audio.c case 15...
 - effectread offset is now on knob 2 when we have mode 0 selection
 - mode 9 is algo selection into all-tested

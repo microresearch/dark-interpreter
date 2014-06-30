@@ -195,31 +195,36 @@ u16 villagepop(u16 villagepos){
   return villagepos;
 }
 
-u8 fingerdir(void){
-  u8 handleft, handright, up=0,down=0,left=0,right=0;
+u8 fingerdir(u8 *speedmod){
+  u8 handleft, handright, up=0,down=0,left=0,right=0,upspeed=0,downspeed=0,leftspeed=0,rightspeed=0;
   u8 handupp, handdown;
   u8 result=5;
 
   for (u8 x=0;x<8;x++){
-  handupp=adc_buffer[UP]>>8; 
-  handdown=adc_buffer[DOWN]>>8;
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
+    handupp=adc_buffer[UP]>>8; // 4 bits=16 
+    handdown=adc_buffer[DOWN]>>8;
+    handleft=adc_buffer[LEFT]>>8;
+    handright=adc_buffer[RIGHT]>>8;
+    upspeed+=handupp;
+    downspeed+=handdown;
+    leftspeed+=handleft;
+    rightspeed+=handright;
+
   if (handupp>2) up++;
   if (handdown>2) down++;
   if (handleft>2) left++;
   if (handright>2) right++;
   if (up>4 && up>down && up>left && up>right) {
-    result=0;
+    result=0; *speedmod=upspeed;
   }
   else if (down>4 && down>left && down>right) {
-    result=2; 
+    result=2; *speedmod=downspeed;
   }
   else if (left>4 && left>right) {
-    result=3;
+    result=3; *speedmod=leftspeed;
   }
   else if (right>4) {
-    result=1;
+    result=1; *speedmod=rightspeed;
   }
   }
   return result;
@@ -510,7 +515,7 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 coo,x,addr,tmp=0,tmphardware=0;u8 HARDWARE=0;
-  u8 del=0,machine_count=0,tmpacht=0,villagepos=0,settingspos=0,m1flag=0,villagerdest,cpur; 
+  u8 del=0,machine_count=0,tmpacht=0,villagepos=0,settingspos=0,m1flag=0,villagerdest,cpur,spd; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
 
@@ -812,12 +817,23 @@ u8 cpuattached[64];
       mainmode=adc_buffer[FIRST]>>8; // 5 bits = 32 // TESTY! TODO! now 4 bits=16
       fingerspeed=((adc_buffer[FIRST]>>2)%32)+1; // 32/*32=1024 = 10 bits
       // also some other major setting on this
-      //      mainmode=1; // testy!!!
-      mainmode=9;
+
+
+#ifdef LACH
+      //#define SAMPLESPEED (settingsarray[18]>>8)
+      // now test WRAP
+      settingsarray[6]=((adc_buffer[FIRST]>>4)%16)<<12;
+#else
+      settingsarray[15]=((adc_buffer[FIRST]>>4)%16)<<12; // TEST
+      settingsarray[17]=((adc_buffer[FIRST]>>4)%16)<<12; // TEST
+#endif
+
+      //      mainmode=2; // TESTY!
+
       switch(mainmode){
 #ifdef LACH // TODO!
       case 0:
-	settingspos+=fingerdirleftrighttx(12);
+	settingspos+=fingerdirleftrighttx(fingerspeed);
 	settingspos=settingspos%SETSIZE;
 	xx=fingerdirupdown();
 	// a hole
@@ -832,7 +848,7 @@ u8 cpuattached[64];
 	break;
 #else
       case 0: // up/down/left/right as INPUT
-	xx=fingerdir();
+	xx=fingerdir(&spd);
 	if (xx!=5) inp=xx;
 	// also effectread offset is on second knob
 	//EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64 //-LACH_TODO
@@ -844,7 +860,7 @@ u8 cpuattached[64];
 	/*
 	  select stack (left/right) (knob and set)
 	*/
-	stackpos+=fingerdirleftrighttx(16);
+	stackpos+=fingerdirleftrighttx(fingerspeed);
 	stackpos=stackpos%4;
 	xx=fingerdirupdown();
 	if (xx==1){
@@ -872,14 +888,20 @@ u8 cpuattached[64];
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits
 #ifdef LACH
 	dirpos=dirpos%6;
-	xx=fingerdir();
+	xx=fingerdir(&spd);
+	// sET Speed!
+	settingsarray[18]=spd<<8;
 	if (xx==0) wormflag[dirpos]=1; // up
 	else if (xx==1) { settingsarray[25+dirpos]=(1<<15); wormflag[dirpos]=0;} //right
 	else if (xx==3) { settingsarray[25+dirpos]=0; wormflag[dirpos]=0;} // left=0
 	else if (xx==2) { settingsarray[25+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;} 
 #else
 	dirpos=dirpos%10;
-	xx=fingerdir();
+	xx=fingerdir(&spd);
+	// sET Speed!
+	settingsarray[43]=spd<<8;
+	settingsarray[45]=spd<<8;
+
 	if (xx==0) wormflag[dirpos]=1; // up
 	else if (xx==1) { settingsarray[54+dirpos]=(1<<15); wormflag[dirpos]=0;} //right
 	else if (xx==3) { settingsarray[54+dirpos]=0; wormflag[dirpos]=0;} // left=0
@@ -891,9 +913,9 @@ u8 cpuattached[64];
       case 3: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed); // TEST!
 	groupstart=groupstart%SETSIZE;
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -926,9 +948,9 @@ u8 cpuattached[64];
       case 4: //SETTED! 	//expand for 4stacker/5stackery//6CPU//7villager/8village_effects
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed);
 	groupstart=groupstart%STACK_SIZE;
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -954,9 +976,9 @@ u8 cpuattached[64];
       case 5: //SETTED! 	//expand for 4stacker/5stackery//6CPU//7villager/8village_effects
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed);
 	groupstart=groupstart%STACK_SIZE;
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -982,9 +1004,9 @@ u8 cpuattached[64];
       case 6: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupwrap=adc_buffer[SECOND]>>5; // 7bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed);
 	groupstart=groupstart%(STACK_SIZE);
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -1010,9 +1032,9 @@ u8 cpuattached[64];
       case 7: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupwrap=adc_buffer[SECOND]>>5; // 7bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed);
 	groupstart=groupstart%(STACK_SIZE*2);
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -1038,9 +1060,9 @@ u8 cpuattached[64];
       case 8: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupwrap=adc_buffer[SECOND]>>5; // 7bits
 	// 6 bits groupstart by way of finger LEFT/RIGHT
-	groupstart+=fingerdirleftrighttx(8);
+	groupstart+=fingerdirleftrighttx(fingerspeed);
 	groupstart=groupstart%(STACK_SIZE*2);
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 
 	for (x=0;x<groupwrap;x++){
@@ -1069,9 +1091,9 @@ u8 cpuattached[64];
 
 	for (x=0;x<foldy;x++){
 
-	settingsposl+=fingerdirleftrighttx(8);
+	settingsposl+=fingerdirleftrighttx(fingerspeed);
 	settingsposl=settingsposl%32768;	
-	groupsel+=fingerdirupdownx(64); // TODO-redo as leftrighttx
+	groupsel+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	groupsel=groupsel%4;
 	tmper=buf16[(settingsposl+(datagenpos%foldy))%32768];
 	datagenpos++;
@@ -1107,9 +1129,9 @@ u8 cpuattached[64];
 #else
 	foldy=adc_buffer[SECOND]>>6; // howmuch-64
 #endif
-	foldposy+=fingerdirupdownx(8); 
+	foldposy+=fingerdirupdownx(fingerspeed); 
 	foldposy=foldposy%SETSIZE;
-	foldpos+=fingerdirleftrighttx(8);
+	foldpos+=fingerdirleftrighttx(fingerspeed);
 	foldpos=foldpos%SETSIZE;
 	for (x=0;x<(foldy);x++){
 	  settingsarray[(foldpos+x)%SETSIZE]=settingsarray[(foldpos+foldposy+x)%SETSIZE];
@@ -1118,9 +1140,9 @@ u8 cpuattached[64];
 
       case 11:
 	foldy=adc_buffer[SECOND]>>5; // howmuch-128
-	foldposy+=fingerdirupdownx(8);
+	foldposy+=fingerdirupdownx(fingerspeed);
 	foldposy=foldposy%128;
-	foldpos+=fingerdirleftrighttx(8);
+	foldpos+=fingerdirleftrighttx(fingerspeed);
 	foldpos=foldpos%64;
 	for (x=0;x<(foldy);x++){
 	  villager[(foldpos+x)%VILLAGE_SIZE]=villager[(foldpos+foldposy+x)%VILLAGE_SIZE];
@@ -1131,9 +1153,9 @@ u8 cpuattached[64];
 	// starts and ends only of stacks (not CPU) -> villagers
 	
 	foldy=adc_buffer[SECOND]>>6; // howmuch-64
-	foldposy+=fingerdirupdownx(8);
+	foldposy+=fingerdirupdownx(fingerspeed);
 	foldposy=foldposy%64;
-	foldpos+=fingerdirleftrighttx(8);
+	foldpos+=fingerdirleftrighttx(fingerspeed);
 	foldpos=foldpos%128;
 	///////
 	for (x=0;x<(foldy);x++){ // 64 
@@ -1157,9 +1179,9 @@ u8 cpuattached[64];
 	// other way round
 	
 	foldy=adc_buffer[SECOND]>>5; // howmuch-128
-	foldposy+=fingerdirupdownx(8); // TODO-redo as leftrighttx
+	foldposy+=fingerdirupdownx(fingerspeed); // TODO-redo as leftrighttx
 	foldposy=foldposy%64;
-	foldpos+=fingerdirleftrighttx(8); // 16 bits
+	foldpos+=fingerdirleftrighttx(fingerspeed); // 16 bits
 	foldpos=foldpos%128;
 
 	for (x=0;x<(foldy);x++){ 
