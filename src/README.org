@@ -304,7 +304,7 @@ For Mater Lachrymarum IN is unused!
 
 ** The knobs and their functions
 
-//REWRITING_>
+//REWRITE!
 
 1- These first three knobs are the same in all synths (placement only
 differing). This first knob selects one of 32 modes, divided into
@@ -371,10 +371,65 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
-* TODO July
+* FRI 4 JULY
 
-- test LACH and SUSP boards
+681(noard,IN),673(nohard,TMin),674*(hard!,TMin),675(nohard,TMin),676(nohard,noin),677/678(hard,noin),680(noard/noin)
 
+///////////////////////////
+- check all files
+
+- new LACH question on finalknob
+- uses of minormode?
+- test LACH and SUSP - full tests/tweaks each mode///manual///documentation///website
+
+
+//////////////////- re-testing all modes!FIX-/-RE-TEST!
+
+/////
+
+mode0: effects/inp *// changed OK! EFFECT MODE
+
+1: stack * REFINE/RETEST- STACK MODE
+
+2: dir/speed * GOOD!- knobs for what?
+
+3- setted for all SETTED! - NOW as one mode (minormode as mod)
+
+4-algo attachall* ALGO
+////////////////////////////////////////
+
+5-settings to settings: leftright=pos2 updown=pos1 knob2=howmuch *SWOPS/MIRRORS ONE MODE
+
+6-dump all to datagen and back (up/down)* COREDUMP
+ 
+7-infection (could be across all?) INFECTION - size mismatch - infect across all
+
+///
+//????????????????????????????????????//////
+
+- simplify audio effects and settings:
+
+pin down settings: speed/step/start/wrap/dir + misc: fmods, foldback...
+
+- villager model for all
+- self-modifying modes and setup (how?)
+
+////
+
+** DONE
+
+- EFFECTWRITE=adc_buffer[FOURTH]>>6 on modes 0/1/2
+
+- reduced to 8 modes - with minormode
+- fixed problems in modes esp. with stack size...
+- changed case 0 and 1 for all effects now - RE-TEST!
+- back to 48k samplerate// back to 32k
+- effect offsets elsewhere than settingsarray (set in mode 0 but how also set filter offset)
+- final convolve effects fixed
+- fix mode issue/silence..speed issue-> working on/DONE-tweakTODO!
+- check wrap on knob1-REMOVED
+- why inp mode failed 0 was wrap
+- finger in speed to invertDONE
 
 * MON 30 JUNE
 

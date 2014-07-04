@@ -54,12 +54,8 @@ extern u8 village_effects[VILLAGE_SIZE/2];
 
 u16 newdirection[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 
-#ifdef LACH
-extern u8 EFFECTREAD;
-#endif
-
 extern signed char direction[2];
-extern u8 EFFECTWRITE;
+extern u8 EFFECTWRITE, EFFECTREAD,EFFECTFILTER;
 extern u8 wormdir;
 extern u8 wormflag[10];
 extern u8 villagestackpos;
@@ -171,10 +167,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 vill=0;
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
-#ifndef LACH
-  u8 EFFECTREAD;
-  u8 EFFECTFILT;
-#endif
+
   int16_t dirry;
   float32_t w0,w1,w2;
 
@@ -391,7 +384,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  ////////////////////////////////////LDST effects also...
 
-	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
+	  //	  EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
 	  VILLAGEREAD=EFFECTREAD&3;
 	  for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
@@ -600,7 +593,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
+	    //	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
 	    //	    EFFECTREAD=0;
 	    VILLAGEREAD=EFFECTREAD&3;
 	    
@@ -859,13 +852,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*FMOD)+((float)audio_buffer[samplepos%32768]*FMODF)+((float)audio_buffer[(samplepos+1)%32768]*FMODW);
 	    break;
 	  case 14:
-	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) (buf16[2]-32768)/32768.0f;
+	    w0=(float32_t) (buf16[0]-32768)/16384.0f;w1=(float32_t) (buf16[1]-32768)/16384.0f;w2=(float32_t) (buf16[2]-32768)/16384.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
 	    break;
 	  case 15:
-	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
+	    w0=(float32_t) audio_buffer[0]/16384.0f;w1=(float32_t)audio_buffer[1]/16384.0f;w2=(float32_t)audio_buffer[2]/16384.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    //	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
@@ -1040,7 +1033,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=tmp32;
 	  break;
  	  case 15:
-	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) buf16[2]/32768.0f;
+	    w0=(float32_t) (buf16[0]-32768)/16384.0f;w1=(float32_t) (buf16[1]-32768)/16384.0f;w2=(float32_t) buf16[2]/16384.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
@@ -1112,10 +1105,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 		else
 	  { /// STRAIGHT SANS FILTEROPSSS!!!
-	    ///	    	    VILLAGEWRITE=EFFECTWRITE&3;
 	    VILLAGEWRITE=EFFECTWRITE&3;
-	    //	    VILLAGEWRITE=2;
-	  //	  VILLAGEWRITE=0; // TESTY!!!!
+	    //	    VILLAGEWRITE=2; // TESTY!!!!
 	  
 	  for (x=0;x<sz/2;x++){
 
@@ -1123,9 +1114,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=EFFECTWRITE>>2;
-	  //	  tmpp=0; // TESTY!
-	  //	     printf("%d\n",samplepos);
-	  //	  tmpp=15;
+	  //	  tmpp=15;  // TESTY!
+	  //	  tmpp=1;
 	  switch(tmpp){ 
 	  case 0:
 	     mono_buffer[x]=audio_buffer[samplepos%32768];
@@ -1196,17 +1186,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*FMOD)+((float)audio_buffer[samplepos%32768]*FMODF)+((float)audio_buffer[(samplepos+1)%32768]*FMODW);
 	    break;
 	  case 14:
-	    w0=(float32_t) (buf16[0]-32768)/32768.0f;w1=(float32_t) (buf16[1]-32768)/32768.0f;w2=(float32_t) (buf16[2]-32768)/32768.0f;
+	    w0=(float32_t) (buf16[0]-32768)/16384.0f;w1=(float32_t) (buf16[1]-32768)/16384.0f;w2=(float32_t) (buf16[2]-32768)/16384.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
 	    mono_buffer[x]=((float)audio_buffer[tmpp]*w0)+((float)audio_buffer[samplepos%32768]*w1)+((float)audio_buffer[(samplepos+1)%32768]*w2);
 	    break;
 	  case 15:
-	    w0=(float32_t) audio_buffer[0]/32768.0f;w1=(float32_t)audio_buffer[1]/32768.0f;w2=(float32_t)audio_buffer[2]/32768.0f;
+	    w0=(float32_t) audio_buffer[0]/16384.0f;w1=(float32_t)audio_buffer[1]/16384.0f;w2=(float32_t)audio_buffer[2]/16384.0f;
 	    tmpp=samplepos-1;
 	    tmpp=tmpp%32768;
-	    //	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
-	    mono_buffer[x]=((float)(buf16[tmpp])*w0)+((float)(buf16[samplepos%32768])*w1)+((float)(buf16[(samplepos+1)%32768])*w2);
+	    mono_buffer[x]=((float)(buf16[tmpp]-32768)*w0)+((float)(buf16[samplepos%32768]-32768)*w1)+((float)(buf16[(samplepos+1)%32768]-32768)*w2);
+	    //	    mono_buffer[x]=((float)(buf16[tmpp])*w0)+((float)(buf16[samplepos%32768])*w1)+((float)(buf16[(samplepos+1)%32768])*w2);
 	    break;
 	  }
  
@@ -1287,14 +1277,14 @@ if (digfilterflag&1){
 	morph_inv = 1.0 - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
-	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%64;
-	VILLAGEFILT=EFFECTFILT&3;
+	//	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%64;
+	VILLAGEFILT=EFFECTFILTER&3;
       	for (x=0;x<sz/2;x++){ 
 
  	  if (VILLAGEFILT==2){
 	    tmpp=village_effects[vill/2];
 	  }
-	  else tmpp=EFFECTFILT>>2;
+	  else tmpp=EFFECTFILTER>>2;
 
  	  switch(tmpp){ 
 	  case 0:

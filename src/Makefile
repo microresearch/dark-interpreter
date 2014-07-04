@@ -22,11 +22,12 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS = -g -O2 -mlittle-endian -mthumb -std=gnu99
 #CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1'-DTEST_PUSHPULL #-DTEST_STRAIGHT #-DPCSIM #-DLACH #-DSUSP #-DTENE #-DTEST_EEG
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
+# was -02 before below...
 
 CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
 	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
 	-mthumb \
-	-c -lm -lc -fno-common -O2 \
+	-c -lm -lc -fno-common -O3 \
 	-mcpu=cortex-m4 \
 	-mfloat-abi=hard \
 	-fsingle-precision-constant
