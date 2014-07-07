@@ -1217,7 +1217,7 @@ return count;
 
 u16 runoregon(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wrap){
 
-  float32_t delta,epsilonn,qu,muu,qq;
+  float32_t delta,epsilonn,qq,muu;
   float32_t dx, dy, dz; 
   u8 i;
   static float32_t x= 0.5f; 
@@ -1227,7 +1227,7 @@ u16 runoregon(uint8_t howmuch, u16 *workingbuffer, u16 count, u16 start, u16 wra
     delta = (float32_t)workingbuffer[0]/FACT;
     epsilonn = (float32_t)workingbuffer[1]/FACT;
     muu = (float32_t)workingbuffer[2]/FACT;
-    qu = (float32_t)workingbuffer[3]/FACT;
+    qq = (float32_t)workingbuffer[3]/FACT;
 
 	for (i=0; i<howmuch; ++i) {
 	    count++;	
@@ -1350,7 +1350,7 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 	bufsel=stacker[tmp++]>>15; // last bit
 	x=(stacker[tmp]>>10)%NUM_FUNCS; // 6 bits
 	if (bufsel) buffer=buf16;
-	else buffer=audio_buffer;
+	else buffer=(u16*)audio_buffer;
 	switch(x){ // type
 	case NUNNY:
 	stack[i].count=runnone(howmuch,buffer,stack[i].count,start,wrap);

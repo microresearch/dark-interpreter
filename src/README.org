@@ -371,19 +371,57 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
+* MON 7 JULY
+
+689/688/687(vocal,hard),685*/684*/683.wav(in,nohard)
+
+- somehow a new first mode which describes (by hand) an arrangement or
+  reduction of modes!!! how exactly
+
+- full mode TESTS: 
+
+- re-check _all_ files: main.c, audio.c, sim, ca, pureleak, CPU
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+- test LACH and SUSP 
+- manual///documentation///website
+
+** DONE :
+
+- re-try 48000 samplerate last time - ALWAYS 32K NOW!!
+- latest runs fine on valgrind
+- fix to runoregon variable in sim
+- fingerspeed setting removed as unused
+- TODO: 4 new cases in hardware.cDONE-feedinto distortion twice after filter
+- re-check all HW: DONE
+
+cases 9/10 and 11/12 are the same in hardware.c // also replication in
+unhanging as feedin doesn't change anything
+fixed bug with ~ in hardware.c
+
+//check re-hanging all-CHECKED
+
+- checked all wormflags in audio.c
+- fixed major filterbug in audio.c - re-check all "}"!
+- case 1 changed so villagestackpos is on knob FOURTH ALWAYS!
+- fixed stack bug in case 1
+- need somewhere set what is being executed- in case 1DONE
+- dir and speeds protected in mode 2-TEST!
+- new modes:-TEST ALL!
+3- set start, wrap and step:
+tweak step<< from spd, 
+all speeds and steps in settings +1 and now >>9
+-TESTwithvillagersTESTED!
+- re-test speeds in mode 2DONE
+4- hw settings/fmod settings on LACH-DONE/TESTED!
+15- fingers in the code!DONE/TESTED!
+- hw dc offset for 40106=LMER - somewhere (as part of hw knob?)TEST-compare closelyTESTED!
+- infection across all in mode 14 TEST-WORKING!
+
 * FRI 4 JULY
 
-681(noard,IN),673(nohard,TMin),674*(hard!,TMin),675(nohard,TMin),676(nohard,noin),677/678(hard,noin),680(noard/noin)
-
-///////////////////////////
-- check all files
-
-- new LACH question on finalknob
-- uses of minormode?
-- test LACH and SUSP - full tests/tweaks each mode///manual///documentation///website
-
-
-//////////////////- re-testing all modes!FIX-/-RE-TEST!
+681(nohard,IN),673(nohard,TMin),674*(hard!,TMin),675(nohard,TMin),676(nohard,noin),677/678(hard,noin),680(noard/noin)
 
 /////
 
@@ -393,7 +431,7 @@ mode0: effects/inp *// changed OK! EFFECT MODE
 
 2: dir/speed * GOOD!- knobs for what?
 
-3- setted for all SETTED! - NOW as one mode (minormode as mod)
+3- setted for all SETTED! - NOW as one mode (minormode as mod)-REVERT
 
 4-algo attachall* ALGO
 ////////////////////////////////////////
@@ -402,7 +440,7 @@ mode0: effects/inp *// changed OK! EFFECT MODE
 
 6-dump all to datagen and back (up/down)* COREDUMP
  
-7-infection (could be across all?) INFECTION - size mismatch - infect across all
+7-infection (could be across all?) INFECTION - size mismatch - infect across allTODO
 
 ///
 //????????????????????????????????????//////
@@ -411,24 +449,24 @@ mode0: effects/inp *// changed OK! EFFECT MODE
 
 pin down settings: speed/step/start/wrap/dir + misc: fmods, foldback...
 
+speed/dir as direct
+
+*leaves step/wrap/dir and misc...*
+
 - villager model for all
 - self-modifying modes and setup (how?)
 
-////
-
 ** DONE
-
-- EFFECTWRITE=adc_buffer[FOURTH]>>6 on modes 0/1/2
 
 - reduced to 8 modes - with minormode
 - fixed problems in modes esp. with stack size...
 - changed case 0 and 1 for all effects now - RE-TEST!
 - back to 48k samplerate// back to 32k
-- effect offsets elsewhere than settingsarray (set in mode 0 but how also set filter offset)
+- effect offsets elsewhere than settingsarray
 - final convolve effects fixed
-- fix mode issue/silence..speed issue-> working on/DONE-tweakTODO!
+- fix mode issue/silence..speed issue-> working on/DONE
 - check wrap on knob1-REMOVED
-- why inp mode failed 0 was wrap
+- why inp mode failed 0 was wrap REMOVED
 - finger in speed to invertDONE
 
 * MON 30 JUNE

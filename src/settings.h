@@ -17,16 +17,16 @@
 #define VILLAGEWWRAP ((settingsarray[10]>>9)+1) // 7 BITs=128
 #define VILLAGERWRAP ((settingsarray[11]>>9)+1) 
 
-#define SAMPLESTEP (settingsarray[12]>>8)
-#define SAMPLESTEPREAD (settingsarray[13]>>8)
+#define SAMPLESTEP ((settingsarray[12]>>9)+1)
+#define SAMPLESTEPREAD ((settingsarray[13]>>9)+1)
 
-#define ANYSTEP (settingsarray[14]>>8)
-#define ANYSTEPREAD (settingsarray[15]>>8)
-#define VILLAGEWSTEP (settingsarray[16]>>8)
-#define VILLAGERSTEP (settingsarray[17]>>8)
+#define ANYSTEP ((settingsarray[14]>>9)+1)
+#define ANYSTEPREAD ((settingsarray[15]>>9)+1)
+#define VILLAGEWSTEP ((settingsarray[16]>>9)+1)
+#define VILLAGERSTEP ((settingsarray[17]>>9)+1)
 
-#define SAMPLESPEED (settingsarray[18]>>8)
-#define SAMPLESPEEDREAD (settingsarray[19]>>8)
+#define SAMPLESPEED ((settingsarray[18]>>9)+1)
+#define SAMPLESPEEDREAD ((settingsarray[19]>>9)+1)
 
 #define FMOD ((float32_t)settingsarray[20]/65536.0f)
 #define FMODF ((float32_t)settingsarray[21]/65536.0f)
@@ -44,7 +44,7 @@
 #define SAMPLEDIRW (settingsarray[28]>>15)
 #define VILLAGEWDIR (settingsarray[29]>>15)
 #define VILLAGERDIR (settingsarray[30]>>15)
-#define MACHINESPEED (settingsarray[31]>>8)
+#define MACHINESPEED (settingsarray[31]>>9)
 
 #else
 
@@ -60,7 +60,7 @@
 #define VILLAGEFSTART (settingsarray[9]>>10)//-LACH_TODO
 #define HDGENERBASE (settingsarray[10]>>8) //-LACH_TODO
 #define LMERBASE ((settingsarray[11])>>1) //-LACH_TODO
-#define F0106ERBASE ((settingsarray[12])>>1)//-LACH_TODO
+#define F0106ERBASE ((settingsarray[12])>>1)//-LACH_TODO HOLE!
 #define MAXIMERBASE ((settingsarray[13])>>1) //-LACH_TODO
 
 #define HWWRAP ((settingsarray[14]>>1)+1) //-LACH_TODO
@@ -85,27 +85,29 @@
 #define F0106EROFFSET (settingsarray[30]>>1)//-LACH_TODO
 #define MAXIMEROFFSET (settingsarray[31]>>1)//-LACH_TODO
 
-#define HWSTEP (settingsarray[32]>>8) // 8 bits //-LACH_TODO
-#define SAMPLESTEP (settingsarray[33]>>8)
-#define SAMPLESTEPREAD (settingsarray[34]>>8)
-#define SAMPLESTEPFILT (settingsarray[35]>>8)//-LACH_TODO
+#define HWSTEP ((settingsarray[32]>>9)+1) // 8 bits //-LACH_TODO
+#define SAMPLESTEP ((settingsarray[33]>>9)+1)
+#define SAMPLESTEPREAD ((settingsarray[34]>>9)+1)
+#define SAMPLESTEPFILT ((settingsarray[35]>>9)+1)//-LACH_TODO
 
-#define ANYSTEP (settingsarray[36]>>8)
-#define ANYSTEPREAD (settingsarray[37]>>8)
-#define ANYSTEPFILT (settingsarray[38]>>8)//-LACH_TODO
-#define VILLAGEWSTEP (settingsarray[39]>>8)
-#define VILLAGERSTEP (settingsarray[40]>>8)
-#define VILLAGEFSTEP (settingsarray[41]>>8)//-LACH_TODO
+#define ANYSTEP ((settingsarray[36]>>9)+1)
+#define ANYSTEPREAD ((settingsarray[37]>>9)+1)
+#define ANYSTEPFILT ((settingsarray[38]>>9)+1)//-LACH_TODO
+#define VILLAGEWSTEP ((settingsarray[39]>>9)+1)
+#define VILLAGERSTEP ((settingsarray[40]>>9)+1)
+#define VILLAGEFSTEP ((settingsarray[41]>>9)+1)//-LACH_TODO
 
-#define HWSPEED (settingsarray[42]>>8) // 8 bits//-LACH_TODO
-#define SAMPLESPEED (settingsarray[43]>>8)
-#define SAMPLESPEEDREAD (settingsarray[44]>>8)
-#define SAMPLESPEEDFILT (settingsarray[45]>>8)//-LACH_TODO
+#define HWSPEED ((settingsarray[42]>>9)+1) // 8 bits//-LACH_TODO
+#define SAMPLESPEED ((settingsarray[43]>>9)+1)
+#define SAMPLESPEEDREAD ((settingsarray[44]>>9)+1)
+#define SAMPLESPEEDFILT ((settingsarray[45]>>9)+1)//-LACH_TODO
 //#define LEAKSPEED (settingsarray[46]>>8)
 //#define MACHINESPEED (settingsarray[47]>>8)
 
-#define EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64 //-LACH_TODO
-#define EFFFOFFSET (settingsarray[47]>>10) // 6 bits as now 64 /// was 128//-LACH_TODO
+//#define EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64 //-LACH_TODO
+//#define EFFFOFFSET (settingsarray[47]>>10) // 6 bits as now 64 /// was 128//-LACH_TODO
+
+// TODO 46 and 47 as holes...
 
 /// float mods in audio.c
 
