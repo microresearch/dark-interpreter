@@ -1548,7 +1548,7 @@ void killcpu(machine *m, u8 killed){
 	}
 
 
-	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+//	u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
 	u16 tmp,any,counter,edge=0;
 	u8 sampledir,samplestep,complexity;
 

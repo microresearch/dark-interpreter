@@ -375,12 +375,13 @@ controls incoming audio effect parameters (as above).
 
 689/688/687(vocal,hard),685*/684*/683.wav(in,nohard)
 
+- check digital filter effects
+- how to buffer generations of setting infction in mode 14?
+- TEST wrapped all hardware in HWSPEED
+- TEST new worm changes in audio.c
 - somehow a new first mode which describes (by hand) an arrangement or
-  reduction of modes!!! how exactly
-
-- full mode TESTS: 
-
-- re-check _all_ files: main.c, audio.c, sim, ca, pureleak, CPU
+  reduction of modes!!! how exactly: hand walker of walkers
+- re-check _all_ files: main.c*DONE, audio.c*nearly, sim, ca, pureleak, CPU
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -389,6 +390,9 @@ controls incoming audio effect parameters (as above).
 
 ** DONE :
 
+- villager array in audio.c as 128 long
+- few corrections in main/sizewise, changes to direction array in audio.c
+- full mode TESTS
 - re-try 48000 samplerate last time - ALWAYS 32K NOW!!
 - latest runs fine on valgrind
 - fix to runoregon variable in sim
