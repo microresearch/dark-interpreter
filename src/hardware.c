@@ -104,9 +104,9 @@ RES: feedback on/off - jackin-> - lm358in->
    GPIOC->BSRRH = (1<<13); //
    break;
  case 3:
-   GPIOB->BSRRH = (1<<7);
-   GPIOC->BSRRH = (1<<8); // was H!
-   GPIOC->BSRRL = (1<<13);
+   //   GPIOB->BSRRH = (1<<7);
+   //   GPIOC->BSRRH = (1<<8); // was H!
+   //   GPIOC->BSRRL = (1<<13);
    // add unhang for clocks- DONE! 
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
    GPIO_InitStructure.GPIO_Mode = 0x04;
@@ -123,7 +123,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
-  //    modder=29; //now test 40106 --- test for digfilterflag//TESTY!
+  //  modder=26; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:
@@ -141,7 +141,6 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6);// | (1<<8);
     GPIOB->BSRRL = (1<<2) | (1<<9) | (1<<8);//
     GPIOC->BSRRL= (1<<10) | (1<<11);
-    //    digfilterflag=0;
     if (clockhangflag==0) digfilterflag=40;
     else digfilterflag=32;
    break;

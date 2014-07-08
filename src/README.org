@@ -373,27 +373,43 @@ controls incoming audio effect parameters (as above).
 
 * TUE 8 JULY
 
-- tune/check spd and all speeds
-- more use of knobs in modes
-- check digital filter effects
-- how to buffer generations of setting infction in mode 14?
-- TEST now wrapped all hardware in HWSPEED
+695/693/692/691.wav(timein,hard),700/699/698(all,vocalin),
+702/701(with storm), 706/705/704/703(LACH,vocal)
 
-- TEST new worm changes in audio.c and also changes to order
+NOTE: setted= UP=NONE/DOWN=EEG/finger/LEFT=KNOB/RIGHT=BUF16
 
-- somehow a new first mode which describes (by hand) an arrangement or
-  reduction of modes!!! how exactly: hand walker of walkers
-- re-check _all_ files: main.c*DONE, audio.c, sim, ca, pureleak, CPU
+- where to set LMERTWO?
+- re-test mode 4 with LACH!
+- re-test speeds and modes on TENE
 
-////////////////////////////////////////////////////////////////////////////////////////
-
-- test LACH and SUSP 
+- test SUSP (as same but knobs differ)
 - manual///documentation///website
 
+** DONE
+
+- changing hard settings in case 4/changed also for LACH there...
+- test LACH// each mode tested FINE
+- wrapread error for LACH FIXED!
+- finally back to 48000 as time-share
+- how to buffer generations of setting infection in mode 14? (2 arrays or?)DONE
+- re-check time-share-switch or not in sim and ca!DONE or as option???TODO
+- steps and speed >>10
+- lack of few breaks in cases in main
+- shifted HWspeed somewhat
+- leftside amped in codec.c for filter
+- changed hardware clock unhanger so doesn't change input
+- checked digital filter effectsDONE
+- TEST now wrapped all hardware in HWSPEED
+- TEST new worm changes in audio.c and also changes to orderDONE
 
 * MON 7 JULY
 
 689/688/687(vocal,hard),685*/684*/683.wav(in,nohard)
+
+///MODE QUESTION???
+
+- somehow a new first mode which describes (by hand) an arrangement or
+  reduction of modes!!! how exactly: hand walker of walkers
 
 ** DONE :
 
@@ -646,7 +662,6 @@ for mode 7: up=set wormflag for dir ser by knob 2/right=unsetworm/right/left=so/
 - are effects too jittery ? possibly - both effects and hardware too crowded somehow
 
 - test with other fingersDONE-fine!
-
 
 * MON 23 JUNE
 
