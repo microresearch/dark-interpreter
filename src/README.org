@@ -371,25 +371,33 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
-* MON 7 JULY
+* TUE 8 JULY
 
-689/688/687(vocal,hard),685*/684*/683.wav(in,nohard)
-
+- tune/check spd and all speeds
+- more use of knobs in modes
 - check digital filter effects
 - how to buffer generations of setting infction in mode 14?
-- TEST wrapped all hardware in HWSPEED
-- TEST new worm changes in audio.c
+- TEST now wrapped all hardware in HWSPEED
+
+- TEST new worm changes in audio.c and also changes to order
+
 - somehow a new first mode which describes (by hand) an arrangement or
   reduction of modes!!! how exactly: hand walker of walkers
-- re-check _all_ files: main.c*DONE, audio.c*nearly, sim, ca, pureleak, CPU
+- re-check _all_ files: main.c*DONE, audio.c, sim, ca, pureleak, CPU
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 - test LACH and SUSP 
 - manual///documentation///website
 
+
+* MON 7 JULY
+
+689/688/687(vocal,hard),685*/684*/683.wav(in,nohard)
+
 ** DONE :
 
+- changed order in audio.c
 - villager array in audio.c as 128 long
 - few corrections in main/sizewise, changes to direction array in audio.c
 - full mode TESTS
