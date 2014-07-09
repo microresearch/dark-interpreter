@@ -735,12 +735,12 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer,
 }
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
-  static u8 i=0;  // TESTY!!!
-  //  u8 i;
+  //  static u8 i=0;  // TESTY!!!
+    u8 i;
   u8 x,bufsel; u8 *buffer; 
   //  u8 *audiobuf=(u8*)audio_buffer;
-  //    for (i=0;i<stack_posy;i++){
-      if (i>=stack_posy) i=0;
+      for (i=0;i<stack_posy;i++){
+	//    if (i>=stack_posy) i=0;
     u8 tmp=i*4,howmuch; u16 start,wrap;
 
     start=stackery[tmp++]>>1;
@@ -789,9 +789,9 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
       case SIR16Y:
 	stack[i].count=runSIR16(howmuch,buffer,stack[i].count,start,wrap);
 	break;
-      }
-	//}
-		i++;
+	}
+	}
+      //	i++;
 }
 
 signed char ca_pop(u8 stack_posy){

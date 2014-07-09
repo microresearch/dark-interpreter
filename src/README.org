@@ -373,22 +373,33 @@ controls incoming audio effect parameters (as above).
 
 * WED 9 JULY
 
-- re-test timeslice vs. no slice!
+716/715/714/713/712=longestjam///startonlyof711///710/709/708/707.wav(all)
 
-- where to set LMERTWO? (as HW=hdgener/lmer/lmertwo/40106/maxim=5)
-- re-test mode 4 with LACH
-- re-test speeds and modes on TENE
+718/717-LACH
 
-- what is not set in TENE/SUSP is:
+- re-test all modes across:
 
-anystarts//anywraps//anysteps=9 settings
+LACH=ALLtested/TODO:onebyone
+SUSP=(onebyoneasTENE)TODO:testall
+TENE=ALLtested///onebyone
 
-- test SUSP (as same but knobs differ)
+- re-test ALL at once on all platforms!
+
+///////////////////////////////
 - manual///documentation///website
 
 ** DONE
 
-- timeslices must be static u8 i!
+- attachments moved to before modes!
+- infection now only on fingers and with start and extent on 2nd and 4th knobs
+- possible fix to villager stack
+- fix to algo mode which would clear it!
+- redoing HW basesDONE
+- checked all wormflags and all match directionsDONE
+- timeslices must be static u8 i! - no timeslice NOW
+- exestuff now in settingsarray - init okay and replace refs in runners...also cleared in attached
+- extra mode 5 but ditched minormode idea
+- where to set LMERTWO? set NOW as third knob (as HW=hdgener/lmer/lmertwo/40106/maxim=5)
 
 * TUE 8 JULY
 

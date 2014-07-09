@@ -21,6 +21,19 @@ Based in part on spork factory by Dave Griffiths.
 
 // was CPU.c but now with overlap, uint16_t blah
 
+#ifdef LACH
+#define SETSIZE 36
+#define INFECTSIZE 740 
+#define SETSHIFT 11
+#define SHIFTY 7
+#else
+#define SETSIZE 66
+#define INFECTSIZE 770 
+#define SETSHIFT 10
+#define SHIFTY 6
+#endif
+
+
 #ifdef PCSIM
 #include <stdio.h>
 #include <stdint.h>
@@ -42,7 +55,7 @@ extern uint16_t* adc_buffer;
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 //extern u8 *datagenbuffer;
-extern u16 settingsarray[64];
+extern u16 settingsarray[SETSIZE];
 #endif
 
 #include <math.h>
@@ -1315,7 +1328,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       this->m_pc++; 
       } // switch
-      this->m_delc=0;
+    //      this->m_delc=0;
   } // if del
 
 }
@@ -1373,6 +1386,7 @@ void machine_poke(machine* this, uint16_t addr, u8 data) {
 
 void machine_run(machine* this) {
 
+  this->m_threadcount=THREADCOUNT;
   static u8 thrcount=0;
   thrcount++;
   //  if (threadcount>this->m_threadcount) {

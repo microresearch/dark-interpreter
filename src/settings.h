@@ -17,7 +17,7 @@
 #define ANYWRAPREAD ((settingsarray[8]>>1)+1)
 #define ANYWRAP ((settingsarray[9]>>1)+1)
 
-#define VILLAGEWWRAP ((settingsarray[10]>>10)+1) // 7 BITs=128
+#define VILLAGEWWRAP ((settingsarray[10]>>10)+1) // 6 BITs=64
 #define VILLAGERWRAP ((settingsarray[11]>>10)+1) 
 
 #define SAMPLESTEP ((settingsarray[12]>>12)+1)
@@ -35,20 +35,20 @@
 #define FMOD ((float32_t)settingsarray[20]/65536.0f)
 #define FMODF ((float32_t)settingsarray[21]/65536.0f)
 #define FMODW ((float32_t)settingsarray[22]/65536.0f)// LEAVE ALL IN FOR LACH
-
-//#define SAMPLEEXPAND (settingsarray[23]>>1) 
-//#define SAMPLEREXPAND (settingsarray[24]>>1)
 #define FOLDTOP (settingsarray[23]) 
 #define FOLDOFFSET (settingsarray[24]) 
-
-/////
 #define DATADIRR (settingsarray[25]>>15)
 #define DATADIRW (settingsarray[26]>>15)
 #define SAMPLEDIRR (settingsarray[27]>>15)
 #define SAMPLEDIRW (settingsarray[28]>>15)
-#define VILLAGEWDIR (settingsarray[29]>>15)
-#define VILLAGERDIR (settingsarray[30]>>15)
+#define VILLAGERDIR (settingsarray[29]>>15)
+#define VILLAGEWDIR (settingsarray[30]>>15)
 #define MACHINESPEED (settingsarray[31]>>9)
+
+#define THREADCOUNT (settingsarray[32]>>10) // 6 bits
+#define VILLAGESTACKPOS (((settingsarray[33]>>10)+1)*2) // 6 bits
+#define STACKPOS (settingsarray[34]>>10)
+#define STACKPOSY (settingsarray[35]>>10)
 
 #else
 
@@ -62,9 +62,9 @@
 #define VILLAGEWSTART (settingsarray[7]>>10) //64 *2
 #define VILLAGERSTART (settingsarray[8]>>10)
 #define VILLAGEFSTART (settingsarray[9]>>10)//-LACH_TODO
-#define HDGENERBASE (settingsarray[10]>>8) //-LACH_TODO
+//#define HDGENERBASE (settingsarray[10]>>8) //-LACH_TODO HOLE!
 #define LMERBASE ((settingsarray[11])>>1) //-LACH_TODO
-#define F0106ERBASE ((settingsarray[12])>>1)//-LACH_TODO HOLE!
+#define F0106ERBASE ((settingsarray[12])>>1)//-LACH_TODO 
 #define MAXIMERBASE ((settingsarray[13])>>1) //-LACH_TODO
 
 #define HWWRAP ((settingsarray[14]>>1)+1) //-LACH_TODO
@@ -75,7 +75,7 @@
 #define ANYWRAP ((settingsarray[19]>>1)+1)
 #define ANYWRAPFILT ((settingsarray[20]>>1)+1)//-LACH_TODO
 
-#define VILLAGEWWRAP ((settingsarray[21]>>10)+1) // 7 BITs=128
+#define VILLAGEWWRAP ((settingsarray[21]>>10)+1) // 6 BITs=64
 #define VILLAGERWRAP ((settingsarray[22]>>10)+1) 
 #define VILLAGEFWRAP ((settingsarray[23]>>10)+1) //-LACH_TODO
 
@@ -106,37 +106,28 @@
 #define SAMPLESPEED ((settingsarray[43]>>12)+1)
 #define SAMPLESPEEDREAD ((settingsarray[44]>>12)+1)
 #define SAMPLESPEEDFILT ((settingsarray[45]>>12)+1)//-LACH_TODO
-//#define LEAKSPEED (settingsarray[46]>>8)
-//#define MACHINESPEED (settingsarray[47]>>8)
 
-//#define EFFROFFSET (settingsarray[46]>>10) // 6 bits as 64 //-LACH_TODO
-//#define EFFFOFFSET (settingsarray[47]>>10) // 6 bits as now 64 /// was 128//-LACH_TODO
+#define FMOD ((float32_t)settingsarray[46]/65536.0f)
+#define FMODF ((float32_t)settingsarray[47]/65536.0f)
+#define FMODW ((float32_t)settingsarray[48]/65536.0f)// LEAVE ALL IN FOR LACH
 
-// TODO 46 and 47 as holes...
+#define FOLDTOP (settingsarray[49]) 
+#define FOLDOFFSET (settingsarray[50]) 
+#define MACHINESPEED (settingsarray[51]>>8)
 
-/// float mods in audio.c
+#define HWDIR (settingsarray[52]>>15) //-LACH_TODO
+#define DATADIRR (settingsarray[53]>>15)
+#define DATADIRW (settingsarray[54]>>15)
+#define DATADIRF (settingsarray[55]>>15)//-LACH_TODO
+#define SAMPLEDIRR (settingsarray[56]>>15)
+#define SAMPLEDIRW (settingsarray[57]>>15)
+#define SAMPLEDIRF (settingsarray[58]>>15)//-LACH_TODO
+#define VILLAGERDIR (settingsarray[59]>>15)
+#define VILLAGEWDIR (settingsarray[60]>>15)
+#define VILLAGEFDIR (settingsarray[61]>>15)//-LACH_TODO
 
-#define FMOD ((float32_t)settingsarray[48]/65536.0f)
-#define FMODF ((float32_t)settingsarray[49]/65536.0f)
-#define FMODW ((float32_t)settingsarray[50]/65536.0f)// LEAVE ALL IN FOR LACH
-
-#define FOLDTOP (settingsarray[51]) 
-#define FOLDOFFSET (settingsarray[52]) 
-#define MACHINESPEED (settingsarray[53]>>8)
-//#define SAMPLEEXPAND (settingsarray[51]>>1) 
-//#define SAMPLEREXPAND (settingsarray[52]>>1)
-//#define SAMPLEFEXPAND (settingsarray[53]>>1)//-LACH_TODO
-
-/////
-#define HWDIR (settingsarray[54]>>15) //-LACH_TODO
-#define DATADIRR (settingsarray[55]>>15)
-#define DATADIRW (settingsarray[56]>>15)
-#define DATADIRF (settingsarray[57]>>15)//-LACH_TODO
-#define SAMPLEDIRR (settingsarray[58]>>15)
-#define SAMPLEDIRW (settingsarray[59]>>15)
-#define SAMPLEDIRF (settingsarray[60]>>15)//-LACH_TODO
-#define VILLAGEWDIR (settingsarray[61]>>15)
-#define VILLAGERDIR (settingsarray[62]>>15)
-#define VILLAGEFDIR (settingsarray[63]>>15)//-LACH_TODO
-
+#define THREADCOUNT (settingsarray[62]>>10) // 6 bits
+#define VILLAGESTACKPOS (((settingsarray[63]>>10)+1)*2) // 6 bits
+#define STACKPOS (settingsarray[64]>>10)
+#define STACKPOSY (settingsarray[65]>>10)
 #endif
