@@ -57,10 +57,7 @@
 #include "CA.h"
 #include "settings.h"
 uint16_t *adc_buffer;
-//typedef float float32_t;
 u8 digfilterflag;
-//int16_t src[BUFF_LEN], dst[BUFF_LEN];
-
 int16_t *villager,*stacker,*stackery,*settingsarray;
 int16_t *src, *dst;
 u8 *village_effects;// [VILLAGE_SIZE/2];
@@ -138,9 +135,7 @@ u8 EFFECTFILTER;
 
 signed char direction[2]={-1,1};
 u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
-//u8 setwalk[8]={239,240,1,17,16,15,254,238}; 
 u8 inp;
-u16 villagestackpos=0;
 u16 *buf16;
 
 #define delay()						 do {	\
@@ -166,7 +161,6 @@ extern int16_t* audio_buffer;
 #endif
 extern u8 digfilterflag;
 
-//u8 testdirection;
 u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
@@ -239,55 +233,6 @@ u8 fingerdir(u8 *speedmod){
   return result;
 }
 
-u8 fingerdirr(void){
-
-  u8 handleft, handright, up=0,down=0,left=0,right=0;
-  u8 handupp, handdown;
-  signed char result=0;
-
-  for (u8 x=0;x<16;x++){
-  handupp=adc_buffer[UP]>>8; 
-  handdown=adc_buffer[DOWN]>>8;
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
-  if (handupp>2) up++;
-  if (handdown>2) down++;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (up>8 && up>down && up>left && up>right) {
-    result=-8;
-  }
-  else if (down>8 && down>left && down>right) {
-    result=+9; 
-  }
-  else if (left>8 && left>right) {
-    result=-1;
-  }
-  else if (right>8) {
-    result=1;
-  }
-  }
-  return result;
-}
-
-u8 fingerdirleftright(void){
-
-  u8 handleft, handright, left=0,right=0;
-
-  for (u8 x=0;x<16;x++){
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>8 && left>right) {
-    return 0;
-  }
-  else if (right>8 && right>left) {
-    return 1;
-  }
-  }
-  return 2;
-}
 
 u8 fingerdirupdown(void){
 
@@ -309,215 +254,6 @@ u8 fingerdirupdown(void){
   return 2;
 }
 
-signed char fingerdirupdownn(void){
-  u8 handleft, handright, left=0,right=0;
-  signed char result=0;
-
-  for (u8 x=0;x<16;x++){
-  handleft=adc_buffer[UP]>>8;
-  handright=adc_buffer[DOWN]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>8 && left>right) {
-    result=-1;
-  }
-  else if (right>8 && right>left) {
-    result=1;
-  }
-  }
-  return result;
-}
-
-signed char fingerdirleftrightt(void){
-  u8 handleft, handright, left=0,right=0;
-  signed char result=0;
-
-  for (u8 x=0;x<8;x++){
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>4 && left>right) {
-    result=-1;
-  }
-  else if (right>4 && right>left) {
-    result=1;
-  }
-  }
-  return result;
-}
-
-signed char fingerdirleftrighttx(signed char vall){
-  u8 handleft, handright, left=0,right=0;
-  static signed char result=0; signed char tmp;
-
-  for (u8 x=0;x<8;x++){
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>4 && left>right) {
-    tmp=-1;
-  }
-  else if (right>4 && right>left) {
-    tmp=1;
-  }
-  }
-  //  return tmp;
-  result+=tmp;
-  if (result<=(-vall)) {
-    result=0;
-    tmp=-1;
-  }
-  else if (result>=vall) {
-    result=0;
-    tmp=1;
-  }
-  else tmp=0;
-  return tmp;
-}
-
-signed char fingerdirupdownx(signed char vall){
-  u8 handleft, handright, left=0,right=0;
-  static signed char result=0; signed char tmp;
-
-  for (u8 x=0;x<16;x++){
-  handleft=adc_buffer[UP]>>8;
-  handright=adc_buffer[DOWN]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>8 && left>right) {
-    tmp=-1;
-  }
-  else if (right>8 && right>left) {
-    tmp=1;
-  }
-  }
-  //  return tmp;
-  result+=tmp;
-  if (result<=(-vall)) {
-    result=0;
-    tmp=-1;
-  }
-  else if (result>=vall) {
-    result=0;
-    tmp=1;
-  }
-  else tmp=0;
-  return tmp;
-}
-
-float32_t fingerdirleftrighttf(void){ 
-
-  u8 handleft, handright, left=0,right=0;
-  float32_t result=0.0f;
-
-  for (u8 x=0;x<16;x++){
-  handleft=adc_buffer[LEFT]>>8;
-  handright=adc_buffer[RIGHT]>>8;
-  if (handleft>2) left++;
-  if (handright>2) right++;
-  if (left>8 && left>right) {
-    result=-0.001f; 
-  }
-  else if (right>8 && right>left) {
-    result=0.001f;
-  }
-  }
-  return result;
-}
-
-
-u16 fingervalup16bits(u16 tmpsetting, u8 inc){
-  u8 handup,handdown;
-  u8 ttss=0,sstt=0;u8 x;
-
-  for (x=0;x<16;x++){
-  handup=adc_buffer[UP]>>8;
-  handdown=adc_buffer[DOWN]>>8;
-  if (handup>2) ttss++;
-  else if (handdown>2) sstt++;
-  }
-  if (ttss>sstt) tmpsetting+=inc;
-  else if (ttss<sstt) tmpsetting-=inc;
-  return tmpsetting;
-}
-
-u8 fingervalup(u8 tmpsetting){
-  u8 handup,handdown;
-  u8 ttss=0,sstt=0;u8 x;
-
-  for (x=0;x<16;x++){
-  handup=adc_buffer[UP]>>8;
-  handdown=adc_buffer[DOWN]>>8;
-  if (handup>2) ttss++;
-  else if (handdown>2) sstt++;
-  }
-  if (ttss>sstt) tmpsetting+=1;
-  else if (ttss<sstt) tmpsetting-=1;
-  return tmpsetting;
-}
-
-u8 fingervaleff(u8 tmpsetting){
-  u8 handup,handdown;
-  u8 ttss=0,sstt=0;u8 x;
-  for (x=0;x<16;x++){
-  handup=adc_buffer[RIGHT]>>8;
-  handdown=adc_buffer[LEFT]>>8;
-  if (handup>2) ttss++;
-  else if (handdown>2) sstt++;
-  }
-  if (ttss>sstt) {
-    tmpsetting+=1;
-    if (tmpsetting>=8) tmpsetting=1;
-  }
-  else if (ttss<sstt) {
-tmpsetting-=1;
- if (tmpsetting==0) tmpsetting=7; // wraps
-  }
-  return tmpsetting;
-}
-
-u8 fingervalright(u8 tmpsetting, u8 wrap){
-  u8 handup,handdown;
-  u8 ttss=0,sstt=0;u8 x;
-  for (x=0;x<16;x++){ 
-    handup=adc_buffer[RIGHT]>>8; // 4bits=16
-    handdown=adc_buffer[LEFT]>>8;
-    if (handup>2) ttss++;// was 8 - 
-    else if (handdown>2) sstt++;
-  }
-  if (ttss>sstt) {
-    tmpsetting+=1;
-    tmpsetting=tmpsetting%wrap;
-  }
-  else if (ttss<sstt) {
-tmpsetting-=1;
- if (tmpsetting==255) tmpsetting=wrap-1;
-  }
-  return tmpsetting;
-}
-
-u8 fingervalupwrap(u8 tmpsetting, u8 wrap){
-  u8 handup,handdown;
-  u8 ttss=0,sstt=0;u8 x;
-  for (x=0;x<16;x++){
-  handup=adc_buffer[UP]>>8;
-  handdown=adc_buffer[DOWN]>>8;
-  if (handup>2) ttss++;
-  else if (handdown>2) sstt++;
-  }
-  if (ttss>sstt) {
-    tmpsetting+=1;
-    tmpsetting=tmpsetting%wrap;
-  }
-  else if (ttss<sstt) {
-tmpsetting-=1;
- if (tmpsetting==255) tmpsetting=wrap-1;
-  }
-  return tmpsetting;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void main(void)
@@ -528,6 +264,7 @@ void main(void)
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
 
+u16 villagestackpos=0;
 u8 stackerattached[256];
 u8 stackeryattached[256];
 u8 villagerattached[128];
@@ -543,7 +280,6 @@ u8 settingsarrayattached[SETSIZE];
 #endif
 
   inittable(3,4,randi());
-  //  wormdir=0;
   const float32_t pi= 3.141592;
   float32_t w;
   float32_t yi;
@@ -745,7 +481,6 @@ u8 settingsarrayattached[SETSIZE];
   settingsarray[64]=65535;
   settingsarray[65]=65535;
 
-
 #endif //nolACH
 
   // CPUintrev3:
@@ -783,9 +518,9 @@ u8 settingsarrayattached[SETSIZE];
 	  //	  exenums=exestackpush(exenums,exestack,2); //exetype=0-3 TESTY!
       }
 
-	u8 mainmode,minormode,groupstart,groupwrap;
-	u8 xx,dirpos,groupsel,groupstartt,wormstart,wormpos,foldposy,foldpos;
-	u16 foldposl,settingsposl,fingerposl;
+	u8 mainmode,groupstart,groupwrap;
+	u8 xx,dirpos,groupsel,groupstartt,foldposy,foldpos;
+	u16 settingsposl,fingerposl;
 
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
@@ -840,11 +575,12 @@ u8 settingsarrayattached[SETSIZE];
 
       /////////////////////////////////////
 	
-
 #ifdef LACH
       settingsarray[6]=adc_buffer[FIFTH]<<4; // 16 bits SAMPLEWRAP!!!
       settingsarrayattached[6]=0;
 #endif
+
+      ////settingssss
 
       for (x=0;x<SETSIZE;x++){
 	switch(settingsarrayattached[x]){
@@ -976,9 +712,9 @@ u8 settingsarrayattached[SETSIZE];
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
       //      mainmode=15; // TESTY!
-
+      //////
       switch(mainmode){
-#ifdef LACH //  TESTY!
+#ifdef LACH 
       case 0:
 	xx=fingerdir(&spd);
 	if (xx!=5) {
@@ -1006,49 +742,44 @@ u8 settingsarrayattached[SETSIZE];
       case 1:
 	//	  select stackmax (left/right) (knob and set)
 	xx=fingerdir(&spd);
+	if (xx!=5) {
 	if (xx==0) {
 	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[THREADERR]=0;
-	  m->m_threads[THREADCOUNT].m_CPU=spd>>1;
-	  //	  VILLAGESTACKPOS=(adc_buffer[FOURTH]>>6)*2; // 6bits
+	  m->m_threads[THREADCOUNT].m_CPU=spd%31;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
 	}
-	  else if (xx==1) 
-	    {
-	      //	      stack_posy=adc_buffer[SECOND]>>6; // 6bits
-	  settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
-	  settingsarrayattached[POSYERR]=0;
-	  stackery[(STACKPOSY*4)+3]=spd%11;
-	      //	      VILLAGESTACKPOS=(adc_buffer[FOURTH]>>6)*2; // 6bits
-	      settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	      settingsarrayattached[VILLAGERR]=0;
-	    }
-	  else if (xx==2) {
-	    //	    stack_pos=adc_buffer[SECOND]>>6; // 6bits
+	else if (xx==1) 
+	  {
+	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
+	    settingsarrayattached[POSYERR]=0;
+	    stackery[(STACKPOSY*4)+3]=spd%11;
+	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	    settingsarrayattached[VILLAGERR]=0;
+	  }
+	else if (xx==2) {
 	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[POSERR]=0;
 	  stacker[(STACKPOS*4)+3]=spd%34;
-	    //	    VILLAGESTACKPOS=(adc_buffer[FOURTH]>>6)*2; // 6bits
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
-	  }
-	  else if (xx==3)
-	    {
-	      exestack[adc_buffer[SECOND]>>10]=spd%4;
-	      //	      VILLAGESTACKPOS=(adc_buffer[FOURTH]>>6)*2; // 6bits
-	      settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	      settingsarrayattached[VILLAGERR]=0;
+	}
+	else
+	  {
+	    exestack[adc_buffer[SECOND]>>10]=spd%4;
+	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	    settingsarrayattached[VILLAGERR]=0;
 	    }
+	}
 	break;
 	  ///////////////////////////////////
       case 2: // directions - and speed
-	dirpos=adc_buffer[SECOND]>>8; // 4 bits
-#ifdef LACH
-	dirpos=dirpos%6;
-	//	dirpos=3;
 	xx=fingerdir(&spd);
-	// sET Speed!
+#ifdef LACH
+	if (xx!=5) {
+	dirpos=adc_buffer[SECOND]>>9; // 3 bits
+	dirpos=dirpos%6;
 	if (xx==0) {
 	  wormflag[dirpos]=1; // up
 	  if (dirpos==2) {
@@ -1091,15 +822,16 @@ u8 settingsarrayattached[SETSIZE];
 	      settingsarray[19]=spd<<9;
 	      settingsarrayattached[19]=0;
 	    }
-	    else if (dirpos==3) {
+	    else {
 	      settingsarray[18]=spd<<9;
 	      settingsarrayattached[18]=0;
 	    }
 	}
+	}
 #else
+	if (xx!=5) {
+	dirpos=adc_buffer[SECOND]>>8; // 4 bits=16
 	dirpos=dirpos%10;
-	//	dirpos=0; // testy!!!
-	xx=fingerdir(&spd);
 	if (xx==0) {
 	  wormflag[dirpos]=1; // up
 	  if (dirpos==0) {
@@ -1159,7 +891,7 @@ u8 settingsarrayattached[SETSIZE];
 	    settingsarrayattached[45]=0;
 	  }
 	} // left=0
-	else if (xx==2) { //down
+	else { //down
 	  settingsarray[52+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;
 	  settingsarrayattached[54+dirpos]=0;
 	  if (dirpos==0) {
@@ -1179,17 +911,18 @@ u8 settingsarrayattached[SETSIZE];
 	    settingsarrayattached[45]=0;
 	  }
 	}
+	}
 #endif
 	break; 
 
       case 3:
 	// set start and wrap for r/w/village_r/w according to fingers
 	// speed is step
-	// 2 knobs start and wrap
-	tmp=adc_buffer[SECOND]<<4;
-	tmper=adc_buffer[FOURTH]<<4;
 	xx=fingerdir(&spd);
 #ifdef LACH
+	if (xx!=5){
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){ // UP=read= start/wrap/step
 	  settingsarray[1]=tmp;
 	  settingsarray[7]=tmper;
@@ -1214,7 +947,7 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[11]=0;
 	  settingsarrayattached[17]=0;
 	}
-	else if (xx==1){ // RIGHT=village_w= start/wrap/step
+	else { // RIGHT=village_w= start/wrap/step
 	  settingsarray[4]=tmp;
 	  settingsarray[10]=tmper;
 	  settingsarray[16]=spd<<8;
@@ -1222,7 +955,11 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[10]=0;
 	  settingsarrayattached[16]=0;
 	}
+	}
 #else
+	if (xx!=5){
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){ // UP=read= start/wrap/step
 	  settingsarray[2]=tmp;
 	  settingsarray[16]=tmper;
@@ -1247,7 +984,7 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[22]=0;
 	  settingsarrayattached[40]=0;
 	}
-	else if (xx==1){ // RIGHT=village_w= start/wrap/step
+	else { // RIGHT=village_w= start/wrap/step
 	  settingsarray[7]=tmp;
 	  settingsarray[21]=tmper;
 	  settingsarray[39]=spd<<8;
@@ -1255,16 +992,18 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[21]=0;
 	  settingsarrayattached[39]=0;
 	}
+	}
 #endif	
 	break;
       case 4:
 	// HW=start,wrap,offsets
-	tmp=adc_buffer[SECOND]<<4;
-	tmper=adc_buffer[FOURTH]<<4;
 	xx=fingerdir(&spd);
 #ifdef LACH
+	if (xx!=5){
 	// 4 sets of settings:
 	// ANYSTART/ANYWRAP/ANYSTEP/VILLAGESTEP *2
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){
 	  settingsarray[2]=tmp;
 	  settingsarray[3]=tmper;
@@ -1283,14 +1022,18 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[14]=0;
 	  settingsarrayattached[15]=0;
 	}
-	else if (xx==3){
+	else {
 	  settingsarray[16]=tmp;
 	  settingsarray[17]=tmper;
 	  settingsarrayattached[16]=0;
 	  settingsarrayattached[17]=0;
 	}
+	}
 #else
 	//HW start and wrap
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
+	if (xx!=5){
 	if (xx==0){ // UP=generic HW start/wrap/hdgenercons
 	  settingsarray[0]=tmp;
 	  settingsarray[14]=tmper;
@@ -1317,7 +1060,7 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[26]=0;
 	  settingsarrayattached[12]=0;
 	}
-	else 	if (xx==1){ //RIGHT=maximer
+	else { //RIGHT=maximer
 	  settingsarray[31]=tmp; //offset
 	  settingsarray[27]=tmper; //cons
 	  settingsarray[13]=spd<<12; //base
@@ -1325,16 +1068,18 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[27]=0;
 	  settingsarrayattached[13]=0;
 	}
+	}
 #endif
 	break;
       case 5:
 	// anydata stuff
 	//for LACH is simply anystart*2,anywrap*2,anystep*2
 	//for TENE is *3 (inc filt)
-	tmp=adc_buffer[SECOND]<<4;
-	tmper=adc_buffer[FOURTH]<<4;
 	xx=fingerdir(&spd);
 #ifdef LACH
+	if (xx!=5){
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){ // UP
 	  settingsarray[3]=tmp;//anystartread
 	  settingsarray[8]=tmper;//wrap
@@ -1353,14 +1098,18 @@ u8 settingsarrayattached[SETSIZE];
 	}
 	//#define FOLDTOP (settingsarray[23]) 
 	//#define FOLDOFFSET (settingsarray[24]) 
-	else if (xx==3){
+	else {
 	  settingsarray[23]=tmp;
 	  settingsarray[24]=tmper;
 	  settingsarrayattached[23]=0;
 	  settingsarrayattached[24]=0;
 	}
+	}
 	// one setting missing TODO
 #else
+	if (xx!=5){
+	tmp=adc_buffer[SECOND]<<4;
+	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){ // UP
 	  settingsarray[5]=tmp;//anystartread
 	  settingsarray[19]=tmper;//wrap
@@ -1385,21 +1134,22 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[20]=0;
 	  settingsarrayattached[38]=0;
 	}
-	else if (xx==3){//is=folderSETTTINGS
+	else{//is=folderSETTTINGS
 	  settingsarray[49]=tmp;
 	  settingsarray[50]=tmper;
 	  settingsarrayattached[49]=0;
 	  settingsarrayattached[50]=0;
 	}
+	}
 #endif
 	break;
 	/////////////////////////////////////////////////////////////////////////////////////////
-	////setted as 2 modes now
+
       case 6: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
-	groupwrap=adc_buffer[SECOND]>>SHIFTY; // 6bits=64
-	groupstart=adc_buffer[FOURTH]>>SHIFTY;
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
+	groupwrap=adc_buffer[SECOND]>>SHIFTY; // 6bits=64
+	groupstart=adc_buffer[FOURTH]>>SHIFTY;
 	for (x=0;x<groupwrap;x++){
 	  settingsarrayattached[(groupstart+x)%SETSIZE]=groupsel;
 	}
@@ -1407,10 +1157,10 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 7: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
-	groupwrap=adc_buffer[SECOND]>>5; // 7bits=128
-	groupstart=adc_buffer[FOURTH]>>5;
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
+	groupwrap=adc_buffer[SECOND]>>5; // 7bits=128
+	groupstart=adc_buffer[FOURTH]>>5;
 	for (x=0;x<groupwrap;x++){
 	  villagerattached[(groupstart+x)%VILLAGE_SIZE]=groupsel;
 	  villagereffattached[((groupstart+x)/2)%64]=groupsel;
@@ -1419,10 +1169,10 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 8:
-	groupwrap=adc_buffer[SECOND]>>4; // 8bits
-	groupstart=adc_buffer[FOURTH]>>4;
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
+	groupwrap=adc_buffer[SECOND]>>4; // 8bits
+	groupstart=adc_buffer[FOURTH]>>4;
 	for (x=0;x<groupwrap;x++){
 	  stackerattached[(groupstart+x)%256]=groupsel;
 	}
@@ -1430,10 +1180,10 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 9: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
-	groupwrap=adc_buffer[SECOND]>>4; // 8bits
-	groupstart=adc_buffer[FOURTH]>>4;
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
+	groupwrap=adc_buffer[SECOND]>>4; // 8bits
+	groupstart=adc_buffer[FOURTH]>>4;
 	for (x=0;x<groupwrap;x++){
 	  stackeryattached[(groupstart+x)%256]=groupsel;
 	}
@@ -1441,10 +1191,10 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 10: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
-	groupwrap=adc_buffer[SECOND]>>6; // 6bits
-	groupstart=adc_buffer[FOURTH]>>6;
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
+	groupwrap=adc_buffer[SECOND]>>6; // 6bits
+	groupstart=adc_buffer[FOURTH]>>6;
 	for (x=0;x<groupwrap;x++){
 	  cpuattached[(groupstart+x)%SETSIZE]=groupsel;
 	}
@@ -1454,12 +1204,11 @@ u8 settingsarrayattached[SETSIZE];
 	///////////////////////////////
 	//algo-attach into all:
       case 11:
+	groupsel=fingerdir(&spd);
+	if (groupsel!=5){
 	foldy=adc_buffer[SECOND]>>7; // how many from knob2 =max 32
-
 	for (x=0;x<foldy;x++){
 	  settingsposl=adc_buffer[FOURTH]<<3; // 15 bits
-	  groupsel=fingerdir(&spd);
-	if (groupsel!=5){
 	  tmper=buf16[(settingsposl+x)%32768];
 #ifdef LACH
 	tmper=(tmper>>6)%804;
@@ -1511,10 +1260,9 @@ u8 settingsarrayattached[SETSIZE];
 
 	case 2: //DOWN// various stack and villager exchanges - 
 	// starts and ends only of stacks (not CPU) -> villagers
-	
-	foldy=adc_buffer[SECOND]>>6; // howmuch-64
-	foldposy=adc_buffer[THIRD]>>6; // offset-64
-	foldpos=adc_buffer[FOURTH]>>5;//128
+	  foldy=adc_buffer[SECOND]>>6; // howmuch-64
+	  foldposy=adc_buffer[THIRD]>>6; // offset-64
+	  foldpos=adc_buffer[FOURTH]>>5;//128
 	///////
 	for (x=0;x<foldy;x++){ // 64 
 	  tmper=(foldpos+x)%(STACK_SIZE*2); // so both stacks entry point 
@@ -1561,11 +1309,11 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 13: // dump (all) to datagen//back
-	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
-	foldpos=adc_buffer[FOURTH]<<4; // 16 bits
 
 	xx=fingerdirupdown();
 	if (xx==1) { //down
+	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
+	foldpos=adc_buffer[FOURTH]<<4; // 16 bits
 
 	for (x=0;x<foldy;x++){ // 10 bits
 #ifdef LACH
@@ -1586,6 +1334,8 @@ u8 settingsarrayattached[SETSIZE];
 	}
 	}
 	else if (xx==0) {
+	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
+	foldpos=adc_buffer[FOURTH]<<4; // 16 bits
 	for (x=0;x<foldy;x++){ // 10 bits
 #ifdef LACH
 	  tmper=((foldpos>>6)+x)%740; // full house//10 bits=1024
@@ -1611,7 +1361,6 @@ u8 settingsarrayattached[SETSIZE];
 	//set according to probability
 
       xx=fingerdir(&spd);
-
       if (xx!=5) {
 
 	tmp=adc_buffer[SECOND]>>2; // 10 bits//offset
@@ -1619,11 +1368,11 @@ u8 settingsarrayattached[SETSIZE];
 
 	if ((adc_buffer[FOURTH]>>5)==0){
 	  for (x=0;x<(tmper%INFECTSIZE);x++){
-	    if ((rand()%255) > (spd<<2)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected
+	    if ((rand()%255) > (spd<<3)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected
 	  else settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=0;
 	  } // reset!
 	}
-	  // run infection at speed SECOND 
+	  // run infection at speed SPD 
 	  else {
 	    //	  for (x=0;x<INFECTSIZE;x++){
 	  for (i=0;i<(tmper%INFECTSIZE);i++){
@@ -1631,7 +1380,7 @@ u8 settingsarrayattached[SETSIZE];
 	    x=(i+tmp)%INFECTSIZE;
 	    if (++del==spd){ // speed
 	      tmpacht=(x-1)%INFECTSIZE;
-	      if (settingsarrayinfected[x][which]==0 && ((settingsarrayinfected[tmpacht][which]>=1 && settingsarrayinfected[tmpacht][which]<128) && (settingsarrayinfected[(x+1)%INFECTSIZE][which]>=1 && settingsarrayinfected[(x+1)%INFECTSIZE][which]<128)) && (rand()%255) > (adc_buffer[THIRD]>>4)) settingsarrayinfected[x][other]=1;
+	      if (settingsarrayinfected[x][which]==0 && settingsarrayinfected[tmpacht][which]>=1 && settingsarrayinfected[tmpacht][which]<128 && settingsarrayinfected[(x+1)%INFECTSIZE][which]>=1 && settingsarrayinfected[(x+1)%INFECTSIZE][which]<128 && ((rand()%255) > (adc_buffer[THIRD]>>4))) settingsarrayinfected[x][other]=1;
 	    // inc
 	      else if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128) {
 		  settingsarrayinfected[x][other]++;
@@ -1641,61 +1390,60 @@ u8 settingsarrayattached[SETSIZE];
 
 #ifdef LACH
 	    if (x<36) {
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	settingsarray[x]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) settingsarray[x]+=settingsarrayinfected[x][which];
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	settingsarray[x]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) settingsarray[x]+=settingsarrayinfected[x][other];
 	    }
 	    else if (x<292) {
 	      //	      stacker[x-32]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	stacker[x-36]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) stacker[x-36]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	stacker[x-36]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) stacker[x-36]+=settingsarrayinfected[x][other];;
 
 	    }
 	    else if (x<548) {
 	      //	      stackery[x-288]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	stackery[x-292]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) stackery[x-292]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	stackery[x-292]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) stackery[x-292]+=settingsarrayinfected[x][other];;
 	    }
 	    else if (x<612) {
 	      //	      m->m_threads[x-544].m_CPU=buf16[(foldpos+x)%32768]>>11;
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	m->m_threads[x-548].m_CPU-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) m->m_threads[x-548].m_CPU+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	m->m_threads[x-548].m_CPU-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) m->m_threads[x-548].m_CPU+=settingsarrayinfected[x][other];;
 	    }
 	    else {
 	      //	      villager[x-608]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)  villager[x-612]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) villager[x-612]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)  villager[x-612]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) villager[x-612]+=settingsarrayinfected[x][other];;
 	    }
 #else
 	    if (x<66) {
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	settingsarray[x]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) settingsarray[x]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	settingsarray[x]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) settingsarray[x]+=settingsarrayinfected[x][other];;
 	    }
 	    else if (x<322) {
 	      //	      stacker[x-32]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	stacker[x-66]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) stacker[x-66]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	stacker[x-66]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) stacker[x-66]+=settingsarrayinfected[x][other];;
 
 	    }
 	    else if (x<578) {
 	      //	      stackery[x-288]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	stackery[x-322]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) stackery[x-322]+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	stackery[x-322]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) stackery[x-322]+=settingsarrayinfected[x][other];;
 	    }
 	    else if (x<642) {
 	      //	      m->m_threads[x-544].m_CPU=buf16[(foldpos+x)%32768]>>11;
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)	m->m_threads[x-578].m_CPU-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) m->m_threads[x-578].m_CPU+=settingsarrayinfected[x][which];;
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	m->m_threads[x-578].m_CPU-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) m->m_threads[x-578].m_CPU+=settingsarrayinfected[x][other];;
 	    }
 	    else {
 	      //	      villager[x-608]=buf16[(foldpos+x)%32768];
-	      if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128)  villager[x-642]-=settingsarrayinfected[x][which];
-	      else if (settingsarrayinfected[x][which]>127) villager[x-642]+=settingsarrayinfected[x][which];
+	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)  villager[x-642]-=settingsarrayinfected[x][other];
+	      else if (settingsarrayinfected[x][other]>127) villager[x-642]+=settingsarrayinfected[x][other];
 	    }
 #endif
 	  }
-	  // swop which and other
 	  which^=1;
-	  other^=which;
+	  other^=1;
 	  }
 	}
 	break;
@@ -1731,6 +1479,7 @@ u8 settingsarrayattached[SETSIZE];
 #endif
 	}
       else if (xx==0){//UP!
+	fingerposl-=spd;
 #ifdef LACH
 	  tmper=(fingerposl>>6)%740; // full house//10 bits=1024
 	  if (tmper<36) settingsarray[tmper]=adc_buffer[UP]<<4;
@@ -1746,7 +1495,6 @@ u8 settingsarrayattached[SETSIZE];
 	  else if (tmper<642) m->m_threads[tmper-578].m_CPU=adc_buffer[UP]>>7;
 	    else villager[tmper-642]=adc_buffer[UP]<<4;
 #endif
-	fingerposl-=spd;
       }
       break;
       }
@@ -1778,11 +1526,10 @@ u8 settingsarrayattached[SETSIZE];
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
       tmp=F0106ERCONS-F0106ERBASE-tmper;
       set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint
-      //      set40106pwm(tmper);
 
       tmp=LMERCONS-LMERBASE;
       if (digfilterflag&4){
-	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmp+LMEROFFSETTWO)%32768]%tmp)); 
+	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
       }
 	  
       if (digfilterflag&8){

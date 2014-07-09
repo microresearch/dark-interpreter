@@ -371,25 +371,31 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
+* THU 10 JULY
+
+- HW averaging or not?
+- re-test all modes across:
+
+LACH=ALL//1by1
+
+SUSP=ALL//1by1
+
+TENE=ALL//1by1
+
+///////////////////////////////
+- manual///documentation///website
+
 * WED 9 JULY
 
 716/715/714/713/712=longestjam///startonlyof711///710/709/708/707.wav(all)
 
 718/717-LACH
 
-- re-test all modes across:
-
-LACH=ALLtested/TODO:onebyone
-SUSP=(onebyoneasTENE)TODO:testall
-TENE=ALLtested///onebyone
-
-- re-test ALL at once on all platforms!
-
-///////////////////////////////
-- manual///documentation///website
 
 ** DONE
 
+- swop fixed in infection case 15
+- speedups in main/modes
 - attachments moved to before modes!
 - infection now only on fingers and with start and extent on 2nd and 4th knobs
 - possible fix to villager stack
