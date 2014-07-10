@@ -382,19 +382,17 @@ SUSP=ALL//1by1
 
 TENE=ALL//1by1-DONE
 
-NOTES:
-
-- better re-organise hardware options (place unhangs earlier) or not? NO
-- RAND and randi question to resolve
-- any hardware tuning on maxim
-- mode 12 swaps can go a bit dead?
-- (coo%((FOLDTOP>>10)+1) in attachs to look into - changed to >>1 TEST
-
 ///////////////////////////////
 - manual///documentation///website
 
 ** DONE
-
+- float exception fixed in main/hw
+- pcsim fine
+- RAND and randi question to resolve
+- any hardware tuning on maxim
+- mode 12 swaps can go a bit dead?
+- (coo%((FOLDTOP>>10)+1) in attachs to look into - changed to >>1 TEST
+- better re-organise hardware options (place unhangs earlier) or not? NO
 - extra settings on  village effects
 - tempered 40106 on knob three
 - fixed signed bug in village and other audio code

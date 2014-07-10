@@ -259,7 +259,7 @@ u8 fingerdirupdown(void){
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 coo,x,addr,tmp=0,tmphw=0,tmphardware=0;u8 HARDWARE=0;
+  u16 coo,x,addr,tmp=0,tmphw=0; u8 HARDWARE=0;
   u8 del=0,machine_count=0,tmpacht=0,villagerdest,spd; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
@@ -273,7 +273,8 @@ u8 cpuattached[64];
 
 #ifdef PCSIM
 u8 *settingsarrayattached; //64
-u8 *settingsarrayinfected; //64
+//u8 **settingsarrayinfected; //64
+u8 settingsarrayinfected[INFECTSIZE][2];
 #else
 u8 settingsarrayinfected[INFECTSIZE][2];
 u8 settingsarrayattached[SETSIZE];
@@ -339,7 +340,7 @@ u8 settingsarrayattached[SETSIZE];
   dst=malloc(BUFF_LEN*sizeof(int16_t));
   village_effects=malloc(VILLAGE_SIZE/2);
   settingsarrayattached=malloc(SETSIZE);
-  settingsarrayinfected=malloc(INFECTSIZE);
+  //  settingsarrayinfected=malloc(INFECTSIZE*2);
 
   for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
@@ -519,7 +520,7 @@ u8 settingsarrayattached[SETSIZE];
       }
 
 	u8 mainmode,groupstart,groupwrap;
-	u8 xx,dirpos,groupsel,groupstartt,foldposy,foldpos;
+	u8 xx,dirpos,groupsel,foldposy,foldpos;
 	u16 settingsposl,fingerposl;
 
 	    m->m_leakiness=leakiness;
@@ -543,8 +544,8 @@ u8 settingsarrayattached[SETSIZE];
 #ifdef PCSIM
       // randomise adc_buffer
       for (x=0;x<10;x++){
-	adc_buffer[x]+=(randi()%4096);
-	adc_buffer[x]=adc_buffer[x]%4096;
+	adc_buffer[x]=(randi()%4096);
+	//	adc_buffer[x]=adc_buffer[x]%4096;
       }
 
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
@@ -588,6 +589,7 @@ u8 settingsarrayattached[SETSIZE];
 	  break;
 	case 1:
 	  settingsarray[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
+	  //	  printf("x %d where %d setted %d\n",x,((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768,settingsarray[x]);
 	  coo++;
 	  break;
 	case 2:
@@ -730,7 +732,7 @@ u8 settingsarrayattached[SETSIZE];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //      mainmode=7; // TESTY!
+      mainmode=14; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -1386,6 +1388,7 @@ u8 settingsarrayattached[SETSIZE];
 	//set according to probability
 
       xx=fingerdir(&spd);
+      xx=0;
       if (xx!=5) {
 
 	tmp=adc_buffer[SECOND]>>2; // 10 bits//offset
@@ -1393,7 +1396,7 @@ u8 settingsarrayattached[SETSIZE];
 
 	if ((adc_buffer[FOURTH]>>5)==0){
 	  for (x=0;x<(tmper%INFECTSIZE);x++){
-	    if ((rand()%255) > (spd<<3)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected
+	    if ((rand()%255) > (spd<<3)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected 3
 	  else settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=0;
 	  } // reset!
 	}
@@ -1405,10 +1408,14 @@ u8 settingsarrayattached[SETSIZE];
 	    x=(i+tmp)%INFECTSIZE;
 	    if (++del==spd){ // speed
 	      tmpacht=(x-1)%INFECTSIZE;
-	      if (settingsarrayinfected[x][which]==0 && settingsarrayinfected[tmpacht][which]>=1 && settingsarrayinfected[tmpacht][which]<128 && settingsarrayinfected[(x+1)%INFECTSIZE][which]>=1 && settingsarrayinfected[(x+1)%INFECTSIZE][which]<128 && ((rand()%255) > (adc_buffer[THIRD]>>4))) settingsarrayinfected[x][other]=1;
+	      if (settingsarrayinfected[x][which]==0 && settingsarrayinfected[tmpacht][which]>=1 && settingsarrayinfected[tmpacht][which]<128 && settingsarrayinfected[(x+1)%INFECTSIZE][which]>=1 && settingsarrayinfected[(x+1)%INFECTSIZE][which]<128 && ((rand()%255) > (adc_buffer[THIRD]>>4))) {
+		settingsarrayinfected[x][other]=1;
+		//	  printf("infecte\n");
+	      }
 	    // inc
 	      else if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128) {
 		  settingsarrayinfected[x][other]++;
+		  //	  printf("not\n");
 		}
 	    del=0;
 	    }
@@ -1469,6 +1476,7 @@ u8 settingsarrayattached[SETSIZE];
 	  }
 	  which^=1;
 	  other^=1;
+	  //	  printf("wich %d uther %d\n",which,other);
 	  }
 	}
 	break;
@@ -1550,22 +1558,24 @@ u8 settingsarrayattached[SETSIZE];
 
 	tmper=((adc_buffer[THIRD]>>4)%16)<<8; // 8 bits
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
-      tmp=F0106ERCONS-F0106ERBASE-tmper;
+	tmp=F0106ERCONS-F0106ERBASE-tmper;
+	if (tmp==0) tmp=1;
       set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint
 
       tmp=LMERCONS-LMERBASE;
+	if (tmp==0) tmp=1;
       if (digfilterflag&4){
 	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
       }
 	  
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
+	if (tmp==0) tmp=1;
 	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp));
       }
       }//outside HWSPEED
       
       if (digfilterflag&16){
-	//	if (HDGENERCONS==0) settingsarray[24]=256; //SET HDGENERCONS=1
 	dohardwareswitch(HARDWARE,datagenbuffer[tmphw]%HDGENERCONS);
       }
       else

@@ -875,7 +875,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 /// STRAIGHT SANS FILTEROPSSS!!!
 	    VILLAGEWRITE=EFFECTWRITE&3;
-	    //	    VILLAGEWRITE=2; // TESTY!!!!
 	    morph_inv = 1.0f - (float32_t)FMODW;
 	  
 	  for (x=0;x<sz/2;x++){
@@ -974,6 +973,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (wormflag[5]) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
+	    VILLAGEWRITE=2; // TESTY!!!!
 		    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
@@ -999,7 +999,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    villagewpos+=dirryy;
 		    vill=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    start=villager[vill]>>1;
+		    //		    settingsarray[15]=128;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
+		    //		    printf("vill %d start %d wrap %d\n",vill,start,wrap);
+
 		    if (wrap==0) wrap=1;
 		    if (dirry>0) samplepos=start;
 		    else samplepos=start+wrap;
