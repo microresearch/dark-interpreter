@@ -466,18 +466,18 @@ u8 settingsarrayattached[SETSIZE];
   }//fmods
 
   // initialise foldoffset and foldtop and machinespeed
-  settingsarray[49]=65535;
-  settingsarray[50]=0;
+  settingsarray[49]=65535;//foldtop
+  settingsarray[50]=0; //foldoffset
   settingsarray[51]=32768;
 
   for (x=52;x<62;x++){
     settingsarray[x]=32768;//>>15 = 1
   }//DIR
 
-  // initialise exestacks
+  // initialise exestack positions
 
   settingsarray[62]=65535;//to 63
-  settingsarray[63]=65535;
+  settingsarray[63]=65535; // 128 for villagestackpos
   settingsarray[64]=65535;
   settingsarray[65]=65535;
 
@@ -506,10 +506,10 @@ u8 settingsarrayattached[SETSIZE];
 
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
-                start=randi()<<4;
-            wrap=randi()<<4;
+      start=randi()<<4;
+      wrap=randi()<<4;
       stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
-            villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
+      villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
   }
 
     // execution stack
@@ -587,7 +587,7 @@ u8 settingsarrayattached[SETSIZE];
 	case 0:
 	  break;
 	case 1:
-	  settingsarray[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  settingsarray[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
 	  coo++;
 	  break;
 	case 2:
@@ -611,7 +611,7 @@ u8 settingsarrayattached[SETSIZE];
 	case 0:
 	  break;
 	case 1:
-	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
 	  coo++;
 	  break;
 	case 2:
@@ -635,7 +635,7 @@ u8 settingsarrayattached[SETSIZE];
 	case 0:
 	  break;
 	case 1:
-	  stackery[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
+	  stackery[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
 	  coo++;
 	  break;
 	case 2:
@@ -659,26 +659,45 @@ u8 settingsarrayattached[SETSIZE];
 	case 0:
 	  break;
 	case 1:
-	  villager[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768];
-	  village_effects[x/2]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768]>>12;
-	  coo++;
+	  villager[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
+	  coo++; ///TESTY!
 	  break;
 	case 2:
 #ifdef TENE
 	  villager[x]=adc_buffer[9]<<4;
-	  village_effects[x/2]=adc_buffer[9]>>8;
 #else
 	  villager[x]=adc_buffer[DOWN]<<4;
-	  village_effects[x/2]=adc_buffer[DOWN]>>8;
 #endif
 	  break;
 	case 3:
 	  villager[x]=adc_buffer[THIRD]<<4;
-	  village_effects[x/2]=adc_buffer[THIRD]>>8;
 	  break;
 	case 4:
 	  villager[x]=adc_buffer[SECOND]<<4; // where?
-	  village_effects[x/2]=adc_buffer[SECOND]>>8;
+	  break;
+	}
+      }
+
+      for (x=0;x<VILLAGESTACKPOS/2;x++){
+	switch(villagereffattached[x]){
+	case 0:
+	  break;
+	case 1:
+	  village_effects[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
+	  coo++; ///TESTY!
+	  break;
+	case 2:
+#ifdef TENE
+	  village_effects[x]=adc_buffer[9]<<4;
+#else
+	  village_effects[x]=adc_buffer[DOWN]<<4;
+#endif
+	  break;
+	case 3:
+	  village_effects[x]=adc_buffer[THIRD]<<4;
+	  break;
+	case 4:
+	  village_effects[x]=adc_buffer[SECOND]<<4; // where?
 	  break;
 	}
       }
@@ -688,7 +707,7 @@ u8 settingsarrayattached[SETSIZE];
 	case 0:
 	  break;
 	case 1:
-	  m->m_threads[x].m_CPU=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>10)+1)))%32768]>>11;
+	  m->m_threads[x].m_CPU=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768]>>11;
 	  coo++;
 	  break;
 	case 2:
@@ -711,7 +730,7 @@ u8 settingsarrayattached[SETSIZE];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //      mainmode=15; // TESTY!
+      //      mainmode=7; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -739,47 +758,15 @@ u8 settingsarrayattached[SETSIZE];
 	}
 	break;
 #endif	
-      case 1:
-	//	  select stackmax (left/right) (knob and set)
-	xx=fingerdir(&spd);
-	if (xx!=5) {
-	if (xx==0) {
-	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
-	  settingsarrayattached[THREADERR]=0;
-	  m->m_threads[THREADCOUNT].m_CPU=spd%31;
-	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	  settingsarrayattached[VILLAGERR]=0;
-	}
-	else if (xx==1) 
-	  {
-	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
-	    settingsarrayattached[POSYERR]=0;
-	    stackery[(STACKPOSY*4)+3]=spd%11;
-	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	    settingsarrayattached[VILLAGERR]=0;
-	  }
-	else if (xx==2) {
-	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
-	  settingsarrayattached[POSERR]=0;
-	  stacker[(STACKPOS*4)+3]=spd%34;
-	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	  settingsarrayattached[VILLAGERR]=0;
-	}
-	else
-	  {
-	    exestack[adc_buffer[SECOND]>>10]=spd%4;
-	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
-	    settingsarrayattached[VILLAGERR]=0;
-	    }
-	}
-	break;
 	  ///////////////////////////////////
-      case 2: // directions - and speed
+      case 1: // directions - and speed and step!
 	xx=fingerdir(&spd);
 #ifdef LACH
 	if (xx!=5) {
 	dirpos=adc_buffer[SECOND]>>9; // 3 bits
 	dirpos=dirpos%6;
+	settingsarray[12+dirpos]=adc_buffer[FOURTH]<<4;//steps
+	settingsarrayattached[12+dirpos]=0;
 	if (xx==0) {
 	  wormflag[dirpos]=1; // up
 	  if (dirpos==2) {
@@ -817,7 +804,7 @@ u8 settingsarrayattached[SETSIZE];
 	} // left=0
 	else if (xx==2) { //down
 	  settingsarray[25+dirpos]=adc_buffer[DOWN]<<4; wormflag[dirpos]=0;
-	    settingsarrayattached[25+dirpos]=0;
+	  settingsarrayattached[25+dirpos]=0;
 	    if (dirpos==2) {
 	      settingsarray[19]=spd<<9;
 	      settingsarrayattached[19]=0;
@@ -832,6 +819,8 @@ u8 settingsarrayattached[SETSIZE];
 	if (xx!=5) {
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits=16
 	dirpos=dirpos%10;
+	settingsarray[32+dirpos]=adc_buffer[FOURTH]<<4;
+	settingsarrayattached[32+dirpos]=0;
 	if (xx==0) {
 	  wormflag[dirpos]=1; // up
 	  if (dirpos==0) {
@@ -915,7 +904,7 @@ u8 settingsarrayattached[SETSIZE];
 #endif
 	break; 
 
-      case 3:
+      case 2:
 	// set start and wrap for r/w/village_r/w according to fingers
 	// speed is step
 	xx=fingerdir(&spd);
@@ -926,34 +915,34 @@ u8 settingsarrayattached[SETSIZE];
 	if (xx==0){ // UP=read= start/wrap/step
 	  settingsarray[1]=tmp;
 	  settingsarray[7]=tmper;
-	  settingsarray[13]=spd<<8;
+	  settingsarray[14]=spd<<8;
 	  settingsarrayattached[1]=0;
 	  settingsarrayattached[7]=0;
-	  settingsarrayattached[13]=0;
+	  settingsarrayattached[14]=0;
 	}
 	else if (xx==2){ // DOWN=write= start/speed/step
 	  settingsarray[0]=tmp;
 	  settingsarray[18]=tmper;  // changed as is already set // now is speed
-	  settingsarray[12]=spd<<8; // step!!!
+	  settingsarray[15]=spd<<8; // step!!!
 	  settingsarrayattached[0]=0;
 	  settingsarrayattached[18]=0;
-	  settingsarrayattached[12]=0;
+	  settingsarrayattached[15]=0;
 	}
 	else if (xx==3){ // LEFT=village_r= start/wrap/step
 	  settingsarray[5]=tmp;
 	  settingsarray[11]=tmper;
-	  settingsarray[17]=spd<<8;
+	  settingsarray[16]=spd<<8;
 	  settingsarrayattached[5]=0;
 	  settingsarrayattached[11]=0;
-	  settingsarrayattached[17]=0;
+	  settingsarrayattached[16]=0;
 	}
 	else { // RIGHT=village_w= start/wrap/step
 	  settingsarray[4]=tmp;
 	  settingsarray[10]=tmper;
-	  settingsarray[16]=spd<<8;
+	  settingsarray[17]=spd<<8;
 	  settingsarrayattached[4]=0;
 	  settingsarrayattached[10]=0;
-	  settingsarrayattached[16]=0;
+	  settingsarrayattached[17]=0;
 	}
 	}
 #else
@@ -963,39 +952,40 @@ u8 settingsarrayattached[SETSIZE];
 	if (xx==0){ // UP=read= start/wrap/step
 	  settingsarray[2]=tmp;
 	  settingsarray[16]=tmper;
-	  settingsarray[34]=spd<<8;
+	  settingsarray[36]=spd<<8;
 	  settingsarrayattached[2]=0;
 	  settingsarrayattached[16]=0;
-	  settingsarrayattached[34]=0;
+	  settingsarrayattached[36]=0;
 	}
-	else if (xx==2){ // DOWN=write= start/wrap/step
+	else if (xx==2){ // DOWN=write= start/wrap/step/
 	  settingsarray[1]=tmp;
 	  settingsarray[15]=tmper;
-	  settingsarray[33]=spd<<8;
+	  settingsarray[37]=spd<<8;
 	  settingsarrayattached[1]=0;
 	  settingsarrayattached[15]=0;
-	  settingsarrayattached[33]=0;
+	  settingsarrayattached[37]=0;
 	}
+
 	else if (xx==3){ // LEFT=village_r= start/wrap/step
 	  settingsarray[8]=tmp;
 	  settingsarray[22]=tmper;
-	  settingsarray[40]=spd<<8;
+	  settingsarray[39]=spd<<8;
 	  settingsarrayattached[8]=0;
 	  settingsarrayattached[22]=0;
-	  settingsarrayattached[40]=0;
+	  settingsarrayattached[39]=0;
 	}
 	else { // RIGHT=village_w= start/wrap/step
-	  settingsarray[7]=tmp;
+	  settingsarray[7]=tmp; //7,21,40
 	  settingsarray[21]=tmper;
-	  settingsarray[39]=spd<<8;
+	  settingsarray[40]=spd<<8;
 	  settingsarrayattached[7]=0;
 	  settingsarrayattached[21]=0;
-	  settingsarrayattached[39]=0;
+	  settingsarrayattached[40]=0;
 	}
 	}
 #endif	
 	break;
-      case 4:
+      case 3:
 	// HW=start,wrap,offsets
 	xx=fingerdir(&spd);
 #ifdef LACH
@@ -1017,10 +1007,10 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[9]=0;
 	}
 	else if (xx==2){
-	  settingsarray[14]=tmp;
-	  settingsarray[15]=tmper;
-	  settingsarrayattached[14]=0;
-	  settingsarrayattached[15]=0;
+	  settingsarray[12]=tmp;
+	  settingsarray[13]=tmper;
+	  settingsarrayattached[12]=0;
+	  settingsarrayattached[13]=0;
 	}
 	else {
 	  settingsarray[16]=tmp;
@@ -1071,6 +1061,42 @@ u8 settingsarrayattached[SETSIZE];
 	}
 #endif
 	break;
+
+      case 4:
+	//	  select stackmax (left/right) (knob and set)
+	xx=fingerdir(&spd);
+	if (xx!=5) {
+	if (xx==0) {
+	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
+	  settingsarrayattached[THREADERR]=0;
+	  m->m_threads[THREADCOUNT].m_CPU=spd%31;
+	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	  settingsarrayattached[VILLAGERR]=0;
+	}
+	else if (xx==1) 
+	  {
+	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
+	    settingsarrayattached[POSYERR]=0;
+	    stackery[(STACKPOSY*4)+3]=spd%11;
+	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	    settingsarrayattached[VILLAGERR]=0;
+	  }
+	else if (xx==2) {
+	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
+	  settingsarrayattached[POSERR]=0;
+	  stacker[(STACKPOS*4)+3]=spd%34;
+	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	  settingsarrayattached[VILLAGERR]=0;
+	}
+	else
+	  {
+	    exestack[adc_buffer[SECOND]>>10]=spd%4;
+	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
+	    settingsarrayattached[VILLAGERR]=0;
+	    }
+	}
+	break;
+
       case 5:
 	// anydata stuff
 	//for LACH is simply anystart*2,anywrap*2,anystep*2
@@ -1083,18 +1109,18 @@ u8 settingsarrayattached[SETSIZE];
 	if (xx==0){ // UP
 	  settingsarray[3]=tmp;//anystartread
 	  settingsarray[8]=tmper;//wrap
-	  settingsarray[15]=spd<<10;//step
+	  settingsarray[12]=spd<<10;//step
 	  settingsarrayattached[3]=0;
 	  settingsarrayattached[8]=0;
-	  settingsarrayattached[15]=0;
+	  settingsarrayattached[12]=0;
 	}
 	else 	if (xx==2){ //DOWN
 	  settingsarray[2]=tmp;//write
 	  settingsarray[9]=tmper;
-	  settingsarray[14]=spd<<10;
+	  settingsarray[13]=spd<<10;
 	  settingsarrayattached[2]=0;
 	  settingsarrayattached[9]=0;
-	  settingsarrayattached[14]=0;
+	  settingsarrayattached[13]=0;
 	}
 	//#define FOLDTOP (settingsarray[23]) 
 	//#define FOLDOFFSET (settingsarray[24]) 
@@ -1105,7 +1131,7 @@ u8 settingsarrayattached[SETSIZE];
 	  settingsarrayattached[24]=0;
 	}
 	}
-	// one setting missing TODO
+	// one setting missing 
 #else
 	if (xx!=5){
 	tmp=adc_buffer[SECOND]<<4;
@@ -1113,26 +1139,26 @@ u8 settingsarrayattached[SETSIZE];
 	if (xx==0){ // UP
 	  settingsarray[5]=tmp;//anystartread
 	  settingsarray[19]=tmper;//wrap
-	  settingsarray[37]=spd<<10;//step
+	  settingsarray[33]=spd<<10;//step
 	  settingsarrayattached[5]=0;
 	  settingsarrayattached[19]=0;
-	  settingsarrayattached[37]=0;
+	  settingsarrayattached[33]=0;
 	}
 	else 	if (xx==2){ //DOWN
 	  settingsarray[4]=tmp;//write
 	  settingsarray[18]=tmper;
-	  settingsarray[36]=spd<<10;
+	  settingsarray[34]=spd<<10;
 	  settingsarrayattached[4]=0;
 	  settingsarrayattached[18]=0;
-	  settingsarrayattached[36]=0;
+	  settingsarrayattached[34]=0;
 	}
-	else 	if (xx==1){ //RIGHT
+	else 	if (xx==1){ //RIGHT-filt
 	  settingsarray[6]=tmp;
 	  settingsarray[20]=tmper;
-	  settingsarray[38]=spd<<10;
+	  settingsarray[35]=spd<<10;
 	  settingsarrayattached[6]=0;
 	  settingsarrayattached[20]=0;
-	  settingsarrayattached[38]=0;
+	  settingsarrayattached[35]=0;
 	}
 	else{//is=folderSETTTINGS
 	  settingsarray[49]=tmp;
@@ -1148,7 +1174,7 @@ u8 settingsarrayattached[SETSIZE];
       case 6: //SETTED! 	//expand for 4stacker/stackery//5CPU//6villager/7village_effects
 	groupsel=fingerdir(&spd);
 	if (groupsel!=5){
-	groupwrap=adc_buffer[SECOND]>>SHIFTY; // 6bits=64
+	groupwrap=adc_buffer[SECOND]>>SHIFTY; // 6bits=64 or7 for LACH
 	groupstart=adc_buffer[FOURTH]>>SHIFTY;
 	for (x=0;x<groupwrap;x++){
 	  settingsarrayattached[(groupstart+x)%SETSIZE]=groupsel;
@@ -1309,7 +1335,6 @@ u8 settingsarrayattached[SETSIZE];
 	break;
 
       case 13: // dump (all) to datagen//back
-
 	xx=fingerdirupdown();
 	if (xx==1) { //down
 	foldy=adc_buffer[SECOND]>>2; // howmuch=10 bits=1024
@@ -1450,7 +1475,7 @@ u8 settingsarrayattached[SETSIZE];
     case 15: // fingers in the code... navigate and insert code - no knobs(?)
       // left-right move in datagen
       // down-up into all code values
-      xx=fingerdir(&spd);
+            xx=fingerdir(&spd);
       
       if (xx==1){ //right
 	fingerposl+=spd;
@@ -1495,7 +1520,7 @@ u8 settingsarrayattached[SETSIZE];
 	  else if (tmper<642) m->m_threads[tmper-578].m_CPU=adc_buffer[UP]>>7;
 	    else villager[tmper-642]=adc_buffer[UP]<<4;
 #endif
-      }
+}
       break;
       }
 
@@ -1506,15 +1531,16 @@ u8 settingsarrayattached[SETSIZE];
       // 4-hardware operations
 
 #ifndef LACH
-      //      /*      
-      tmphardware=0;
+            /*      
+            tmphardware=0;
       for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now!
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
-      //*/
-      //	HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
-      
+      */
+      HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
+
+            
       /// general HW walk in/as tmp
       if (++hwdel>=HWSPEED){
 	if (wormflag[0]) hwpos+=direction[wormdir];
@@ -1522,7 +1548,7 @@ u8 settingsarrayattached[SETSIZE];
 	tmphw=HWSTART+(hwpos%HWWRAP); //to cover all directions
 	hwdel=0;
 
-      tmper=adc_buffer[THIRD];
+	tmper=((adc_buffer[THIRD]>>4)%16)<<8; // 8 bits
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
       tmp=F0106ERCONS-F0106ERBASE-tmper;
       set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint
@@ -1546,6 +1572,7 @@ u8 settingsarrayattached[SETSIZE];
 	{
 	  dohardwareswitch(HARDWARE,0);
 	}
+      
 #endif //notLACH
 #endif //eeg
 #endif //straight

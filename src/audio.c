@@ -119,7 +119,7 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  u16 tmp=0,tmper;
+  u16 tmp=0; u16 tmper;
   int16_t tmp16,count;
   int32_t tmp32;
   u8 x,tmpp;
@@ -128,7 +128,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
 
-  int16_t dirry;
+  int16_t dirry,dirryy=0;
   float32_t w0,w1,w2;
 
   static u16 anyposread=0,sampleposread=0,wrapread=1,startread=0;
@@ -293,20 +293,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 
 		  else if (VILLAGEREAD==1) {
-		    //		    tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[0]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[0]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
-		    //		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    if (wormflag[4]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    villagerpos+=tmp;
+		    if (wormflag[4]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
+		    villagerpos+=dirryy;
 		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
@@ -315,17 +313,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else sampleposread=startread+wrapread;
 		  }
 		  else {
-		    //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[0]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[0]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD; 
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		  if (wormflag[0]) tmp=newdirection[wormdir]; 
-		  else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		  if (wormflag[0]) dirryy=newdirection[wormdir]; 
+		  else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
@@ -483,7 +479,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  }
 	  	  if (++delread>=SAMPLESPEEDREAD){
-		    //		    dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD; // TESTY!
 		    if (wormflag[4]) dirry=newdirection[wormdir]; 
 		    else dirry=direction[SAMPLEDIRR]*SAMPLESTEPREAD;	    
 		    count=((sampleposread-startread)+dirry);
@@ -499,21 +494,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 
 		  else if (VILLAGEREAD==1) {
-		    //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
-		    // advance to next in array based on new start and wrap
-		    //		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    if (wormflag[7]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    villagerpos+=tmp;
+		    if (wormflag[7]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
+		    villagerpos+=dirryy;
 		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
@@ -522,17 +514,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else sampleposread=startread+wrapread;
 		  }
 		  else {
-		    //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD; 
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
@@ -672,20 +662,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else samplepos=start+wrap;
 		  }
 		  else if (VILLAGEWRITE==1) {
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);//+SAMPLEEXPAND;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
-		    // advance to next in array based on new start and wrap
-		    //		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    if (wormflag[8]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    villagewpos+=tmp;
+		    if (wormflag[8]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    villagewpos+=dirryy;
 		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    start=villager[vill]>>1;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -694,17 +682,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else samplepos=start+wrap;
 		  }
 		  else {
-		    //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP; 
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		  if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		  else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -719,13 +705,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	}
 	else  // READIN NO DIG FILTER
 	  {
-	    //	    EFFECTREAD=(EFFECTWRITE+EFFROFFSET)%64;
-	    //	    EFFECTREAD=0;
 	    VILLAGEREAD=EFFECTREAD&3;
-	    
+	    //	    VILLAGEREAD=3; // TESTY!	    
+
 	    for (x=0;x<sz/2;x++){
  	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2];
+	    //	    tmpp=0;//TESTY!
 	  }
 	  else tmpp=EFFECTREAD>>2;
 	  //	  tmpp=15;
@@ -847,20 +833,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 
 		  else if (VILLAGEREAD==1) {
-		    //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  tmp=(ANYSTARTREAD+(anyposread%ANYWRAPREAD))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;
 		  sampleposread=SAMPLESTARTREAD+(tmper%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
 		  wrapread=0;startread=0;
 		  }
 		  else if (VILLAGEREAD==2) {
-		    //		    tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    if (wormflag[7]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGERSTEP*direction[VILLAGERDIR];
-		    villagerpos+=tmp; //???
+		    if (wormflag[7]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
+		    villagerpos+=dirryy; 
 		    vill=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%VILLAGESTACKPOS; //to cover all directions
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;;
@@ -869,17 +853,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else sampleposread=startread+wrapread;
 		  }
 		  else {
-		    //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD; 
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  startread=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEPREAD*direction[DATADIRR];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPREAD*direction[DATADIRR];
-		  anyposread+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPREAD*direction[DATADIRR];
+		  anyposread+=dirryy;
 		  wrapper=ANYWRAPREAD;
 		  tmp=(ANYSTARTREAD+(anyposread%wrapper))%32768; //to cover all directions
 		  wrapread=((buf16[tmp]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;;
@@ -893,7 +875,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 /// STRAIGHT SANS FILTEROPSSS!!!
 	    VILLAGEWRITE=EFFECTWRITE&3;
-	    //	    	    VILLAGEWRITE=2; // TESTY!!!!
+	    //	    VILLAGEWRITE=2; // TESTY!!!!
 	    morph_inv = 1.0f - (float32_t)FMODW;
 	  
 	  for (x=0;x<sz/2;x++){
@@ -1003,21 +985,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else samplepos=start+wrap;
 		  }
 		  else if (VILLAGEWRITE==1) {
-		    //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);//+SAMPLEEXPAND;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
-		    // advance to next in array based on new start and wrap
-		    //		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    if (wormflag[8]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    villagewpos+=tmp;
+		    if (wormflag[8]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    villagewpos+=dirryy;
 		    vill=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    start=villager[vill]>>1;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -1025,20 +1004,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (dirry>0) samplepos=start;
 		    else samplepos=start+wrap;
 		  }
-
-
 		  else {
-		    //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP; 
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[2]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[2]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -1167,20 +1142,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    count=samplepos;
 		  }
 		  else if (VILLAGEWRITE==1) {
-		    //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  tmp=(ANYSTART+(anypos%ANYWRAP))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  samplepos=SAMPLESTART+(tmper%SAMPLEWRAP);//+SAMPLEEXPAND;
 		  wrap=0;start=0;
 		  }
 		  else if (VILLAGEWRITE==2) {
-		    //		    tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    if (wormflag[5]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    villagewpos+=tmp;
+		    if (wormflag[5]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    villagewpos+=dirryy;
 		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    start=villager[vill]>>1;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -1189,17 +1162,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else samplepos=start+wrap;
 		  }
 		  else {
-		    //		  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP; 
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  start=buf16[tmp]>>1;
-		  //  tmp=ANYSTEP*direction[DATADIRW];
-		    if (wormflag[1]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEP*direction[DATADIRR];
-		  anypos+=tmp;
+		    if (wormflag[1]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEP*direction[DATADIRR];
+		  anypos+=dirryy;
 		  wrapper=ANYWRAP;
 		  tmp=(ANYSTART+(anypos%wrapper))%32768; //to cover all directions
 		  wrap=((buf16[tmp]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
@@ -1220,7 +1191,6 @@ if (digfilterflag&1){
 
 	ldst=left_buffer;
 	rdst=right_buffer;
-	//	settingsarray[49]=adc_buffer[2]<<4;// testy
 	morph_inv = 1.0f - (float32_t)FMODF;
 
 	  ////////////////////////////////////LDST effects also...
@@ -1357,20 +1327,18 @@ if (digfilterflag&1){
 		  }
 
 		  else if (VILLAGEFILT==1) {
-		    //		  tmp=ANYSTEPFILT*direction[DATADIRF];
-		    if (wormflag[3]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPFILT*direction[DATADIRR];
-		  anyposfilt+=tmp;
+		    if (wormflag[3]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPFILT*direction[DATADIRR];
+		  anyposfilt+=dirryy;
 		  tmp=(ANYSTARTFILT+(anyposfilt%ANYWRAPFILT))%32768; //to cover all directions
 		  tmper=buf16[tmp]>>1;	
 		  sampleposfilt=SAMPLESTARTFILT+(tmper%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;
 		  wrapfilt=0;startfilt=0;
 		  }
 		  else if (VILLAGEFILT==2) {
-		    //		    tmp=VILLAGEFSTEP*direction[VILLAGEFDIR];
-		    if (wormflag[9]) tmp=newdirection[wormdir]; 
-		    else tmp=VILLAGEWSTEP*direction[VILLAGEWDIR];
-		    villagefpos+=tmp;
+		    if (wormflag[9]) dirryy=newdirection[wormdir]; 
+		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
+		    villagefpos+=dirryy;
 		    vill=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    startfilt=villager[vill]>>1;
 		    wrapfilt=((villager[vill+1]>>1)%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;
@@ -1379,19 +1347,17 @@ if (digfilterflag&1){
 		    else sampleposfilt=startfilt+wrapfilt;
 		  }
 		  else {
-		    //		  tmp=ANYSTEPFILT*direction[DATADIRF];
-		    if (wormflag[3]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPFILT*direction[DATADIRF];
+		    if (wormflag[3]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPFILT*direction[DATADIRF];
 
-		  anyposfilt+=tmp;
+		  anyposfilt+=dirryy;
 		  wrapper=ANYWRAPFILT; 
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  startfilt=buf16[tmp]>>1;
-		  //		  tmp=ANYSTEPFILT*direction[DATADIRF];
-		    if (wormflag[3]) tmp=newdirection[wormdir]; 
-		    else tmp=ANYSTEPFILT*direction[DATADIRF];
+		    if (wormflag[3]) dirryy=newdirection[wormdir]; 
+		    else dirryy=ANYSTEPFILT*direction[DATADIRF];
 
-		  anyposfilt+=tmp;
+		  anyposfilt+=dirryy;
 		  wrapper=ANYWRAPFILT;
 		  tmp=(ANYSTARTFILT+(anyposfilt%wrapper))%32768; //to cover all directions
 		  wrapfilt=((buf16[tmp]>>1)%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;

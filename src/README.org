@@ -210,10 +210,9 @@ outside, and in open daylight.
 * TO REMEMBER/TODO
 
 - always set define for board (TENE, LACH _or_ SUSP) in MAKEFILE and make clean first!!!
-
 - caps across potis for top-board
-
 - make clean after changes to settingsarray or MAKEFILE!
+- program from the BACK!
 
 * MANUAL IN PROGRESS
 
@@ -373,17 +372,37 @@ controls incoming audio effect parameters (as above).
 
 * THU 10 JULY
 
-- HW averaging or not?
+726/725/724/*721/720.wav(HW,time),
+
 - re-test all modes across:
 
 LACH=ALL//1by1
 
 SUSP=ALL//1by1
 
-TENE=ALL//1by1
+TENE=ALL//1by1-DONE
+
+NOTES:
+
+- better re-organise hardware options (place unhangs earlier) or not? NO
+- RAND and randi question to resolve
+- any hardware tuning on maxim
+- mode 12 swaps can go a bit dead?
+- (coo%((FOLDTOP>>10)+1) in attachs to look into - changed to >>1 TEST
 
 ///////////////////////////////
 - manual///documentation///website
+
+** DONE
+
+- extra settings on  village effects
+- tempered 40106 on knob three
+- fixed signed bug in village and other audio code
+- steps on knob four also in new mode 1 direction/speedTEST (as changed order of steps in settingsarray)
+- added extra HW mode 10
+- HW averaging or not? NOT!
+- retest unhang all (removed PC13 hang as is no fingerpad)
+- shifted mode 1 ->4 for stack stuff
 
 * WED 9 JULY
 
@@ -526,7 +545,7 @@ speed/dir as direct
 - why inp mode failed 0 was wrap REMOVED
 - finger in speed to invertDONE
 
-* MON 30 JUNE
+* MON 30 JUNE LONDON
 
 - finger_as_speed in navigation mode (2) DONE - to TEST!
 
@@ -540,7 +559,7 @@ speed/dir as direct
 - mode 9 is algo selection into all-tested
 - some mistakes fixed
 
-* SAT 28 JUNE
+* SAT 28 JUNE EDINBRGH
 
 672/671.wav(noin)
 
