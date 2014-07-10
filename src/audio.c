@@ -973,7 +973,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (wormflag[5]) dirry=newdirection[wormdir]; 
 	    else dirry=direction[SAMPLEDIRW]*SAMPLESTEP;	    
 	    count=((samplepos-start)+dirry);
-	    VILLAGEWRITE=2; // TESTY!!!!
+	    //	    VILLAGEWRITE=2; // TESTY!!!!
 		    if (count<wrap && count>0)
 		  {
 		    samplepos+=dirry;//)%32768;
