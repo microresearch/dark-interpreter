@@ -370,9 +370,9 @@ controls incoming audio effect parameters (as above).
 ** The Background
       
 
-* THU 10 JULY
+* FRI 11 JULY
 
-726/725/724/*721/720.wav(HW,time),
+- re-test infection 14
 
 - re-test all modes across:
 
@@ -384,6 +384,11 @@ TENE=ALL//1by1-DONE
 
 ///////////////////////////////
 - manual///documentation///website
+
+
+* THU 10 JULY
+
+726/725/724/*721/720.wav(HW,time),
 
 ** DONE
 - float exception fixed in main/hw

@@ -1388,7 +1388,8 @@ u8 settingsarrayattached[SETSIZE];
 	//set according to probability
 
       xx=fingerdir(&spd);
-      xx=0;
+
+      xx=0;//testy
       if (xx!=5) {
 
 	tmp=adc_buffer[SECOND]>>2; // 10 bits//offset
@@ -1396,30 +1397,29 @@ u8 settingsarrayattached[SETSIZE];
 
 	if ((adc_buffer[FOURTH]>>5)==0){
 	  for (x=0;x<(tmper%INFECTSIZE);x++){
-	    if ((rand()%255) > (spd<<3)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected 3
+	    if ((rand()%255) > (spd)) settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=1; // infected 3
 	  else settingsarrayinfected[(tmp+x)%INFECTSIZE][which]=0;
 	  } // reset!
 	}
 	  // run infection at speed SPD 
 	  else {
-	    //	  for (x=0;x<INFECTSIZE;x++){
+	    //	    printf("del%d spd %d\n",del,spd);
+
+      if (++del>=spd){ // speed
 	  for (i=0;i<(tmper%INFECTSIZE);i++){
-	    // infection - how many infected (not dead) round each one?
+      	    // infection - how many infected (not dead) round each one?
 	    x=(i+tmp)%INFECTSIZE;
-	    if (++del==spd){ // speed
 	      tmpacht=(x-1)%INFECTSIZE;
+
 	      if (settingsarrayinfected[x][which]==0 && settingsarrayinfected[tmpacht][which]>=1 && settingsarrayinfected[tmpacht][which]<128 && settingsarrayinfected[(x+1)%INFECTSIZE][which]>=1 && settingsarrayinfected[(x+1)%INFECTSIZE][which]<128 && ((rand()%255) > (adc_buffer[THIRD]>>4))) {
 		settingsarrayinfected[x][other]=1;
-		//	  printf("infecte\n");
+		//			  printf("infecte\n");
 	      }
 	    // inc
 	      else if (settingsarrayinfected[x][which]>0 && settingsarrayinfected[x][which]<128) {
 		  settingsarrayinfected[x][other]++;
-		  //	  printf("not\n");
-		}
-	    del=0;
-	    }
-
+		  //		  	  printf("not\n");
+	      }
 #ifdef LACH
 	    if (x<36) {
 	      if (settingsarrayinfected[x][other]>0 && settingsarrayinfected[x][other]<128)	settingsarray[x]-=settingsarrayinfected[x][other];
@@ -1474,11 +1474,14 @@ u8 settingsarrayattached[SETSIZE];
 	    }
 #endif
 	  }
+	    del=0;
+      }
 	  which^=1;
 	  other^=1;
 	  //	  printf("wich %d uther %d\n",which,other);
 	  }
-	}
+
+      }
 	break;
     case 15: // fingers in the code... navigate and insert code - no knobs(?)
       // left-right move in datagen
