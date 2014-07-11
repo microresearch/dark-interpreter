@@ -155,14 +155,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	int16_t *ldst=left_buffer;
 	int16_t *rdst=right_buffer;
 	float32_t morph_inv,fsum;
-	//	settingsarray[48]=adc_buffer[2]<<4; // TESTY for FMODW!
 
 	morph_inv = 1.0f - (float32_t)FMOD;
 
 #ifdef LACH
 
 	VILLAGEREAD=(EFFECTREAD&3);	
-
+	//VILLAGEREAD=2; // TESTY!
       	for (x=0;x<sz/2;x++){
 	  if (VILLAGEREAD==2){
 	    tmpp=village_effects[vill/2]%16;
@@ -305,7 +304,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[4]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=dirryy;
-		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    //		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
+		    vill=(tmp+(villagerpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
@@ -506,7 +509,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[7]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=dirryy;
-		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    //		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
+		    vill=(tmp+(villagerpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
 		    if (wrapread==0) wrapread=1;
@@ -674,7 +681,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[8]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=dirryy;
-		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    //		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
+		    vill=(tmp+(villagewpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    start=villager[vill]>>1;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
@@ -706,7 +717,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	else  // READIN NO DIG FILTER
 	  {
 	    VILLAGEREAD=EFFECTREAD&3;
-	    //	    VILLAGEREAD=3; // TESTY!	    
+	    //	    VILLAGEREAD=2; // TESTY!	    
 
 	    for (x=0;x<sz/2;x++){
  	  if (VILLAGEREAD==2){
@@ -845,7 +856,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[7]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=dirryy; 
-		    vill=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%VILLAGESTACKPOS; //to cover all directions
+		    //		    vill=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%VILLAGESTACKPOS; //to cover all directions
+		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
+		    vill=(tmp+(villagerpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    startread=villager[vill]>>1;
 		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;;
 		    if (wrapread==0) wrapread=1;
@@ -876,18 +891,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 /// STRAIGHT SANS FILTEROPSSS!!!
 	    VILLAGEWRITE=EFFECTWRITE&3;
 	    morph_inv = 1.0f - (float32_t)FMODW;
-	  
+
+	    //	    VILLAGEWRITE=2;//testy!
+	    //settingsarray[15]=1024;//testy! SAMPLEWRAP	  
 	  for (x=0;x<sz/2;x++){
 
 	  if (VILLAGEWRITE==2){
-	    tmpp=village_effects[vill/2];
+	    	    tmpp=village_effects[vill/2]; // TESTY!
 	  }
 	  else tmpp=EFFECTWRITE>>2;
-	  	  //	  tmpp=0;  // TESTY!
 	  switch(tmpp){ 
 	  case 0:
-	        mono_buffer[x]=audio_buffer[samplepos%32768];
-	    //	    	    mono_buffer[x]=buf16[samplepos%32768]; // TESTY!!!!
+	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	    //mono_buffer[x]=buf16[samplepos%32768]; // TESTY!!!!
 	    break;
 	  case 1:
 	    tmp16=(buf16[samplepos%32768]-32768);
@@ -997,12 +1013,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[8]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=dirryy;
-		    vill=((VILLAGEWSTART+(villagewpos%VILLAGEWWRAP))*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
+		    vill=(tmp+(villagewpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
 		    start=villager[vill]>>1;
-		    //		    settingsarray[15]=128;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
-		    //		    printf("vill %d start %d wrap %d\n",vill,start,wrap);
-
+		    //		    printf("vill %d stackpos %d\n",vill,VILLAGESTACKPOS);
 		    if (wrap==0) wrap=1;
 		    if (dirry>0) samplepos=start;
 		    else samplepos=start+wrap;
@@ -1036,7 +1052,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	morph_inv = 1.0f - (float32_t)FMODW;
 
 	VILLAGEWRITE=EFFECTWRITE&3;
-	//	VILLAGEWRITE=0; // TESTY!
+	//	VILLAGEWRITE=2; // TESTY!
 
       	for (x=0;x<sz/2;x++){
  	  if (VILLAGEWRITE==2){
@@ -1046,7 +1062,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  //	  tmpp=0; // TESTY!
 	  switch(tmpp){ 
 	  case 0:
-	    	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	      mono_buffer[x]=audio_buffer[samplepos%32768];
 	    //	    mono_buffer[x]=buf16[samplepos%32768]-32768; // TESTY!!!!
 	  break;
 	  case 1:
@@ -1157,7 +1173,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if (wormflag[5]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=dirryy;
-		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    //		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+
+		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
+		    vill=(tmp+(villagewpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    start=villager[vill]>>1;
 		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
@@ -1342,7 +1363,12 @@ if (digfilterflag&1){
 		    if (wormflag[9]) dirryy=newdirection[wormdir]; 
 		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagefpos+=dirryy;
-		    vill=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+		    //		    vill=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+
+		    tmp=VILLAGEFSTART;tmper=VILLAGEFWRAP;
+		    vill=(tmp+(villagefpos%tmper))*2;
+		    vill=vill%VILLAGESTACKPOS;
+
 		    startfilt=villager[vill]>>1;
 		    wrapfilt=((villager[vill+1]>>1)%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;
 		    if (wrapfilt==0) wrapfilt=1;

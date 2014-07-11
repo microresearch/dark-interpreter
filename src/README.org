@@ -306,55 +306,23 @@ For Mater Lachrymarum IN is unused!
 //REWRITE!
 
 1- These first three knobs are the same in all synths (placement only
-differing). This first knob selects one of 32 modes, divided into
+differing). This first knob selects one of 16 modes, divided into
 basic modes and mirror settings, which effect how The Dark Interpreter
 develops and is played/reflected. The modes are roughly as
-follows. Each mode effects the beviour of the finger-board and the
-second and third knobs. All modes allow for entry into the core plague
-code (fingers in the code), audio settings, villager parameters and
-mirror settings. Behaviour is different for each set of modes (see
-below).
+follows. Each mode effects the bevahiour of the finger-board and the
+second, third and fourth knobs. Modes allow for entry into the core
+plague code (fingers in the code), audio settings, villager parameters
+and mirror settings. Behaviour is different for each set of modes (see
+list of modes below). Finger pressure also effects varying parameters
+for each mode. Nearly all modes provide sufficient (lack of) control
+to allow the Dark Interpreter to be played solely in each mode.
 
-Basic modes:
 
-Basic modes allow for setting of specific input, audio, code, villager or
-mirror settings primarily using the second knob (see below) and the
-finger-board for setting and navigation/selection of
-settings. Code/data can also be used to select settings under various
-modes. 
-
-We also control feedback of input to output and use of one finger pad
-as an input for other electrical impulses.
-
-Mirror modes:
-
-Mirror modes allow for the attachment and recursive folding back of
-code onto its own settings.
-
-up=unset
-down=set
-
-2- This knob controls specific settings within the first 16 basic
-modes (only when we have a finger on the DOWN pad of the
-finger-board). In the case of the later 16 mirror modes, this knob
-controls the extent of mirroring and in the last case (31) key plague
-or infection-mirror parameters.
+2- This knob controls specific settings within the 16 modes (only when
+we have a finger on any of the pads of the finger-board). 
 
 3- This third knob is only used when certain parameters are attached
-to it by way of some of the mirror modes. Attachments can also be made
-to code and finger-down pad.
-
-4-The fourth knob controls audio effects acting on the output audio
-signal. This knob sets the effect parameters (type of effect, use of
-data buffer or audio, village/grain orientation and gathering). 
-
-In the case of Suspiriorum and Tenebrarum the effect parameters are
-applied to one of the three signals (in, out, and filter feedback) by
-way of an offset from this main control (this offset can be set and
-influenced by the mode setting).
-
-In the case of Lachrymarum (no analogue hardware), this knob controls
-the output audio effects _only_.
+to it by way of some of the modes. (TENE - also offsets distortion)
 
 5-The last knob strictly controls the hardware operations and signal
 routing, including opening up of routes, and settings to the skin (we
@@ -363,7 +331,54 @@ path through analogue filters, digital filters and various
 distortions. 
 
 In the case of Lachrymarum (no analogue hardware), this last knob
-controls incoming audio effect parameters (as above).
+controls outgoing audio effect parameters.
+
+////Modes
+
+1- Effects (READ/WRITE and in case of TENE/SUSP filter and directions
+select input mode=) with fingers
+as effect modulation
+
+2- Direction (left and right with up as wormdir select and down as
+finger into direction). Which direction to effect (eg. hardware
+direction, filter) is controlled by the second knob, step by the
+fourth and speed by the finger.
+
+3- Set start(second knob), wrap(fourth) and step(finger) for
+up=read,down=write,left=village_read, right=village_write.
+
+4- HW:TENE and SUSP: hardware start(second), wrap(fourth) and step for
+varying 4 hardwares (on directions).  LACH-data walker settings
+
+5- EXECUTION: sets maximum stack(second) and executable
+process(finger) for on each direction: cpu, cellular automata,
+simulations and total execution stack. Also sets maximum village
+extent (fourth) on all fingers.
+
+6- DATA WALKERS: start/wrap/step for data walkers
+
+7-11 MIRROR/ATTACH. We attach settings to a range of parameters/code
+by selecting a group. The group start is set by fourth, wrap/extent by
+second. Directions indicate what is to be attached (up is detach),
+down is EEG/skin, left is third knob, right is data. Into:
+
+7-settings
+8-villagers
+9-function stack
+10-cellular stack
+11-cpu
+
+12-ALGO attach into all (again start is fourth, extent is second)
+
+again with directions at to what to attach
+
+13-swops by direction. up is in settingsarray(second=extent,third=srcoffset,fourth=destoffset)
+
+14-COREDUMP (up and down only)
+
+15-INFECTION
+
+16-FINGERS in the CODE - no knobs!
 
 ** The hardware
 
@@ -372,23 +387,38 @@ controls incoming audio effect parameters (as above).
 
 * FRI 11 JULY
 
-- re-test infection 14, re-test running of cpu
+*729(vocal)/*728/727.wav(all/time)fingersincode(mode5),
 
-- re-test all modes across:
+LACH 731(editoutend)/732/733*/730(vocal)
 
-LACH=ALL//1by1
+SUSP 734/735//736//737
+
+/////
+- all TESTS all modes across:
+
+LACH=ALL/DONE/1by1DONE
 
 SUSP=ALL//1by1
 
-TENE=ALL//1by1-DONE
+TENE=ALL(short/REDO!)//1by1DONE
 
 ///////////////////////////////
 - manual///documentation///website
 
-
 ** DONE
 
-- re-check speed code:mainX,audioX,cpuX(missing reset),pure(missing reset)
+- removed switch in mode 12 as seemed cause LACH problems//also
+  changes in 15 for same reason ???
+- randi changed to rand() on LACH//changed for both
+- bug in mode 1 for LACH fixed!
+- fix to effattached
+- tested villagers conclusively
+- breaking down villager in audio.c so works?? re-test with villager
+  set mode=mode2left/right=tweakedforspds
+- re-test running of cpu(4)DONE
+- tweaking fingerdir/spdDONE
+- re-test infection 14 DONE(small changes)
+- re-check speed code:mainX,audioX,cpuX(missing reset),pure(missing reset) FIXED
 
 * THU 10 JULY
 

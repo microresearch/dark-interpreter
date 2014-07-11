@@ -125,21 +125,21 @@ void thread_run(thread* this, machine *m) {
 			6, 11, 5, 13};
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
+
   //  dircalc(biotadir,65536,256);
   if (++this->m_delc>=this->m_del){
 
     this->m_delc=0;
 
-
 #ifdef PCSIM
 
     //    printf("
-    //    printf("CPU: %d\n",this->m_CPU);
+    //        printf("CPU: %d\n",this->m_CPU);
     //    printf("%c",machine_p88k(m,this->m_pc));
 
 #endif
 
-    switch(this->m_CPU%32)
+    switch(this->m_CPU&31)
       {
       case 0: // :LEAKY STACK! - working!
       instr=machine_p88k(m,this->m_pc);
