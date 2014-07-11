@@ -128,6 +128,9 @@ void thread_run(thread* this, machine *m) {
   //  dircalc(biotadir,65536,256);
   if (++this->m_delc>=this->m_del){
 
+    this->m_delc=0;
+
+
 #ifdef PCSIM
 
     //    printf("
@@ -1328,9 +1331,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (this->m_pc>this->m_wrap) this->m_pc=this->m_start;
       this->m_pc++; 
       } // switch
-    //      this->m_delc=0;
-  } // if del
-
+  }// if del
 }
 
 u8 thread_stack_count(thread* this, u8 c) { 

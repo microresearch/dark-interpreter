@@ -1389,7 +1389,7 @@ u8 settingsarrayattached[SETSIZE];
 
       xx=fingerdir(&spd);
 
-      xx=0;//testy
+      //      xx=0;//testy
       if (xx!=5) {
 
 	tmp=adc_buffer[SECOND]>>2; // 10 bits//offset
@@ -1403,7 +1403,6 @@ u8 settingsarrayattached[SETSIZE];
 	}
 	  // run infection at speed SPD 
 	  else {
-	    //	    printf("del%d spd %d\n",del,spd);
 
       if (++del>=spd){ // speed
 	  for (i=0;i<(tmper%INFECTSIZE);i++){

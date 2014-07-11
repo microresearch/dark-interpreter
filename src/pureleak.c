@@ -181,6 +181,7 @@ void thread_runnn(u8* buffer, u8 threadnum) {
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
 
       if (++DELC==DELAY){
+	DELC=0;
 #ifdef PCSIM
   //            printf("CPU: %d\n",CPU);
 	//            printf("%c",machine_p88kkk(buffer,(PCADDRHI<<8)+PCADDRLO));

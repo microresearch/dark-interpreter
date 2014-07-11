@@ -532,7 +532,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		}
 	  delread=0;
-	  }
+		  }
 	  }
 	  /// INSERT writeDONE
 
@@ -1026,7 +1026,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 		}
 	  del=0;
-	  	  }
+	  }
 	  }
 	  }
 #endif

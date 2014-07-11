@@ -372,7 +372,7 @@ controls incoming audio effect parameters (as above).
 
 * FRI 11 JULY
 
-- re-test infection 14
+- re-test infection 14, re-test running of cpu
 
 - re-test all modes across:
 
@@ -385,6 +385,10 @@ TENE=ALL//1by1-DONE
 ///////////////////////////////
 - manual///documentation///website
 
+
+** DONE
+
+- re-check speed code:mainX,audioX,cpuX(missing reset),pure(missing reset)
 
 * THU 10 JULY
 
