@@ -63,10 +63,12 @@ void dohardwareswitch(u8 modder, u8 hdgen){
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
   //PC8 is feedback switch
 
+#ifdef TENE
   if ((modder>15 || modder<11) && hangflag==1){ //
     hangflag=0;
     reset_switches();
   }
+#endif
 
   if (inp!=3 && clockhangflag==1){
     clockhangflag=0;
@@ -123,7 +125,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
-  //  modder=2; //now test 40106 --- test for digfilterflag//TESTY!
+  //  modder=15; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:
@@ -243,6 +245,8 @@ RES: feedback on/off - jackin-> - lm358in->
 
     ////////
     
+#ifdef TENE
+
   case 11:
         //2-unhang all except input 
     // input is pb7
@@ -322,6 +326,52 @@ RES: feedback on/off - jackin-> - lm358in->
        if (clockhangflag==0) digfilterflag=15;
        else digfilterflag=1;
        break;
+
+#else
+
+       // new cases 11,12,13,14,15
+       // =4 +1 (filter->40106->filter)//40106->filter=pb5
+  case 11:
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<8) | (1<<9);
+    GPIOB->BSRRL=(1<<3) | (1<<6) | (1<<5);
+    GPIOC->BSRRL=(1<<11) | (1<<10);
+    if (clockhangflag==0) digfilterflag=14;
+    else digfilterflag=0;
+    break;
+  case 12:
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4) | (1<<8) | (1<<9);
+    GPIOB->BSRRL=(1<<3) | (1<<5) | (1<<6);
+    GPIOC->BSRRL=(1<<11) | (1<<10);
+    if (clockhangflag==0) digfilterflag=14;
+    else digfilterflag=0;
+    break;
+  case 13:
+    //filterpath->digital no distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4);
+    GPIOB->BSRRL=(1<<3) | (1<<5) | (1<<6) |(1<<8) |(1<<9);
+    GPIOC->BSRRL=(1<<11) | (1<<10);
+    if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
+    break;
+  case 14: //
+    //filterpath->digital distort
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<4);
+    GPIOC->BSRRH= (1<<10);
+    GPIOB->BSRRL=(1<<3) | (1<<5) | (1<<6) |(1<<8) |(1<<9);
+    GPIOC->BSRRL=(1<<11);
+    if (clockhangflag==0) digfilterflag=11;
+    else digfilterflag=1;
+    break;
+  case 15:///????to filter/digital with distort as HDGEN bit
+    GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6);
+    GPIOC->BSRRH= (1<<11) | (1<<8) | (1<<9);
+    GPIOB->BSRRL= (1<<4);
+    GPIOC->BSRRL= ((1<<10)&((hdgen&1)<<10));
+    if (clockhangflag==0) digfilterflag=25;
+    else digfilterflag=1; // 40106 always running anyways+8
+    break;
+
+#endif
 
     ////////////
 

@@ -563,6 +563,7 @@ u8 settingsarrayattached[SETSIZE];
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
 
+      
       for (x=0;x<exenums;x++){
 
 	switch(exestack[x]){
@@ -585,7 +586,7 @@ u8 settingsarrayattached[SETSIZE];
 	case 4:
 	  break;
 	}
-      }
+	}
 
       /////////////////////////////////////
 	
@@ -620,6 +621,8 @@ u8 settingsarrayattached[SETSIZE];
 	  break;
 	}
       }
+
+      
 
       for (x=0;x<STACKPOS;x++){
 	switch(stackerattached[x]){
@@ -730,7 +733,6 @@ u8 settingsarrayattached[SETSIZE];
 	  m->m_threads[x].m_CPU=adc_buffer[9]>>7;//cpu - 5 bits
 #else
 	  m->m_threads[x].m_CPU=adc_buffer[DOWN]>>7;//cpu - 5 bits
-
 #endif
 	  break;
 	case 3:
@@ -1116,7 +1118,7 @@ u8 settingsarrayattached[SETSIZE];
       case 5:
 	// anydata stuff
 	//for LACH is simply anystart*2,anywrap*2,anystep*2
-	//for TENE is *3 (inc filt)
+	//for TENE and SUSP is *3 (inc filt)
 	xx=fingerdir(&spd);
 #ifdef LACH
 	if (xx!=5){

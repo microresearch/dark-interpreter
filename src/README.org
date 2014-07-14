@@ -385,27 +385,39 @@ again with directions at to what to attach
 ** The Background
       
 
+* MON 14 JULY
+
+740/739/738 SUSP
+
+- manual///documentation///website(samples/rough guide)
+
+** DONE
+
+- added default into all cases in audio.c
+- switched village/effects round so top 2 bits is village
+- check SUSP crash-wierdness/no unhang of hw TESTED!
+
 * FRI 11 JULY
 
-*729(vocal)/*728/727.wav(all/time)fingersincode(mode5),
+choose 729
 
-LACH 731(editoutend)/732/733*/730(vocal)
+**729(vocal)/728/727.wav(all/time)fingersincode(mode5),
 
-SUSP 734/735//736//737
+LACH 732*/733*/730*(vocal)
+
+SUSP 734**/
+
+** DONE
+
 
 /////
 - all TESTS all modes across:
 
 LACH=ALL/DONE/1by1DONE
 
-SUSP=ALL//1by1
+SUSP=ALL/DONE
 
 TENE=ALL(short/REDO!)//1by1DONE
-
-///////////////////////////////
-- manual///documentation///website
-
-** DONE
 
 - removed switch in mode 12 as seemed cause LACH problems//also
   changes in 15 for same reason ???
@@ -423,6 +435,7 @@ TENE=ALL(short/REDO!)//1by1DONE
 * THU 10 JULY
 
 726/725/724/*721/720.wav(HW,time),
+
 
 ** DONE
 - float exception fixed in main/hw
