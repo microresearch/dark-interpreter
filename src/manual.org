@@ -1,0 +1,256 @@
+#+TITLE: A Manual for The Dark Interpreter V0.1
+#+AUTHOR: Martin Howse
+#+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
+
+\includegraphics[width=26em]{/root/Wiki/images/ad.jpeg}
+
+* Dark Interpretation
+
+*The truth I heard often in sleep from the lips of the Dark Interpreter. Who is he? He is a shadow, reader, but a shadow with whom you must suffer me to make you acquainted.*
+
+The Dark Interpreter is influenced and guided by body capacitance,
+skin resistance, biological micro-voltages and the fleshy conduction
+of all signals. These are ways of saying that the Dark Interpreter is
+completely open. It is not to be considered as a closed and bounded
+device which is subject to an exterior control "by the body." The
+Dark Interpreter is an electronic and thus earthy shadow of the body,
+it _is_ (inside) the body.
+
+The Dark Interpreter is thus _not_ to be controlled. It is an obsidian
+electronic mirror, the earth and skin itself.
+The preliminary working of The Dark Interpreter (reflecting the state
+of the improviser) should be considered as part of the creation of a
+unique, skin-sensitive instrument. The border between this first stage
+and the improvisation and playing of the instrument is diffuse, the
+mirror surface is ill-defined. The Dark Interpreter leads a path for
+skin, fingers, earth and head.
+
+The Dark Interpreter attempts to provide answers to a posed
+situation. Each situation and response are divided and mirrored as to
+code and audio. The operation of The Dark Interpreter bridges these
+domains, entering into a simulated code world of plagued villagers and
+process.
+
+To define the uses and potential paths of The Dark Interpreter we
+refer to the five knobs/potentiometers and the finger-board, the gold
+set of contacts which in the case of Tenebrarum is seperate from the
+two pronged fangs (for head and earth use).
+
+** Two provisos
+
+The Dark Interpreter does crash infrequently, often in interesting
+responses. Simpy reboot with a quick switch on/off.
+
+The Dark Interpreter will also sometimes take over control of incoming
+samples and audio generation; attempt to regain control if desired.
+
+* The three interpreters, how they differ and can be interrogated
+
+** Mater Lachrymarum 
+
+No analogue processing hardware so all settings which relate to
+hardware are redundant. The fifth knob, which in other synths is tied
+to hardware routing and settings, is now repurposed as the limit fo
+sample playback (so length of sample playback). Finger/skin controls
+are as on the Mater Suspiriorum. 
+
+Mater Lachrymarum is best suited for harsher, granular re-processing
+of incoming signals and bit-noise generation with a greater control of
+key sample playback.
+
+** Mater Suspiriorum and Mater Tenebrarum
+
+These both share the same analogue processing hardware. Mater
+Tenebrarum adds a new head, earth, skin and finger board which breaks
+out for the flesh world most of the important digital and analogue
+signal paths and settings, allowing for the unhanging of settings from
+digital dependence and re-placement of software on the skin. 
+
+The Tenebrarum also adds the crude EEG/micro-voltage fanged amplifier
+for head and earth. All knob controls are the same for both synths,
+although the layout is different. Finger controls are also arranged
+differently.
+
+Mater Suspiriorum is recommended for harsher analogue noise generation
+and processing with less dialogue with that dreadful organ than in the
+case of Tenebrarum. Mater Tenebrarum presents the ultimate instrument
+for skin/life coding, intended to be played fully by skin and head.
+
+\begin{test}
+\pagebreak
+\end{test}
+
+* Laying out the Interpreters 
+
+*The Dark Interpeter will not always be found sitting inside my dreams, but at times outside, and in open daylight.*
+
+\includegraphics[width=24em]{/root/Wiki/images/lachlayout.png}
+
+\includegraphics[width=24em]{/root/Wiki/images/tenelayout.png}
+
+Describing each module, we refer to the knobs as numbered and the
+fingerboard directions Left, Right, Up, Down. See below - knobs effect
+U,D,R,L finger operations. INL and OUT refer to hardware routing (only
+out in Lachrymarum - a hum).
+
+\begin{test}
+\pagebreak
+\end{test}
+
+* The knobs 
+
+\noindent 1- These first three knobs are the same in all synths (placement only
+differing as above). This first knob selects one of 16 modes, divided
+into basic modes and mirror settings, which effect how The Dark
+Interpreter develops and is played/reflected. Each mode effects the
+behaviour of the finger-board and the second, third and fourth
+knobs. Modes allow for entry into the core plague code (fingers in the
+code), audio settings, villager parameters and mirror
+settings. Behaviour is different for each set of modes (see list of
+modes below). Finger pressure also effects varying parameters for each
+mode. Nearly all modes provide sufficient (lack of) control to allow
+the Dark Interpreter to be played solely in each mode. Some modes
+effect code generation, some audio generation, and some operate at the
+intersection of these two domains.
+
+\noindent 2- This knob controls specific settings within the 16 modes (*only
+when we have a finger on any of the pads of the finger-board*).
+
+\noindent 3- This third knob is only used when certain parameters are attached
+or mirrored onto it by way of some of the modes. In the case of
+Tenebrarum this knob also offsets the distortion.
+
+\noindent 4- This knob also controls specific settings within the 16 modes
+(*only when we have a finger on any of the pads of the finger-board*).
+
+\noindent 5- The last knob strictly controls the hardware operations and signal
+routing, including opening up of routes, and settings to the skin (we
+call this unhanging of hardware options). Here we can set the signal
+path through analogue filters, digital filters and various
+distortions. 
+
+In the case of Lachrymarum (no analogue hardware), this last knob
+controls outgoing sample length.
+
+* Those modes
+
+\noindent 1- EFFECT and INPUT. One of the most important modes with very direct
+feedback. 
+
+In the case of both Tenebrarum and Suspiriorum each finger direction
+defines which input is used as follows
+
+U as straight audio in.
+D as feedback (used for delay style operation).
+R as amplified finger input (marked INL) on fingerboard. Unused on Lachrymarum. 
+L as previous input with all hardware clocks unhanged.
+
+With finger in place knobs 2, 3 and 4 define effects on incoming
+samples, filter and outgoing samples respectively. 
+
+In the case of Lachrymarum knobs 2 and 4 define incoming and outgoing
+effects. Direction is unused.
+
+In all case, finger pressure effects any effect modulation when
+selected.
+
+\noindent 2- DIRECTION. Left and right fingers select direction for various code
+and audio plague walkers (selected by the second knob). Step size is
+selected by the fourth knob. Speed of walking is controlled by the
+fingre pressure. Up direction assigns worming to that walker, and down
+allows the finger to enter directly the direction.
+
+\noindent 3- WRAPPING. This mode sets the start(second knob), wrap(fourth) and
+step(finger) for Up as incoming and Down and outgoing samples,
+Left sets incoming villager or grains, Right as outgoing villagers.
+
+\noindent 4- HARDWARE. For Tenebrarum and Suspiriorum we set the hardware walker
+settings using the second and fourth knobs for varying hardwares set
+by the fingerboard. In the case of Mater Lachrymarum these set the
+code walkers.
+
+\noindent 5- EXECUTION: In this mode we can sets the maximum black stack
+size(second knob) and the executable process(finger) for code runners
+on each direction including the total execution stack itself. With any
+finger down we can set the maximum village extent (fourth knob).
+
+\noindent 6- DATA WALKERS: Setting the start, wrap and step for code walkers
+
+\noindent 7-11 MIRROR (ATTACH). In these essential modes we mirror or attach
+settings to a range of parameters and code by selecting a group to
+attach. The group start is set by fourth, wrap/extent of the group by
+second. Directions indicate what is to be attached (up is detach),
+down is head (the two fangs on the head or inserted in body in the
+case of Tenebrarum) or skin (other devices), left is third knob, right
+is data. Groups are within modes as follows:
+
+\noindent 7-audio, hardware and code settings
+\noindent 8-villagers themselves
+\noindent 9-function stack
+\noindent 10-automata stack
+\noindent 11-leaky cpus
+
+\noindent 12- ALGORYTHMICK attachment. In this mode code determines how the group
+is configured across all domains. The second and fourth knobs control
+the code segment which is used. Again directions control exactly what
+is attached.
+
+\noindent 13- SWOP. Settings, villagers and code segments are exchanged by
+direction with knobs as follows. Second as extent, third as source
+offset, fourth as destination offset.
+
+\noindent 14- COREDUMP. Up and Down fingers dump data between code and
+settings/villagers in chunks determined by second and fourth knobs.
+
+\noindent 15- INFECTION. Runs an infectuous process across all settings,
+villagers and processors. Parameters of infection are controlled by
+the three usual knobs.
+
+\noindent 16- FINGERS in the CODE. No knobs here, fingers poke directly into
+code, villagers and settings.
+
+* A sample inquisition
+
+*This trial is decisive. You are now satisfied that the apparition is but a reflex of yourself; and, in uttering your secret feelings to him, you make this phantom the dark symbolic mirror for reflecting to the daylight what else must be hidden for ever.*
+
+The inquisition should follow the mood of the interpreter, perhaps
+exploring each mode in turn or moving frantically between modes,
+swithcing direction and tact. The first mode is perhaps the most
+important with direct feedback from effects and changes of input. A
+hardware setting and approach can also be fixed in advance.
+
+Mirror modes are also important and care should be taken as to the
+attachment, if you intend using primarily a knob-driven interrogation
+or the head/fanged interface of Tenebrarum. A quick fix would involve
+rotating the mode knob, with finger on desired attachment, and with
+second knob (extent of attachment) far over clockwise (maximum).
+
+The final modes, such as INFECTION and FINGERS in the CODE, can also
+be useful in breaking the mode of interrogation open.
+
+Each interpreter should define their own relation and approach to
+inquisition.
+
+* The hardware
+
+The Dark Interpreter operates as contagious sample or village
+granulator, distortion, and unique sound generator based on a speedy
+ARM processor allowing for 16 bit sampling at 48KHz, and with a sample
+memory of around one second (extended by undersampling).
+
+The Dark Interpreter is delivered in three versions, all fully
+assembled and tested, and features high quality ALPS potentiometers,
+optional BOSS style 9v power socket (*+9v/positive on the outside,
+negative centre, minimum 200mA*) or battery clip, and full size
+(6.5mm) JACK input and output sockets. Please note that versions
+cannot be extended, they are not cross-compatible.
+
+In the case of Mater Tenebrarum, and according to selected hardware
+mode, all analogue hardware (input, output, filters, distortion,
+amplification, oscillation) can be accessed and routed by skin and
+fingers using the extended hardware board. Hardware points can easily
+be probed and discovered.
+
+* FAQ
+
+[Coming soon.]

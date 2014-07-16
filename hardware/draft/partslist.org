@@ -6,11 +6,13 @@ to order: opa337 for top(x3 each), both pcb sets, more ARM/codec/LM/XTAL
 
 ** PCBs:
 
-Top: 0x bare, 9x pre-made so far 
+Top: 0x bare, 9x pre-made so far // 5 sold
 
-Lower: 4x bare, 10x pre-made so far
+Lower: 4x bare, 10x pre-made so far // 6 sold
 
-+ 1x basic, 1x mid-range
++ 1x basic, 1x mid-range-SOLD
+
+leaves 4 tops, 8 lower(+1 basic)
 
 ** Resistors
 
