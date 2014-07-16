@@ -754,7 +754,6 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
     if (bufsel) buffer=(u8*)datagenbuffer;
         else buffer=(u8*)audio_buffer;
     //	else buffer=audio_buffer; // 8 BITZ!
-
 	switch(x){
 	case NONENY:
 	stack[i].count=runnoney(howmuch,buffer,stack[i].count,start,wrap);

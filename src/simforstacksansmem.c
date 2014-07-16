@@ -1351,6 +1351,7 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 	x=(stacker[tmp]>>10)%NUM_FUNCS; // 6 bits
 	if (bufsel) buffer=buf16;
 	else buffer=(u16*)audio_buffer;
+
 	switch(x){ // type
 	case NUNNY:
 	stack[i].count=runnone(howmuch,buffer,stack[i].count,start,wrap);

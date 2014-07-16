@@ -548,7 +548,8 @@ u8 settingsarrayattached[SETSIZE];
 #ifdef TEST_EEG
       //write ADC9 into buf16
   for (x=0;x<32768;x++){
-    buf16[x]=randi()<<4; // 16 bits
+        buf16[x]=adc_buffer[9]<<4; // 16 bits
+    //    buf16[x]=x*16; // 16 bits
   }
 #else
 
@@ -563,9 +564,8 @@ u8 settingsarrayattached[SETSIZE];
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
 
-      
+       // TESTY!
       for (x=0;x<exenums;x++){
-
 	switch(exestack[x]){
 	case 0:
 	  func_runall(stackyy,STACKPOS); // simulations
@@ -622,8 +622,7 @@ u8 settingsarrayattached[SETSIZE];
 	}
       }
 
-      
-
+     
       for (x=0;x<STACKPOS;x++){
 	switch(stackerattached[x]){
 	case 0:

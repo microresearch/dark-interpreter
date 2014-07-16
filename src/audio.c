@@ -139,14 +139,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   audio_comb_stereo(sz, dst, left_buffer, right_buffer);
 #else
 
-#ifdef TEST_EEG
-	// write buf16 into mono
-	      	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=buf16[samplepos%32768]-32768;
-	  samplepos++;
-		}
-	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
-#else
 
 	///	///	///	///
 
@@ -157,6 +149,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	float32_t morph_inv,fsum;
 
 	morph_inv = 1.0f - (float32_t)FMOD;
+
+#ifdef TEST_EEG
+	// write buf16 into mono
+	for (x=0;x<sz/2;x++){
+	  mono_buffer[x]=buf16[samplepos%32768];//-32768;
+	  samplepos++;
+	}
+	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+#else
+
 
 #ifdef LACH
 
@@ -905,7 +907,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  for (x=0;x<sz/2;x++){
 
 	  if (VILLAGEWRITE==2){
-	    	    tmpp=village_effects[vill/2]; // TESTY!
+	    tmpp=village_effects[vill/2];
 	  }
 	  //	  else tmpp=EFFECTWRITE>>2;
 	  else tmpp=EFFECTWRITE&15;
@@ -1423,9 +1425,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- //   for (x=0;x<sz/2;x++){
-     //      printf("%c",mono_buffer[x]);
- //    }
+    for (x=0;x<sz/2;x++){
+           printf("%c",mono_buffer[x]);
+   }
 #endif
 
 #endif // for test eeg

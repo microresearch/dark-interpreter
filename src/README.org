@@ -385,9 +385,67 @@ again with directions at to what to attach
 ** The Background
       
 
+* WED 16 JULY
+
+build/test PROGRAM:
+
+1-DTEST_STRAIGHT test/2-re-program full/3-assemble/4-test
+EEG///5flash/testallknobs/battery
+
+* TUE 15 JULY
+
+ALL TENE/NO INPUT:
+recordings: 742(longer)*,743(startonly)/744(startonly)/745(edit)/747editALLAfter//
+
+749(short vocal)
+
+LACH:750(vocal)
+
+NO input improvisation using The Dark Interpreter (Mater Tenebrarum)
+synth module. Hand manipulation. As always no effects, no edits,
+recorded on DR-07 direct from monitor speakers. Details:
+1010.co.uk/org/darkint.html
+
+** Announce
+
+Oh, eternity with outstretched wings, that broodest over the secret
+truths in whose roots lie the mysteries of man—his whence, his
+whither—have I searched thee, and struck a right key on thy dreadful
+organ!
+
+[Thomas de Quincey. The Dark Interpreter] 
+
+http://www.1010.co.uk/images/dix41.jpeg
+
+After months of search and trial, I am pleased to announce the first
+release of a limited edition (10) of that dreadful organ, The Dark
+Interpreter, possibly one of the most versatile and destructive
+granulation and synthesis modules currently available.
+
+The Dark Interpreter is a clear successor to the Blackdeath noise
+module, extending contagious granular audio processing with new plague
+processing units, leaky, promiscuous code simulations and geometric
+analogue filtering and distortion (optional). Dark Interpreters (the
+users) guide and steer sample and code operations with head, fingers,
+knobs and flesh.
+
+The Dark Interpreter re-casts the contemporary noise instrument as a
+"dark symbolic mirror", placing control of parameters on the skin, and
+strapping a psyche/plague village interface to the head. 
+
+http://1010.co.uk/org/darkint.html
+
+https://soundcloud.com/martin_howse/sets/the-dark-interpreter-released
+
+This trial is decisive. You are now satisfied that the apparition is
+but a reflex of yourself; and, in uttering your secret feelings to
+him, you make this phantom _the dark symbolic mirror_ for reflecting to
+the daylight what else must be hidden for ever.
+
+
 * MON 14 JULY
 
-740/739/738 SUSP
+XX740/739/738 SUSP
 
 - manual///documentation///website(samples/rough guide)
 
