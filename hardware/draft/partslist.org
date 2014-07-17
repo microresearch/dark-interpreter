@@ -1,8 +1,8 @@
 * parts list
 
-DATE: 16 JUNE 2014
+DATE: 16 JUNE 2014//now17 JULY 2014
 
-to order: opa337 for top(x3 each), both pcb sets, more ARM/codec/LM/XTAL
+to order: opa337 for top(x3 each), 20x both pcb sets, mouser:ARM,codec,LM
 
 ** PCBs:
 
@@ -12,7 +12,7 @@ Lower: 4x bare, 10x pre-made so far // 6 sold
 
 + 1x basic, 1x mid-range-SOLD
 
-leaves 4 tops, 8 lower(+1 basic)
+leaves 4 tops, 4 lower(+1 basic), 4 pcbs(parts for 3)
 
 ** Resistors
 
@@ -45,10 +45,10 @@ leaves 4 tops, 8 lower(+1 basic)
 ** Active
 
 TOP:
-AD620ARZ x1 -topSEGOR - have 5 (ordered 5 more)
-OPA337UAG4  x3 -top (mouser) have 5
+AD620ARZ x1 -topSEGOR - have 5 (ordered 5 more)=10
+OPA337UAG4  x3 -top (mouser) have 4
 
-LEDx1 have11ordered30
+LEDx1 have11ordered30=30+
 
 DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have37
 HCT40106x1 (have hcf)-works-have27
@@ -58,10 +58,10 @@ LM13700MX/NOPB x1(mouser/reichelt) have21
 LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
 LM1117-5Vx1  DT-5(mouser) have12+
 LM358x1 (reichelt) bulk
-MAX7400CSAx1 (mouser/reichelt) have15
+MAX7400CSAx1 (mouser/reichelt) have10
 STM32F405RGT6x1 (mouser) have6
-8 MHz XTAL (SMD HC49=)x1 (reichelt) have18
-WM8731 audio codec have4
+8 MHz XTAL (SMD HC49=)x1 (reichelt) have12
+WM8731 audio codec have3
 
 ** other
 

@@ -1425,9 +1425,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
-    for (x=0;x<sz/2;x++){
+ /*    for (x=0;x<sz/2;x++){
            printf("%c",mono_buffer[x]);
-   }
+	   }*/
 #endif
 
 #endif // for test eeg

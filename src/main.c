@@ -274,17 +274,22 @@ void main(void)
   u16 tmper,foldy;
 
 u16 villagestackpos=0;
+
+#ifdef PCSIM
+u8 *settingsarrayattached; //64
+//u8 **settingsarrayinfected; 
+//u8 settingsarrayinfected[INFECTSIZE][2];
+u8 *stackerattached; ///256
+u8 *stackeryattached;//256
+u8 *villagerattached;//[128];
+u8 *villagereffattached;//[64];
+u8 *cpuattached;//[64];
+#else
 u8 stackerattached[256];
 u8 stackeryattached[256];
 u8 villagerattached[128];
 u8 villagereffattached[64];
 u8 cpuattached[64];
-
-#ifdef PCSIM
-u8 *settingsarrayattached; //64
-//u8 **settingsarrayinfected; //64
-u8 settingsarrayinfected[INFECTSIZE][2];
-#else
 u8 settingsarrayinfected[INFECTSIZE][2];
 u8 settingsarrayattached[SETSIZE];
 #endif
@@ -349,7 +354,11 @@ u8 settingsarrayattached[SETSIZE];
   dst=malloc(BUFF_LEN*sizeof(int16_t));
   village_effects=malloc(VILLAGE_SIZE/2);
   settingsarrayattached=malloc(SETSIZE);
-  //  settingsarrayinfected=malloc(INFECTSIZE*2);
+  u8 **settingsarrayinfected = malloc(sizeof(char *)*INFECTSIZE);
+
+  for(i=0; i<INFECTSIZE; i++){
+    settingsarrayinfected[i] = malloc(2); 
+  }
 
   for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
@@ -359,6 +368,12 @@ u8 settingsarrayattached[SETSIZE];
   for (x=0;x<32768;x++){
     audio_buffer[x]=rand()%65536;
   }
+
+  stackerattached=malloc(256); ///256
+  stackeryattached=malloc(256); ///256
+villagerattached=malloc(128);//[128];
+villagereffattached=malloc(64);//[64];
+cpuattached=malloc(64);//[64];
 #endif
 
   u8 hwdel=0;
@@ -374,7 +389,7 @@ u8 settingsarrayattached[SETSIZE];
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
-  for (x=0;x<SETSIZE;x++){
+  for (x=0;x<INFECTSIZE;x++){
     if ((rand()%255) > (adc_buffer[SECOND]>>4))
       settingsarrayinfected[x][0]=1; // infected
     else settingsarrayinfected[x][0]=0;
@@ -1239,7 +1254,7 @@ u8 settingsarrayattached[SETSIZE];
 	groupwrap=adc_buffer[SECOND]>>6; // 6bits
 	groupstart=adc_buffer[FOURTH]>>6;
 	for (x=0;x<groupwrap;x++){
-	  cpuattached[(groupstart+x)%SETSIZE]=groupsel;
+	  cpuattached[(groupstart+x)%64]=groupsel;
 	}
 	}
 	break;

@@ -218,8 +218,6 @@ outside, and in open daylight.
 
 ** basic operation/theory/background
 
-++++notes from notebook:HERE:
-
 The Dark Interpreter is influenced and guided by body capacitance,
 skin resistance, biological micro-voltages and the fleshy conduction
 of all signals. These are ways of saying that the Dark Interpreter is
@@ -235,8 +233,8 @@ The preliminary working of The Dark Interpreter (reflecting the state
 of the improviser) should be considered as part of the creation of a
 unique, skin-sensitive instrument. The border between this first stage
 and the improvisation and playing of the instrument is diffuse, the
-mirror surface (obsidian) is ill-defined. The Dark Interpreter leads a
-path for skin, fingers, earth and head. 
+mirror surface is ill-defined. The Dark Interpreter leads a path for
+skin, fingers, earth and head.
 
 To define the uses and potential paths of The Dark Interpreter we
 refer to the five knobs/potentiometers and the finger-board, the gold
@@ -382,15 +380,24 @@ again with directions at to what to attach
 
 ** The hardware
 
-** The Background
       
+
+* THU 17 JULY
+
+** DONE
+
+- change size of infection init
+- fixed error in cpusizing in main/attach
 
 * WED 16 JULY
 
 build/test PROGRAM:
 
-1-DTEST_STRAIGHT test/2-re-program full/3-assemble/4-test
-EEG///5flash/testallknobs/battery
+1-DTEST_STRAIGHT test
+2-re-program full/test
+3-assemble
+4-test EEG
+5flash/testallknobs/battery
 
 * TUE 15 JULY
 
