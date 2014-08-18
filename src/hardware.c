@@ -127,6 +127,8 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //  modder=15; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
+
+  //  modder=24; // TESTY!
   switch(modder){
   case 0:
    //1-straightout
@@ -697,7 +699,7 @@ void setlmpwm(uint16_t value, uint16_t value2){
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-  /* do TIM8 channel and enables */
+  /* do TIM3 channel and enables */
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
@@ -712,7 +714,7 @@ void setlmpwm(uint16_t value, uint16_t value2){
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM3, &TIM_OCInitStructure);
-  TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable); // fixed here AUGUST as was TIM8
 
   TIM_CtrlPWMOutputs(TIM3, ENABLE);
 
@@ -819,5 +821,6 @@ filterclock-PC9 (is for maxim)
 void set40106pwm(uint16_t value){
 
   TIM1->CCR2 = value;
+  }
 
-}
+

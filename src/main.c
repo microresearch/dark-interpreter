@@ -213,10 +213,10 @@ u8 fingerdir(u8 *speedmod){
     leftspeed+=handleft;
     rightspeed+=handright;*/
 
-  if (handupp>3) up++;
-  if (handdown>3) down++;
-  if (handleft>3) left++;
-  if (handright>3) right++;
+    if (handupp>2) up++; // was 3 - more sensitive now
+  if (handdown>2) down++;
+  if (handleft>2) left++;
+  if (handright>2) right++;
   } // changed from end
   if (up>4 && up>down && up>left && up>right) {
     result=0; 
@@ -321,7 +321,7 @@ u8 settingsarrayattached[SETSIZE];
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000);
+  Codec_Init(48000); // could be 32k
   delay();
 
 #ifndef LACH
@@ -578,8 +578,8 @@ cpuattached=malloc(64);//[64];
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
-
-       // TESTY!
+      
+     
       for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
@@ -602,7 +602,7 @@ cpuattached=malloc(64);//[64];
 	  break;
 	}
 	}
-
+     
       /////////////////////////////////////
 	
 #ifdef LACH
@@ -611,7 +611,7 @@ cpuattached=malloc(64);//[64];
 #endif
 
       ////settingssss
-
+      
       for (x=0;x<SETSIZE;x++){
 	switch(settingsarrayattached[x]){
 	case 0:
@@ -761,7 +761,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //      mainmode=1; // TESTY!
+      //            mainmode=0; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -780,9 +780,10 @@ cpuattached=malloc(64);//[64];
 	xx=fingerdir(&spd);
 	if (xx!=5) {
 	  inp=xx;
-	  EFFECTWRITE=adc_buffer[FOURTH]>>6;
-	  EFFECTREAD=adc_buffer[SECOND]>>6;
-	  EFFECTFILTER=adc_buffer[THIRD]>>6;
+	  	  EFFECTWRITE=adc_buffer[FOURTH]>>6;//TESTY!
+		  EFFECTREAD=adc_buffer[SECOND]>>6;
+		  EFFECTFILTER=adc_buffer[THIRD]>>6;
+	  
 	// what spd could be? mod? (max 64=6bits<<10) 3 mods:
 	settingsarray[46+xx]=spd<<10;
 	settingsarrayattached[46+xx]=0;
@@ -1565,6 +1566,8 @@ cpuattached=malloc(64);//[64];
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
       */
+
+     
       HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
 
             
@@ -1579,7 +1582,8 @@ cpuattached=malloc(64);//[64];
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
 	tmp=F0106ERCONS-F0106ERBASE-tmper;
 	if (tmp==0) tmp=1;
-      set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint
+		set40106pwm((F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp))>>4); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
+	//		set40106pwm(2048);
 
       tmp=LMERCONS-LMERBASE;
 	if (tmp==0) tmp=1;
@@ -1601,7 +1605,7 @@ cpuattached=malloc(64);//[64];
 	{
 	  dohardwareswitch(HARDWARE,0);
 	}
-      
+                  
 #endif //notLACH
 #endif //eeg
 #endif //straight

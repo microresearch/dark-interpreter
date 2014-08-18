@@ -214,6 +214,17 @@ outside, and in open daylight.
 - make clean after changes to settingsarray or MAKEFILE!
 - program from the BACK!
 
+* PROGRAMMING
+
+build/test PROGRAM:
+
+1-DTEST_STRAIGHT test
+2-re-program full/test
+3-assemble
+4-test EEG
+5flash/testallknobs/battery
+
+
 * MANUAL IN PROGRESS
 
 ** basic operation/theory/background
@@ -380,8 +391,20 @@ again with directions at to what to attach
 
 ** The hardware
 
-      
+* RECORDINGs of note
 
+763(no in),767/777(mixer noinput)
+
+* MON 18 AUGUST
+
+- post-release appraising:
+
+and:
+
+- fixed LM bug in hardware.c (did this effect anything? - re-test?)
+- looking at 40106 range and PWM there//>>4 now so is 0->2048 range
+- somehow own test model behaving strangely?? but is not code...
+ 
 * THU 17 JULY
 
 ** DONE

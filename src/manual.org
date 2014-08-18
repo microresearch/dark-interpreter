@@ -1,4 +1,4 @@
-#+TITLE: A Manual for The Dark Interpreter V0.1
+#+TITLE: A Manual for The Dark Interpreter V0.2
 #+AUTHOR: Martin Howse
 #+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
 
@@ -241,7 +241,7 @@ memory of around one second (extended by undersampling).
 The Dark Interpreter is delivered in three versions, all fully
 assembled and tested, and features high quality ALPS potentiometers,
 optional BOSS style 9v power socket (*+9v/positive on the outside,
-negative centre, minimum 200mA*) or battery clip, and full size
+negative centre, minimum 300mA*) or battery clip, and full size
 (6.5mm) JACK input and output sockets. Please note that versions
 cannot be extended, they are not cross-compatible.
 
@@ -251,6 +251,14 @@ amplification, oscillation) can be accessed and routed by skin and
 fingers using the extended hardware board. Hardware points can easily
 be probed and discovered.
 
+
+* Addendum
+
+- In certain cases it may be necessary to touch one finger against the marked V pad if the fingers do not seem to trigger operations.
+
 * FAQ
 
-[Coming soon.]
+- Which power supply (PSU) should I use?
+
+An BOSS style 9v power supply with +9v/positive on the outside,
+negative centre pin, and delivering a minimum of 300mA. 600mA is good.

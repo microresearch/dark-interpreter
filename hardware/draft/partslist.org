@@ -2,7 +2,7 @@
 
 DATE: 16 JUNE 2014//now17 JULY 2014
 
-to order: opa337 for top(x3 each), 20x both pcb sets, mouser:ARM,codec,LM
+to order: opa337 for top(x3 each), mouser:ARM,codec,LM + XTAL(reich)
 
 ** PCBs:
 
@@ -59,7 +59,7 @@ LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
 LM1117-5Vx1  DT-5(mouser) have12+
 LM358x1 (reichelt) bulk
 MAX7400CSAx1 (mouser/reichelt) have10
-STM32F405RGT6x1 (mouser) have6
+STM32F405RGT6 x1 (mouser) have6
 8 MHz XTAL (SMD HC49=)x1 (reichelt) have12
 WM8731 audio codec have3
 
@@ -78,3 +78,29 @@ connectorx2 (REICHELT: BL 2X25G8 2,54) x22 -18
 connectorx1 (REICHELT: SL 2X25G 2,54) x10
 (offsets DA 20mm have72-60, screws-need shorter6mm=SZK M3X6-200, bolts?have36=SK-E M3-100)M3-REICHELT
 
+.................
+
+   6 926-LM1117DT-3.3NOPB          03/11/14        12      1.460         17.52
+     LM1117DT-3.3/NOPB                                                        
+     800MA LDO LINEAR REG                                                     
+     RoHS: Compliant                                                          
+                                                                              
+   7 926-LM1117DT50NOPB            03/11/14        12      1.460         17.52
+     LM1117DT-5.0/NOPB                                                        
+     800mA LDO Linear Reg                                                     
+     RoHS: Compliant                                                          
+                                                                              
+   8 511-STM32F405RGT6             03/11/14         2     15.840         31.68
+     STM32F405RGT6                                                            
+     ARM M4 1024 FLASH                                                        
+     RoHS: Compliant                                                          
+                                                                              
+   9 926-LM13700MX/NOPB            03/11/14        12      0.991         11.89
+     LM13700MX/NOPB                                                           
+     Dual OP Amp                                                              
+     RoHS: Compliant                                                          
+                                                                              
+  10 238-WM8731SEDS/V              03/11/14        12      2.440         29.28
+     WM8731SEDS/V                                                             
+     Stereo Codec with                                                        
+     RoHS: Compliant                                                          
