@@ -97,6 +97,10 @@ out in Lachrymarum - a hum).
 \pagebreak
 \end{test}
 
+* Tenebrarum in detail
+
+* Bare patchboard to print/colour in
+
 * The knobs 
 
 \noindent 1- These first three knobs are the same in all synths (placement only
