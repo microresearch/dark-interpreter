@@ -1,4 +1,4 @@
-#+TITLE: A Manual for The Dark Interpreter V0.2
+#+TITLE: A Manual for The Dark Interpreter V0.3 
 #+AUTHOR: Martin Howse
 #+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
 
@@ -99,7 +99,23 @@ out in Lachrymarum - a hum).
 
 * Tenebrarum in detail
 
+\centerline{\includegraphics[width=48em]{/root/Wiki/images/darktoptemplate_texts.png}}
+
+ADC doubles knobs with fingers (in parallel), SW is switches for
+hardware options, Filt is filter-related, O/OSC is oscillator and
+amplifier related.
+
+\begin{test}
+\pagebreak
+\end{test}
+
 * Bare patchboard to print/colour in
+
+\centerline{\includegraphics[width=52em]{/root/Wiki/images/darktoptemplate.png}}
+
+\begin{test}
+\pagebreak
+\end{test}
 
 * The knobs 
 
