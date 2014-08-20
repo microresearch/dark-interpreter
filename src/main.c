@@ -154,6 +154,7 @@ u16 *buf16;
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
 #define randi() ((rand()*adc_buffer[9])%4096) // 12 bits
+//#define randi() (adc_buffer[9]) // 12 bits
 #else //PCSIM
 #define randi() (rand()%4096)
 u8* datagenbuffer;
@@ -221,22 +222,22 @@ u8 fingerdir(u8 *speedmod){
   if (up>4 && up>down && up>left && up>right) {
     result=0; 
     //    *speedmod=upspeed;
-    *speedmod=adc_buffer[UP]>>6;// 6 bits
+    *speedmod=adc_buffer[UP]>>5;// was >>6 for 6 bits AUG
   }
   else if (down>4 && down>left && down>right) {
     result=2; 
     //*speedmod=downspeed;
-    *speedmod=adc_buffer[DOWN]>>6;
+    *speedmod=adc_buffer[DOWN]>>5;
   }
   else if (left>4 && left>right) {
     result=3; 
     //    *speedmod=leftspeed;
-    *speedmod=adc_buffer[LEFT]>>6;
+    *speedmod=adc_buffer[LEFT]>>5;
   }
   else if (right>4) {
     result=1; 
     //*speedmod=rightspeed;
-    *speedmod=adc_buffer[RIGHT]>>6;
+    *speedmod=adc_buffer[RIGHT]>>5;
   }
   //  }
   return result;
@@ -268,7 +269,7 @@ u8 fingerdirupdown(void){
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 coo,x,addr,tmp=0,tmphw=0; u8 HARDWARE=0;
+  u16 coo,x,addr,tmp=0,tmphw=0,tmphardware; u8 HARDWARE=0;
   u8 del=0,machine_count=0,tmpacht=0,villagerdest,spd; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
@@ -321,7 +322,7 @@ u8 settingsarrayattached[SETSIZE];
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000); // could be 32k
+  Codec_Init(32000); // could be 32k//TODO: variable on startup
   delay();
 
 #ifndef LACH
@@ -376,7 +377,7 @@ villagereffattached=malloc(64);//[64];
 cpuattached=malloc(64);//[64];
 #endif
 
-  u8 hwdel=0;
+  u16 hwdel=0;
   u16 hwpos=0;
   signed char stack_pos=0;
   signed char stack_posy=0;
@@ -541,8 +542,8 @@ cpuattached=malloc(64);//[64];
 
     // execution stack
         for (x=0;x<MAX_EXE_STACK;x++){
-	  exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 
-	  //	  	  exenums=exestackpush(exenums,exestack,0); //exetype=0-3 TESTY!=CPU
+	  	  exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 
+	  //	  exenums=exestackpush(exenums,exestack,2); //exetype=0-3 TESTY!=CPU
       }
 
 	u8 mainmode,groupstart,groupwrap;
@@ -579,7 +580,7 @@ cpuattached=malloc(64);//[64];
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
       
-     
+      
       for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
@@ -602,7 +603,7 @@ cpuattached=malloc(64);//[64];
 	  break;
 	}
 	}
-     
+      
       /////////////////////////////////////
 	
 #ifdef LACH
@@ -638,7 +639,7 @@ cpuattached=malloc(64);//[64];
       }
 
      
-      for (x=0;x<STACKPOS;x++){
+      for (x=0;x<(STACKPOS*4);x++){  // AUG. fixed before was not *4
 	switch(stackerattached[x]){
 	case 0:
 	  break;
@@ -662,7 +663,7 @@ cpuattached=malloc(64);//[64];
 	}
       }
 
-      for (x=0;x<STACKPOSY;x++){
+      for (x=0;x<(STACKPOSY*4);x++){ // AUG. fixed before was not *4
 	switch(stackeryattached[x]){
 	case 0:
 	  break;
@@ -761,7 +762,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //            mainmode=0; // TESTY!
+      mainmode=15; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -780,9 +781,9 @@ cpuattached=malloc(64);//[64];
 	xx=fingerdir(&spd);
 	if (xx!=5) {
 	  inp=xx;
-	  	  EFFECTWRITE=adc_buffer[FOURTH]>>6;//TESTY!
-		  EFFECTREAD=adc_buffer[SECOND]>>6;
-		  EFFECTFILTER=adc_buffer[THIRD]>>6;
+	  EFFECTWRITE=adc_buffer[FOURTH]>>6;
+	  EFFECTREAD=adc_buffer[SECOND]>>6;
+	  EFFECTFILTER=adc_buffer[THIRD]>>6;
 	  
 	// what spd could be? mod? (max 64=6bits<<10) 3 mods:
 	settingsarray[46+xx]=spd<<10;
@@ -807,7 +808,7 @@ cpuattached=malloc(64);//[64];
 	    settingsarrayattached[19]=0;
 	  }
 	  else if (dirpos==3) {
-	    settingsarray[18]=spd<<9;
+	    settingsarray[18]=spd<<8;
 	    settingsarrayattached[18]=0;
 	  }
 	}
@@ -852,6 +853,7 @@ cpuattached=malloc(64);//[64];
 	if (xx!=5) {
 	dirpos=adc_buffer[SECOND]>>8; // 4 bits=16
 	dirpos=dirpos%10;
+	//	dirpos=0;//TESTY!
 	settingsarray[32+dirpos]=adc_buffer[FOURTH]<<4;
 	settingsarrayattached[32+dirpos]=0;
 	if (xx==0) {
@@ -1110,7 +1112,7 @@ cpuattached=malloc(64);//[64];
 	  {
 	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
 	    settingsarrayattached[POSYERR]=0;
-	    stackery[(STACKPOSY*4)+3]=spd%11;
+	    stackery[(STACKPOSY*4)+3]=spd%11; //type
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	    settingsarrayattached[VILLAGERR]=0;
 	  }
@@ -1504,26 +1506,27 @@ cpuattached=malloc(64);//[64];
     case 15: // fingers in the code... navigate and insert code - no knobs(?)
       // left-right move in datagen
       // down-up into all code values
-            xx=fingerdir(&spd);
+      xx=fingerdir(&spd);
+	    // xx=2;
       if (xx==1){ //right
 	fingerposl+=spd;
 	buf16[fingerposl%32768]=adc_buffer[RIGHT]<<4;
       }
-      if (xx==3){ //left
+      else if (xx==3){ //left
 	fingerposl-=spd;
 	buf16[fingerposl%32768]=adc_buffer[LEFT]<<4;
       }
-      if (xx==2){
-	fingerposl+=spd;
+      else if (xx==2){ //down
+	fingerposl+=(spd>>1);
 #ifdef LACH
-		  tmper=(fingerposl>>6)%740; // full house//10 bits=1024
+	tmper=fingerposl%740; // full house//AUG was >>6
 	  if (tmper<36) settingsarray[tmper]=adc_buffer[DOWN]<<4;
 	  else if (tmper<292) stacker[tmper-36]=adc_buffer[DOWN]<<4;
 	  else if (tmper<548) stackery[tmper-292]=adc_buffer[DOWN]<<4;
 	  else if (tmper<612) m->m_threads[tmper-548].m_CPU=adc_buffer[DOWN]>>7;
 	  else villager[tmper-612]=adc_buffer[DOWN]<<4;
 #else
-	  tmper=(fingerposl>>6)%770; // full house//10 bits=1024
+	  tmper=fingerposl%770; // full house//AUG was >>6
 	  if (tmper<66) settingsarray[tmper]=adc_buffer[DOWN]<<4;
 	  else if (tmper<322) stacker[tmper-66]=adc_buffer[DOWN]<<4;
 	  else if (tmper<578) stackery[tmper-322]=adc_buffer[DOWN]<<4;
@@ -1531,17 +1534,17 @@ cpuattached=malloc(64);//[64];
 	    else villager[tmper-642]=adc_buffer[DOWN]<<4;
 #endif
       }
-      if (xx==0){//UP!
-	fingerposl-=spd;
+      else {//UP!
+	fingerposl-=(spd>>1);
 #ifdef LACH
-		  tmper=(fingerposl>>6)%740; // full house//10 bits=1024
+		  tmper=fingerposl%740; // full house//10 bits=1024
 	  if (tmper<36) settingsarray[tmper]=adc_buffer[UP]<<4;
 	  else if (tmper<292) stacker[tmper-36]=adc_buffer[UP]<<4;
 	  else if (tmper<548) stackery[tmper-292]=adc_buffer[UP]<<4;
 	  else if (tmper<612) m->m_threads[tmper-548].m_CPU=adc_buffer[UP]>>7;
 	  else villager[tmper-612]=adc_buffer[UP]<<4;
 #else
-	  tmper=(fingerposl>>6)%770; // full house//10 bits=1024
+	  tmper=fingerposl%770; // full house//10 bits=1024
 	  if (tmper<66) settingsarray[tmper]=adc_buffer[UP]<<4;
 	  else if (tmper<322) stacker[tmper-66]=adc_buffer[UP]<<4;
 	  else if (tmper<578) stackery[tmper-322]=adc_buffer[UP]<<4;
@@ -1559,16 +1562,14 @@ cpuattached=malloc(64);//[64];
       // 4-hardware operations
 
 #ifndef LACH
-            /*      
-            tmphardware=0;
+      
+      tmphardware=0;
       for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now!
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
-      */
-
      
-      HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
+  //      HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
 
             
       /// general HW walk in/as tmp
@@ -1582,20 +1583,23 @@ cpuattached=malloc(64);//[64];
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
 	tmp=F0106ERCONS-F0106ERBASE-tmper;
 	if (tmp==0) tmp=1;
-		set40106pwm((F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp))>>4); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
+	set40106pwm((F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp))>>4); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
 	//		set40106pwm(2048);
 
       tmp=LMERCONS-LMERBASE;
 	if (tmp==0) tmp=1;
       if (digfilterflag&4){
 	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
+	//	setlmpwm(adc_buffer[FOURTH]<<3,adc_buffer[THIRD]<<3);//TESTY!=14 bits
       }
 	  
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
 	if (tmp==0) tmp=1;
-	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp));
+	setmaximpwm((MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp))>>1); // added >>1 AUG
+	//	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
       }
+
       }//outside HWSPEED
       
       if (digfilterflag&16){
@@ -1605,6 +1609,8 @@ cpuattached=malloc(64);//[64];
 	{
 	  dohardwareswitch(HARDWARE,0);
 	}
+
+
                   
 #endif //notLACH
 #endif //eeg

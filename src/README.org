@@ -395,16 +395,42 @@ again with directions at to what to attach
 
 763(no in),767/777(mixer noinput)
 
-* MON 18 AUGUST
+* MON 18 AUGUST+notes
 
-- post-release appraising:
+- post-release re-appraising (older code is in gitaugclone)
+- finish testing all modes and decide on any changes
 
 and:
 
-- fixed LM bug in hardware.c (did this effect anything? - re-test?)
+- fixed LM bug in hardware.c (did this effect anything? - NO)
 - looking at 40106 range and PWM there//>>4 now so is 0->2048 range
-- somehow own test model behaving strangely?? but is not code...
+- maxim also now >>1 for range
+
+- changing speedmod >>5 for mode 15 - see how this effects speeds
+(tweak again) - also changed mode 15 so is not >>6 which makes no sense
+
+- fixed bug for stack attached as was not STACKPOS/Y *4 (so not full)
+
+- TODO: 
+
+// more control over stack TODO
+
+// expansion of wormcode TODO!
+
+// samplerate variable on startup (8k,16k,32k,48k) knob0 TODO
+
+// add depth/divider for maxim in hardware options (where?) TODO
+
+// that can change its own setting layout/interface somehow - OVERLAY/MIRROR TODO
  
+- DONE:
+
+// some kind of bufsel switch (top bit is not great) so operates more
+on audio_buffer from CA and sim (also swaps there but these are
+infrequent - now set so no bufsel!)- now as bufsel on lowest bit DONE
+
+// to avg hardware knob or not- seems preferable DONE
+
 * THU 17 JULY
 
 ** DONE

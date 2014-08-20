@@ -1246,7 +1246,7 @@ if (digfilterflag&1){
 	    tmpp=village_effects[vill/2];
 	  }
 	  else tmpp=EFFECTFILTER&15;
-	  //	  tmpp=0; // TESTY!
+	  //	  tmpp=2; // TESTY!
  	  switch(tmpp){ 
 	  case 0:
 	  default:

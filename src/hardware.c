@@ -57,7 +57,7 @@ extern u8 inp;
 
 void dohardwareswitch(u8 modder, u8 hdgen){
   u8 res2;
-  static uint8_t hangflag=0, clockhangflag=0;
+  static uint8_t hangflag=0, clockhangflag=0;//, augflag=0;
   GPIO_InitTypeDef  GPIO_InitStructure;
 
   //PORTB - PB0-9 is all switches except PB1(filterpwm)
@@ -125,10 +125,10 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 
-  //  modder=15; //now test 40106 --- test for digfilterflag//TESTY!
-  // now as 32 options with digfilterflag as 32 for filterfeed
+  //if (augflag) modder=24;  // TESTY!AUG
 
-  //  modder=24; // TESTY!
+  //  modder=24; //now test 40106 --- test for digfilterflag//TESTY!
+  // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:
    //1-straightout
@@ -450,6 +450,7 @@ RES: feedback on/off - jackin-> - lm358in->
   case 24:
     //6-justfilter------->|
     //filterpath->lm no distort
+    //    augflag=1; // TESTY! AUG
     GPIOB->BSRRH= (1<<0) | (1<<2) | (1<<3) | (1<<5) | (1<<6) | (1<<8) | (1<<9);
     GPIOB->BSRRL= (1<<4);
     GPIOC->BSRRL= (1<<10) | (1<<11);
@@ -714,7 +715,7 @@ void setlmpwm(uint16_t value, uint16_t value2){
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM3, &TIM_OCInitStructure);
-  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable); // fixed here AUGUST as was TIM8
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable); // fixed here AUGUST as was TIM8-no diff really!
 
   TIM_CtrlPWMOutputs(TIM3, ENABLE);
 
@@ -728,7 +729,7 @@ void setmaximpwm(uint16_t value){
   // uint32_t SystemCoreClock = 168000000;
 
   //  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // 28 MHz
-  PrescalerValue = 2;
+  PrescalerValue = 2; //was 2
   /* Time base configuration */
   TIM_TimeBaseStructure.TIM_Period = value; // was 665
   TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;
@@ -742,7 +743,7 @@ void setmaximpwm(uint16_t value){
 
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = 100;
+  TIM_OCInitStructure.TIM_Pulse = 100; // was 100
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
   TIM_OC4Init(TIM8, &TIM_OCInitStructure);

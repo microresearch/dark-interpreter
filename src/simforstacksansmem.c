@@ -1336,18 +1336,20 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u16 typerr, u16* buffer
 
 
 void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
-  //  static u8 i=0; //TESTY!!!
-  u8 i;
+  // static u8 i=0; //TESTY!!!
+    u8 i;
   u8 x,bufsel; u16 *buffer;
-      for (i=0;i<stack_pos;i++){
-	//      if (i>=stack_pos) i=0;
+        for (i=0;i<stack_pos;i++){
+	  //  if (i>=stack_pos) i=0; // TESTY!
 	u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
 	start=stacker[tmp++]>>1;
 	wrap=stacker[tmp++]>>1;
 	howmuch=stacker[tmp]>>9; // 7 bits
-	bufsel=stacker[tmp++]>>15; // last bit
+	//	bufsel=stacker[tmp++]>>15; // last bit TESTY!
+	bufsel=stacker[tmp++]&1; //AUG!
+	//bufsel=1;  // AUG..or...
 	x=(stacker[tmp]>>10)%NUM_FUNCS; // 6 bits
 	if (bufsel) buffer=buf16;
 	else buffer=(u16*)audio_buffer;
@@ -1455,8 +1457,8 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
       case WALKERCHUNKY:
 	stack[i].count=runwalkerchunk(howmuch,buffer,stack[i].count,start,wrap);
 	}
-	//			i++;
-			   }
+	//	i++;
+}//TESTY!
 }
 
 signed char func_pop(u8 stack_pos){
