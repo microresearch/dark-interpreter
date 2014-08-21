@@ -599,7 +599,7 @@ cpuattached=malloc(64);//[64];
 	    machine_count=0;
 	  }
 	  break;
-	case 4:
+	case 4: // never used!
 	  break;
 	}
 	}
@@ -762,7 +762,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      mainmode=6; // TESTY!
+      //      mainmode=6; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -1102,24 +1102,24 @@ cpuattached=malloc(64);//[64];
 	xx=fingerdir(&spd);
 	if (xx!=5) {
 	if (xx==0) {
+	  m->m_threads[THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
 	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[THREADERR]=0;
-	  m->m_threads[THREADCOUNT].m_CPU=spd%31;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
 	}
 	else if (xx==1) 
 	  {
+	    stackery[(STACKPOSY*4)+3]=spd%11; //type
 	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
 	    settingsarrayattached[POSYERR]=0;
-	    stackery[(STACKPOSY*4)+3]=spd%11; //type
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	    settingsarrayattached[VILLAGERR]=0;
 	  }
 	else if (xx==2) {
+	  stacker[(STACKPOS*4)+3]=spd%34;
 	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[POSERR]=0;
-	  stacker[(STACKPOS*4)+3]=spd%34;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
 	}

@@ -136,9 +136,10 @@ intersection of these two domains.
 \noindent 2- This knob controls specific settings within the 16 modes (*only
 when we have a finger on any of the pads of the finger-board*).
 
-\noindent 3- This third knob is only used when certain parameters are attached
-or mirrored onto it by way of some of the modes. In the case of
-Tenebrarum this knob also offsets the distortion.
+\noindent 3- This third knob is only used when certain parameters are
+attached or mirrored onto it by way of some of the modes. In the case
+of Tenebrarum this knob also offsets the distortion outside any mode,
+and is used to set the filter effect (when selected) in mode 1.
 
 \noindent 4- This knob also controls specific settings within the 16 modes
 (*only when we have a finger on any of the pads of the finger-board*).

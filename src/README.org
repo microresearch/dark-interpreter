@@ -409,18 +409,22 @@ and:
   >>6 which makes no sense
 - fixed bug for stack attached as was not STACKPOS/Y *4 (so not full)
 - fixed bug in case 12 would always be on left when no finger
+- re-ordering in case 4(RE_TEST)
+- fixed bug with tmpp as u8 for some cases in audio.c
 
 - TODO: 
 
-// more control over stack TODO
+// test cases 4 and 5 and attachments, re-check audio.c 
 
-// expansion of wormcode TODO!
-
+// do we %5 for exestack so can be no execution?
 // samplerate variable on startup (8k,16k,32k,48k) knob0 TODO
-
 // add depth/divider for maxim in hardware options (where?) TODO
 
+later:
+
 // that can change its own setting layout/interface somehow - OVERLAY/MIRROR TODO
+// more control over stack TODO
+// expansion of wormcode TODO
  
 - DONE:
 
