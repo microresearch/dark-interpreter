@@ -124,7 +124,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   int32_t tmp32;
   u8 x,tmpp;
   static u16 start=0,startfilt=0,wrapfilt=1,wrap=1,samplepos=0,sampleposfilt=0,anyposfilt=0,anypos=0;
-  static u8 vill=0; 
+  static u8 vilr=0,vilf=0,vilw=0; //AUG
   static u8 villagerpos=0,villagefpos=0,villagewpos=0,del=0,delf=0,delread=0;
   u8 VILLAGEREAD,VILLAGEWRITE,VILLAGEFILT;
 
@@ -167,7 +167,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	//VILLAGEREAD=2; // TESTY!
 
 	if (VILLAGEREAD==2){ // moved out of loop AUG
-	    tmpp=village_effects[vill/2]%16;
+	    tmpp=village_effects[vilr/2]%16;
 	  }
 	  else tmpp=EFFECTREAD&15;
 
@@ -308,12 +308,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else dirryy=VILLAGERSTEP*direction[VILLAGERDIR];
 		    villagerpos+=dirryy;
 		    //		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
+
 		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
-		    vill=(tmp+(villagerpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    startread=villager[vill]>>1;
-		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
-		    tmpp=village_effects[vill/2]%16;
+		    vilr=(tmp+(villagerpos%tmper))*2;
+		    vilr=vilr%VILLAGESTACKPOS;
+
+		    startread=villager[vilr]>>1;
+		    wrapread=((villager[vilr+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
+		    tmpp=village_effects[vilr/2]%16;
 		    if (wrapread==0) wrapread=1;
 		    if (dirry>0) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -347,7 +349,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  //	  VILLAGEREAD=EFFECTREAD&3;
 	  VILLAGEREAD=(EFFECTREAD&48)>>4;	
 	  if (VILLAGEREAD==2){// moved AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilr/2];
 	  }
 	  else tmpp=EFFECTREAD&15;
 
@@ -516,11 +518,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    villagerpos+=dirryy;
 		    //		    vill=(VILLAGERSTART+(villagerpos%VILLAGERWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
-		    vill=(tmp+(villagerpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    startread=villager[vill]>>1;
-		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
-		    tmpp=village_effects[vill/2];
+		    vilr=(tmp+(villagerpos%tmper))*2;
+		    vilr=vilr%VILLAGESTACKPOS;
+		    startread=villager[vilr]>>1;
+		    wrapread=((villager[vilr+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;
+		    tmpp=village_effects[vilr/2];
 		    if (wrapread==0) wrapread=1;
 		    if (dirry>0) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -553,7 +555,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	//	VILLAGEWRITE=EFFECTWRITE&3;
 	VILLAGEWRITE=(EFFECTWRITE&48)>>4;	
 	if (VILLAGEWRITE==2){// moved AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
@@ -687,11 +689,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    villagewpos+=dirryy;
 		    //		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
-		    vill=(tmp+(villagewpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    tmpp=village_effects[vill/2];
-		    start=villager[vill]>>1;
-		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
+		    vilw=(tmp+(villagewpos%tmper))*2;
+		    vilw=vilw%VILLAGESTACKPOS;
+		    tmpp=village_effects[vilw/2];
+		    start=villager[vilw]>>1;
+		    wrap=((villager[vilw+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (dirry>0) samplepos=start;
 		    else samplepos=start+wrap;
@@ -725,7 +727,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    //	    VILLAGEREAD=2; // TESTY!	    
 	    if (VILLAGEREAD==2){//moved AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilr/2];
 	  }
 	  else tmpp=EFFECTREAD&15; 
 
@@ -862,11 +864,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    villagerpos+=dirryy; 
 		    //		    vill=((VILLAGERSTART+(villagerpos%VILLAGERWRAP))*2)%VILLAGESTACKPOS; //to cover all directions
 		    tmp=VILLAGERSTART;tmper=VILLAGERWRAP;
-		    vill=(tmp+(villagerpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    tmpp=village_effects[vill/2];
-		    startread=villager[vill]>>1;
-		    wrapread=((villager[vill+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;;
+		    vilr=(tmp+(villagerpos%tmper))*2;
+		    vilr=vilr%VILLAGESTACKPOS;
+		    tmpp=village_effects[vilr/2];
+		    startread=villager[vilr]>>1;
+		    wrapread=((villager[vilr+1]>>1)%SAMPLEWRAPREAD);//+SAMPLEREXPAND;;
 		    if (wrapread==0) wrapread=1;
 		    if (dirry>0) sampleposread=startread;
 		    else sampleposread=startread+wrapread;
@@ -900,7 +902,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    //	    VILLAGEWRITE=0;//testy!
 	    //settingsarray[15]=1024;//testy! SAMPLEWRAP	  
 	    if (VILLAGEWRITE==2){// moved AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
@@ -1020,11 +1022,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    else dirryy=VILLAGEWSTEP*direction[VILLAGEWDIR];
 		    villagewpos+=dirryy;
 		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
-		    vill=(tmp+(villagewpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    start=villager[vill]>>1;
-		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
-		    tmpp=village_effects[vill/2];
+		    vilw=(tmp+(villagewpos%tmper))*2;
+		    vilw=vilw%VILLAGESTACKPOS;
+		    start=villager[vilw]>>1;
+		    wrap=((villager[vilw+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
+		    tmpp=village_effects[vilw/2];
 		    //		    printf("vill %d stackpos %d\n",vill,VILLAGESTACKPOS);
 		    if (wrap==0) wrap=1;
 		    if (dirry>0) samplepos=start;
@@ -1063,7 +1065,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	//	VILLAGEWRITE=2; // TESTY!
 	if (VILLAGEWRITE==2){// moved AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
@@ -1185,11 +1187,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    //		    vill=(VILLAGEWSTART+(villagewpos%VILLAGEWWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 
 		    tmp=VILLAGEWSTART;tmper=VILLAGEWWRAP;
-		    vill=(tmp+(villagewpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    tmpp=village_effects[vill/2];
-		    start=villager[vill]>>1;
-		    wrap=((villager[vill+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
+		    vilw=(tmp+(villagewpos%tmper))*2;
+		    vilw=vilw%VILLAGESTACKPOS;
+		    tmpp=village_effects[vilw/2];
+		    start=villager[vilw]>>1;
+		    wrap=((villager[vilw+1]>>1)%SAMPLEWRAP);//+SAMPLEEXPAND;
 		    if (wrap==0) wrap=1;
 		    if (dirry>0) samplepos=start;
 		    else samplepos=start+wrap;
@@ -1232,7 +1234,7 @@ if (digfilterflag&1){
 	VILLAGEFILT=(EFFECTFILTER&48)>>4;	
 
 	if (VILLAGEFILT==2){// move out of loop AUG
-	    tmpp=village_effects[vill/2];
+	    tmpp=village_effects[vilf/2];
 	  }
 	  else tmpp=EFFECTFILTER&15;
 
@@ -1376,11 +1378,11 @@ if (digfilterflag&1){
 		    //		    vill=(VILLAGEFSTART+(villagefpos%VILLAGEFWRAP)*2)%VILLAGESTACKPOS; //VILLAGESTACKPOS always +-2
 
 		    tmp=VILLAGEFSTART;tmper=VILLAGEFWRAP;
-		    vill=(tmp+(villagefpos%tmper))*2;
-		    vill=vill%VILLAGESTACKPOS;
-		    tmpp=village_effects[vill/2];
-		    startfilt=villager[vill]>>1;
-		    wrapfilt=((villager[vill+1]>>1)%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;
+		    vilf=(tmp+(villagefpos%tmper))*2;
+		    vilf=vilf%VILLAGESTACKPOS;
+		    tmpp=village_effects[vilf/2];
+		    startfilt=villager[vilf]>>1;
+		    wrapfilt=((villager[vilf+1]>>1)%SAMPLEWRAPFILT);//+SAMPLEFEXPAND;
 		    if (wrapfilt==0) wrapfilt=1;
 		    if (dirry>0) sampleposfilt=startfilt;
 		    else sampleposfilt=startfilt+wrapfilt;

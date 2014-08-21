@@ -410,7 +410,8 @@ and:
 - fixed bug for stack attached as was not STACKPOS/Y *4 (so not full)
 - fixed bug in case 12 would always be on left when no finger
 - re-ordering in case 4(RE_TEST)
-- fixed bug with tmpp as u8 for some cases in audio.c
+- fixed bug with tmpp as u8 for some cases in audio.c// now tmpw
+- vill as static is not same vill at end???
 
 - TODO: 
 
