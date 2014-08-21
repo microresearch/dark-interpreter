@@ -395,7 +395,7 @@ again with directions at to what to attach
 
 763(no in),767/777(mixer noinput)
 
-* MON 18 AUGUST+notes
+* MON 18 AUGUST+notes/re-appraisal
 
 - post-release re-appraising (older code is in gitaugclone)
 - finish testing all modes and decide on any changes
@@ -405,11 +405,10 @@ and:
 - fixed LM bug in hardware.c (did this effect anything? - NO)
 - looking at 40106 range and PWM there//>>4 now so is 0->2048 range
 - maxim also now >>1 for range
-
-- changing speedmod >>5 for mode 15 - see how this effects speeds
-(tweak again) - also changed mode 15 so is not >>6 which makes no sense
-
+- changing speedmod >>5 for mode 15 - also changed mode 15 so is not
+  >>6 which makes no sense
 - fixed bug for stack attached as was not STACKPOS/Y *4 (so not full)
+- fixed bug in case 12 would always be on left when no finger
 
 - TODO: 
 

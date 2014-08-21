@@ -762,7 +762,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      mainmode=15; // TESTY!
+      mainmode=6; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -1334,7 +1334,7 @@ cpuattached=malloc(64);//[64];
 	  }
 	}
 	}
-	else {//LEFT // various stack and villager exchanges - 
+	else if (groupsel==3) {//LEFT // various stack and villager exchanges -  // bugfix AUG
 	// other way round
 	
 	foldy=adc_buffer[SECOND]>>6; // howmuch-64
