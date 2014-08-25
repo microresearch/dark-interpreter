@@ -728,21 +728,21 @@ signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer,
       stack[stack_posy].count=start;
       stackery[tmp+1]=wrap;
       stackery[tmp+2]=howmuch;
-      stackery[tmp+3]=typerr;
+      stackery[tmp+3]=typerr; //printf("typerr=%d",typerr);
       stack_posy++;
     }  
   return stack_posy;
 }
 
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
-  //    static u8 i=0;  // TESTY!!!
+  //  static u8 i=0;  // TESTY!!!
       u8 i;
   u8 x,bufsel; u8 *buffer; 
   //  u8 *audiobuf=(u8*)audio_buffer;
-      for (i=0;i<stack_posy;i++){
-	//	    if (i>=stack_posy) i=0;
+  for (i=0;i<stack_posy;i++){
+    //if (i>=stack_posy) i=0;
     u8 tmp=i*4,howmuch; u16 start,wrap;
-
+    
     start=stackery[tmp++]>>1;
     wrap=stackery[tmp++]>>1;
     howmuch=stackery[tmp]>>9; // 7 bits
@@ -756,6 +756,8 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
     if (bufsel) buffer=(u8*)datagenbuffer;
         else buffer=(u8*)audio_buffer;
     //	else buffer=audio_buffer; // 8 BITZ!
+    //    x=2; // TESTY!
+    //printf("running: %d x=%d\n",stackery[tmp]>>12,x);
 	switch(x){
 	case NONENY:
 	stack[i].count=runnoney(howmuch,buffer,stack[i].count,start,wrap);
@@ -791,8 +793,8 @@ void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy){
 	stack[i].count=runSIR16(howmuch,buffer,stack[i].count,start,wrap);
 	break;
 	}
-		}
-	//      	i++;//TESTY!
+			}
+	//	      	i++;//TESTY!
 }
 
 signed char ca_pop(u8 stack_posy){

@@ -155,6 +155,7 @@ extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
 #define randi() ((rand()*adc_buffer[9])%4096) // 12 bits
 //#define randi() (adc_buffer[9]) // 12 bits
+//#define randi() (rand()%4096)
 #else //PCSIM
 #define randi() (rand()%4096)
 u8* datagenbuffer;
@@ -322,7 +323,7 @@ u8 settingsarrayattached[SETSIZE];
 
   // maintain order
   Audio_Init();
-  Codec_Init(32000); // could be 32k//TODO: variable on startup
+  Codec_Init(48000); // TODO: variable on startup
   delay();
 
 #ifndef LACH
@@ -525,7 +526,7 @@ cpuattached=malloc(64);//[64];
   // CA
   for (x=0;x<(STACK_SIZE);x++){
           start=randi()<<4;
-          wrap=randi()<4;
+          wrap=randi()<<4;
 	  stack_posy=ca_pushn(stackyyy,randi()<<4,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
   }
 
@@ -542,8 +543,8 @@ cpuattached=malloc(64);//[64];
 
     // execution stack
         for (x=0;x<MAX_EXE_STACK;x++){
-	  	  exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 
-	  //	  exenums=exestackpush(exenums,exestack,2); //exetype=0-3 TESTY!=CPU
+	  exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 
+			  //exenums=exestackpush(exenums,exestack,1); //exetype=0-3 TESTY!=CPU
       }
 
 	u8 mainmode,groupstart,groupwrap;
@@ -580,24 +581,25 @@ cpuattached=malloc(64);//[64];
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
       
+      //      func_runall(stackyy,STACKPOS); // simulations
       
-      for (x=0;x<exenums;x++){
+                  for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
 	  func_runall(stackyy,STACKPOS); // simulations
 	  break;
 	case 1:
-	  ca_runall(stackyyy,STACKPOSY); // CA
+	  	  ca_runall(stackyyy,STACKPOSY); // CA
 	  break;
 	case 2:
-	    machine_run(m); //cpu
+	  	  machine_run(m); //cpu
 	  break;
 	case 3:
-	  machine_count++;
-	  if (machine_count>=MACHINESPEED){
+	  //	  machine_count++;
+	  //	  if (machine_count>=MACHINESPEED){
 	    machine_runnn(datagenbuffer); // pureleak
-	    machine_count=0;
-	  }
+	    //	    machine_count=0;
+	    //	  }
 	  break;
 	case 4: // never used!
 	  break;
@@ -762,7 +764,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //      mainmode=6; // TESTY!
+      //      mainmode=7; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -1101,29 +1103,29 @@ cpuattached=malloc(64);//[64];
 	//	  select stackmax (left/right) (knob and set)
 	xx=fingerdir(&spd);
 	if (xx!=5) {
-	if (xx==0) {
-	  m->m_threads[THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
+	  if (xx==0) {//UP
+	    m->m_threads[THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
 	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[THREADERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
 	}
-	else if (xx==1) 
+	  else if (xx==1) //RIGHT=CA
 	  {
-	    stackery[(STACKPOSY*4)+3]=spd%11; //type
+	    stackery[(STACKPOSY*4)+3]=(spd%11)<<12; //type AUG <<12 must be there
 	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
 	    settingsarrayattached[POSYERR]=0;
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	    settingsarrayattached[VILLAGERR]=0;
 	  }
-	else if (xx==2) {
-	  stacker[(STACKPOS*4)+3]=spd%34;
+	  else if (xx==2) {//DOWN
+	    stacker[(STACKPOS*4)+3]=(spd%34)<<10;  //type AUG <<10 must be there
 	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[POSERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	  settingsarrayattached[VILLAGERR]=0;
 	}
-	else
+	  else//LEFT
 	  {
 	    exestack[adc_buffer[SECOND]>>10]=spd%4; // 2 bits 0,1,2,3=spd%4 or spd&3
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
@@ -1172,7 +1174,7 @@ cpuattached=malloc(64);//[64];
 	tmp=adc_buffer[SECOND]<<4;
 	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){ // UP
-	  settingsarray[5]=tmp;//anystartread
+	  settingsarray[5]=tmp;//anystartwrite
 	  settingsarray[19]=tmper;//wrap
 	  settingsarray[33]=spd<<10;//step
 	  settingsarrayattached[5]=0;
@@ -1180,7 +1182,7 @@ cpuattached=malloc(64);//[64];
 	  settingsarrayattached[33]=0;
 	}
 	else 	if (xx==2){ //DOWN
-	  settingsarray[4]=tmp;//write
+	  settingsarray[4]=tmp;//read
 	  settingsarray[18]=tmper;
 	  settingsarray[34]=spd<<10;
 	  settingsarrayattached[4]=0;

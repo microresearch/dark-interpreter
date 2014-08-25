@@ -1568,21 +1568,22 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 }
 }
 
-u16 machine_peekkk(u8* buffer, uint16_t addr) {
+inline u16 machine_peekkk(u8* buffer, uint16_t addr) {
   //	return buffer->m_heap[addr%HEAP_SIZE];
   u16 addr2=addr+1;
   return (buffer[addr]<<8)+buffer[addr2];
 }
 
-u8 machine_p88kkk(u8* buffer, uint16_t addr) {
+inline u8 machine_p88kkk(u8* buffer, uint16_t addr) {
   //	return buffer->m_heap[addr%HEAP_SIZE];
   return (buffer[addr]);
 }
 
 
-void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
+inline void machine_pokeee(u8* buffer, uint16_t addr, u8 data) {
   //	buffer->m_heap[addr%HEAP_SIZE]=data;
   buffer[addr]=data; // protecting 0 as number of threads???
+  //  printf("%c",data);
 }
 
 

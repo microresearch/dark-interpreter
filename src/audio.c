@@ -898,20 +898,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    VILLAGEWRITE=(EFFECTWRITE&48)>>4; // top 2 bits was just & 3
 
 	    morph_inv = 1.0f - (float32_t)FMODW;
-
-	    //	    VILLAGEWRITE=0;//testy!
+	    
+	    //	    VILLAGEWRITE=2;//testy!
+	    
 	    //settingsarray[15]=1024;//testy! SAMPLEWRAP	  
 	    if (VILLAGEWRITE==2){// moved AUG
 	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
+	    //	    tmpp=15; //testy!
+
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	  default:
-	    mono_buffer[x]=audio_buffer[samplepos%32768];
-	    //mono_buffer[x]=buf16[samplepos%32768]; // TESTY!!!!
+	    	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	    //	    	    mono_buffer[x]=buf16[samplepos%32768]; // TESTY!!!!
 	    break;
 	  case 1:
 	    tmp16=(buf16[samplepos%32768]-32768);
@@ -1068,12 +1071,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
+	//	tmpp=0; // TESTY!
 
       	for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	  default:
-	      mono_buffer[x]=audio_buffer[samplepos%32768];
+	         mono_buffer[x]=audio_buffer[samplepos%32768];
 	    //	    mono_buffer[x]=buf16[samplepos%32768]-32768; // TESTY!!!!
 	  break;
 	  case 1:
@@ -1417,9 +1421,9 @@ if (digfilterflag&1){
  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
- /*    for (x=0;x<sz/2;x++){
-           printf("%c",mono_buffer[x]);
-	   }*/
+    for (x=0;x<sz/2;x++){
+         printf("%c",mono_buffer[x]);
+ 	   }
 #endif
 
 #endif // for test eeg

@@ -134,12 +134,12 @@ void thread_run(thread* this, machine *m) {
 #ifdef PCSIM
 
     //    printf("
-    //        printf("CPU: %d\n",this->m_CPU);
-    //    printf("%c",machine_p88k(m,this->m_pc));
+    //    printf("CPU: %d pc: %d\n",this->m_CPU, this->m_pc);
+	    //    printf("%c",machine_p88k(m,this->m_pc));
 
 #endif
 
-    switch(this->m_CPU&31)
+    switch(this->m_CPU)
       {
       case 0: // :LEAKY STACK! - working!
       instr=machine_p88k(m,this->m_pc);
@@ -1367,28 +1367,30 @@ u8 thread_top(thread* this) {
 
 ///////////////////////////////////////////////////////////////
 
-u16 machine_peek(machine* this, uint16_t addr) {
+inline u16 machine_peek(machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
   u16 y;
   y=addr+1;
   return (this->m_memory[addr]<<8)+this->m_memory[y];
 }
 
-u8 machine_p88k(machine* this, uint16_t addr) {
+inline u8 machine_p88k(machine* this, uint16_t addr) {
   //	return this->m_heap[addr%HEAP_SIZE];
   return this->m_memory[addr];
 }
 
 
-void machine_poke(machine* this, uint16_t addr, u8 data) {
+inline void machine_poke(machine* this, uint16_t addr, u8 data) {
   //	this->m_heap[addr%HEAP_SIZE]=data;
   this->m_memory[addr]=data;
+  //      printf("%d\n",&this->m_memory[addr]);
 }
 
 void machine_run(machine* this) {
 
   this->m_threadcount=THREADCOUNT;
   static u8 thrcount=0;
+  //  static u8 n=0;
   thrcount++;
   //  if (threadcount>this->m_threadcount) {
   //    threadcount=0;
@@ -1410,10 +1412,14 @@ void machine_run(machine* this) {
 		
   }
 
-  for (unsigned char n=0; n<this->m_threadcount; n++) {
+    for (unsigned char n=0; n<this->m_threadcount; n++) {
     thread_run(&this->m_threads[n],this);
     //        printf("running %d\n", n);
-  }
+    //    n++; // TESTY!
+    //    if (n>this->m_threadcount) n=0;
+
+    
+      }
 }
 
 void leak(machine *m){

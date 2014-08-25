@@ -110,9 +110,10 @@ RES: feedback on/off - jackin-> - lm358in->
    //   GPIOC->BSRRH = (1<<8); // was H!
    //   GPIOC->BSRRL = (1<<13);
    // add unhang for clocks- DONE! 
-   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-   GPIO_InitStructure.GPIO_Mode = 0x04;
-   GPIO_Init(GPIOA, &GPIO_InitStructure);
+   // AUG - don't unhang 40106= as makes no sense!
+   //   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+   //   GPIO_InitStructure.GPIO_Mode = 0x04;
+   //   GPIO_Init(GPIOA, &GPIO_InitStructure);
    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
    GPIO_InitStructure.GPIO_Mode = 0x04; // defined as IN_FLOATING?
    GPIO_Init(GPIOB, &GPIO_InitStructure);
@@ -248,7 +249,6 @@ RES: feedback on/off - jackin-> - lm358in->
     ////////
     
 #ifdef TENE
-
   case 11:
         //2-unhang all except input 
     // input is pb7
@@ -372,7 +372,7 @@ RES: feedback on/off - jackin-> - lm358in->
     if (clockhangflag==0) digfilterflag=25;
     else digfilterflag=1; // 40106 always running anyways+8
     break;
-
+  
 #endif
 
     ////////////
@@ -526,15 +526,15 @@ void reset_clocks(void)
 {
   GPIO_InitTypeDef  GPIO_InitStructure;
   /* GPIOB Configuration:  TIM1 CH2 (PA9) */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  /*  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
   GPIO_Init(GPIOA, &GPIO_InitStructure); 
 
-  /* Connect TIM1 pins to PA9 */  
-  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_TIM1);
+  // Connect TIM1 pins to PA9 
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_TIM1);*/
 
   /* GPIOB Configuration:  TIM3 CH4 (PB1) */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;

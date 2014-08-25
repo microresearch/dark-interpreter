@@ -118,7 +118,8 @@ u16 runform(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
     if (f==2){
       buffer[(start+count)%32768]=(float32_t)buff[s]*32768.0f;
 #ifdef PCSIM 
-      //      //            printf("%c",buffer[start+count]%255);
+      //      printf("%c",buffer[start+count]%255);
+      //      printf("%d\n",start+count);
 #endif
     }
       count++;
@@ -1336,11 +1337,11 @@ signed char func_pushn(struct stackey stack[STACK_SIZE], u16 typerr, u16* buffer
 
 
 void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
-  // static u8 i=0; //TESTY!!!
+  //  static u8 i=0; //TESTY!!!
     u8 i;
   u8 x,bufsel; u16 *buffer;
-        for (i=0;i<stack_pos;i++){
-	  //  if (i>=stack_pos) i=0; // TESTY!
+      for (i=0;i<stack_pos;i++){
+	//	    if (i>=stack_pos) i=0; // TESTY!
 	u8 tmp=i*4,howmuch; u16 start,wrap;
 
 	//	stack[i].count=runconv(stacker[tmp+2],stack[i].buffer,stack[i].count,start,stacker[tmp+1]);
@@ -1349,8 +1350,10 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
 	howmuch=stacker[tmp]>>9; // 7 bits
 	//	bufsel=stacker[tmp++]>>15; // last bit TESTY!
 	bufsel=stacker[tmp++]&1; //AUG!
-	//bufsel=1;  // AUG..or...
+	//	bufsel=1;  // AUG..or...
 	x=(stacker[tmp]>>10)%NUM_FUNCS; // 6 bits
+	//	printf("running: %d start: %d wrap %d\n",x,start,wrap);
+
 	if (bufsel) buffer=buf16;
 	else buffer=(u16*)audio_buffer;
 
@@ -1457,8 +1460,8 @@ void func_runall(struct stackey stack[STACK_SIZE],u8 stack_pos){
       case WALKERCHUNKY:
 	stack[i].count=runwalkerchunk(howmuch,buffer,stack[i].count,start,wrap);
 	}
-	//	i++;
-}//TESTY!
+	//		i++;
+	}//TESTY!
 }
 
 signed char func_pop(u8 stack_pos){
