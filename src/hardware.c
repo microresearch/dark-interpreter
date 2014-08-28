@@ -128,7 +128,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //if (augflag) modder=24;  // TESTY!AUG
 
-  //  modder=24; //now test 40106 --- test for digfilterflag//TESTY!
+  modder=26; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:
@@ -690,8 +690,8 @@ void initpwm(void){ // THIS ONE WORKS!
 }
 
 void setlmpwm(uint16_t value, uint16_t value2){
-
-  TIM3->CCR4 = value2;
+ 
+  ///  TIM3->CCR4 = value2;
   //  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // was by 28 MHz
   PrescalerValue = 2;
   /* Time base configuration */
@@ -818,6 +818,12 @@ filterclock-PC9 (is for maxim)
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_TIM8);
 
 }
+
+void setlmmmpwm(uint16_t value){ // AUGUST
+
+  TIM3->CCR4 = value;
+  }
+
 
 void set40106pwm(uint16_t value){
 

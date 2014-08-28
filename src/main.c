@@ -323,7 +323,7 @@ u8 settingsarrayattached[SETSIZE];
 
   // maintain order
   Audio_Init();
-  Codec_Init(48000); // TODO: variable on startup
+  Codec_Init(32000); // TODO: variable on startup
   delay();
 
 #ifndef LACH
@@ -1572,6 +1572,7 @@ cpuattached=malloc(64);//[64];
       HARDWARE=tmphardware>>8; //was >>8 to divide average
      
   //      HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
+      //      settingsarray[42]=adc_buffer[FIFTH]<<4; // TESTY HWSPEED!
 
             
       /// general HW walk in/as tmp
@@ -1585,21 +1586,23 @@ cpuattached=malloc(64);//[64];
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
 	tmp=F0106ERCONS-F0106ERBASE-tmper;
 	if (tmp==0) tmp=1;
-	set40106pwm((F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp))>>4); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
+	set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
 	//		set40106pwm(2048);
 
       tmp=LMERCONS-LMERBASE;
 	if (tmp==0) tmp=1;
       if (digfilterflag&4){
-	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
-	//	setlmpwm(adc_buffer[FOURTH]<<3,adc_buffer[THIRD]<<3);//TESTY!=14 bits
+	//	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
+	//		setlmpwm(adc_buffer[FOURTH],adc_buffer[THIRD]<<3);//TESTY!=14 bits
+
+	setlmmmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp)); // AUGUST!
       }
 	  
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
 	if (tmp==0) tmp=1;
-	setmaximpwm((MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp))>>1); // added >>1 AUG
-	//	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
+	//	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS!!!
+	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
       }
 
       }//outside HWSPEED

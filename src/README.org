@@ -402,9 +402,9 @@ again with directions at to what to attach
 
 and:
 
-- stay on 48k
+- 48k/32k?????- now back to 32k!
 - fixed LM bug in hardware.c (did this effect anything? - NO)
-- looking at 40106 range and PWM there//>>4 now so is 0->2048 range
+- looking at 40106 range and PWM there//>>4 now so is 0->2048 range - now in CONS
 - maxim also now >>1 for range
 - changing speedmod >>5 for mode 15 - also changed mode 15 so is not
   >>6 which makes no sense
@@ -413,17 +413,23 @@ and:
 - re-ordering in case 4(RE_TEST)
 - fixed bug with tmpp as u8 for some cases in audio.c// now tmpw
 - vill as static is not same vill at end???DONE changed to vilr,vilw,vilf
-- removed clock unhang in hardware.c as makes no sense
+- removed 40106 clock unhang in hardware.c as makes no sense
 - bug in ca start code in main.c (<4 not <<4) fixed
 - bug in case 4 stack code fixed (<<10 etc setting of type)
 - -O3 now in Makefile
+- break missing in filter read code in audio.c FIXED/filter tested and maybe odd tweak...
+- changed to all CONS and BASE for HW
+- changed HWSPEED
 
-- TODO: 
+- TODO HW tunings:
 
-// test cases 4 and 5 and attachments, re-check audio.c/TEST!
-// do we %5 for exestack so can be no execution?
+- test detached filter (&32), test floatings and hands
 
-later:
+
+
+
+
+for later:
 
 // samplerate variable on startup (8k,16k,32k,48k) knob0 TODO
 // add depth/divider for maxim in hardware options (where?) TODO

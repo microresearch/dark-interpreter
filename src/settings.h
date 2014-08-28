@@ -62,9 +62,9 @@
 #define VILLAGERSTART (settingsarray[8]>>10)
 #define VILLAGEFSTART (settingsarray[9]>>10)//-LACH_TODO
 //#define HDGENERBASE (settingsarray[10]>>8) //-LACH_TODO HOLE!
-#define LMERBASE ((settingsarray[11])>>1) //-LACH_TODO
-#define F0106ERBASE ((settingsarray[12])>>1)//-LACH_TODO 
-#define MAXIMERBASE ((settingsarray[13])>>1) //-LACH_TODO
+#define LMERBASE ((settingsarray[11])>>2) //-LACH_TODO
+#define F0106ERBASE ((settingsarray[12])>>2)//-LACH_TODO 
+#define MAXIMERBASE ((settingsarray[13])>>2) //-LACH_TODO
 
 #define HWWRAP ((settingsarray[14]>>1)+1) //-LACH_TODO
 #define SAMPLEWRAP ((settingsarray[15]>>1)+1)
@@ -79,9 +79,9 @@
 #define VILLAGEFWRAP ((settingsarray[23]>>10)+1) //-LACH_TODO
 
 #define HDGENERCONS ((settingsarray[24]>>8)+1)//-LACH_TODO
-#define LMERCONS ((settingsarray[25]>>1)+1)//-LACH_TODO
-#define F0106ERCONS ((settingsarray[26]>>1)+1)//-LACH_TODO
-#define MAXIMERCONS ((settingsarray[27]>>1)+1)//-LACH_TODO
+#define LMERCONS ((settingsarray[25]>>4)+1)//-LACH_TODO
+#define F0106ERCONS ((settingsarray[26]>>5)+1)//-LACH_TODO
+#define MAXIMERCONS ((settingsarray[27]>>3)+1)//-LACH_TODO
 
 #define LMEROFFSET (settingsarray[28]>>1)//-LACH_TODO
 #define LMEROFFSETTWO (settingsarray[29]>>1)//-LACH_TODO
@@ -100,7 +100,7 @@
 #define VILLAGEWSTEP ((settingsarray[40]>>14)+1)
 #define VILLAGEFSTEP ((settingsarray[41]>>14)+1)//-LACH_TODO
 
-#define HWSPEED ((settingsarray[42]>>8)+1) // 8 bits//-LACH_TODO
+#define HWSPEED ((settingsarray[42]>>6)+1) // ??? bits was >>8 AUG//
 #define SAMPLESPEED ((settingsarray[43]>>12)+1)
 #define SAMPLESPEEDREAD ((settingsarray[44]>>12)+1)
 #define SAMPLESPEEDFILT ((settingsarray[45]>>12)+1)//-LACH_TODO

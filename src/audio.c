@@ -344,14 +344,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	/////////////////////////////NO____LACH!!!!!!!!!
 #else // end LACH
 
+	// AUG NOTE: cases 8+ use leftbuffer!
+
 	if (digfilterflag&32 || digfilterflag&1){
 
-	  //	  VILLAGEREAD=EFFECTREAD&3;
+	  //	  VILLAGEREAD=EFFECTREAD&3
 	  VILLAGEREAD=(EFFECTREAD&48)>>4;	
+	  //	  VILLAGEREAD=0; // TESTY!
+	
 	  if (VILLAGEREAD==2){// moved AUG
 	    tmpp=village_effects[vilr/2];
 	  }
 	  else tmpp=EFFECTREAD&15;
+
+	  //	  tmpp=0; // TESTY!!!
 
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
@@ -360,6 +366,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  *(ldst++) = *(src++);
 	  *(rdst++) = *src; 
 	  audio_buffer[sampleposread%32768]=*(src++);
+	  //	  audio_buffer[sampleposread%32768]=0; // TESTY!
 	  break;
 	  case 1:
 	    audio_buffer[sampleposread%32768]=*src; // LEFT
@@ -453,16 +460,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif
 	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;
+
 	  case 12:
 	  *(ldst++) = *src;
 	  //	  tmp32=*(src++) +audio_buffer[sampleposread%32768];
-	  fsum=(float32_t)*(src++) * morph_inv + (float32_t)audio_buffer[sampleposread%32768] * FMOD;
+	  fsum=(float32_t)*(src++) * morph_inv + (float32_t)audio_buffer[sampleposread%32768]+32768 * FMOD;
 	  tmp32=fsum;
 	  *(rdst++) = *(src++); 
 #ifndef PCSIM
 	  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
 #endif
 	  audio_buffer[sampleposread%32768]=tmp32;
+	  break; // was missing +AUG
+
 	  case 13:
 	  *(ldst++) = *src;
 	  fsum=(float32_t)(buf16[sampleposread%32768]-32768) * morph_inv * (float32_t)*(src++) * FMOD;
@@ -548,30 +558,38 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  delread=0;
 		  }
 	  }
-	  /// INSERT writeDONE
+	  /// INSERT writeDONE - STILL DIGFILTER
 
 	ldst=left_buffer;
 	morph_inv = 1.0f - (float32_t)FMODW;
 	//	VILLAGEWRITE=EFFECTWRITE&3;
 	VILLAGEWRITE=(EFFECTWRITE&48)>>4;	
+	VILLAGEWRITE=0; // TESTY!
+	
 	if (VILLAGEWRITE==2){// moved AUG
 	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
+	//	tmpp=15; // TESTY!
+
       	for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	  default:
+	    ldst++; //added in AUG in case of village/change during this
 	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	    //	    mono_buffer[x]=0;// TESTY! buf16[samplepos%32768];
 	  break;
 	  case 1:
+	    ldst++; //added in AUG in case of village/change during this
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 2:
 	    //	  tmp32=buf16[samplepos%32768] * audio_buffer[samplepos%32768];
+	    ldst++; //added in AUG in case of village/change during this
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 #ifndef PCSIM
@@ -580,12 +598,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 3:
+	    ldst++; //added in AUG in case of village/change during this
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 4:
+	    ldst++; //added in AUG in case of village/change during this
 	    //	  tmp32=audio_buffer[samplepos%32768]+buf16[samplepos%32768];
 	    fsum=(float32_t)(buf16[samplepos%32768]-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
@@ -595,14 +615,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 5:
+	    ldst++; //added in AUG in case of village/change during this
 	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 6:
+	    ldst++; //added in AUG in case of village/change during this
 	    tmp16=(buf16[samplepos%32768]-32768)-audio_buffer[samplepos%32768];
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
+	    ldst++; //added in AUG in case of village/change during this
 	    fsum=(float32_t)*(ldst++) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	  mono_buffer[x]=tmp32;
@@ -636,21 +659,25 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 12:
+	    ldst++; //added in AUG in case of village/change during this
 	    mono_buffer[x]=((adc_buffer[9]<<3)-32768) * audio_buffer[samplepos%32768];
 	  break;
 	  case 13:
+	    ldst++; //added in AUG in case of village/change during this
 	    //	    tmp32=audio_buffer[samplepos%32768]+adc_buffer[9]<<3;
 	    fsum=(float32_t)((adc_buffer[9]<<3)-32768) * morph_inv + (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
 	  case 14:
+	    ldst++; //added in AUG in case of village/change during this
 	    //	    tmp32=audio_buffer[samplepos%32768]*adc_buffer[9]<<3;
 	    fsum=(float32_t)((adc_buffer[9]<<3)-32768) * morph_inv * (float32_t)audio_buffer[samplepos%32768] * FMODW;
 	  tmp32=fsum;
 	    mono_buffer[x]=tmp32;
 	  break;
  	  case 15:
+	    ldst++; //added in AUG in case of village/change during this
 	    w0=(float32_t) (buf16[0]-32768)/16384.0f;w1=(float32_t) (buf16[1]-32768)/16384.0f;w2=(float32_t) buf16[2]/16384.0f;
 	    tmpw=samplepos-1;
 	    tmpw=tmpw%32768;
@@ -907,14 +934,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
-	    //	    tmpp=15; //testy!
+	    //tmpp=0; //testy!
 
 	  for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	  default:
-	    	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	      mono_buffer[x]=audio_buffer[samplepos%32768];
 	    //	    	    mono_buffer[x]=buf16[samplepos%32768]; // TESTY!!!!
+	    //	    	    mono_buffer[x]=0; // TESTY!!!!
 	    break;
 	  case 1:
 	    tmp16=(buf16[samplepos%32768]-32768);
@@ -1236,11 +1264,14 @@ if (digfilterflag&1){
 	//	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%64;
 	//	VILLAGEFILT=EFFECTFILTER&3;
 	VILLAGEFILT=(EFFECTFILTER&48)>>4;	
+	VILLAGEFILT=0; // TESTY!
 
 	if (VILLAGEFILT==2){// move out of loop AUG
 	    tmpp=village_effects[vilf/2];
 	  }
 	  else tmpp=EFFECTFILTER&15;
+
+	///	tmpp=0;// TESTY!
 
       	for (x=0;x<sz/2;x++){ 
  	  switch(tmpp){ 
@@ -1331,9 +1362,10 @@ if (digfilterflag&1){
 	  *(ldst++)=tmp32;
 	  break;
 	  case 13:
-	    fsum=(*ldst) & *(rdst++);
-	  tmp32=fsum;
-	  *(ldst++)=tmp32;
+	    //	    fsum=(*ldst) & *(rdst++);
+	    //	    tmp32=fsum;
+	    *(ldst++)=(*ldst) & *(rdst++);
+	    //	    *(ldst++)=(*ldst);
 	  break;
 	  case 14:
 	    fsum=(float32_t)(*ldst) * morph_inv + (float32_t)(*(rdst++)) * FMODF;
@@ -1344,9 +1376,10 @@ if (digfilterflag&1){
 	  *(ldst++)=tmp32;
 	  break;
 	  case 15:
-	  tmp32=audio_buffer[sampleposfilt%32768]| *ldst;
-	  *(ldst++)=tmp32;
-	  rdst++;
+	    ldst++; 	    // AUG -ldst left as it is
+	    //	  tmp32=audio_buffer[sampleposfilt%32768]| *ldst;
+	    //	  *(ldst++)=tmp32;
+	    rdst++;
 	  break;
 	  }
 	  ///	  HERE////////////////////////--->>>>
@@ -1418,7 +1451,7 @@ if (digfilterflag&1){
 
 #endif // for LACH
 
- audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
     for (x=0;x<sz/2;x++){
