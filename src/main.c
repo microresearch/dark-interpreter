@@ -270,7 +270,7 @@ u8 fingerdirupdown(void){
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 coo,x,addr,tmp=0,tmphw=0,tmphardware; u8 HARDWARE=0;
+  u16 hwalksel,coo,x,addr,tmp=0,tmphw=0,tmphardware; u8 HARDWARE=0;
   u8 del=0,machine_count=0,tmpacht=0,villagerdest,spd; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
@@ -512,38 +512,43 @@ cpuattached=malloc(64);//[64];
   // CPUintrev3:
   for (x=0; x<64; x++) // was 100
     {
-      addr=randi()<<3;
-      cpustackpush(m,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24); // was <<3
+      addr=rand()%65536; // AUG!
+      //      addr=randi()<<3;
+      cpustackpush(m,addr,rand()%65536,rand()%CPU_TOTAL,rand()%24); // was <<3 RAND AUG
     }
 
   //pureleak
 
   for (x=0;x<100;x++){
-    addr=randi()<<3;
-    cpustackpushhh(datagenbuffer,addr,randi()<<4,randi()%CPU_TOTAL,randi()%24);// was <<3
+      addr=rand()%65536; // AUG!
+      //    addr=randi()<<3;
+    cpustackpushhh(datagenbuffer,addr,rand()%65536,rand()%CPU_TOTAL,rand()%24);// was <<3 RAND AUG
   }
 
   // CA
   for (x=0;x<(STACK_SIZE);x++){
-          start=randi()<<4;
-          wrap=randi()<<4;
-	  stack_posy=ca_pushn(stackyyy,randi()<<4,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
+    //          start=randi()<<4;
+    //          wrap=randi()<<4;
+      start=rand()%65536; // AUG!
+      wrap=rand()%65536;
+	  stack_posy=ca_pushn(stackyyy,rand()%65536,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
   }
 
 
   //simulationforstack:	
     for (x=0;x<STACK_SIZE;x++){
-      start=randi()<<4;
-      wrap=randi()<<4;
-      //      start=rand()%65536;
-      //      wrap=rand()%65536;
-      stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
+      //    start=randi()<<4;
+      //      wrap=randi()<<4;
+      start=rand()%65536; // AUG!
+      wrap=rand()%65536;
+      //      stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
+      stack_pos=func_pushn(stackyy,rand()%65536,buf16,stack_pos,rand()%65536,start,wrap);//AUG!
       villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
   }
 
     // execution stack
         for (x=0;x<MAX_EXE_STACK;x++){
-	  exenums=exestackpush(exenums,exestack,randi()%4); //exetype=0-3 
+	  exenums=exestackpush(exenums,exestack,rand()%4); //exetype=0-3 
 			  //exenums=exestackpush(exenums,exestack,1); //exetype=0-3 TESTY!=CPU
       }
 
@@ -583,7 +588,7 @@ cpuattached=malloc(64);//[64];
       
       //      func_runall(stackyy,STACKPOS); // simulations
       
-                  for (x=0;x<exenums;x++){
+                        for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
 	  func_runall(stackyy,STACKPOS); // simulations
@@ -595,11 +600,11 @@ cpuattached=malloc(64);//[64];
 	  	  machine_run(m); //cpu
 	  break;
 	case 3:
-	  //	  machine_count++;
-	  //	  if (machine_count>=MACHINESPEED){
+	  machine_count++;
+	  if (machine_count>=MACHINESPEED){
 	    machine_runnn(datagenbuffer); // pureleak
-	    //	    machine_count=0;
-	    //	  }
+	    machine_count=0;
+	  }
 	  break;
 	case 4: // never used!
 	  break;
@@ -1566,27 +1571,44 @@ cpuattached=malloc(64);//[64];
 #ifndef LACH
       
       tmphardware=0;
-      for (x=0;x<256;x++){ // was 256
-	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now!
+      /*      for (x=0;x<256;x++){ // was 256
+	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now=32
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
-     
-  //      HARDWARE=adc_buffer[FIFTH]>>7; // 5 bits now!
+      */
+      tmphardware=adc_buffer[FIFTH];
+      hwalksel=(tmphardware>>6)&1;
+      HARDWARE=tmphardware>>7; // 5 bits now!
       //      settingsarray[42]=adc_buffer[FIFTH]<<4; // TESTY HWSPEED!
 
             
-      /// general HW walk in/as tmp
+      /// HW as attached/settings or as walkers - AUG
+
+      if (hwalksel){
+	set40106pwm(F0106ERCONS);
+
+      if (digfilterflag&4){
+	setlmmmpwm(LMERCONS);
+      }
+
+      if (digfilterflag&8){
+	setmaximpwm(MAXIMERCONS);
+      }
+      }//hwalksel
+
+      else{
+
       if (++hwdel>=HWSPEED){
+	hwdel=0;
+
 	if (wormflag[0]) hwpos+=direction[wormdir];
 	else hwpos+=(HWSTEP*direction[HWDIR]);
 	tmphw=HWSTART+(hwpos%HWWRAP); //to cover all directions
-	hwdel=0;
-
 	tmper=((adc_buffer[THIRD]>>4)%16)<<8; // 8 bits
       //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
 	tmp=F0106ERCONS-F0106ERBASE-tmper;
 	if (tmp==0) tmp=1;
-	set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits
+	set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits - now in cons AUG AUG
 	//		set40106pwm(2048);
 
       tmp=LMERCONS-LMERBASE;
@@ -1601,11 +1623,12 @@ cpuattached=malloc(64);//[64];
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
 	if (tmp==0) tmp=1;
-	//	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS!!!
-	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
-      }
+	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
+	//		setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
 
-      }//outside HWSPEED
+      }
+      }
+      }/////
       
       if (digfilterflag&16){
 	dohardwareswitch(HARDWARE,datagenbuffer[tmphw]%HDGENERCONS);

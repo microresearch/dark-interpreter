@@ -128,7 +128,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //if (augflag) modder=24;  // TESTY!AUG
 
-  modder=26; //now test 40106 --- test for digfilterflag//TESTY!
+  //  modder=13; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:
@@ -145,8 +145,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<0) | (1<<3) | (1<<4) | (1<<5) | (1<<6);// | (1<<8);
     GPIOB->BSRRL = (1<<2) | (1<<9) | (1<<8);//
     GPIOC->BSRRL= (1<<10) | (1<<11);
-    if (clockhangflag==0) digfilterflag=40;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;// AUG
+    else digfilterflag=1;
    break;
   case 2:
    //1-straightout with filtermix-distort
@@ -155,8 +155,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<2) | (1<<9) | (1<<8) ;//
     GPIOC->BSRRH= (1<<10);
     GPIOC->BSRRL= (1<<11);
-    if (clockhangflag==0) digfilterflag=40;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
    break;
   case 3:
    //1-40106 with filtermix-no distort
@@ -165,8 +165,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRL = (1<<0) |(1<<2) | (1<<5) | (1<<8) | (1<<9);//
     GPIOC->BSRRH= (1<<11);
     GPIOC->BSRRL= (1<<10);
-    if (clockhangflag==0) digfilterflag=40;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
    break;
   case 4:
    //1-40106 with filtermix - distort
@@ -174,8 +174,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<3) | (1<<4) | (1<<6);
     GPIOB->BSRRL = (1<<0) | (1<<2) | (1<<5) | (1<<8) | (1<<9);//
     GPIOC->BSRRH= (1<<11) | (1<<10);
-    if (clockhangflag==0) digfilterflag=40;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
    break;
 
   case 5:
@@ -190,8 +190,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOB->BSRRH= (1<<2) | (1<<3) | (1<<4) | (1<<5);
     GPIOC->BSRRH= (1<<10) | (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5) | (1<<8) | (1<<9);
-    if (clockhangflag==0) digfilterflag=42;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
     break;
   case 7:
     //3-just40106 - filtermix distort
@@ -199,8 +199,8 @@ RES: feedback on/off - jackin-> - lm358in->
     GPIOC->BSRRH= (1<<11);
     GPIOB->BSRRL=(1<<0) | (1<<6) | (1<<5)  | (1<<8) | (1<<9);
     GPIOC->BSRRL= (1<<10);
-    if (clockhangflag==0) digfilterflag=42;
-    else digfilterflag=32;
+    if (clockhangflag==0) digfilterflag=9;
+    else digfilterflag=1;
     break;
     //////////////additions DONE
   case 8:
@@ -213,8 +213,8 @@ RES: feedback on/off - jackin-> - lm358in->
 	GPIOC->BSRRL=(1<<11); // out to filter
 	GPIOC->BSRRH=(1<<10);
     GPIOC->ODR|= ((hdgen&1)<<10); // bit 10 - filter distort bit
-    if (clockhangflag==0) digfilterflag=63; // flags to use hdgen
-    else digfilterflag=49;
+    if (clockhangflag==0) digfilterflag=29; // flags to use hdgen - run all
+    else digfilterflag=17;
     break;
   case 9:
     // GPIOB->0,3,4,5,6,8,9 set by hdgen and flagged so

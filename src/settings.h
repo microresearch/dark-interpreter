@@ -84,7 +84,7 @@
 #define MAXIMERCONS ((settingsarray[27]>>3)+1)//-LACH_TODO
 
 #define LMEROFFSET (settingsarray[28]>>1)//-LACH_TODO
-#define LMEROFFSETTWO (settingsarray[29]>>1)//-LACH_TODO
+#define LMEROFFSETTWO (settingsarray[29]>>1)//-LACH_TODO//AUG UNUSED
 #define F0106EROFFSET (settingsarray[30]>>1)//-LACH_TODO
 #define MAXIMEROFFSET (settingsarray[31]>>1)//-LACH_TODO
 

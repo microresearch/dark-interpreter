@@ -1,4 +1,4 @@
-#+TITLE: A Manual for The Dark Interpreter V0.3 
+#+TITLE: A Manual for The Dark Interpreter V0.4 
 #+AUTHOR: Martin Howse
 #+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
 
@@ -41,8 +41,8 @@ two pronged fangs (for head and earth use).
 The Dark Interpreter does crash infrequently, often in interesting
 responses. Simpy reboot with a quick switch on/off.
 
-The Dark Interpreter will also sometimes take over control of incoming
-samples and audio generation; attempt to regain control if desired.
+The Dark Interpreter can take over control of incoming samples and
+audio generation; attempt to regain control if desired.
 
 * The three interpreters, how they differ and can be interrogated
 
@@ -139,7 +139,7 @@ when we have a finger on any of the pads of the finger-board*).
 \noindent 3- This third knob is only used when certain parameters are
 attached or mirrored onto it by way of some of the modes. In the case
 of Tenebrarum this knob also offsets the distortion outside any mode,
-and is used to set the filter effect (when selected) in mode 1.
+and is used to set the filter/feedback effect (when selected) in mode 1.
 
 \noindent 4- This knob also controls specific settings within the 16 modes
 (*only when we have a finger on any of the pads of the finger-board*).
@@ -283,3 +283,28 @@ be probed and discovered.
 
 An BOSS style 9v power supply with +9v/positive on the outside,
 negative centre pin, and delivering a minimum of 300mA. 600mA is good.
+
+- Are there any differences between release/dated versions?
+
+The Dark Interpreter code base changes slightly over time. At
+intervals there will be special edition releases reflecting major
+changes and new approaches. 
+
+The latest (Diana) release of August 30th fixes a few very minor bugs,
+and makes a few small tweaks to the first release. The only major
+change is switchable hardware walkers for Tenebrarum and new 32k
+samplerate.
+
+- How can I re-flash the new code base/firmware?
+
+All code is freely available from:
+https://github.com/microresearch/dark-interpreter
+
+You can also ask m@1010.co.uk for the flash image if you don't want to
+compile the code. To upload the code you will need a suitable ARM
+STM32 programmer such as the stm32f4-discovery board. This should be
+correctly attached to the four bare holed socket near the top of base board
+(from left to right: 3.3V, SWCK, GND, SWDIO). Then simply (using a
+program such as stlink_flash upload the code. Any local hackerspace
+should be able to assist in this operation.
+

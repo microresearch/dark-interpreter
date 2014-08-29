@@ -346,7 +346,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// AUG NOTE: cases 8+ use leftbuffer!
 
-	if (digfilterflag&32 || digfilterflag&1){
+	if (digfilterflag&1){
 
 	  //	  VILLAGEREAD=EFFECTREAD&3
 	  VILLAGEREAD=(EFFECTREAD&48)>>4;	
@@ -559,27 +559,30 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	  }
 	  /// INSERT writeDONE - STILL DIGFILTER
+	  // 8-11 use left
 
 	ldst=left_buffer;
 	morph_inv = 1.0f - (float32_t)FMODW;
 	//	VILLAGEWRITE=EFFECTWRITE&3;
 	VILLAGEWRITE=(EFFECTWRITE&48)>>4;	
-	VILLAGEWRITE=0; // TESTY!
+	//	VILLAGEWRITE=0; // TESTY!
+
+
 	
 	if (VILLAGEWRITE==2){// moved AUG
 	    tmpp=village_effects[vilw/2];
 	  }
 	  else tmpp=EFFECTWRITE&15;
 
-	//	tmpp=15; // TESTY!
+	//	tmpp=11; // TESTY!
 
       	for (x=0;x<sz/2;x++){
 	  switch(tmpp){ 
 	  case 0:
 	  default:
 	    ldst++; //added in AUG in case of village/change during this
-	    mono_buffer[x]=audio_buffer[samplepos%32768];
-	    //	    mono_buffer[x]=0;// TESTY! buf16[samplepos%32768];
+	    	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	    //	    mono_buffer[x]=buf16[samplepos%32768]; ;// TESTY! 
 	  break;
 	  case 1:
 	    ldst++; //added in AUG in case of village/change during this
@@ -1264,7 +1267,7 @@ if (digfilterflag&1){
 	//	EFFECTFILT=(EFFECTWRITE+EFFFOFFSET)%64;
 	//	VILLAGEFILT=EFFECTFILTER&3;
 	VILLAGEFILT=(EFFECTFILTER&48)>>4;	
-	VILLAGEFILT=0; // TESTY!
+	//	VILLAGEFILT=0; // TESTY!
 
 	if (VILLAGEFILT==2){// move out of loop AUG
 	    tmpp=village_effects[vilf/2];

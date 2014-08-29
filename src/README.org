@@ -403,14 +403,16 @@ again with directions at to what to attach
 and:
 
 - 48k/32k?????- now back to 32k!
+
 - fixed LM bug in hardware.c (did this effect anything? - NO)
 - looking at 40106 range and PWM there//>>4 now so is 0->2048 range - now in CONS
 - maxim also now >>1 for range
+
 - changing speedmod >>5 for mode 15 - also changed mode 15 so is not
   >>6 which makes no sense
 - fixed bug for stack attached as was not STACKPOS/Y *4 (so not full)
 - fixed bug in case 12 would always be on left when no finger
-- re-ordering in case 4(RE_TEST)
+- re-ordering in case 4
 - fixed bug with tmpp as u8 for some cases in audio.c// now tmpw
 - vill as static is not same vill at end???DONE changed to vilr,vilw,vilf
 - removed 40106 clock unhang in hardware.c as makes no sense
@@ -420,16 +422,13 @@ and:
 - break missing in filter read code in audio.c FIXED/filter tested and maybe odd tweak...
 - changed to all CONS and BASE for HW
 - changed HWSPEED
-
-- TODO HW tunings:
-
-- test detached filter (&32), test floatings and hands
-
-
-
-
+- randis to rand in datagen inits
+- in audio.c and hardware.c now all digfilteraction is &1 for extra process of detached filter
+- extra bit on HW selects HW as walker or as attachment (and removed HW averaging)
 
 for later:
+
+// hardware no longer as walker but simply attach as cons somehow as mode???
 
 // samplerate variable on startup (8k,16k,32k,48k) knob0 TODO
 // add depth/divider for maxim in hardware options (where?) TODO
