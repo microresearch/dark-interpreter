@@ -128,7 +128,7 @@ RES: feedback on/off - jackin-> - lm358in->
 
   //if (augflag) modder=24;  // TESTY!AUG
 
-  //  modder=13; //now test 40106 --- test for digfilterflag//TESTY!
+  //  modder=0; //now test 40106 --- test for digfilterflag//TESTY!
   // now as 32 options with digfilterflag as 32 for filterfeed
   switch(modder){
   case 0:

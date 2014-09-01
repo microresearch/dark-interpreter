@@ -32,7 +32,7 @@
 
 #define FMOD ((float32_t)settingsarray[20]/65536.0f)
 #define FMODF ((float32_t)settingsarray[21]/65536.0f)
-#define FMODW ((float32_t)settingsarray[22]/65536.0f)// LEAVE ALL IN FOR LACH
+#define FMODW ((float32_t)settingsarray[22]/65536.0f)
 #define FOLDTOP (settingsarray[23]) 
 #define FOLDOFFSET (settingsarray[24]) 
 
@@ -42,7 +42,8 @@
 #define SAMPLEDIRW (settingsarray[28]>>15)
 #define VILLAGERDIR (settingsarray[29]>>15)
 #define VILLAGEWDIR (settingsarray[30]>>15)
-#define MACHINESPEED (settingsarray[31]>>9)
+
+#define ATTACHSPEED (settingsarray[31]>>8)
 
 #define THREADCOUNT (settingsarray[32]>>10) // 6 bits
 #define VILLAGESTACKPOS (((settingsarray[33]>>10)+1)*2) // 6 bits
@@ -84,7 +85,7 @@
 #define MAXIMERCONS ((settingsarray[27]>>3)+1)//-LACH_TODO
 
 #define LMEROFFSET (settingsarray[28]>>1)//-LACH_TODO
-#define LMEROFFSETTWO (settingsarray[29]>>1)//-LACH_TODO//AUG UNUSED
+#define LMEROFFSETTWO (settingsarray[29]>>1)//-LACH_TODO//AUG UNUSED=HOLE!
 #define F0106EROFFSET (settingsarray[30]>>1)//-LACH_TODO
 #define MAXIMEROFFSET (settingsarray[31]>>1)//-LACH_TODO
 
@@ -111,7 +112,7 @@
 
 #define FOLDTOP (settingsarray[49]) 
 #define FOLDOFFSET (settingsarray[50]) 
-#define MACHINESPEED (settingsarray[51]>>8)
+#define ATTACHSPEED (settingsarray[51]>>8)
 
 #define HWDIR (settingsarray[52]>>15) //-LACH_TODO
 #define DATADIRR (settingsarray[53]>>15)

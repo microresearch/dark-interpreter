@@ -136,19 +136,22 @@ intersection of these two domains.
 \noindent 2- This knob controls specific settings within the 16 modes (*only
 when we have a finger on any of the pads of the finger-board*).
 
-\noindent 3- This third knob is only used when certain parameters are
-attached or mirrored onto it by way of some of the modes. In the case
-of Tenebrarum this knob also offsets the distortion outside any mode,
-and is used to set the filter/feedback effect (when selected) in mode 1.
+\noindent 3- This third knob is primarily used when certain parameters
+are attached or mirrored onto it by way of some of the modes. In the
+case of Suspiriorum/Tenebrarum this knob also offsets the distortion
+outside any mode, and is used to set the filter/feedback effect (when
+selected) in mode 1. Other modes also make use of this knob for
+certain settings.
 
 \noindent 4- This knob also controls specific settings within the 16 modes
 (*only when we have a finger on any of the pads of the finger-board*).
 
-\noindent 5- The last knob strictly controls the hardware operations and signal
-routing, including opening up of routes, and settings to the skin (we
-call this unhanging of hardware options). Here we can set the signal
-path through analogue filters, digital filters and various
-distortions. 
+\noindent 5- The last knob strictly controls the hardware operations
+and signal routing, including opening up of routes, and settings to
+the skin (we call this unhanging of hardware options). Here we can set
+the signal path through analogue filters, digital filters and various
+distortions.  Note: With this hardware knob set hard left to zero
+there is no hardware processing of sound (as in Mater Lachrymarum).
 
 In the case of Lachrymarum (no analogue hardware), this last knob
 controls outgoing sample length.

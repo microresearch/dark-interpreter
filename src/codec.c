@@ -44,9 +44,9 @@
 const uint16_t w8731_init_data[] = 
 {
 	0x01F,			// Reg 00: Left Line In (0dB, mute off)-INCGAIN!!was 0x017/
-	0x01B,			// Reg 01: Right Line In (0dB, mute off)-INCGAIN!!was 0x017then1A/
-	0x079,			// Reg 02: Left Headphone out (0dB)
-	0x079,			// Reg 03: Right Headphone out (0dB)
+	0x01A,			// Reg 01: Right Line In (0dB, mute off)-INCGAIN!!was 0x017then1A/
+	0x000,			// Reg 02: Left Headphone out (0dB) boith was 079 now MUTE AUG!
+	0x000,			// Reg 03: Right Headphone out (0dB)
 	0x012,			// Reg 04: Analog Audio Path Control (DAC sel, Mute Mic)
 	0x000,			// Reg 05: Digital Audio Path Control
 	0x062,			// Reg 06: Power Down Control (Clkout, Osc, Mic Off)

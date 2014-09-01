@@ -271,7 +271,7 @@ void main(void)
 {
   // order that all inits and audio_init called seems to be important
   u16 hwalksel,coo,x,addr,tmp=0,tmphw=0,tmphardware; u8 HARDWARE=0;
-  u8 del=0,machine_count=0,tmpacht=0,villagerdest,spd; 
+  u8 del=0,attache=0,machine_count=0,tmpacht=0,villagerdest,spd; 
   u8 exestack[MAX_EXE_STACK];
   u16 tmper,foldy;
 
@@ -446,9 +446,11 @@ cpuattached=malloc(64);//[64];
     settingsarray[x]=0; 
   }//expand
 
-  for (x=25;x<32;x++){
+  for (x=25;x<31;x++){
     settingsarray[x]=32768;//>>15 = 1
   }//DIR and speed
+
+    settingsarray[31]=0;//attachspeed
 
   // initialise foldoffset and foldtop
   settingsarray[23]=32768;
@@ -494,7 +496,7 @@ cpuattached=malloc(64);//[64];
   // initialise foldoffset and foldtop and machinespeed
   settingsarray[49]=65535;//foldtop
   settingsarray[50]=0; //foldoffset
-  settingsarray[51]=32768;
+  settingsarray[51]=0;
 
   for (x=52;x<62;x++){
     settingsarray[x]=32768;//>>15 = 1
@@ -600,11 +602,11 @@ cpuattached=malloc(64);//[64];
 	  	  machine_run(m); //cpu
 	  break;
 	case 3:
-	  machine_count++;
-	  if (machine_count>=MACHINESPEED){
+	  //	  machine_count++;
+	  //	  if (machine_count>=MACHINESPEED){
 	    machine_runnn(datagenbuffer); // pureleak
-	    machine_count=0;
-	  }
+	    //	    machine_count=0;
+	    //	  }
 	  break;
 	case 4: // never used!
 	  break;
@@ -627,7 +629,7 @@ cpuattached=malloc(64);//[64];
 	case 1:
 	  settingsarray[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
 	  //	  printf("x %d where %d setted %d\n",x,((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768,settingsarray[x]);
-	  coo++;
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG!
 	  break;
 	case 2:
 #ifdef TENE
@@ -652,7 +654,8 @@ cpuattached=malloc(64);//[64];
 	  break;
 	case 1:
 	  stacker[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
-	  coo++;
+	  //	  coo++;
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG! 
 	  break;
 	case 2:
 #ifdef TENE
@@ -676,7 +679,8 @@ cpuattached=malloc(64);//[64];
 	  break;
 	case 1:
 	  stackery[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
-	  coo++;
+	  //	  coo++;
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG!
 	  break;
 	case 2:
 #ifdef TENE
@@ -700,7 +704,8 @@ cpuattached=malloc(64);//[64];
 	  break;
 	case 1:
 	  villager[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768];
-	  coo++; 
+	  //	  coo++; 
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG!
 	  break;
 	case 2:
 #ifdef TENE
@@ -724,7 +729,8 @@ cpuattached=malloc(64);//[64];
 	  break;
 	case 1:
 	  village_effects[x]=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768]>>12;//4 bits
-	  coo++; 
+	  //	  coo++; 
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG!
 	  break;
 	case 2:
 #ifdef TENE
@@ -748,7 +754,8 @@ cpuattached=malloc(64);//[64];
 	  break;
 	case 1:
 	  m->m_threads[x].m_CPU=buf16[((FOLDOFFSET>>1)+(coo%((FOLDTOP>>1)+1)))%32768]>>11;
-	  coo++;
+	  //	  coo++;
+	  if (attache++ > ATTACHSPEED) { coo++; attache=0;} // AUG!
 	  break;
 	case 2:
 #ifdef TENE
@@ -769,7 +776,7 @@ cpuattached=malloc(64);//[64];
       //MODECODE      /////////////////////////////////////
 
       mainmode=adc_buffer[FIRST]>>8; // 4 bits=16
-      //      mainmode=7; // TESTY!
+      //      mainmode=0; // TESTY!
       //////
       switch(mainmode){
 #ifdef LACH 
@@ -786,6 +793,7 @@ cpuattached=malloc(64);//[64];
 #else
       case 0: // up/down/left/right as INPUT
 	xx=fingerdir(&spd);
+	//	xx=5;// TESTY!
 	if (xx!=5) {
 	  inp=xx;
 	  EFFECTWRITE=adc_buffer[FOURTH]>>6;
@@ -970,18 +978,36 @@ cpuattached=malloc(64);//[64];
 	  settingsarrayattached[18]=0;
 	  settingsarrayattached[15]=0;
 	}
-	else if (xx==3){ // LEFT=village_r= start/wrap/step
+	else if (xx==3){ // LEFT=village_r= start/wrap/step - AUG - anyread
 	  settingsarray[5]=tmp;
 	  settingsarray[11]=tmper;
 	  settingsarray[16]=spd<<10;
+
+	  settingsarray[3]=tmp;
+	  settingsarray[8]=tmper;
+	  settingsarray[12]=spd<<10;
+
+	  settingsarrayattached[3]=0;
+	  settingsarrayattached[8]=0;
+	  settingsarrayattached[12]=0;
+
 	  settingsarrayattached[5]=0;
 	  settingsarrayattached[11]=0;
 	  settingsarrayattached[16]=0;
 	}
-	else { // RIGHT=village_w= start/wrap/step
+	else { // RIGHT=village_w= start/wrap/step - AUG - anywrite
 	  settingsarray[4]=tmp;
 	  settingsarray[10]=tmper;
 	  settingsarray[17]=spd<<10;
+
+	  settingsarray[2]=tmp;
+	  settingsarray[9]=tmper;
+	  settingsarray[13]=spd<<10;
+
+	  settingsarrayattached[2]=0;
+	  settingsarrayattached[9]=0;
+	  settingsarrayattached[13]=0;
+
 	  settingsarrayattached[4]=0;
 	  settingsarrayattached[10]=0;
 	  settingsarrayattached[17]=0;
@@ -1008,18 +1034,34 @@ cpuattached=malloc(64);//[64];
 	  settingsarrayattached[37]=0;
 	}
 
-	else if (xx==3){ // LEFT=village_r= start/wrap/step
+	else if (xx==3){ // LEFT=village_r= start/wrap/step// AUG also anystepread
 	  settingsarray[8]=tmp;
 	  settingsarray[22]=tmper;
 	  settingsarray[39]=spd<<10;
+
+	  settingsarray[5]=tmp;
+	  settingsarray[18]=tmper;
+	  settingsarray[33]=spd<<10;
+
+	  settingsarrayattached[5]=0;
+	  settingsarrayattached[18]=0;
+	  settingsarrayattached[33]=0;
 	  settingsarrayattached[8]=0;
 	  settingsarrayattached[22]=0;
 	  settingsarrayattached[39]=0;
 	}
-	else { // RIGHT=village_w= start/wrap/step
+	else { // RIGHT=village_w= start/wrap/step // AUG also anystepwrite
 	  settingsarray[7]=tmp; //7,21,40
 	  settingsarray[21]=tmper;
 	  settingsarray[40]=spd<<10; //16 bits
+
+	  settingsarray[4]=tmp; //7,21,40
+	  settingsarray[19]=tmper;
+	  settingsarray[34]=spd<<10; //16 bits
+
+	  settingsarrayattached[4]=0;
+	  settingsarrayattached[19]=0;
+	  settingsarrayattached[34]=0;
 	  settingsarrayattached[7]=0;
 	  settingsarrayattached[21]=0;
 	  settingsarrayattached[40]=0;
@@ -1037,28 +1079,44 @@ cpuattached=malloc(64);//[64];
 	tmp=adc_buffer[SECOND]<<4;
 	tmper=adc_buffer[FOURTH]<<4;
 	if (xx==0){
-	  settingsarray[2]=tmp;
+	  settingsarray[2]=tmp; // anystart and anystartread - AUG villages starts
 	  settingsarray[3]=tmper;
+	  settingsarray[4]=tmp; // anystart and anystartread - AUG villages starts
+	  settingsarray[5]=tmper;
+
 	  settingsarrayattached[2]=0;
 	  settingsarrayattached[3]=0;
+	  settingsarrayattached[4]=0;
+	  settingsarrayattached[5]=0;
 	}
 	else if (xx==1){
-	  settingsarray[8]=tmp;
+	  settingsarray[8]=tmp; // anywrap and anywrapread - AUG villages wraps
 	  settingsarray[9]=tmper;
+	  settingsarray[10]=tmp; // anywrap and anywrapread - AUG villages wraps
+	  settingsarray[11]=tmper;
 	  settingsarrayattached[8]=0;
 	  settingsarrayattached[9]=0;
+	  settingsarrayattached[10]=0;
+	  settingsarrayattached[11]=0;
 	}
-	else if (xx==2){
+	else if (xx==2){ //AUG villagesteps
 	  settingsarray[12]=tmp;
 	  settingsarray[13]=tmper;
-	  settingsarrayattached[12]=0;
-	  settingsarrayattached[13]=0;
-	}
-	else {
 	  settingsarray[16]=tmp;
 	  settingsarray[17]=tmper;
-	  settingsarrayattached[16]=0;
+
+	  settingsarrayattached[12]=0;// anystep and anystepread
+	  settingsarrayattached[13]=0;
+	  settingsarrayattached[16]=0;// anystep and anystepread
 	  settingsarrayattached[17]=0;
+
+	}
+	else {
+	  settingsarray[23]=tmp; // villager but this should be another set of settings *2-FOLD=AUG
+	  settingsarray[24]=tmper;
+
+	  settingsarrayattached[23]=0;
+	  settingsarrayattached[24]=0;
 	}
 	}
 #else
@@ -1066,36 +1124,43 @@ cpuattached=malloc(64);//[64];
 	tmp=adc_buffer[SECOND]<<4;
 	tmper=adc_buffer[FOURTH]<<4;
 	if (xx!=5){
-	if (xx==0){ // UP=generic HW start/wrap/hdgenercons
+	if (xx==0){ // UP=generic HW start/wrap/hdgenercons/speed
 	  settingsarray[0]=tmp;
 	  settingsarray[14]=tmper;
-	  settingsarray[24]=spd<<10;
+	  settingsarray[24]=adc_buffer[THIRD]<<4;
+	  settingsarray[42]=spd<<10;
 	  settingsarrayattached[0]=0;
 	  settingsarrayattached[14]=0;
 	  settingsarrayattached[24]=0;
+	  settingsarrayattached[42]=0;
 	}
-	else 	if (xx==2){ //DOWN=lmer1AND2---offset/cons/base 
+	else 	if (xx==2){ //DOWN---offset/cons/base 
 	  settingsarray[28]=tmp;
 	  settingsarray[29]=adc_buffer[THIRD]<<4;
 	  settingsarray[25]=tmper;
-	  settingsarray[10]=spd<<12;
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
 	  settingsarrayattached[28]=0;
 	  settingsarrayattached[29]=0;
 	  settingsarrayattached[25]=0;
-	  settingsarrayattached[10]=0;
+	  //	  settingsarrayattached[10]=0;
 	}
 	else 	if (xx==3){ //LEFT=1016er-offset/cons/base
 	  settingsarray[30]=tmp;
+	  settingsarray[12]=adc_buffer[THIRD]<<4;
 	  settingsarray[26]=tmper;
-	  settingsarray[12]=spd<<11;
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
 	  settingsarrayattached[30]=0;
 	  settingsarrayattached[26]=0;
 	  settingsarrayattached[12]=0;
 	}
 	else { //RIGHT=maximer
 	  settingsarray[31]=tmp; //offset
-	  settingsarray[27]=tmper; //cons
-	  settingsarray[13]=spd<<12; //base
+	  settingsarray[27]=adc_buffer[THIRD]<<4; //cons
+	  settingsarray[13]=tmper; //base
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
 	  settingsarrayattached[31]=0;
 	  settingsarrayattached[27]=0;
 	  settingsarrayattached[13]=0;
@@ -1109,7 +1174,7 @@ cpuattached=malloc(64);//[64];
 	xx=fingerdir(&spd);
 	if (xx!=5) {
 	  if (xx==0) {//UP
-	    m->m_threads[THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
+	    m->m_threads[(adc_buffer[THIRD]>>6)%THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
 	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[THREADERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
@@ -1117,14 +1182,14 @@ cpuattached=malloc(64);//[64];
 	}
 	  else if (xx==1) //RIGHT=CA
 	  {
-	    stackery[(STACKPOSY*4)+3]=(spd%11)<<12; //type AUG <<12 must be there
+	    stackery[(((adc_buffer[THIRD]>>6)%STACKPOSY)*4)+3]=(spd%11)<<12; //type AUG <<12 must be there
 	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
 	    settingsarrayattached[POSYERR]=0;
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	    settingsarrayattached[VILLAGERR]=0;
 	  }
 	  else if (xx==2) {//DOWN
-	    stacker[(STACKPOS*4)+3]=(spd%34)<<10;  //type AUG <<10 must be there
+	    stacker[(((adc_buffer[THIRD]>>6)%STACKPOS)*4)+3]=(spd%34)<<10;  //type AUG <<10 must be there
 	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[POSERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
@@ -1152,6 +1217,15 @@ cpuattached=malloc(64);//[64];
 	  settingsarray[3]=tmp;//anystartread
 	  settingsarray[8]=tmper;//wrap
 	  settingsarray[12]=spd<<10;//step
+
+	  settingsarray[5]=tmp;//anystartread AUG DOUBLE VILLAGERS
+	  settingsarray[11]=tmper;//wrap
+	  settingsarray[16]=spd<<10;//step
+
+	  settingsarrayattached[5]=0;
+	  settingsarrayattached[11]=0;
+	  settingsarrayattached[16]=0;
+
 	  settingsarrayattached[3]=0;
 	  settingsarrayattached[8]=0;
 	  settingsarrayattached[12]=0;
@@ -1160,53 +1234,74 @@ cpuattached=malloc(64);//[64];
 	  settingsarray[2]=tmp;//write
 	  settingsarray[9]=tmper;
 	  settingsarray[13]=spd<<10;
+
+	  settingsarray[4]=tmp;//write AUG DOUBLE VILLAGERS
+	  settingsarray[10]=tmper;
+	  settingsarray[17]=spd<<10;
+
+	  settingsarrayattached[4]=0;
+	  settingsarrayattached[10]=0;
+	  settingsarrayattached[17]=0;
 	  settingsarrayattached[2]=0;
 	  settingsarrayattached[9]=0;
 	  settingsarrayattached[13]=0;
 	}
 	//#define FOLDTOP (settingsarray[23]) 
 	//#define FOLDOFFSET (settingsarray[24]) 
-	else {
-	  settingsarray[23]=tmp;
+	else { 	  //left and right
+	  settingsarray[23]=tmp; //AUG
 	  settingsarray[24]=tmper;
+	  settingsarray[31]=spd<<10;
 	  settingsarrayattached[23]=0;
 	  settingsarrayattached[24]=0;
+	  settingsarrayattached[31]=0;
 	}
 	}
-	// one setting missing 
 #else
-	if (xx!=5){
+	//HW start and wrap
 	tmp=adc_buffer[SECOND]<<4;
 	tmper=adc_buffer[FOURTH]<<4;
-	if (xx==0){ // UP
-	  settingsarray[5]=tmp;//anystartwrite
-	  settingsarray[19]=tmper;//wrap
-	  settingsarray[33]=spd<<10;//step
-	  settingsarrayattached[5]=0;
-	  settingsarrayattached[19]=0;
-	  settingsarrayattached[33]=0;
+	if (xx!=5){
+	if (xx==0){ // UP=generic HW start/wrap/hdgenercons/speed
+	  settingsarray[0]=tmp;
+	  settingsarray[14]=tmper;
+	  settingsarray[24]=adc_buffer[THIRD]<<4;
+	  settingsarray[42]=spd<<10;
+	  settingsarrayattached[0]=0;
+	  settingsarrayattached[14]=0;
+	  settingsarrayattached[24]=0;
+	  settingsarrayattached[42]=0;
 	}
-	else 	if (xx==2){ //DOWN
-	  settingsarray[4]=tmp;//read
-	  settingsarray[18]=tmper;
-	  settingsarray[34]=spd<<10;
-	  settingsarrayattached[4]=0;
-	  settingsarrayattached[18]=0;
-	  settingsarrayattached[34]=0;
+	else 	if (xx==2){ //DOWN---offset/cons/base 
+	  settingsarray[28]=tmp;
+	  settingsarray[29]=adc_buffer[THIRD]<<4;
+	  settingsarray[25]=tmper;
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
+	  settingsarrayattached[28]=0;
+	  settingsarrayattached[29]=0;
+	  settingsarrayattached[25]=0;
+	  //	  settingsarrayattached[10]=0;
 	}
-	else 	if (xx==1){ //RIGHT-filt
-	  settingsarray[6]=tmp;
-	  settingsarray[20]=tmper;
-	  settingsarray[35]=spd<<10;
-	  settingsarrayattached[6]=0;
-	  settingsarrayattached[20]=0;
-	  settingsarrayattached[35]=0;
+	else 	if (xx==3){ //LEFT=1016er-offset/cons/base
+	  settingsarray[30]=tmp;
+	  settingsarray[12]=adc_buffer[THIRD]<<4;
+	  settingsarray[26]=tmper;
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
+	  settingsarrayattached[30]=0;
+	  settingsarrayattached[26]=0;
+	  settingsarrayattached[12]=0;
 	}
-	else{//is=folderSETTTINGS
-	  settingsarray[49]=tmp;
-	  settingsarray[50]=tmper;
-	  settingsarrayattached[49]=0;
-	  settingsarrayattached[50]=0;
+	else { //RIGHT=maximer
+	  settingsarray[31]=tmp; //offset
+	  settingsarray[27]=adc_buffer[THIRD]<<4; //cons
+	  settingsarray[13]=tmper; //base
+	  settingsarray[42]=spd<<12; 
+	  settingsarrayattached[42]=0;
+	  settingsarrayattached[31]=0;
+	  settingsarrayattached[27]=0;
+	  settingsarrayattached[13]=0;
 	}
 	}
 #endif
@@ -1570,8 +1665,8 @@ cpuattached=malloc(64);//[64];
 
 #ifndef LACH
       
-      tmphardware=0;
-      /*      for (x=0;x<256;x++){ // was 256
+      /* tmphardware=0;
+           for (x=0;x<256;x++){ // was 256
 	tmphardware+=adc_buffer[FIFTH]>>7; // 5 bits now=32
       }
       HARDWARE=tmphardware>>8; //was >>8 to divide average
@@ -1584,8 +1679,10 @@ cpuattached=malloc(64);//[64];
             
       /// HW as attached/settings or as walkers - AUG
 
+
       if (hwalksel){
 	set40106pwm(F0106ERCONS);
+	//set40106pwm(0); // TESTY!
 
       if (digfilterflag&4){
 	setlmmmpwm(LMERCONS);
@@ -1609,7 +1706,7 @@ cpuattached=malloc(64);//[64];
 	tmp=F0106ERCONS-F0106ERBASE-tmper;
 	if (tmp==0) tmp=1;
 	set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits - now in cons AUG AUG
-	//		set40106pwm(2048);
+	//	set40106pwm(0); // TESTY!
 
       tmp=LMERCONS-LMERBASE;
 	if (tmp==0) tmp=1;
@@ -1623,8 +1720,9 @@ cpuattached=malloc(64);//[64];
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
 	if (tmp==0) tmp=1;
-	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
-	//		setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
+	//	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
+	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
+	//	setmaximpwm(255);//TESTY!=14 bits
 
       }
       }
