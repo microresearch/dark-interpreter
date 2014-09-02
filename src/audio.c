@@ -180,8 +180,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 1:
 	  src++;
-	  buf16[sampleposread%32768]=(*src)+32768;
-	  audio_buffer[sampleposread%32768]=*(src++);
+	  //	  buf16[sampleposread%32768]=(*src)+32768;
+	  fsum=(float32_t)*(src++) * morph_inv;
+	  tmp32=fsum;
+	  audio_buffer[sampleposread%32768]=tmp32;
+	  //	  audio_buffer[sampleposread%32768]=*(src++);
 	  break;
 	  case 2:
 	  src++;
@@ -581,7 +584,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 0:
 	  default:
 	    ldst++; //added in AUG in case of village/change during this
-	    	    mono_buffer[x]=audio_buffer[samplepos%32768];
+	    mono_buffer[x]=audio_buffer[samplepos%32768];
 	    //	    mono_buffer[x]=buf16[samplepos%32768]; ;// TESTY! 
 	  break;
 	  case 1:
@@ -770,8 +773,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 1:
 	    src++;
-	    buf16[sampleposread%32768]=(*src)+32768;
-	    audio_buffer[sampleposread%32768]=*(src++);
+	    //	    buf16[sampleposread%32768]=(*src)+32768;
+	    //	    audio_buffer[sampleposread%32768]=*(src++);
+	    fsum=(float32_t)*(src++) * morph_inv;
+	  tmp32=fsum;
+	  audio_buffer[sampleposread%32768]=tmp32;
 	  break;	    
 	  case 2:
 	  src++;
@@ -1457,9 +1463,9 @@ if (digfilterflag&1){
 audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
-    for (x=0;x<sz/2;x++){
-         printf("%c",mono_buffer[x]);
- 	   }
+//    for (x=0;x<sz/2;x++){
+//         printf("%c",mono_buffer[x]);
+// 	   }
 #endif
 
 #endif // for test eeg

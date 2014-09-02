@@ -72,7 +72,7 @@ void set40106pwm(u16 one){
 void setmaximpwm(u16 one){
 }
 
-void setlmpwm(u16 one, u16 two){
+void setlmmmpwm(u16 one){
 }
 
 #else
@@ -1174,7 +1174,12 @@ cpuattached=malloc(64);//[64];
 	xx=fingerdir(&spd);
 	if (xx!=5) {
 	  if (xx==0) {//UP
+	    if (THREADCOUNT>0){
+
 	    m->m_threads[(adc_buffer[THIRD]>>6)%THREADCOUNT].m_CPU=spd%31; // AUG - re-arranged so set first
+	    }
+	    else m->m_threads[0].m_CPU=spd%31;
+
 	  settingsarray[THREADERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[THREADERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
@@ -1182,14 +1187,20 @@ cpuattached=malloc(64);//[64];
 	}
 	  else if (xx==1) //RIGHT=CA
 	  {
+	    if (STACKPOSY>0){
 	    stackery[(((adc_buffer[THIRD]>>6)%STACKPOSY)*4)+3]=(spd%11)<<12; //type AUG <<12 must be there
+	    }
+	    else stackery[0]=(spd%11)<<12; //type AUG <<12 must be there
 	    settingsarray[POSYERR]=adc_buffer[SECOND]<<4;
 	    settingsarrayattached[POSYERR]=0;
 	    settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
 	    settingsarrayattached[VILLAGERR]=0;
 	  }
 	  else if (xx==2) {//DOWN
+	    if (STACKPOS>0){
 	    stacker[(((adc_buffer[THIRD]>>6)%STACKPOS)*4)+3]=(spd%34)<<10;  //type AUG <<10 must be there
+	    }
+	    else stacker[0]=(spd%11)<<12; //type AUG <<12 must be there
 	  settingsarray[POSERR]=adc_buffer[SECOND]<<4;
 	  settingsarrayattached[POSERR]=0;
 	  settingsarray[VILLAGERR]=adc_buffer[FOURTH]<<4;
