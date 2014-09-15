@@ -395,6 +395,11 @@ again with directions at to what to attach
 
 763(no in),767/777(mixer noinput)
 
+
+* MON 15 SEPT
+
+towers branch forked
+
 * MON 18 AUGUST+notes/re-appraisal
 
 - post-release re-appraising (older code is in gitaugclone)
