@@ -395,6 +395,18 @@ again with directions at to what to attach
 
 763(no in),767/777(mixer noinput)
 
+
+* MON 22 SEPT 
+
+- starting work on towers branch=
+
+- HW moved to audio.c
+- main.c and audio.c stripped out for new model...
+
+TODO:
+
+- write out new model
+
 * MON 18 AUGUST+notes/re-appraisal
 
 - post-release re-appraising (older code is in gitaugclone)
