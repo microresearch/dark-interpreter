@@ -396,6 +396,69 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
+* THU 25 SEPT
+
+TO TEST: fast HW shifts in audio.c (how could be faster than audio chunk?)
+
+///
+
+key question how vocoding/formants become part of D.I aesthetic/world...
+
+16 channel vocoder also as /root/Downloads/vocoder-ladspa-0.3.tgz
+
+vocoder: so we have possible phase vocoder, 16 channel bandpass/formant (simple
+enough- ladspa or vst-mda version), FFT based (spectral swops -
+SCcode, borsboom) - latency and question of buffer/window size...
+
+vocoder: buf16 to incoming/left/right/filter out, villager to villager
+(how also to swop re-configure channels)
+
+formant: filter signals - (SC=formant, BBandpass?, formlet? where?), biquad (single formant)
+
+SC: http://sccode.org/1-4Vk and
+http://www.sussex.ac.uk/Users/nc81/modules/cm1/scfiles/12.2%20Singing%20Voice%20Synthesis.html
+
+CLM: https://ccrma.stanford.edu/software/snd/snd/clm.html#formant
+
+formant frequency/vowel table (vowels announced from buf16 as text->vowels) 
+
+former vocoder notes below:
+
+** darkint v002
+
+vocoder and/or formants and what is crossover (formants as for speech synth also)
+
+in vocoder we follow incoming signal mix/vocode with carrier
+
+in formant we process/filter signal to make speech let's say
+
+of interest:
+
+phase vocoder:   /root/latestresearch/sc3-plugins-src-2012-05-26/source/JoshUGens:
+
+zerius vocoder: https://github.com/borsboom/vocoder
+
+mda: http://sourceforge.net/p/mda-vst/code/HEAD/tree/src/mdaVocoder.cpp
+
+formants: formlets in supercollider
+
+simulation of VOSIM in sc3-plugins, formant ugens: http://gurzil.livejournal.com/15375.html
+
+see also PV_SpectralMap in sc3-plugins
+
+note: channel vocoders (bandpass = formant in SC)
+
+- vocoder/formant processing of a signal (bandpass or FFT?)
+
+- generation of phonemes (based on code in buf16) - what approaches there are? as above!
+
+speechgen: TTS, approaches -> back to formant
+
+vocoder: supercollider, ladspa plugin, see links
+
+also: http://www.kvraudio.com/forum/viewtopic.php?t=299932
+
+
 * MON 22 SEPT 
 
 - starting work on towers branch=
