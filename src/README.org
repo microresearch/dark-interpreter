@@ -441,12 +441,19 @@ http://edb-journey.blogspot.de/2013/08/debugging-fpu-registers-vfp-in-gdb.html
 
 http://www.chemie.fu-berlin.de/chemnet/use/info/gdb/gdb_9.html
 
+** DSPlib
+
+built ~/CMSIS/CMSIS/Lib/libdsplib_lm4f.a
+
+following: http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
+
+to TEST!
 
 * THU 25 SEPT
 
 TO TEST: fast HW shifts in audio.c (how could be faster than audio chunk?)
 
---- set up of DSPlib (CMSIS):
+--- set up of DSPlib (CMSIS) with examples/test!
 
 http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
 
@@ -454,7 +461,7 @@ https://github.com/mikeferguson/stm32/blob/master/libraries/CMSIS/Makefile
 
 see also: /root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/
 
---- debugging attach
+--- debugging attach: DONE!
 
 see also: https://github.com/mikeferguson/stm32
 
