@@ -396,9 +396,53 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
+* GDB DEBUG
+
+GDB debug with st-link (rather than JTAG):
+
+: PATH=~/sat/bin:$PATH
+
+: st-util 
+
+in one terminal
+
+: arm-none-eabi-gdb main.elf 
+
+followed by command in gdb to connect
+
+: tar extended-remote :4242 
+
+NEXT - how set/delete break points, show data from code, test FPU,
+
+1- breakpoints
+
+: break sinf
+: delete 1
+
+delete break
+
+: cont
+
+(for continue)
+
+2- FPU
+
+: show arm fpu
+
+VFP = vector floating point
+
+3- code data/print variable (what do we want to print?)
+
+** Refs:
+
+http://edb-journey.blogspot.de/2013/08/debugging-fpu-registers-vfp-in-gdb.html
+
 * MON 15 SEPT
 
 towers branch forked
+
+: git checkout master
+: git checkout towers
 
 * MON 18 AUGUST+notes/re-appraisal
 
