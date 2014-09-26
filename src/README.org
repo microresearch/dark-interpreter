@@ -396,19 +396,87 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
+* FRI 26 SEPT
+
+GDB debug with st-link (rather than JTAG):
+
+: PATH=~/sat/bin:$PATH
+
+: st-util 
+
+in one terminal
+
+: arm-none-eabi-gdb main.elf 
+
+followed by command in gdb to connect
+
+: tar extended-remote :4242 
+
+NEXT - how set/delete break points, show data from code, test FPU,
+
+1- breakpoints
+
+: break sinf
+: delete 1
+
+delete break
+
+: cont
+
+(for continue)
+
+2- FPU
+
+: show arm fpu
+
+VFP = vector floating point
+
+3- code data/print variable (what do we want to print?)
+
+** Refs:
+
+http://edb-journey.blogspot.de/2013/08/debugging-fpu-registers-vfp-in-gdb.html
+
+
+
 * THU 25 SEPT
 
 TO TEST: fast HW shifts in audio.c (how could be faster than audio chunk?)
 
-///
+--- set up of DSPlib (CMSIS):
+
+http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
+
+https://github.com/mikeferguson/stm32/blob/master/libraries/CMSIS/Makefile
+
+see also: /root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/
+
+--- debugging attach
+
+see also: https://github.com/mikeferguson/stm32
+
+///----
 
 key question how vocoding/formants become part of D.I aesthetic/world...
+
+formant and vocoder as _also_ datagen process (past)
+
+generic digital filter somehow recoded/recoding itself
 
 16 channel vocoder also as /root/Downloads/vocoder-ladspa-0.3.tgz
 
 vocoder: so we have possible phase vocoder, 16 channel bandpass/formant (simple
 enough- ladspa or vst-mda version), FFT based (spectral swops -
-SCcode, borsboom) - latency and question of buffer/window size...
+SCcode=PV_SpectralMap, borsboom, snokoder) - latency and question of buffer/window size...
+
+
+SC also?: https://github.com/supercollider/sc3-plugins/blob/master/source/JoshUGens/sc/classes/Vocoder.sc
+
+FFT on ARM: http://coactionos.com/embedded%20design%20tips/2013/10/13/Tips-FFT-on-the-ARM-Cortex-M3/
+
+and:
+
+http://e2e.ti.com/support/microcontrollers/stellaris_arm/f/471/t/44034.aspx?pi171693=2
 
 vocoder: buf16 to incoming/left/right/filter out, villager to villager
 (how also to swop re-configure channels)
@@ -420,7 +488,11 @@ http://www.sussex.ac.uk/Users/nc81/modules/cm1/scfiles/12.2%20Singing%20Voice%20
 
 CLM: https://ccrma.stanford.edu/software/snd/snd/clm.html#formant
 
+biquad: http://www.musicdsp.org/showone.php?id=64
+
 formant frequency/vowel table (vowels announced from buf16 as text->vowels) 
+
+TTS?, other speech synth?
 
 former vocoder notes below:
 
