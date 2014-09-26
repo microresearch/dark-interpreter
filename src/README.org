@@ -398,6 +398,8 @@ again with directions at to what to attach
 
 * GDB DEBUG
 
+note added -ggdb to makefile
+
 GDB debug with st-link (rather than JTAG):
 
 : PATH=~/sat/bin:$PATH
