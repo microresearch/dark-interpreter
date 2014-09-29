@@ -396,6 +396,30 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
+* MON 29 SEPT
+
+DPS-Lib to TEST - vocode.c
+
+All seems fine in Makefile but mismatch with:
+
+error: main.elf uses VFP register arguments,
+ /root/CMSIS/CMSIS/Lib/libdsplib_lm4f.a(arm_const_structs.o) does not
+
+- fixed with changes to CMSIS Makefile.inc:
+
+: -mfloat-abi=hard	\
+and
+: LD = gcc
+
+BUT still:
+
+/root/CMSIS/CMSIS/Lib/libdsplib_lm4f.a(arm_cmplx_mag_f32.o): In function `arm_sqrt_f32':
+arm_cmplx_mag_f32.c:(.text.arm_sqrt_f32+0x12): undefined reference to `sqrtf'
+/root/CMSIS/CMSIS/Lib/libdsplib_lm4f.a(arm_cfft_f32.o): In function `arm_cfft_f32':
+arm_cfft_f32.c:(.text.arm_cfft_f32+0x90): undefined reference to `arm_bitreversal_32'
+
+is problem is CMSIS lib compile or???? - and tried adding -lm
+
 * FRI 26 SEPT
 
 added -gggdb to Makefile 
@@ -447,7 +471,6 @@ built ~/CMSIS/CMSIS/Lib/libdsplib_lm4f.a
 
 following: http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
 
-to TEST!
 
 * THU 25 SEPT
 

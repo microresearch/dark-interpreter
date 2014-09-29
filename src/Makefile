@@ -12,7 +12,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
-			syscalls.o pureleak.o audio.o hardware.o \
+			syscalls.o pureleak.o audio.o hardware.o vocode.o\
 			simforstacksansmem.o CPUintrev3.o CAforstacksansmem.o
 
 # Linker script
@@ -35,8 +35,8 @@ CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
 
 AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
-LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX)
-LFLAGS_END = -lm -lc -Wl,--gc-sections,-Map=myfile.map
+LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX) -L/root/CMSIS/CMSIS/Lib
+LFLAGS_END = -lm -lc -ldsplib_lm4f -Wl,--gc-sections,-Map=myfile.map
 
 
 # Executables

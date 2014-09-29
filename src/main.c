@@ -80,6 +80,7 @@ void setlmmmpwm(u16 one){
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/unistd.h>
+
 #include "stm32f4xx.h"
 #include "codec.h"
 #include "i2s.h"
@@ -561,6 +562,9 @@ cpuattached=malloc(64);//[64];
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
 	    m->m_memory=datagenbuffer;
+
+	    // compile test
+	    testvocode();
 
   while(1)
     {
