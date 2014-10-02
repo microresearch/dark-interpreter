@@ -396,9 +396,25 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
+* FRI 3 OCT+
+
+- how to test dsplib?
+
+- phase vocoder
+- 16 channel bandpass/formant
+- FFT based (spectral swops - SCcode=PV_SpectralMap, borsboom,
+snokoder) - breakdown stages
+
+/root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/ use of lib and look at in general (text to speech)
+
+- simple formant filtering (above)
+
+
 * THU 2 OCT
 
-- fixed with:
+- FFTS for FFT (fast?)
+
+- previous problems fixed with:
 
 : LFLAGS_END = -ldsplib_lm4f -Wl,--gc-sections,-Map=myfile.map -lm -lc
 
@@ -418,7 +434,7 @@ which is defined in: arm_bitreversal2.S which maybe doesn't get linked
 
 * MON 29 SEPT++
 
-DSB-Lib to TEST - vocode.c
+DSP-Lib to TEST - vocode.c
 
 All seems fine in Makefile but mismatch with:
 
@@ -512,7 +528,7 @@ http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
 
 https://github.com/mikeferguson/stm32/blob/master/libraries/CMSIS/Makefile
 
-see also: /root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/
+see also:  /root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/
 
 --- debugging attach: DONE!
 
@@ -528,7 +544,7 @@ generic digital filter somehow recoded/recoding itself
 
 16 channel vocoder also as /root/Downloads/vocoder-ladspa-0.3.tgz
 
-vocoder: so we have possible phase vocoder, 16 channel bandpass/formant (simple
+vocoder: so we have possible: phase vocoder, 16 channel bandpass/formant (simple
 enough- ladspa or vst-mda version), FFT based (spectral swops -
 SCcode=PV_SpectralMap, borsboom, snokoder) - latency and question of buffer/window size...
 

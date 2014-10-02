@@ -3,7 +3,6 @@
 #ifndef PCSIM
 #include "arm_math.h"
 #include "arm_const_structs.h"
-#endif
 
 #define TEST_LENGTH_SAMPLES 2048
 
@@ -52,4 +51,5 @@ int32_t testvocode(void)
   //  status = arm_cfft_radix4_init_f32(&S, fftSize, ifftFlag, doBitReverse); 
 }
 
+#endif
 
