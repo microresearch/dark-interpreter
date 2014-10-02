@@ -396,9 +396,29 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
-* MON 29 SEPT
+* THU 2 OCT
 
-DPS-Lib to TEST - vocode.c
+- fixed with:
+
+: LFLAGS_END = -ldsplib_lm4f -Wl,--gc-sections,-Map=myfile.map -lm -lc
+
+-lm always at the ends, tested with older arm_cortexM4lf_math 
+
+but latest CMSIS with Makefile.inc (modified) from:
+
+http://kernelhacks.blogspot.fr/2013/01/cmsis-dsp-software-library.html
+
+still gives:
+
+arm_cfft_f32.c:(.text.arm_cfft_f32+0x94): undefined reference to `arm_bitreversal_32'
+
+which is defined in: arm_bitreversal2.S which maybe doesn't get linked
+
+- now we include arm_cortexM4lf_math from /root/CMSIS/CMSIS/Lib/GCC and all seems compile
+
+* MON 29 SEPT++
+
+DSB-Lib to TEST - vocode.c
 
 All seems fine in Makefile but mismatch with:
 
@@ -419,6 +439,16 @@ arm_cmplx_mag_f32.c:(.text.arm_sqrt_f32+0x12): undefined reference to `sqrtf'
 arm_cfft_f32.c:(.text.arm_cfft_f32+0x90): undefined reference to `arm_bitreversal_32'
 
 is problem is CMSIS lib compile or???? - and tried adding -lm
+
+// trying to match up Makefile here with Makefile.inc ...
+
+// no luck with: https://github.com/mikeferguson/stm32
+
+** clues:
+
+sqrtf in arm_math.h (note is NOT __sqrtf)
+
+// do we run with FPU - retest with HW/blink test somehow? but would say so YES!
 
 * FRI 26 SEPT
 

@@ -564,7 +564,8 @@ cpuattached=malloc(64);//[64];
 	    m->m_memory=datagenbuffer;
 
 	    // compile test
-	    testvocode();
+	    	    	    testvocode();
+	    //	    	    x=sqrtf(x);
 
   while(1)
     {

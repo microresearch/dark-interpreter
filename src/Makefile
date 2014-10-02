@@ -24,9 +24,10 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 # was -02 before below...
 
-CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
+CFLAGS  =  -I. -IInclude -I/CMSIS/FFTEX/cmsis -Iinc -std=gnu99 \
 	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
 	-mthumb -ggdb\
+	-mfpu=fpv4-sp-d16 \
 	-c -lm -lc -fno-common -O3 \
 	-mcpu=cortex-m4 \
 	-mfloat-abi=hard \
@@ -35,9 +36,14 @@ CFLAGS  =  -I. -IInclude -Iinclude -Iinc -std=gnu99 \
 
 AFLAGS  = -mlittle-endian -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard
 #LFLAGS  = -Map main.map -nostartfiles -T $(LDSCRIPT)
-LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX) -L/root/CMSIS/CMSIS/Lib
-LFLAGS_END = -lm -lc -ldsplib_lm4f -Wl,--gc-sections,-Map=myfile.map
+#LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L/root/CMSIS/FFTEX
+#LFLAGS_END = -larm_cortexM4lf_math -Wl,--gc-sections,-Map=myfile.map -lm -lc
 
+#LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16  -L$(LIB_PREFIX) 
+#LFLAGS_END = -lm -lc -Wl,--gc-sections,-Map=myfile.map
+
+LFLAGS  = -T $(LDSCRIPT) -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L/root/CMSIS/CMSIS/Lib -L/root/CMSIS/CMSIS/Lib/GCC
+LFLAGS_END = -larm_cortexM4lf_math -ldsplib_lm4f -Wl,--gc-sections,-Map=myfile.map -lm -lc
 
 # Executables
 ARCH = arm-none-eabi
