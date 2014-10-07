@@ -1,5 +1,80 @@
+  u8 del=0,attache=0,machine_count=0,tmpacht=0,villagerdest,spd; 
+
+
 // from main.c
 
+// hardware bit which was moved to audio.c
+
+#ifndef LACH
+
+      tmphardware=adc_buffer[FIFTH];
+      hwalksel=(tmphardware>>6)&1;// if we walk HW at all???
+      HARDWARE=tmphardware>>7; // 5 bits now!
+
+      /// HW as attached/settings or as walkers - AUG
+
+      if (hwalksel){
+	set40106pwm(F0106ERCONS);
+	//set40106pwm(0); // TESTY!
+
+      if (digfilterflag&4){
+	setlmmmpwm(LMERCONS);
+      }
+
+      if (digfilterflag&8){
+	setmaximpwm(MAXIMERCONS);
+      }
+      }//hwalksel
+
+      else{
+
+      if (++hwdel>=HWSPEED){
+	hwdel=0;
+
+	if (wormflag[0]) hwpos+=direction[wormdir];
+	else hwpos+=(HWSTEP*direction[HWDIR]);
+	tmphw=HWSTART+(hwpos%HWWRAP); //to cover all directions
+	tmper=((adc_buffer[THIRD]>>4)%16)<<8; // 8 bits
+      //      set40106pwm(F0106ERBASE+(buf16[(tmp+F0106EROFFSET)%32768]%F0106ERCONS)); // constrain all to base+constraint
+	tmp=F0106ERCONS-F0106ERBASE-tmper;
+	if (tmp==0) tmp=1;
+	set40106pwm(F0106ERBASE+tmper+(buf16[(tmphw+F0106EROFFSET)%32768]%tmp)); // constrain all to base+constraint - what is range? now want 0->2048 // 15 bits to 11 bits - now in cons AUG AUG
+	//	set40106pwm(0); // TESTY!
+
+      tmp=LMERCONS-LMERBASE;
+	if (tmp==0) tmp=1;
+      if (digfilterflag&4){
+	//	setlmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp),LMERBASE+(buf16[(tmphw+LMEROFFSETTWO)%32768]%tmp)); 
+	//		setlmpwm(adc_buffer[FOURTH],adc_buffer[THIRD]<<3);//TESTY!=14 bits
+
+	setlmmmpwm(LMERBASE+(buf16[(tmphw+LMEROFFSET)%32768]%tmp)); // AUGUST!
+      }
+	  
+      if (digfilterflag&8){
+	tmp=MAXIMERCONS-MAXIMERBASE;
+	if (tmp==0) tmp=1;
+	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
+	//	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
+	//	setmaximpwm(255);//TESTY!=14 bits
+
+      }
+            }
+      }/////
+      
+      if (digfilterflag&16){
+	dohardwareswitch(HARDWARE,datagenbuffer[tmphw]%HDGENERCONS);
+      }
+      else
+	{
+	  dohardwareswitch(HARDWARE,0);
+	}
+
+
+#endif //notLACH
+
+
+
+/////////
 	
 #ifdef LACH
       settingsarray[6]=adc_buffer[FIFTH]<<4; // 16 bits SAMPLEWRAP!!!

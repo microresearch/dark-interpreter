@@ -396,18 +396,104 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
-* FRI 3 OCT+
+* TUE 7 OCT
 
-- how to test dsplib?
+TODO:
+- if certain knobs are 0 then don't change values (start.wrap.effects)
+- try BUFF_LEN as 16 for better granularity (of HW)...
+- how see how much memory is left with debugger?
+- logarithmic scaling for start/wrap HOWTO?
+- wormdir functioning needs to be refined
+- question of u16 and u8 etc to map datagen to villagers (one mirror
+  is mirror all start/ends as is, other is to mirror start/ends from
+  datagen itself)
 
-- phase vocoder
-- 16 channel bandpass/formant
-- FFT based (spectral swops - SCcode=PV_SpectralMap, borsboom,
+DONE:
+- removed all villager/settingsarray refs
+- basic new RW walkers -> TODO: test audio.c
+
+* FRI 3 OCT+PLAN!
+
+- DONEhow to test dsplib? with test code from  arm_fft_bin_example_f32.c in vocode.c all works!
+
+-3-ditch settings for moment DONE
+
+-2-test HW only in audio.c now -> new HW walker prototype for each
+walker HW-40106,lmer,maximer,hdgener LATER
+
+list walkers/villagers: 
+
+walker prototype:
+1-villager number/max villagers
+2-start
+3-end
+4-effects:TO_LIST
+
+up-worm
+down-fingerasdir/speed=step
+left-backwards/speed=step
+right-forwards/speed=step
+
+///
+5-modes: TO_LIST:
+
+1-READ
+2-WRITE
+3-FILT
+
+4-HW EFFECT ITSELF (what are start/end here - as timings? but then how do overlap?)
+5-40106
+6-LM
+7-MAX
+8-HDGENER///
+9-DATAGEN
+
+- can we reduce it to 8 first modes
+
+MIRROR modes follow
+
+///
+
+----new granulation/knob scheme - sans effects// effects as:
+-1- old effects mix with datagen
+0- convolution (see example)
+1- phase vocoder/FFT - pitchscale.c???
+2- 16 channel bandpass/formant/vocoder
+3- FFT based (spectral swops/exchange - SCcode=PV_SpectralMap, borsboom,
 snokoder) - breakdown stages
+
+4- simple formant filtering (above)
+
+convolve/vocode across villagers
+
+** notes
 
 /root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/ use of lib and look at in general (text to speech)
 
-- simple formant filtering (above)
+convolution in time domain=mult in frequency
+
+generic FIR, filter, FFT somehow which code can work with???
+
+code operations on fft bins???
+
+fft bins multiplied/other ops
+
+how flows?
+
+rfft: analysis
+ifft: inverse
+
+arm_cfft_f32(&arm_cfft_sR_f32_len1024, testInput_f32_10khz, ifftFlag, doBitReverse);???
+
+ifftFlag=flag for the selection of CFFT/CIFFT
+
+data must be real/imag=complex - how convert? look back to curs?
+
+hamming window
+
+difference convolution and vocoder? pitch shift// csound...
+
+http://music.columbia.edu/pipermail/music-dsp/2000-March/037231.html
 
 
 * THU 2 OCT
@@ -430,7 +516,7 @@ arm_cfft_f32.c:(.text.arm_cfft_f32+0x94): undefined reference to `arm_bitreversa
 
 which is defined in: arm_bitreversal2.S which maybe doesn't get linked
 
-- now we include arm_cortexM4lf_math from /root/CMSIS/CMSIS/Lib/GCC and all seems compile
+- now we include arm_cortexM4lf_math from /root/CMSIS/CMSIS/Lib/GCC and all seems compile OK!
 
 * MON 29 SEPT++
 

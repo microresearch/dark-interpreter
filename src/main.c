@@ -16,27 +16,6 @@
 */
 
 #define MAX_EXE_STACK 4
-#define VILLAGE_SIZE (STACK_SIZE*2) // 128
-
-#ifdef LACH
-#define SETSIZE 36
-#define INFECTSIZE 740 
-#define SETSHIFT 11
-#define SHIFTY 7
-#define THREADERR 32
-#define VILLAGERR 33
-#define POSERR 34
-#define POSYERR 35
-#else
-#define SETSIZE 66
-#define INFECTSIZE 770 
-#define SETSHIFT 10
-#define SHIFTY 6
-#define THREADERR 62
-#define VILLAGERR 63
-#define POSERR 64
-#define POSYERR 65
-#endif
 
 #ifdef PCSIM
 #include <string.h>
@@ -55,12 +34,11 @@
 #include "simulation.h"
 #include "CPUint.h"
 #include "CA.h"
-#include "settings.h"
+//#include "settings.h"
 uint16_t *adc_buffer;
 u8 digfilterflag;
-int16_t *villager,*stacker,*stackery,*settingsarray;
+int16_t *stacker,*stackery;
 int16_t *src, *dst;
-u8 *village_effects;// [VILLAGE_SIZE/2];
 
 void  dohardwareswitch(u8 one,u8 two){
   // nothing
@@ -90,7 +68,8 @@ void setlmmmpwm(u16 one){
 #include "simulation.h"
 #include "CPUint.h"
 #include "CA.h"
-#include "settings.h"
+//#include "settings.h"
+#include "vocode.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -98,11 +77,8 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
 
-u16 villager[VILLAGE_SIZE];
-u8 village_effects[STACK_SIZE]; // is half village_size
 u16 stackery[STACK_SIZE*4]; // 64*4 MAX now
 u16 stacker[STACK_SIZE*4]; // 64*4 MAX
-u16 settingsarray[SETSIZE];
 #endif
 
 // for knobwork
@@ -183,24 +159,6 @@ u8 exestackpop(u8 exenum){
   return exenum;
   }
 
-u16 villagepush(u16 villagepos, u16 start, u16 wrap,u8 effect){
-  if (villagepos<(VILLAGE_SIZE-1)) /// size -2
-    {
-      village_effects[villagepos/2]=effect;
-      villager[villagepos++]=start;
-      villager[villagepos++]=wrap;
-}
-  return villagepos;
-}
-
-u16 villagepop(u16 villagepos){
-  if (villagepos>2)
-    {
-      villagepos-=2;
-    }
-  return villagepos;
-}
-
 u8 fingerdir(u8 *speedmod){
   u8 handleft, handright, up=0,down=0,left=0,right=0;//,upspeed=0,downspeed=0,leftspeed=0,rightspeed=0;
   u8 handupp, handdown;
@@ -222,24 +180,24 @@ u8 fingerdir(u8 *speedmod){
   if (handright>2) right++;
   } // changed from end
   if (up>4 && up>down && up>left && up>right) {
-    result=0; 
+    result=2; 
     //    *speedmod=upspeed;
-    *speedmod=adc_buffer[UP]>>5;// was >>6 for 6 bits AUG
+    *speedmod=adc_buffer[UP]>>4;// was >>6 for 6 bits AUG
   }
   else if (down>4 && down>left && down>right) {
-    result=2; 
+    result=3; 
     //*speedmod=downspeed;
-    *speedmod=adc_buffer[DOWN]>>5;
+    *speedmod=adc_buffer[DOWN]>>4;
   }
   else if (left>4 && left>right) {
-    result=3; 
+    result=0; 
     //    *speedmod=leftspeed;
-    *speedmod=adc_buffer[LEFT]>>5;
+    *speedmod=adc_buffer[LEFT]>>4;
   }
   else if (right>4) {
     result=1; 
     //*speedmod=rightspeed;
-    *speedmod=adc_buffer[RIGHT]>>5;
+    *speedmod=adc_buffer[RIGHT]>>4;
   }
   //  }
   return result;
@@ -268,34 +226,27 @@ u8 fingerdirupdown(void){
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  villagerr village_write[MAX_VILLAGERS+1];
+  villagerr village_read[MAX_VILLAGERS+1];
+  villagerr village_filt[MAX_VILLAGERS+1];
+
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 hwalksel,coo,x,addr,tmp=0,tmphw=0,tmphardware; u8 HARDWARE=0;
-  u8 del=0,attache=0,machine_count=0,tmpacht=0,villagerdest,spd; 
+  u16 x,addr;
   u8 exestack[MAX_EXE_STACK];
-  u16 tmper,foldy;
 
-u16 villagestackpos=0;
+  // we just need init first of all villagers NON?
 
-#ifdef PCSIM
-u8 *settingsarrayattached; //64
-//u8 **settingsarrayinfected; 
-//u8 settingsarrayinfected[INFECTSIZE][2];
-u8 *stackerattached; ///256
-u8 *stackeryattached;//256
-u8 *villagerattached;//[128];
-u8 *villagereffattached;//[64];
-u8 *cpuattached;//[64];
-#else
-u8 stackerattached[256];
-u8 stackeryattached[256];
-u8 villagerattached[128];
-u8 villagereffattached[64];
-u8 cpuattached[64];
-u8 settingsarrayinfected[INFECTSIZE][2];
-u8 settingsarrayattached[SETSIZE];
-#endif
+  village_write[0].start=0;
+  village_read[0].start=0;
+  village_write[0].wrap=32768;
+  village_read[0].wrap=32768;
+  village_write[0].dir=1;
+  village_read[0].dir=1;
+  village_write[0].speed_step=0;
+  village_read[0].speed_step=0;
+
 
   inittable(3,4,randi());
   const float32_t pi= 3.141592;
@@ -346,7 +297,6 @@ u8 settingsarrayattached[SETSIZE];
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
   audio_buffer=(int16_t*)malloc(32768*sizeof(int16_t));
-  settingsarray=malloc(SETSIZE*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
   stacker=malloc(4*64*sizeof(int16_t));
   stackery=malloc(4*64*sizeof(int16_t));
@@ -355,13 +305,6 @@ u8 settingsarrayattached[SETSIZE];
   srandom(time(0));
   src=malloc(BUFF_LEN*sizeof(int16_t));
   dst=malloc(BUFF_LEN*sizeof(int16_t));
-  village_effects=malloc(VILLAGE_SIZE/2);
-  settingsarrayattached=malloc(SETSIZE);
-  u8 **settingsarrayinfected = malloc(sizeof(char *)*INFECTSIZE);
-
-  for(i=0; i<INFECTSIZE; i++){
-    settingsarrayinfected[i] = malloc(2); 
-  }
 
   for (x=0;x<(BUFF_LEN);x++){
     src[x]=rand()%65536;
@@ -372,11 +315,6 @@ u8 settingsarrayattached[SETSIZE];
     audio_buffer[x]=rand()%65536;
   }
 
-  stackerattached=malloc(256); ///256
-  stackeryattached=malloc(256); ///256
-villagerattached=malloc(128);//[128];
-villagereffattached=malloc(64);//[64];
-cpuattached=malloc(64);//[64];
 #endif
 
   u16 hwdel=0;
@@ -392,11 +330,6 @@ cpuattached=malloc(64);//[64];
   u8 leakiness=randi()%255;
   u8 infection=randi()%255;
 
-  for (x=0;x<INFECTSIZE;x++){
-    if ((rand()%255) > (adc_buffer[SECOND]>>4))
-      settingsarrayinfected[x][0]=1; // infected
-    else settingsarrayinfected[x][0]=0;
-  }
 
   // fill datagenbuffer???
 
@@ -405,112 +338,6 @@ cpuattached=malloc(64);//[64];
     delayxx();
   }
 
-  for (x=0;x<SETSIZE;x++){
-    settingsarrayattached[x]=0;
-  }
-
-  for (x=0;x<256;x++){
-    stackerattached[x]=0;
-    stackeryattached[x]=0;
-  }
-
-  for (x=0;x<128;x++){
-    villagerattached[x]=0;
-  }
-
-  for (x=0;x<64;x++){
-    villagereffattached[x]=0;
-  }
-
-  //****** setup code for walkers
-#ifdef LACH
-  for (x=0;x<6;x++){
-    settingsarray[x]=0;
-  }//start
-
-  for (x=6;x<12;x++){
-    settingsarray[x]=65535;
-  }//wrap
-
-  for (x=12;x<20;x++){
-    settingsarray[x]=511; //>>8 now >>12 but we add 1 so???
-  }//step
-
-  EFFECTWRITE=0;
-  EFFECTREAD=0;
-
-  for (x=20;x<23;x++){
-    settingsarray[x]=32768;
-  }//fmods
-
-  for (x=23;x<25;x++){
-    settingsarray[x]=0; 
-  }//expand
-
-  for (x=25;x<31;x++){
-    settingsarray[x]=32768;//>>15 = 1
-  }//DIR and speed
-
-    settingsarray[31]=0;//attachspeed
-
-  // initialise foldoffset and foldtop
-  settingsarray[23]=32768;
-  settingsarray[24]=0;
-
-  // initialise exestacks
-
-  settingsarray[32]=65535;//to 63
-  settingsarray[33]=65535;
-  settingsarray[34]=65535;
-  settingsarray[35]=65535;
-
-#else
-  for (x=0;x<14;x++){
-    settingsarray[x]=0;
-  }//start
-
-  for (x=14;x<28;x++){
-    settingsarray[x]=65535;
-  }//wrap
-
-  // new hardware offsets
-  for (x=28;x<32;x++){
-    settingsarray[x]=2;
-  }
-
-  for (x=32;x<42;x++){
-    settingsarray[x]=511; //>>8
-  }//step
-
-  for (x=42;x<46;x++){
-    settingsarray[x]=511;
-  }//speed
-
-  EFFECTWRITE=0;
-  EFFECTREAD=0;
-  EFFECTFILTER=0;
-
-  for (x=46;x<49;x++){
-    settingsarray[x]=32768;
-  }//fmods
-
-  // initialise foldoffset and foldtop and machinespeed
-  settingsarray[49]=65535;//foldtop
-  settingsarray[50]=0; //foldoffset
-  settingsarray[51]=0;
-
-  for (x=52;x<62;x++){
-    settingsarray[x]=32768;//>>15 = 1
-  }//DIR
-
-  // initialise exestack positions
-
-  settingsarray[62]=65535;//to 63
-  settingsarray[63]=65535; // 128 for villagestackpos
-  settingsarray[64]=65535;
-  settingsarray[65]=65535;
-
-#endif //nolACH
 
   // CPUintrev3:
   for (x=0; x<64; x++) // was 100
@@ -546,7 +373,6 @@ cpuattached=malloc(64);//[64];
       wrap=rand()%65536;
       //      stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
       stack_pos=func_pushn(stackyy,rand()%65536,buf16,stack_pos,rand()%65536,start,wrap);//AUG!
-      villagestackpos=villagepush(villagestackpos,start,wrap,randi()%16);
   }
 
     // execution stack
@@ -555,9 +381,6 @@ cpuattached=malloc(64);//[64];
 			  //exenums=exestackpush(exenums,exestack,1); //exetype=0-3 TESTY!=CPU
       }
 
-	u8 mainmode,groupstart,groupwrap;
-	u8 xx,dirpos,groupsel,foldposy,foldpos;
-	u16 settingsposl,fingerposl;
 
 	    m->m_leakiness=leakiness;
 	    m->m_infectprob=infection;
@@ -595,7 +418,8 @@ cpuattached=malloc(64);//[64];
       
       //      func_runall(stackyy,STACKPOS); // simulations
       
-                        for (x=0;x<exenums;x++){
+      /*
+      for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
 	  func_runall(stackyy,STACKPOS); // simulations
@@ -617,6 +441,7 @@ cpuattached=malloc(64);//[64];
 	  break;
 	}
 	}
+      */
       
 #endif //eeg
 #endif //straight
