@@ -396,21 +396,66 @@ again with directions at to what to attach
 763(no in),767/777(mixer noinput)
 
 
-* TUE 7 OCT
+* WED 8 OCT
 
-TODO:
-- if certain knobs are 0 then don't change values (start.wrap.effects)
-- try BUFF_LEN as 16 for better granularity (of HW)...
-- how see how much memory is left with debugger?
-- logarithmic scaling for start/wrap HOWTO?
+further debug notes to try THU:
+
+: arm-none-eabi-gdbtui -eval-command=”target remote localhost:4242″ iotogglem0_wspl.elf
+
+and use "load" to program file
+
+* TUE/WED 7/8 OCT
+
+** TODO:
+- how to see how much memory is left- so far use:
+
+: arm-none-eabi-size main.elf
+
+which gives us:
+
+   text    data     bss     dec     hex filename
+  83904   67792    8140  159836   2705c main.elf
+
+so 67792_8140=75k out of 128k (this includes audio_buffer)
+
+- try BUFF_LEN as 16 for better granularity of HW
 - wormdir functioning needs to be refined
-- question of u16 and u8 etc to map datagen to villagers (one mirror
-  is mirror all start/ends as is, other is to mirror start/ends from
-  datagen itself)
 
-DONE:
-- removed all villager/settingsarray refs
-- basic new RW walkers -> TODO: test audio.c
+- question of u16 and u8 etc to map datagen to villagers ---> one mirror
+  is mirror all start/ends as is, other is to mirror start/ends from
+  datagen itself as in datagen generated start/ends (only)
+
+- also need make cumulative change/knob for appl. of mirrors
+
+///////
+working on different granulation/villager scheme - simultan/overlap -
+  questions are:
+- window is always same speed/width we read from and grains can be spreadout so clicky
+[some way of expanding/compressing both]
+- how do we apply per-villager effects now?
+- speedup
+- reduce max grains to 64
+
+** DONE:
+- TEST potis work (one to fix as hardware issue, otherwise top is
+  4095, lowest is 1-8 say
+- simulated walker/villagers in test.cDONE
+- removed all villager/settingsarray refsDONE
+- basic new RW walkers -> TODO: test audio.c DONE
+
+- if certain knobs are 0 then don't change values (start.wrap.effects) - set now so is >10
+- logarithmic scaling for start/wrap HOWTO? as lookup (4096 values as const)
+
+generate with: (see log_gen.py)
+
+numpy.logspace(0, 15, num=4096, endpoint=True, base=2.0)
+
+- that lookup needs to be in flash (how again we check this?
+
+in mapfile with this (when array is actually used!): 
+
+.flash          0x08000188     0x2000
+.flash         0x08000188     0x2000 audio.o
 
 * FRI 3 OCT+PLAN!
 
@@ -442,10 +487,12 @@ right-forwards/speed=step
 3-FILT
 
 4-HW EFFECT ITSELF (what are start/end here - as timings? but then how do overlap?)
-5-40106
+
+5-40106 - these all walk through datagen/buf16
 6-LM
 7-MAX
 8-HDGENER///
+
 9-DATAGEN
 
 - can we reduce it to 8 first modes
@@ -462,7 +509,7 @@ MIRROR modes follow
 3- FFT based (spectral swops/exchange - SCcode=PV_SpectralMap, borsboom,
 snokoder) - breakdown stages
 
-4- simple formant filtering (above)
+4- simple formant filtering (above)//generic filter conv.
 
 convolve/vocode across villagers
 
@@ -576,6 +623,7 @@ NEXT - how set/delete break points, show data from code, test FPU,
 
 : break sinf
 : delete 1
+: delete (=all breakpoints)
 
 delete break
 
@@ -601,8 +649,7 @@ http://www.chemie.fu-berlin.de/chemnet/use/info/gdb/gdb_9.html
 
 built ~/CMSIS/CMSIS/Lib/libdsplib_lm4f.a
 
-following: http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.html
-
+following: http://kernelhacks.blogspot.de/2013/01/cmsis-dsp-software-library.ht
 
 * THU 25 SEPT
 

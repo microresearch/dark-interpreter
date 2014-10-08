@@ -130,8 +130,8 @@ u16 *buf16;
 #ifndef PCSIM
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
-#define randi() ((rand()*adc_buffer[9])%4096) // 12 bits
-//#define randi() (adc_buffer[9]) // 12 bits
+//#define randi() ((rand()*adc_buffer[9])%4096) // 12 bits
+#define randi() (adc_buffer[9]) // 12 bits
 //#define randi() (rand()%4096)
 #else //PCSIM
 #define randi() (rand()%4096)
@@ -230,6 +230,12 @@ u8 fingerdirupdown(void){
   villagerr village_read[MAX_VILLAGERS+1];
   villagerr village_filt[MAX_VILLAGERS+1];
 
+u16 testfunction(void){
+  u16 tester=adc_buffer[FIRST];
+  return tester;
+}
+
+
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
@@ -275,15 +281,15 @@ void main(void)
 
   // maintain order
   Audio_Init();
-  Codec_Init(32000); // TODO: variable on startup
+  Codec_Init(48000); // TODO: variable on startup
   delay();
 
 #ifndef LACH
   initpwm(); 	
 #endif		
 
-  I2S_Block_Init();
-  I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
+    I2S_Block_Init();
+    I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
 #ifndef LACH
   dohardwareswitch(0,0);
@@ -382,12 +388,12 @@ void main(void)
       }
 
 
-	    m->m_leakiness=leakiness;
-	    m->m_infectprob=infection;
-	    m->m_memory=datagenbuffer;
-
+		    m->m_leakiness=leakiness;
+		    m->m_infectprob=infection;
+		    m->m_memory=datagenbuffer;
+  
 	    // compile test
-	    	    	    testvocode();
+	    //	    	    	    testvocode();
 	    //	    	    x=sqrtf(x);
 
   while(1)
@@ -418,14 +424,14 @@ void main(void)
       
       //      func_runall(stackyy,STACKPOS); // simulations
       
-      /*
+      /*      
       for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
-	  func_runall(stackyy,STACKPOS); // simulations
+	  func_runall(stackyy,64); // simulations
 	  break;
 	case 1:
-	  	  ca_runall(stackyyy,STACKPOSY); // CA
+	  ca_runall(stackyyy,64); // CA
 	  break;
 	case 2:
 	  	  machine_run(m); //cpu
@@ -441,7 +447,7 @@ void main(void)
 	  break;
 	}
 	}
-      */
+      */     
       
 #endif //eeg
 #endif //straight
