@@ -5,404 +5,28 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* plan
-
-send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be testedDONE
-
-1 phase: hardware switchingsDONE + architecture outlineROUGH 
-2 phase: datagens/hardware tests BY BEGIN JAN! DONE
-
-3 editions: lach,susp,tene
-
-1-Mater Lachrymarum, Our Lady of Tears: just processing: no hardware/untying.
-2-Mater Suspiriorum, Our Lady of Sighs: no untying.
-3-Mater Tenebrarum,—Our Lady of Darkness: all.
-
-3 phase: grains/audio buffers and processing (any mixing of signals?)
-
-4 phase: knobs assigned and all tests/tweak/RELEASE
-
-NOTE-==memory management/areas refresh==
-
-3 blocks SRAM : 112KB + 16KB + 64KB (64 is ccmdata see delay code)
-
-use 112KB+16 for general/sample buffer (int pointer to int will use 128k?)
-
-//how access 2nd block - should be continuous addressing with first
-
-ccmdata for datagens/backwards/forwards/BUFFER
-
-knob->control samplerate, + writebuffer is just one edge moved by knob
-up to limit
-
-* TODO
-
-- marked all questions as **TODO
-
-* DONE
-
-- test lower board potis!DONE
-- simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
-- add ifdefs, includes etc. for PC/arm code compilation
-  compile optionsTEST-DONE
-- test new code/makefile that still actually runs! IT DOES!
-- cleanups/fix adc code/test ADC now?
-- replace RAND with ad620/floating-DONE
-  which is ADC 9-AD620 is on ADC1_IN11-DONE
-- overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
-  working in CPUint.cDONE 
-
-* TEXTS
-
-** intro
-
-[dark organ quote]
-
-The Dark Interpreter is a clear successor to the Blackdeath noise
-module, extending contagious granular audio processing with new plague
-processing units, leaky, promiscuous code simulations and geometric
-analogue filtering and distortion (optional).
-
-Following the work of Thomas de Quincey, The Dark Interpreter re-casts
-the contemporary noise instrument as a "dark symbolic mirror", placing
-control of parameters on the skin, strapping a psyche/plague village
-interface to the head. Modern live coding without screen, keyboard or
-conscious control.
-
-The Dark Interpreter thus seeks to return all contagious execution to
-the skin, rewriting the history of technology as the plague which
-seeks to shift that site into the earth itself.
-
-** details
-
-The truth I heard often in sleep from the lips of the Dark
-Interpreter. Who is he? He is a shadow, reader, but a shadow with whom
-you must suffer me to make you acquainted. 
-
-The Dark Interpreter operates as contagious sample granulator,
-distortion, and unique sound generator based on a speedy ARM32F4
-processor with Wolfram audio codec allowing 16 bit sampling at 16KHz.
-
-The Dark Interpreter is delivered in three versions fully assembled,
-and features high quality ALPS potentiometers, optional BOSS style 9v
-power socket (+9v/positive on the outside, negative centre, minimum
-200mA) or battery clip, and full size (6.5mm) JACK input and output
-sockets. Please note that versions cannot be extended, they are not
-cross-compatible.
-
-The three versions are:
-
-*** 1-The eldest of the three is named Mater Lachrymarum, Our Lady of Tears.
-
-The simplest Dark Interpreter consisting of one digital base board for
-solely digital processing and generation. Order with 9v socket
-(default) or battery clip on the back. Some skin control.
-
-170 euros
-
-*** 2-The second Sister is called Mater Suspiriorum, Our Lady of Sighs.
-
-The second Dark Interpreter consists of one digital/analogue base
-board with digital processing and generation extended by symmetrical
-custom filters, distortion, and switchable feedback paths. Order with
-9v socket (default) or battery clip on the back. Some skin control.
-
-230 euros (with free worldwide shipping with track number)
-
-*** 3-But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of Darkness.
-
-This two-tiered Interpreter extends the Mater Suspiriorum with a skin
-breakout board and skin/EEG amplifier (strap it to the head, stick it
-in the earth, pull it across the skin, into the body). All signal
-paths and settings are accessible to the skin for complex hand
-re-routing, and feedback. Of course the device can be used without any
-wished skin transfer. Order with 9v socket (not recommended for safety
-reasons) or battery clip (default) on the back.
-
-310 euros
-
-** Samples/recordings
-
-419 and 420: no input, early dev tests with just hardware
-
-** Video
-
-** Layout and controls
-
-** Rough guide
-
-** Hardware and software
-
-The Dark Interpreter is licensed as open hardware and free software
-with all schematics, software and layouts/notes available at:
-
-https://github.com/microresearch/dark-interpreter
-
-** Contact/mailing list
-
-** References
-
-** random quotes
-
-- for the three versions:
-
-The eldest of the three is named Mater Lachrymarum, Our Lady of Tears.
-
-The second Sister is called Mater Suspiriorum, Our Lady of Sighs. 
-
-But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of
-Darkness.
-
-The truth I heard often in sleep from the lips of the Dark
-Interpreter. Who is he? He is a shadow, reader, but a shadow with whom
-you must suffer me to make you acquainted. You need not be afraid of
-him, for when I explain his nature and origin you will see that he is
-essentially inoffensive; or if sometimes he menaces with his
-countenance, that is but seldom: and then, as his features in those
-moods shift as rapidly as clouds in a gale of wind, you may always
-look for the terrific aspects to vanish as fast as they have
-gathered. As to his origin—what it is, I know exactly, but cannot
-without a little circuit of preparation make you understand. Perhaps
-you are aware of that power in the eye of many children by which in
-darkness they project a vast theatre of phantasmagorical figures
-moving forwards or backwards between their bed-curtains and the
-chamber walls. In some children this power is semi-voluntary—they
-can[Pg 8] control or perhaps suspend the shows; but in others it is
-altogether automatic. I myself, at the date of my last confessions,
-had seen in this way more processions—generally solemn, mournful,
-belonging to eternity, but also at times glad, triumphal pomps, that
-seemed to enter the gates of Time—than all the religions of paganism,
-fierce or gay, ever witnessed. Now, there is in the dark places of the
-human spirit—in grief, in fear, in vindictive wrath—a power of
-self-projection not unlike to this.
-
-This trial is decisive. You are now satisfied that the apparition is
-but a reflex of yourself; and, in uttering your secret feelings to
-him, you make this phantom _the dark symbolic mirror_ for reflecting to
-the daylight what else must be hidden for ever.
-
-(brocken)
-
-The Dark Interpeter "will not always be found sitting inside my
-dreams, but at times outside, and in open daylight." (see full quote below)
-
-The Greek chorus is perhaps not quite understood by critics, any more
-than the Dark Interpreter by myself. But the leading function of both
-must be supposed this- not to tell you anything absolutely new,- that
-was done by the actors in the drama; but to recall you to your own
-lurking thoughts,—hidden for the moment or imperfectly developed,—and
-to place before you, in immediate connection with groups vanishing too
-quickly for any effort of meditation on your own part, such
-commentaries, prophetic or looking back, pointing the moral or
-deciphering the mystery, justifying Providence, or mitigating the
-fierceness of anguish, as would or might have occurred to your own
-meditative heart, had only time been allowed for its motions.  The
-Interpreter is anchored and stationary in my dreams; but great storms
-and driving mists cause him to fluctuate uncertainly, or even to
-retire altogether, like his gloomy counterpart, the shy phantom of the
-Brocken,- and to assume new features or strange features, as in dreams
-always there is a power not contented with reproduction, but which
-absolutely creates or transforms. This dark being the reader will see
-again in a further stage of my opium experience; and I warn him that
-he will not always be found sitting inside my dreams, but at times
-outside, and in open daylight.
-
-* TO REMEMBER/TODO
-
-- always set define for board (TENE, LACH _or_ SUSP) in MAKEFILE and make clean first!!!
-- caps across potis for top-board
-- make clean after changes to settingsarray or MAKEFILE!
-- program from the BACK!
-
-* PROGRAMMING
-
-build/test PROGRAM:
-
-1-DTEST_STRAIGHT test
-2-re-program full/test
-3-assemble
-4-test EEG
-5flash/testallknobs/battery
-
-
-* MANUAL IN PROGRESS
-
-** basic operation/theory/background
-
-The Dark Interpreter is influenced and guided by body capacitance,
-skin resistance, biological micro-voltages and the fleshy conduction
-of all signals. These are ways of saying that the Dark Interpreter is
-completely open. It is not to be considered as a closed and bounded
-device which is subject to an exterior control "by the body." The
-Dark Interpreter is an electronic and thus earthy shadow of the body,
-it _is_ (inside) the body.
-
-The Dark Interpreter is thus _not_ to be controlled. It is an obsidian
-electronic mirror, the earth and skin itself.
-
-The preliminary working of The Dark Interpreter (reflecting the state
-of the improviser) should be considered as part of the creation of a
-unique, skin-sensitive instrument. The border between this first stage
-and the improvisation and playing of the instrument is diffuse, the
-mirror surface is ill-defined. The Dark Interpreter leads a path for
-skin, fingers, earth and head.
-
-To define the uses and potential paths of The Dark Interpreter we
-refer to the five knobs/potentiometers and the finger-board, the gold
-set of contacts which in the case of Tenebrarum is seperate from the
-two pronged fangs (for head and earth use).
-
-** The three synths and how they differ and can be used:
-
-*** Mater Lachrymarum 
-
-No analogue processing hardware so all settings which relate to
-hardware are redundant. The fifth knob, which in other synths is tied
-to hardware routing and settings, is now repurposed as recording
-effects. Finger/skin controls are as on the Mater Suspiriorum.
-
-*** Mater Suspiriorum and Mater Tenebrarum
-
-These both share the same analogue processing hardware. Mater
-Tenebrarum adds a new head, earth, skin and finger board which breaks
-out for the flesh world most of the important digital and analogue
-signal paths and settings, allowing for the unhanging of settings from
-digital dependence and re-placement on the skin. 
-
-The Tenebrarum also adds the crude EEG/micro-voltage fanged amplifier
-for head and earth. All knob controls are the same for both synths,
-although the layout is different. Finger controls are also arranged
-differently.
-
-** The knobs from top down and left to right (diagram for each)
-
-for TENE is:
-
-1
-
-2
-
-3 4
-
-5
-
-for LACH/SUSP is:
-
-1 
-         3
-	 4
-2	 5
-
-** The fingerpoints or finger-board (2 diagrams)
-
-*** Mater Lachrymarum and Mater Suspiriorum
-
-   L U
-IN  V  GND
-   D R
-   OUT
-
-For Mater Lachrymarum IN is unused!
-
-[diagram also]
-
-*** Mater Tenebrarum
-
-[diagram]
-
-** The knobs and their functions
-
-//REWRITE!
-
-1- These first three knobs are the same in all synths (placement only
-differing). This first knob selects one of 16 modes, divided into
-basic modes and mirror settings, which effect how The Dark Interpreter
-develops and is played/reflected. The modes are roughly as
-follows. Each mode effects the bevahiour of the finger-board and the
-second, third and fourth knobs. Modes allow for entry into the core
-plague code (fingers in the code), audio settings, villager parameters
-and mirror settings. Behaviour is different for each set of modes (see
-list of modes below). Finger pressure also effects varying parameters
-for each mode. Nearly all modes provide sufficient (lack of) control
-to allow the Dark Interpreter to be played solely in each mode.
-
-
-2- This knob controls specific settings within the 16 modes (only when
-we have a finger on any of the pads of the finger-board). 
-
-3- This third knob is only used when certain parameters are attached
-to it by way of some of the modes. (TENE - also offsets distortion)
-
-5-The last knob strictly controls the hardware operations and signal
-routing, including opening up of routes, and settings to the skin (we
-call this unhanging of hardware options). Here we can set the signal
-path through analogue filters, digital filters and various
-distortions. 
-
-In the case of Lachrymarum (no analogue hardware), this last knob
-controls outgoing audio effect parameters.
-
-////Modes
-
-1- Effects (READ/WRITE and in case of TENE/SUSP filter and directions
-select input mode=) with fingers
-as effect modulation
-
-2- Direction (left and right with up as wormdir select and down as
-finger into direction). Which direction to effect (eg. hardware
-direction, filter) is controlled by the second knob, step by the
-fourth and speed by the finger.
-
-3- Set start(second knob), wrap(fourth) and step(finger) for
-up=read,down=write,left=village_read, right=village_write.
-
-4- HW:TENE and SUSP: hardware start(second), wrap(fourth) and step for
-varying 4 hardwares (on directions).  LACH-data walker settings
-
-5- EXECUTION: sets maximum stack(second) and executable
-process(finger) for on each direction: cpu, cellular automata,
-simulations and total execution stack. Also sets maximum village
-extent (fourth) on all fingers.
-
-6- DATA WALKERS: start/wrap/step for data walkers
-
-7-11 MIRROR/ATTACH. We attach settings to a range of parameters/code
-by selecting a group. The group start is set by fourth, wrap/extent by
-second. Directions indicate what is to be attached (up is detach),
-down is EEG/skin, left is third knob, right is data. Into:
-
-7-settings
-8-villagers
-9-function stack
-10-cellular stack
-11-cpu
-
-12-ALGO attach into all (again start is fourth, extent is second)
-
-again with directions at to what to attach
-
-13-swops by direction. up is in settingsarray(second=extent,third=srcoffset,fourth=destoffset)
-
-14-COREDUMP (up and down only)
-
-15-INFECTION
-
-16-FINGERS in the CODE - no knobs!
-
-** The hardware
-
-* RECORDINGs of note
-
-763(no in),767/777(mixer noinput)
-
-
 * WED 8 OCT
 
-further debug notes to try THU:
+- further debug notes to try THU:
 
 : arm-none-eabi-gdbtui -eval-command=”target remote localhost:4242″ iotogglem0_wspl.elf
 
 and use "load" to program file
+
+- readin overlap scheme DONE - to test!
+- new modes as:
+
+1-READ
+//2-READ compression
+3-WRITE
+//4-WRITE compression 
+??????
+
+or expansion-compression is where effects would be and effects was supposed to be!
+
+effects as seperate walker now operating on aduio/datagen buffers?
+
+but what of hardware walkers where we need effects as specified! figure oiut
 
 * TUE/WED 7/8 OCT
 
@@ -430,23 +54,24 @@ so 67792_8140=75k out of 128k (this includes audio_buffer)
 ///////
 working on different granulation/villager scheme - simultan/overlap -
   questions are:
+*- how do we apply per-villager effects now?* nOT? see above
+- read villagers overlap as option or?
 - window is always same speed/width we read from and grains can be spreadout so clicky
-[some way of expanding/compressing both]
-- how do we apply per-villager effects now?
+[some way of expanding/compressing both???]
 - speedup
-- reduce max grains to 64
 
 ** DONE:
+- reduce max grains to 64 DONE
 - TEST potis work (one to fix as hardware issue, otherwise top is
-  4095, lowest is 1-8 say
+  4095, lowest is 1-10)
 - simulated walker/villagers in test.cDONE
 - removed all villager/settingsarray refsDONE
 - basic new RW walkers -> TODO: test audio.c DONE
 
 - if certain knobs are 0 then don't change values (start.wrap.effects) - set now so is >10
-- logarithmic scaling for start/wrap HOWTO? as lookup (4096 values as const)
+- logarithmic scaling for start/wrap HOWTO? as lookup (4096 values as const)DONE
 
-generate with: (see log_gen.py)
+generated with: (see log_gen.py)
 
 numpy.logspace(0, 15, num=4096, endpoint=True, base=2.0)
 
@@ -4022,3 +3647,395 @@ http://doc.sccode.org/Classes/FitzHughNagumo.html
 also Oregonator (reaction.diff), brusselator...
 
 Patterson's worms...
+
+* OLD
+
+send by 15th->pcbcartDONEawait PCBsARRIVED, assembled, to be testedDONE
+
+1 phase: hardware switchingsDONE + architecture outlineROUGH 
+2 phase: datagens/hardware tests BY BEGIN JAN! DONE
+
+3 editions: lach,susp,tene
+
+1-Mater Lachrymarum, Our Lady of Tears: just processing: no hardware/untying.
+2-Mater Suspiriorum, Our Lady of Sighs: no untying.
+3-Mater Tenebrarum,—Our Lady of Darkness: all.
+
+3 phase: grains/audio buffers and processing (any mixing of signals?)
+
+4 phase: knobs assigned and all tests/tweak/RELEASE
+
+NOTE-==memory management/areas refresh==
+
+3 blocks SRAM : 112KB + 16KB + 64KB (64 is ccmdata see delay code)
+
+use 112KB+16 for general/sample buffer (int pointer to int will use 128k?)
+
+//how access 2nd block - should be continuous addressing with first
+
+ccmdata for datagens/backwards/forwards/BUFFER
+
+knob->control samplerate, + writebuffer is just one edge moved by knob
+up to limit
+
+** TODO
+
+- marked all questions as **TODO
+
+** DONE
+
+- test lower board potis!DONE
+- simple co-eff filter additions in cpuDONE simulation.cDONE (8bit and 16bit)
+- add ifdefs, includes etc. for PC/arm code compilation
+  compile optionsTEST-DONE
+- test new code/makefile that still actually runs! IT DOES!
+- cleanups/fix adc code/test ADC now?
+- replace RAND with ad620/floating-DONE
+  which is ADC 9-AD620 is on ADC1_IN11-DONE
+- overlap and uint16 sizes for CPU.c or somehow 2 sets options - now
+  working in CPUint.cDONE 
+
+* TEXTS
+
+** intro
+
+[dark organ quote]
+
+The Dark Interpreter is a clear successor to the Blackdeath noise
+module, extending contagious granular audio processing with new plague
+processing units, leaky, promiscuous code simulations and geometric
+analogue filtering and distortion (optional).
+
+Following the work of Thomas de Quincey, The Dark Interpreter re-casts
+the contemporary noise instrument as a "dark symbolic mirror", placing
+control of parameters on the skin, strapping a psyche/plague village
+interface to the head. Modern live coding without screen, keyboard or
+conscious control.
+
+The Dark Interpreter thus seeks to return all contagious execution to
+the skin, rewriting the history of technology as the plague which
+seeks to shift that site into the earth itself.
+
+** details
+
+The truth I heard often in sleep from the lips of the Dark
+Interpreter. Who is he? He is a shadow, reader, but a shadow with whom
+you must suffer me to make you acquainted. 
+
+The Dark Interpreter operates as contagious sample granulator,
+distortion, and unique sound generator based on a speedy ARM32F4
+processor with Wolfram audio codec allowing 16 bit sampling at 16KHz.
+
+The Dark Interpreter is delivered in three versions fully assembled,
+and features high quality ALPS potentiometers, optional BOSS style 9v
+power socket (+9v/positive on the outside, negative centre, minimum
+200mA) or battery clip, and full size (6.5mm) JACK input and output
+sockets. Please note that versions cannot be extended, they are not
+cross-compatible.
+
+The three versions are:
+
+*** 1-The eldest of the three is named Mater Lachrymarum, Our Lady of Tears.
+
+The simplest Dark Interpreter consisting of one digital base board for
+solely digital processing and generation. Order with 9v socket
+(default) or battery clip on the back. Some skin control.
+
+170 euros
+
+*** 2-The second Sister is called Mater Suspiriorum, Our Lady of Sighs.
+
+The second Dark Interpreter consists of one digital/analogue base
+board with digital processing and generation extended by symmetrical
+custom filters, distortion, and switchable feedback paths. Order with
+9v socket (default) or battery clip on the back. Some skin control.
+
+230 euros (with free worldwide shipping with track number)
+
+*** 3-But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of Darkness.
+
+This two-tiered Interpreter extends the Mater Suspiriorum with a skin
+breakout board and skin/EEG amplifier (strap it to the head, stick it
+in the earth, pull it across the skin, into the body). All signal
+paths and settings are accessible to the skin for complex hand
+re-routing, and feedback. Of course the device can be used without any
+wished skin transfer. Order with 9v socket (not recommended for safety
+reasons) or battery clip (default) on the back.
+
+310 euros
+
+** Samples/recordings
+
+419 and 420: no input, early dev tests with just hardware
+
+** Video
+
+** Layout and controls
+
+** Rough guide
+
+** Hardware and software
+
+The Dark Interpreter is licensed as open hardware and free software
+with all schematics, software and layouts/notes available at:
+
+https://github.com/microresearch/dark-interpreter
+
+** Contact/mailing list
+
+** References
+
+** random quotes
+
+- for the three versions:
+
+The eldest of the three is named Mater Lachrymarum, Our Lady of Tears.
+
+The second Sister is called Mater Suspiriorum, Our Lady of Sighs. 
+
+But the third Sister [...] her name is Mater Tenebrarum,—Our Lady of
+Darkness.
+
+The truth I heard often in sleep from the lips of the Dark
+Interpreter. Who is he? He is a shadow, reader, but a shadow with whom
+you must suffer me to make you acquainted. You need not be afraid of
+him, for when I explain his nature and origin you will see that he is
+essentially inoffensive; or if sometimes he menaces with his
+countenance, that is but seldom: and then, as his features in those
+moods shift as rapidly as clouds in a gale of wind, you may always
+look for the terrific aspects to vanish as fast as they have
+gathered. As to his origin—what it is, I know exactly, but cannot
+without a little circuit of preparation make you understand. Perhaps
+you are aware of that power in the eye of many children by which in
+darkness they project a vast theatre of phantasmagorical figures
+moving forwards or backwards between their bed-curtains and the
+chamber walls. In some children this power is semi-voluntary—they
+can[Pg 8] control or perhaps suspend the shows; but in others it is
+altogether automatic. I myself, at the date of my last confessions,
+had seen in this way more processions—generally solemn, mournful,
+belonging to eternity, but also at times glad, triumphal pomps, that
+seemed to enter the gates of Time—than all the religions of paganism,
+fierce or gay, ever witnessed. Now, there is in the dark places of the
+human spirit—in grief, in fear, in vindictive wrath—a power of
+self-projection not unlike to this.
+
+This trial is decisive. You are now satisfied that the apparition is
+but a reflex of yourself; and, in uttering your secret feelings to
+him, you make this phantom _the dark symbolic mirror_ for reflecting to
+the daylight what else must be hidden for ever.
+
+(brocken)
+
+The Dark Interpeter "will not always be found sitting inside my
+dreams, but at times outside, and in open daylight." (see full quote below)
+
+The Greek chorus is perhaps not quite understood by critics, any more
+than the Dark Interpreter by myself. But the leading function of both
+must be supposed this- not to tell you anything absolutely new,- that
+was done by the actors in the drama; but to recall you to your own
+lurking thoughts,—hidden for the moment or imperfectly developed,—and
+to place before you, in immediate connection with groups vanishing too
+quickly for any effort of meditation on your own part, such
+commentaries, prophetic or looking back, pointing the moral or
+deciphering the mystery, justifying Providence, or mitigating the
+fierceness of anguish, as would or might have occurred to your own
+meditative heart, had only time been allowed for its motions.  The
+Interpreter is anchored and stationary in my dreams; but great storms
+and driving mists cause him to fluctuate uncertainly, or even to
+retire altogether, like his gloomy counterpart, the shy phantom of the
+Brocken,- and to assume new features or strange features, as in dreams
+always there is a power not contented with reproduction, but which
+absolutely creates or transforms. This dark being the reader will see
+again in a further stage of my opium experience; and I warn him that
+he will not always be found sitting inside my dreams, but at times
+outside, and in open daylight.
+
+* TO REMEMBER/TODO
+
+- always set define for board (TENE, LACH _or_ SUSP) in MAKEFILE and make clean first!!!
+- caps across potis for top-board
+- make clean after changes to settingsarray or MAKEFILE!
+- program from the BACK!
+
+* PROGRAMMING
+
+build/test PROGRAM:
+
+1-DTEST_STRAIGHT test
+2-re-program full/test
+3-assemble
+4-test EEG
+5flash/testallknobs/battery
+
+
+* MANUAL IN PROGRESS
+
+** basic operation/theory/background
+
+The Dark Interpreter is influenced and guided by body capacitance,
+skin resistance, biological micro-voltages and the fleshy conduction
+of all signals. These are ways of saying that the Dark Interpreter is
+completely open. It is not to be considered as a closed and bounded
+device which is subject to an exterior control "by the body." The
+Dark Interpreter is an electronic and thus earthy shadow of the body,
+it _is_ (inside) the body.
+
+The Dark Interpreter is thus _not_ to be controlled. It is an obsidian
+electronic mirror, the earth and skin itself.
+
+The preliminary working of The Dark Interpreter (reflecting the state
+of the improviser) should be considered as part of the creation of a
+unique, skin-sensitive instrument. The border between this first stage
+and the improvisation and playing of the instrument is diffuse, the
+mirror surface is ill-defined. The Dark Interpreter leads a path for
+skin, fingers, earth and head.
+
+To define the uses and potential paths of The Dark Interpreter we
+refer to the five knobs/potentiometers and the finger-board, the gold
+set of contacts which in the case of Tenebrarum is seperate from the
+two pronged fangs (for head and earth use).
+
+** The three synths and how they differ and can be used:
+
+*** Mater Lachrymarum 
+
+No analogue processing hardware so all settings which relate to
+hardware are redundant. The fifth knob, which in other synths is tied
+to hardware routing and settings, is now repurposed as recording
+effects. Finger/skin controls are as on the Mater Suspiriorum.
+
+*** Mater Suspiriorum and Mater Tenebrarum
+
+These both share the same analogue processing hardware. Mater
+Tenebrarum adds a new head, earth, skin and finger board which breaks
+out for the flesh world most of the important digital and analogue
+signal paths and settings, allowing for the unhanging of settings from
+digital dependence and re-placement on the skin. 
+
+The Tenebrarum also adds the crude EEG/micro-voltage fanged amplifier
+for head and earth. All knob controls are the same for both synths,
+although the layout is different. Finger controls are also arranged
+differently.
+
+** The knobs from top down and left to right (diagram for each)
+
+for TENE is:
+
+1
+
+2
+
+3 4
+
+5
+
+for LACH/SUSP is:
+
+1 
+         3
+	 4
+2	 5
+
+** The fingerpoints or finger-board (2 diagrams)
+
+*** Mater Lachrymarum and Mater Suspiriorum
+
+   L U
+IN  V  GND
+   D R
+   OUT
+
+For Mater Lachrymarum IN is unused!
+
+[diagram also]
+
+*** Mater Tenebrarum
+
+[diagram]
+
+** The knobs and their functions
+
+//REWRITE!
+
+1- These first three knobs are the same in all synths (placement only
+differing). This first knob selects one of 16 modes, divided into
+basic modes and mirror settings, which effect how The Dark Interpreter
+develops and is played/reflected. The modes are roughly as
+follows. Each mode effects the bevahiour of the finger-board and the
+second, third and fourth knobs. Modes allow for entry into the core
+plague code (fingers in the code), audio settings, villager parameters
+and mirror settings. Behaviour is different for each set of modes (see
+list of modes below). Finger pressure also effects varying parameters
+for each mode. Nearly all modes provide sufficient (lack of) control
+to allow the Dark Interpreter to be played solely in each mode.
+
+
+2- This knob controls specific settings within the 16 modes (only when
+we have a finger on any of the pads of the finger-board). 
+
+3- This third knob is only used when certain parameters are attached
+to it by way of some of the modes. (TENE - also offsets distortion)
+
+5-The last knob strictly controls the hardware operations and signal
+routing, including opening up of routes, and settings to the skin (we
+call this unhanging of hardware options). Here we can set the signal
+path through analogue filters, digital filters and various
+distortions. 
+
+In the case of Lachrymarum (no analogue hardware), this last knob
+controls outgoing audio effect parameters.
+
+////Modes
+
+1- Effects (READ/WRITE and in case of TENE/SUSP filter and directions
+select input mode=) with fingers
+as effect modulation
+
+2- Direction (left and right with up as wormdir select and down as
+finger into direction). Which direction to effect (eg. hardware
+direction, filter) is controlled by the second knob, step by the
+fourth and speed by the finger.
+
+3- Set start(second knob), wrap(fourth) and step(finger) for
+up=read,down=write,left=village_read, right=village_write.
+
+4- HW:TENE and SUSP: hardware start(second), wrap(fourth) and step for
+varying 4 hardwares (on directions).  LACH-data walker settings
+
+5- EXECUTION: sets maximum stack(second) and executable
+process(finger) for on each direction: cpu, cellular automata,
+simulations and total execution stack. Also sets maximum village
+extent (fourth) on all fingers.
+
+6- DATA WALKERS: start/wrap/step for data walkers
+
+7-11 MIRROR/ATTACH. We attach settings to a range of parameters/code
+by selecting a group. The group start is set by fourth, wrap/extent by
+second. Directions indicate what is to be attached (up is detach),
+down is EEG/skin, left is third knob, right is data. Into:
+
+7-settings
+8-villagers
+9-function stack
+10-cellular stack
+11-cpu
+
+12-ALGO attach into all (again start is fourth, extent is second)
+
+again with directions at to what to attach
+
+13-swops by direction. up is in settingsarray(second=extent,third=srcoffset,fourth=destoffset)
+
+14-COREDUMP (up and down only)
+
+15-INFECTION
+
+16-FINGERS in the CODE - no knobs!
+
+** The hardware
+
+* RECORDINGs of note
+
+763(no in),767/777(mixer noinput)
+
+

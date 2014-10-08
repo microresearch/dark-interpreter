@@ -141,11 +141,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   u8 xx,spd;
   u8 mainmode, whichvillager,step;
-  int16_t count;
+  int16_t count,tmp;
   static u8 howmanywritevill=1,howmanyreadvill=1;
-  static u8 speedw=1,speed=1,whichw=0,whichr=0,delread=0,delwrite=0;
-  static int16_t dirryw=1,dirry=1;
-  static u16 sampleposwrite=0,sampleposread=0,startread=0,startwrite=0,wrapread=32767,wrapwrite=32767,counter=0;
+  static u8 whichw=0,whichr=0;//,delread=0,delwrite=0;
+  //  static int16_t dirryw=1,dirry=1;
+  //  static u16 sampleposwrite=0,sampleposread=0,startread=0,startwrite=0,wrapread=32767,wrapwrite=32767,
+  static u16 counter=0,counterr=0;
 
   extern villagerr village_write[MAX_VILLAGERS];
   extern villagerr village_read[MAX_VILLAGERS];
@@ -164,8 +165,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifdef TEST_EEG
 	// write buf16 into mono
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=buf16[sampleposread%32768];//-32768;
-	  sampleposread++;
+	  mono_buffer[x]=buf16[samplepos%32768];//-32768;
+	  samplepos++;
 	}
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
@@ -193,16 +194,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    village_write[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed_step=spd; // check how many bits is spd? 8 as changed in main.c 
+	    village_write[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_write[whichvillager].step=(spd&240)>>4;
 
 	    //added for overlap of grains/villagers:
 
-	    if (village_write[whichw].dir==2) village_write[whichw].dirryw=newdirection[wormdir];
-	    else if (village_write[whichw].dir==3) village_write[whichw].dirryw=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed_step&15;
-	    else village_write[whichw].dirryw=direction[village_write[whichw].dir]*village_write[whichvillager].speed_step&15;
+	    if (village_write[whichw].dir==2) village_write[whichw].dirry=newdirection[wormdir];
+	    else if (village_write[whichw].dir==3) village_write[whichw].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].step;
+	    else village_write[whichw].dirry=direction[village_write[whichw].dir]*village_write[whichvillager].step;
 
-	    if (village_write[whichw].dirryw>0) village_write[whichw].sampleposwrite=village_write[whichw].start;
-	    else village_write[whichw].sampleposwrite=village_write[whichw].start+village_write[whichw].wrap;
+	    if (village_write[whichw].dirry>0) village_write[whichw].samplepos=village_write[whichw].start;
+	    else village_write[whichw].samplepos=village_write[whichw].start+village_write[whichw].wrap;
 
 
 	    break;
@@ -217,7 +219,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed_step=spd; // check how many bits is spd? 8 as changed in main.c 
+	    village_read[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_read[whichvillager].step=(spd&240)>>4;
 
 	    break;
 	}
@@ -228,13 +231,52 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	// READ!
       	for (xx=0;xx<sz/2;xx++){
 	  src++;
-	  audio_buffer[sampleposread%32768]=*(src++); // how we could do overlap? += ???
+	  tmp=*(src++); 
 
-	  if (++delread>=speed){
-	    count=((sampleposread-startread)+dirry);
+	  // overlap as option? also we may not run through all grains???
+
+	  // so same as WRITE now
+	  mono_buffer[counterr]=0;
+	  counterr++;
+	  if (counterr>32768) counterr=0; // but we always cycle through same buffer length
+	  audio_buffer[counterr]=0;
+
+	  for (u8 x=0;x<howmanyreadvill;x++){
+	    if (village_read[x].start>=counter && (village_read[x].start+village_read[x].wrap)>counter){
+
+	      audio_buffer[village_read[x].samplepos]+=tmp;
+
+	      if (++village_read[x].del>=village_read[x].step){
+
+	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
+	      if (count<village_read[x].wrap && count>0)
+	      {
+		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
+		  }
+	      else
+		{
+		  // reset samplepos
+		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
+		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
+		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
+
+		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
+		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
+		}
+	    village_read[x].del=0;
+	      }
+	    }
+	  }
+
+
+
+	  /*	  audio_buffer[samplepos%32768]=*(src++); // how we could do overlap? += ???
+
+	  if (++delread>=village_read[whichr].speed){
+	    count=((samplepos-startread)+dirry);
 	    if (count<wrapread && count>0)
 	      {
-		sampleposread+=dirry;//)%32768;
+		samplepos+=dirry;//)%32768;
 		  }
 		else {
 		  // on to next villager
@@ -242,22 +284,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichr=whichr%howmanyreadvill;
 		  startread=village_read[whichr].start;
 		  wrapread=village_read[whichr].wrap;
-		  if (wrapread==0) wrapread=1;
-
-		  step=(village_read[whichr].speed_step%16)+1;
-		  speed=(village_read[whichr].speed_step/16)+1;
 
 		  if (village_read[whichr].dir==2) dirry=newdirection[wormdir];
-		  else if (village_read[whichr].dir==3) dirry=direction[adc_buffer[DOWN]&1]*step;
-		  else dirry=direction[village_read[whichr].dir]*step;
+		  else if (village_read[whichr].dir==3) dirry=direction[adc_buffer[DOWN]&1]*village_read[whichr].speed;
+		  else dirry=direction[village_read[whichr].dir]*village_read[whichr].speed;
 
-		  if (dirry>0) sampleposread=startread;
-		  else sampleposread=startread+wrapread;
+		  if (dirry>0) samplepos=startread;
+		  else samplepos=startread+wrapread;
 		}
 	  delread=0;
 	  } // close delread
+	  */
 	}
-
+   
 	// WRITE!
 
 	ldst=left_buffer;
@@ -270,47 +309,49 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[xx]=0;
 	  counter++;
 	  if (counter>32768) counter=0; // but we always cycle through same buffer length
-	  // and at same speed...
+	  // and at same speed=compression almost
+	  // speed of counter. start of counter. end of counter
+	  // shift starts towards point/middle. ends towards point/middle
 
-	  // somehow need window ... constrain/compress also
 	  // simplify this somehow
+	  // how to add per villager effects????
 
 	  for (u8 x=0;x<howmanywritevill;x++){
 	    if (village_write[x].start>=counter && (village_write[x].start+village_write[x].wrap)>counter){
-	      mono_buffer[xx]+=audio_buffer[village_write[x].sampleposwrite%32768];
+	      mono_buffer[xx]+=audio_buffer[village_write[x].samplepos%32768];
 
-	      if (++village_write[x].delw>=(village_write[x].speed_step&240)>>4){
+	      if (++village_write[x].del>=village_write[x].step){
 
-	      count=((village_write[x].sampleposwrite-village_write[x].start)+village_write[x].dirryw);
+	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
 	      if (count<village_write[x].wrap && count>0)
 	      {
-		village_write[x].sampleposwrite+=village_write[x].dirryw;//)%32768;
+		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
 		  }
 	      else
 		{
-		  // reset sampleposwrite
-		if (village_write[x].dir==2) village_write[x].dirryw=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirryw=direction[adc_buffer[DOWN]&1]*(village_write[x].speed_step&240)>>4;
-		else village_write[x].dirryw=direction[village_write[x].dir]*((village_write[x].speed_step%240)>>4);
+		  // reset samplepos
+		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
+		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
+		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
 
-		if (village_write[x].dirryw>0) village_write[x].sampleposwrite=village_write[x].start;
-		  else village_write[x].sampleposwrite=village_write[x].start+village_write[x].wrap;
+		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
+		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
 		}
-	    village_write[x].delw=0;
+	    village_write[x].del=0;
 	      }
 	    }
 	  }
 
 	/////////////////////////sequential
 
-	  /*	  
-	  mono_buffer[xx]=audio_buffer[sampleposwrite%32768];
+	  /*	  // to be recoded with new speed/step anyways
+	  mono_buffer[xx]=audio_buffer[samplepos%32768];
 
-	  if (++delwrite>=speedw){
-	    count=((sampleposwrite-startwrite)+dirryw);
+	  if (++delrite>=speedw){
+	    count=((samplepos-startwrite)+dirry);
 	    if (count<wrapwrite && count>0)
 	      {
-		sampleposwrite+=dirryw;//)%32768;
+		samplepos+=dirry;//)%32768;
 		  }
 		else {
 		  // on to next villager
@@ -318,21 +359,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichw=whichw%howmanywritevill;
 		  startwrite=village_write[whichw].start;
 		  wrapwrite=village_write[whichw].wrap;
-		  if (wrapwrite==0) wrapwrite=1;
 
 		  step=(village_write[whichw].speed_step%16)+1; // this could be done when we set?
 		  speedw=(village_write[whichw].speed_step/16)+1; // or as mask &15 &240 >>4 see above
 
-		  if (village_write[whichw].dir==2) dirryw=newdirection[wormdir];
-		  else if (village_write[whichw].dir==3) dirryw=direction[adc_buffer[DOWN]&1]*step;
-		  else dirryw=direction[village_write[whichw].dir]*step;
+		  if (village_write[whichw].dir==2) dirry=newdirection[wormdir];
+		  else if (village_write[whichw].dir==3) dirry=direction[adc_buffer[DOWN]&1]*step;
+		  else dirry=direction[village_write[whichw].dir]*step;
 
-		  if (dirryw>0) sampleposwrite=startwrite;
-		  else sampleposwrite=startwrite+wrapwrite;
+		  if (dirry>0) samplepos=startwrite;
+		  else samplepos=startwrite+wrapwrite;
 		  
 		}
-	  delwrite=0;
-	  } // close delwrite
+	  delrite=0;
+	  } // close delrite
 	 */
 	}
 	  

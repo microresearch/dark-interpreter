@@ -14,7 +14,7 @@
 #include "arm_math.h"
 #endif
 
-#define MAX_VILLAGERS 128
+#define MAX_VILLAGERS 64 // was 128
 #define BUFF_LEN 128 // TEST! reduce to 16 
 #define AUDIO_BUFSZ 32768 // was 32768
 
@@ -31,9 +31,9 @@
     typedef struct {
       u16 start;
       u16 wrap;
-      u16 sampleposwrite;
-      u8 effect,delw,dirryw;
-      u8 speed_step; // TODO: how do as fractional?
+      u16 samplepos;
+      u8 effect,del,dirry;
+      u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
     } villagerr;
 
