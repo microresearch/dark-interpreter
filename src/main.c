@@ -1731,8 +1731,8 @@ cpuattached=malloc(64);//[64];
       if (digfilterflag&8){
 	tmp=MAXIMERCONS-MAXIMERBASE;
 	if (tmp==0) tmp=1;
-	//	setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
-	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
+		setmaximpwm(MAXIMERBASE+(buf16[(tmphw+MAXIMEROFFSET)%32768]%tmp)); // constrain CONS rather AUG!!!
+	//	setmaximpwm(adc_buffer[FIFTH]<<2);//TESTY!=14 bits
 	//	setmaximpwm(255);//TESTY!=14 bits
 
       }
