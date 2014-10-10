@@ -5,11 +5,41 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
+* FRI 10 OCT
+
+
+PLAN: basics tested= vague layout, filter stuff, plug in mirrors/datagens/stretches,
+add effects, add HW!
+
+//////
+- resolving walkers R/W
+
+- sticky R/W modes (stay as are -eg. sequential, overlap, no-overlap,
+  straight in,out (start/end))
+
+- 3rd knob (was effects) is now overlap/write offset for those modes
+
+prototype doeffect(buffer,start,length,effect)
+
+????BELOW????
+grain write = start/end (in out stream) from read start/end (from in
+stream) =4settings//???? diff lengths???? set by RW settings? and effect as????
+
+//or
+
+readin sequential according to HW-villager (input/HW effect) into audiobuffer.
+then each villager has start/end/effect/etc...
+
+
 * WED 8 OCT
 
-- further debug notes to try THU:
+- further debug notes to try THU/FRI:
 
 : arm-none-eabi-gdbtui -eval-command=”target remote localhost:4242″ iotogglem0_wspl.elf
+
+as:
+
+: arm-none-eabi-gdbtui -eval-command="tar extended-remote :4242" main.elf
 
 and use "load" to program file
 
@@ -22,11 +52,13 @@ and use "load" to program file
 //4-WRITE compression 
 ??????
 
-or expansion-compression is where effects would be and effects was supposed to be!
+or expansion-compression is where effects would be and effects was
+supposed to be- what means????= as effects knob - turn=reduce?for that
+villager move to middle with counter/r????
 
-effects as seperate walker now operating on aduio/datagen buffers?
+effects as seperate walker now operating on audio/datagen buffers?
 
-but what of hardware walkers where we need effects as specified! figure oiut
+but what of hardware walkers where we need effects as specified! figure out-what means???
 
 * TUE/WED 7/8 OCT
 

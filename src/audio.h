@@ -29,10 +29,11 @@
 // test struct for multiple grains/villagers
 
     typedef struct {
+      u16 offset;
       u16 start;
       u16 wrap;
       u16 samplepos;
-      u8 effect,del,dirry;
+      u8 effect,del,dirry,overlap;
       u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
     } villagerr;

@@ -250,8 +250,12 @@ void main(void)
   village_read[0].wrap=32768;
   village_write[0].dir=1;
   village_read[0].dir=1;
-  village_write[0].speed_step=0;
-  village_read[0].speed_step=0;
+  village_write[0].del=0;
+  village_read[0].del=0;
+  village_write[0].speed=0;
+  village_read[0].speed=0;
+  village_write[0].step=0;
+  village_read[0].step=0;
 
 
   inittable(3,4,randi());
