@@ -1,6 +1,5 @@
 // first test dsplib
 
-#ifndef PCSIM
 #include "arm_math.h"
 #include "arm_const_structs.h"
 
@@ -333,6 +332,4 @@ int32_t testvocode(void)
   /* Initialize the CFFT/CIFFT module */  
   //  status = arm_cfft_radix4_init_f32(&S, fftSize, ifftFlag, doBitReverse); 
 }
-
-#endif
 
