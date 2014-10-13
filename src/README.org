@@ -5,8 +5,27 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* FRI 10 OCT
+* MON 13 OCT
 
+** TODO:
+
+- mirror in villagers as pointer to villagers
+- HW hangings in overlap scheme? how?
+- R/W and expands for leftread/leftwrite
+- modulus as effect in both master/TEST and towers
+- overlaps as selected= and, or, mod, *, +, none
+- do we insert dategen/buf16 there in readin????
+
+** DONE
+
+- got rid of straight in/out as is same as overlap/no with 1 villager,
+only one read and write mdoe
+
+- sanity test of villagers (vaguely in test.c checks out!)
+- in read moved sample update inside speed TO TEST!
+
+
+* FRI 10 OCT
 
 PLAN: basics tested= vague layout, filter stuff, plug in mirrors/datagens/stretches,
 add effects, add HW!
@@ -15,7 +34,7 @@ add effects, add HW!
 - resolving walkers R/W
 
 - sticky R/W modes (stay as are -eg. sequential, overlap, no-overlap,
-  straight in,out (start/end))
+  straight in,out (start/end))+older
 
 - 3rd knob (was effects) is now overlap/write offset for those modes
 

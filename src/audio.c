@@ -142,7 +142,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 xx,spd;
   u8 mainmode, whichvillager,step;
   int16_t count,tmp;
-  static u8 howmanywritevill=1,howmanyreadvill=1,readmode=0,writemode=0;
+  static u8 howmanywritevill=1,howmanyreadvill=1;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0;
   static int16_t dirryw=1,dirry=1;
   static u16 samplepos=0,sampleposw=0,sampleposread=0,startread=0,startwrite=0,wrapread=32767,wrapwrite=32767;
@@ -204,121 +204,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    //added for overlap of grains/villagers:
 
 	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].step;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].step;
+	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
+	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
 
 	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
-	    writemode=0;
 	    break;
 
-	  case 1:// READ
-	    whichvillager=adc_buffer[FIRST]>>5; // 7 bits=128
-	    howmanyreadvill=whichvillager+1;
-	    if (adc_buffer[SECOND]>10){
-	    village_read[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    }
-	    if (adc_buffer[THIRD]>10){
-	    village_read[whichvillager].wrap=loggy[adc_buffer[THIRD]]; // as logarithmic
-	    }
-	    if (adc_buffer[FOURTH]>10){
-	    village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
-	    }
-
-	    //	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
-	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    village_read[whichvillager].step=(spd&240)>>4;
-
-	    //added for overlap of grains/villagers:
-
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].step;
-	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].step;
-
-	    if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-	    readmode=0;
-	    break;
-
-	  case 2:// WRITE-overlap
-	    whichvillager=adc_buffer[FIRST]>>5; // 7 bits=128
-	    howmanywritevill=whichvillager+1;
-	    if (adc_buffer[SECOND]>10){
-	    village_write[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    }
-	    if (adc_buffer[THIRD]>10){
-	    village_write[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    }
-	    if (adc_buffer[FOURTH]>10){
-	    village_write[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
-	    }
-	    //	    village_write[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
-	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    village_write[whichvillager].step=(spd&240)>>4;
-
-	    //added for overlap of grains/villagers:
-
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].step;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].step;
-
-	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
-	    writemode=1;
-	    break;
-
-	  case 3:// READ overlap
-	    whichvillager=adc_buffer[FIRST]>>5; // 7 bits=128
-	    howmanyreadvill=whichvillager+1;
-	    if (adc_buffer[SECOND]>10){
-	    village_read[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    }
-	    if (adc_buffer[THIRD]>10){
-	    village_read[whichvillager].wrap=loggy[adc_buffer[THIRD]]; // as logarithmic
-	    }
-	    if (adc_buffer[FOURTH]>10){
-	    village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
-	    }
-
-	    //	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
-	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    village_read[whichvillager].step=(spd&240)>>4;
-
-	    //added for overlap of grains/villagers:
-
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].step;
-	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].step;
-
-	    if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-	    readmode=1;
-	    break;
-
-	  case 4: // READMODE compression???
-	    // AND FIRST KNOB??? options?
-
-	    if (adc_buffer[SECOND]>10){
-	      readbegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    }
-	    if (adc_buffer[THIRD]>10){
-	      readend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    }
-	    if (adc_buffer[FOURTH]>10){
-	      readoffset=loggy[adc_buffer[FOURTH]];
-	    }
-	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirry=-((spd&240)>>4);
-	    else if (xx==1) dirry=((spd&240)>>4);
-	    else if (xx==2) dirry=newdirection[wormdir];
-	    else dirry=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
-	    break;
-
-	  case 5: // WRITEMODE compression???
-	    // AND FIRST KNOB???
+	  case 1: // WRITEMODE compression???
+	    // AND FIRST KNOB??? - could be overlap???
 
 	    if (adc_buffer[SECOND]>10){
 	      writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
@@ -336,8 +230,36 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else dirryw=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
 	    break;
 
-	  case 6: // simpleREADMODE 
-	    // AND FIRST/FOURTH KNOB???
+	  case 2:// READ
+	    whichvillager=adc_buffer[FIRST]>>5; // 7 bits=128
+	    howmanyreadvill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
+	    village_read[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    }
+	    if (adc_buffer[THIRD]>10){
+	    village_read[whichvillager].wrap=loggy[adc_buffer[THIRD]]; // as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
+	    village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
+	    }
+
+	    //	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
+	    village_read[whichvillager].dir=xx;
+	    village_read[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_read[whichvillager].step=(spd&240)>>4;
+
+	    //added for overlap of grains/villagers:
+
+	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
+
+	    if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
+	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
+	    break;
+
+	  case 3: // READMODE compression???
+	    // AND FIRST KNOB??? - could be overlap???
 
 	    if (adc_buffer[SECOND]>10){
 	      readbegin=loggy[adc_buffer[SECOND]]; //as logarithmic
@@ -346,66 +268,36 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      readend=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	      readoffset=loggy[adc_buffer[FOURTH]];  //unused
+	      readoffset=loggy[adc_buffer[FOURTH]];
 	    }
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    if (xx==0) dirry=-((spd&240)>>4);
 	    else if (xx==1) dirry=((spd&240)>>4);
 	    else if (xx==2) dirry=newdirection[wormdir];
 	    else dirry=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
-	    readmode=2;
 	    break;
-
-	  case 7: // simpleWRITEMODE
-	    // AND FIRST/FOURTH KNOB???
-
-	    if (adc_buffer[SECOND]>10){
-	      writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    }
-	    if (adc_buffer[THIRD]>10){
-	      writeend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    }
-	    if (adc_buffer[FOURTH]>10){
-	      writeoffset=loggy[adc_buffer[FOURTH]]; //unused
-	    }
-	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryw=-((spd&240)>>4);
-	    else if (xx==1) dirryw=((spd&240)>>4);
-	    else if (xx==2) dirryw=newdirection[wormdir];
-	    else dirryw=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
-	    writemode=2;
-	    break;
-	    
-	  case 8: //8-13 
-	    // 
-	    break;
-
-
-
 	  }
 	}
 	//////	
 	// process villagers - first attempt sans effects
 
 	// READ!
-
-	//	readmode=1; // TESTY!
-	//	writemode=1; // TESTY!
-
-	switch(readmode){
-	case 0:
       	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
 
 	    if (++delread>readspeed) {
 	      counterr+=dirry;
 	      delread=0;
+	      // moved in here 13 OCT - TEST!
+	      src++;
+	      tmp=*(src++); 
 	    }
 	  if ((counterr-readbegin)>readend) counterr=readbegin;
 	  if (counterr<readbegin) counterr=readend;
 	  for (u8 x=0;x<howmanyreadvill;x++){
+
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+
+	      // select overlaps here-TODO!
 	      audio_buffer[village_read[x].samplepos%32768]=tmp;
 
 	      if (++village_read[x].del>=village_read[x].step){
@@ -428,95 +320,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 	    }
 	  }
-	  }
-	break;
-	case 1:
-      	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-
-	    if (++delread>readspeed) {
-	      counterr+=dirry;
-	      delread=0;
-	    }
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend;
-	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	      audio_buffer[village_read[x].samplepos%32768]+=tmp; // with overlap
-
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  // reset samplepos
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	  }
-	break;
-	case 2:
-      	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  audio_buffer[samplepos%32768]=*(src++);
-	  
-	  if (++delread>readspeed) {
-	    samplepos+=dirry;
-	    delread=0;
-	    }
-
-	  if ((samplepos-readbegin)>=readend) samplepos=readbegin;
-	  if (samplepos<readbegin) samplepos=readend;
-
 	}
-	break;
-	case 3:
-	  audio_buffer[samplepos%32768]=*(src++);
-	  if (++delread>=village_read[whichr].speed){
-	    count=((samplepos-startread)+dirry);
-	    if (count<wrapread && count>0)
-	      {
-		samplepos+=dirry;//)%32768;
-		  }
-		else {
-		  // on to next villager
-		  whichr++;
-		  whichr=whichr%howmanyreadvill;
-		  startread=village_read[whichr].start;
-		  wrapread=village_read[whichr].wrap;
 
-		  if (village_read[whichr].dir==2) dirry=newdirection[wormdir];
-		  else if (village_read[whichr].dir==3) dirry=direction[adc_buffer[DOWN]&1]*village_read[whichr].step;
-		  else dirry=direction[village_read[whichr].dir]*village_read[whichr].step;
+   	// WRITE!
 
-		  if (dirry>0) samplepos=startread;
-		  else samplepos=startread+wrapread;
-		}
-	  delread=0;
-	  } // close delread
-	  break;
-
-	} // CLOSE READMODE CASES
-   
-	// WRITE!
-
-	ldst=left_buffer;
-	switch(writemode){
-	case 0:
+	//	ldst=left_buffer;
       	for (xx=0;xx<sz/2;xx++){
-	  ldst++;
+	  //	  ldst++;
 	  mono_buffer[xx]=0;
 	    if (++delwrite>writespeed) {
 	      counter+=dirryw;
@@ -526,7 +336,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (counter<writebegin) counterr=writeend;
 	  for (u8 x=0;x<howmanywritevill;x++){
 	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+
+	      // select overlaps here-TODO!
 	      mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
+
 	      if (++village_write[x].del>=village_write[x].step){
 	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
 	      if (count<village_write[x].wrap && count>0)
@@ -548,84 +361,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	  }
 	}
-	  break;
-	case 1:
-      	for (xx=0;xx<sz/2;xx++){
-	  ldst++;
-	  mono_buffer[xx]=0;
-	    if (++delwrite>writespeed) {
-	      counter+=dirryw;
-	      delwrite=0;
-	    }
-	  if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counterr=writeend;
-	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
-	      mono_buffer[xx]+=audio_buffer[village_write[x].samplepos%32768];
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  // reset samplepos
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-	}
-	  break;
-	case 2:
-      	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=audio_buffer[sampleposw%32768];
-	  
-	  if (++delwrite>writespeed) {
-	    sampleposw+=dirryw;
-	    delwrite=0;
-	    }
-
-	  if ((sampleposw-writebegin)>=writeend) sampleposw=writebegin;
-	  if (sampleposw<writebegin) sampleposw=writeend;
-
-	}
-	break;
-	//////////
-	case 3:
-	  mono_buffer[xx]=audio_buffer[samplepos%32768];
-	  if (++delwrite>=village_write[whichw].speed){
-	    count=((samplepos-startwrite)+dirryw);
-	    if (count<wrapwrite && count>0)
-	      {
-		samplepos+=dirryw;//)%32768;
-		  }
-		else {
-		  // on to next villager
-		  whichw++;
-		  whichw=whichw%howmanywritevill;
-		  startwrite=village_write[whichw].start;
-		  wrapwrite=village_write[whichw].wrap;
-
-		  if (village_write[whichw].dir==2) dirryw=newdirection[wormdir];
-		  else if (village_write[whichw].dir==3) dirryw=direction[adc_buffer[DOWN]&1]*village_write[whichw].step;
-		  else dirryw=direction[village_write[whichw].dir]*village_write[whichw].step;
-
-		  if (dirryw>0) samplepos=startwrite;
-		  else samplepos=startwrite+wrapwrite;
-		}
-	  delwrite=0;
-	  } // close delwrite
-	  break;
-	  /////
-	} //close WRITEMODE cases
 	  
 	// process HW in same time-scale as samples
 	// so step will be 32 sample step (BUFF_SIZE/4)
