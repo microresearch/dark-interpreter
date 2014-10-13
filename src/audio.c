@@ -282,10 +282,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	// process villagers - first attempt sans effects
 
 	// READ!
-      	for (xx=0;xx<sz/2;xx++){
-
+	//	for (xx=0;xx<sz/2;xx++){
+	u8 countr=0;
+	while(countr<sz/2){
 	    if (++delread>readspeed) {
-	      counterr+=dirry;
+	      counterr+=dirry;countr++;
 	      delread=0;
 	      // moved in here 13 OCT - TEST!
 	      src++;
@@ -324,12 +325,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
    	// WRITE!
 
-	//	ldst=left_buffer;
-      	for (xx=0;xx<sz/2;xx++){
-	  //	  ldst++;
-	  mono_buffer[xx]=0;
+	//      	for (xx=0;xx<sz/2;xx++){
+	xx=0;
+	while(xx<sz/2){
 	    if (++delwrite>writespeed) {
-	      counter+=dirryw;
+	      counter+=dirryw;xx++;
+	      mono_buffer[xx]=0;
 	      delwrite=0;
 	    }
 	  if ((counter-writebegin)>writeend) counter=writebegin;

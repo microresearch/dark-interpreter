@@ -22,7 +22,7 @@ organ!
 only one read and write mdoe
 
 - sanity test of villagers (vaguely in test.c checks out!)
-- in read moved sample update inside speed TO TEST!
+- changed loop for sample update - to TEST!
 
 
 * FRI 10 OCT
