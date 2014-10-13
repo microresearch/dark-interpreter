@@ -181,9 +181,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 1:
 	  src++;
 	  //	  buf16[sampleposread%32768]=(*src)+32768;
-	  fsum=(float32_t)*(src++) * morph_inv;
-	  tmp32=fsum;
-	  audio_buffer[sampleposread%32768]=tmp32;
+	  //	  fsum=(float32_t)*(src++) * morph_inv;
+	  //	  tmp32=fsum;
+	  audio_buffer[sampleposread%32768]=(*src)%((buf16[sampleposread%32768]-32768)+1); // OCT 13 TESTY!
 	  //	  audio_buffer[sampleposread%32768]=*(src++);
 	  break;
 	  case 2:
@@ -622,7 +622,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 5:
 	    ldst++; //added in AUG in case of village/change during this
-	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
+	    tmp16=audio_buffer[samplepos%32768]%((buf16[samplepos%32768]-32768)+1); // OCT TESTY!
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 6:
@@ -817,7 +817,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  break;
 	  case 7:
 	  (src++);
-	  tmp16=(*(src++))-(buf16[sampleposread%32768]-32768);
+	  tmp16=(*(src++))%((buf16[sampleposread%32768]-32768)+1); // TESTY OCT13
 	  audio_buffer[sampleposread%32768]=tmp16;
 	  break;
 	  case 8:
@@ -985,7 +985,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
+	    tmp16=audio_buffer[samplepos%32768]%((buf16[sampleposread%32768]-32768)+1); // TESTY OCT13
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:
@@ -1150,7 +1150,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[x]=tmp32;
 	  break;
 	  case 6:
-	    tmp16=audio_buffer[samplepos%32768]-(buf16[samplepos%32768]-32768);
+	    tmp16=audio_buffer[samplepos%32768]%((buf16[sampleposread%32768]-32768)+1); // TESTY OCT13;
 	  mono_buffer[x]=tmp16;
 	  break;
 	  case 7:

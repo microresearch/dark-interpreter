@@ -439,6 +439,11 @@ VFP = vector floating point
 
 http://edb-journey.blogspot.de/2013/08/debugging-fpu-registers-vfp-in-gdb.html
 
+
+* MON 13 OCT
+
+for this master/diana branch add modulus with buf16 as effect to all in audio.c TO TEST!
+
 * MON 15 SEPT
 
 towers branch forked
