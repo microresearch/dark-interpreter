@@ -9,6 +9,7 @@ organ!
 
 ** TODO:
 
+- some effects as buf16 code (eg. impulses, convolution, envelope detection/reduction)
 - mirror in villagers as pointer to villagers
 - HW hangings in overlap scheme? how?
 - R/W and expands for leftread/leftwrite

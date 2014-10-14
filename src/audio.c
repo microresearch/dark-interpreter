@@ -286,7 +286,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	u8 countr=0;
 	while(countr<sz/2){
 	    if (++delread>readspeed) {
-	      counterr+=dirry;countr++;
+	      counterr+=dirry;countr++;  // mismatch in countr not being +=dirry??? so we never skip?
 	      delread=0;
 	      // moved in here 13 OCT - TEST!
 	      src++;
@@ -329,12 +329,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	xx=0;
 	while(xx<sz/2){
 	    if (++delwrite>writespeed) {
-	      counter+=dirryw;xx++;
+	      counter+=dirryw;xx++; // mismatch in xx not being +=dirryw??? so we never skip xx??
 	      mono_buffer[xx]=0;
 	      delwrite=0;
 	    }
 	  if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counterr=writeend;
+	  if (counter<writebegin) counter=writeend;
 	  for (u8 x=0;x<howmanywritevill;x++){
 	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
 
