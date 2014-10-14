@@ -246,18 +246,50 @@ void main(void)
 
   village_write[0].start=0;
   village_read[0].start=0;
-  village_write[0].wrap=32768;
-  village_read[0].wrap=32768;
+  village_write[0].wrap=32767;
+  village_read[0].wrap=32767;
   village_write[0].dir=1;
   village_read[0].dir=1;
   village_write[0].del=0;
   village_read[0].del=0;
-  village_write[0].speed=0;
-  village_read[0].speed=0;
-  village_write[0].step=0;
-  village_read[0].step=0;
+  village_write[0].speed=1;
+  village_read[0].speed=1;
+  village_write[0].step=1;
+  village_read[0].step=1;
+  village_read[0].dirry=direction[village_read[0].dir]*village_read[0].step;
+  village_read[0].samplepos=village_read[0].start;
+  village_write[0].dirry=direction[village_write[0].dir]*village_write[0].step;
+  village_write[0].samplepos=village_write[0].start;
+  village_read[0].offset=0;
+  village_write[0].offset=0;
 
+  // TEST!
+  /*  for (u8 xx=0;xx<64;xx++){
+  village_read[xx].start=rand()%32768;
+	  village_read[xx].wrap=rand()%32768;
+	  village_read[xx].offset=rand()%32768;
+	  village_read[xx].dir=1;
+	  village_read[xx].del=0;
+	  village_read[xx].samplepos=0;
+	  village_read[xx].speed=rand()%16;
+	  village_read[xx].step=rand()%16;
+	  village_read[xx].dirry=direction[village_read[xx].dir]*village_read[xx].step;
+	  village_read[xx].samplepos=village_read[xx].start;
+	}
 
+      	for (u8 xx=0;xx<64;xx++){
+  village_write[xx].start=rand()%32768;
+	  village_write[xx].wrap=rand()%32768;
+	  village_write[xx].offset=rand()%32768;
+	  village_write[xx].dir=1;
+	  village_write[xx].del=0;
+	  village_write[xx].samplepos=0;
+	  village_write[xx].speed=rand()%16;
+	  village_write[xx].step=rand()%16;
+	  village_write[xx].dirry=direction[village_write[xx].dir]*village_write[xx].step;
+	  village_write[xx].samplepos=village_write[xx].start;
+	  }
+  */
   inittable(3,4,randi());
   const float32_t pi= 3.141592;
   float32_t w;
@@ -428,7 +460,7 @@ void main(void)
       
       //      func_runall(stackyy,STACKPOS); // simulations
       
-      /*      
+     
       for (x=0;x<exenums;x++){
 	switch(exestack[x]){
 	case 0:
@@ -451,7 +483,6 @@ void main(void)
 	  break;
 	}
 	}
-      */     
       
 #endif //eeg
 #endif //straight

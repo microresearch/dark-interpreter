@@ -5,25 +5,27 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* MON 13 OCT
+* MON/TUE 13/14 OCT
 
 ** TODO:
+
 
 - some effects as buf16 code (eg. impulses, convolution, envelope detection/reduction)
 - mirror in villagers as pointer to villagers
 - HW hangings in overlap scheme? how?
 - R/W and expands for leftread/leftwrite
 - modulus as effect in both master/TEST and towers
-- overlaps as selected= and, or, mod, *, +, none
-- do we insert dategen/buf16 there in readin????
+- walker for datagens supersedes stack code
 
 ** DONE
 
 - got rid of straight in/out as is same as overlap/no with 1 villager,
-only one read and write mdoe
-
+  so only one read and write mode
 - sanity test of villagers (vaguely in test.c checks out!)
-- changed loop for sample update - to TEST!
+- changed loop for sample update - to TEST!- REVERTed to earlier version
+
+- overlaps as selected= and, or, mod, *, +, none
+- do we insert dategen/buf16 there in readin????DONE - as a swop
 
 
 * FRI 10 OCT
