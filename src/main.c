@@ -453,8 +453,9 @@ void main(void)
     case 10:
       village_datagen[x].position=runSIR16(village_datagen[x].speed,village_datagen[x].position);
       break;
-
       /// add in sims
+    case 11:
+      village_datagen[x].position=runform(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
 
     } // end of switch
 
