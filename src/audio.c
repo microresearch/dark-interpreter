@@ -142,18 +142,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern u8 inp;
   u8 xx,spd;
   u8 mainmode, whichvillager,step;
-  int16_t count,tmp,tmp16,last,lastt;
+  int16_t tmp,tmp16,last,lastt,count;
   float FMODW=0.5f;
   static u8 howmanywritevill=1,howmanyreadvill=1,writeoverlay=0,readoverlay=0;
-  static u8 whichw=0,whichr=0,delread=0,delwrite=0,readbit;
+  static u8 whichw=0,whichr=0,delread=0,delwrite=0,readbit=1,readspeed=1,writespeed=1;
   static int16_t dirryw=1,dirry=1;
   static u16 samplepos=0,sampleposw=0,sampleposread=0,startread=0,startwrite=0,wrapread=32767,wrapwrite=32767;
   static u16 counter=0,counterr=0;
-  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768,readspeed=1,writespeed=1;
-
-  extern villagerr village_write[MAX_VILLAGERS];
-  extern villagerr village_read[MAX_VILLAGERS];
-  extern villagerr village_filt[MAX_VILLAGERS];
+  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32768,writeoffset=32768;
+  extern u8 howmanydatavill;
+  extern villagerr village_write[MAX_VILLAGERS+1];
+  extern villagerr village_read[MAX_VILLAGERS+1];
+  extern villagerr village_filt[MAX_VILLAGERS+1];
+  extern villager_generic village_datagen[MAX_VILLAGERS+1];
 
   //  howmanywritevill=64; // TESTY!
   //  howmanyreadvill=64; // TESTY!
@@ -212,25 +213,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
 
+	    // and if is running already?
+	    if (village_write[whichvillager].running==0){
 	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
+	    }
 	    break;
 
-	  case 1: // WRITEMODE compression???
-	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
-	    writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    writeend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    writeoffset=loggy[adc_buffer[FOURTH]];
-	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryw=-((spd&240)>>4);
-	    else if (xx==1) dirryw=((spd&240)>>4);
-	    else if (xx==2) dirryw=newdirection[wormdir];
-	    else dirryw=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
-	    if (dirryw>0) counter=writebegin;
-	      else counter=writeend+writebegin;
-	    break;
 
-	  case 2:// READ
+	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -254,8 +245,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
 
+	    // and if is running already?
+	    if (village_read[whichvillager].running==0){
+	    
 	    if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
 	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
+	    }
+	    break;
+
+	  case 2: // WRITEMODE compression???
+	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
+	    writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    writeend=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    writeoffset=loggy[adc_buffer[FOURTH]];
+	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    if (xx==0) dirryw=-((spd&240)>>4);
+	    else if (xx==1) dirryw=((spd&240)>>4);
+	    else if (xx==2) dirryw=newdirection[wormdir];
+	    else dirryw=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
+	    if (dirryw>0) counter=writebegin;
+	      else counter=writeend+writebegin;
 	    break;
 
 	  case 3: // READMODE compression???
@@ -272,24 +281,55 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (dirry>0) counterr=readbegin;
 	    else counterr=readbegin+readend;
 	    break;
+
+	    // EXPERIMNET?TESTY!
+
+	  case 4: // DATAGEN villagers at moment just CA 0-10; %11
+
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    howmanydatavill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
+	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    }
+	    if (adc_buffer[THIRD]>10){
+	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
+	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>8;
+	    }
+	    village_datagen[whichvillager].dir=xx;
+	    village_datagen[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_datagen[whichvillager].step=(spd&240)>>4;
+
 	  }
 	}
 	//////	
 	// process villagers - first attempt sans effects
 
 	// READ!
-	//	readoverlay=4;
+	//	readoverlay=0; // TESTY!
+	//	readbit=1;
 
 	if (readbit){
 	switch(readoverlay){
 	case 0:
-	for (xx=0;xx<sz/2;xx++){
+	  for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      audio_buffer[village_read[x].samplepos%32768]=tmp16;
@@ -301,6 +341,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -315,16 +356,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		counterr+=dirry;
 		delread=0;
 	      }
-	}
+	      }
 	break;
 	case 1:
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]|=tmp+32768;
 	      audio_buffer[village_read[x].samplepos%32768]|=tmp16;
@@ -336,6 +388,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -356,10 +409,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]+=tmp+32768;
 	      audio_buffer[village_read[x].samplepos%32768]+=tmp16;
@@ -371,6 +435,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -391,10 +456,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]^=tmp+32768;
 	      audio_buffer[village_read[x].samplepos%32768]^=tmp16;
@@ -406,6 +483,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -426,10 +504,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]%=(tmp+32768);
@@ -443,6 +533,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -463,10 +554,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]*=(tmp+32768);
@@ -480,6 +583,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -500,10 +604,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]&=(tmp+32768);
@@ -517,6 +633,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -537,11 +654,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  last=0;lastt=0;
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      if (tmp>lastt) buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      lastt=tmp;
@@ -555,6 +684,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -579,10 +709,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      audio_buffer[village_read[x].samplepos%32768]=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
@@ -592,6 +734,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -612,10 +755,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      audio_buffer[village_read[x].samplepos%32768]|=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
@@ -625,6 +780,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -645,10 +801,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      audio_buffer[village_read[x].samplepos%32768]+=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
@@ -658,6 +826,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -678,10 +847,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      audio_buffer[village_read[x].samplepos%32768]^=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
@@ -691,6 +872,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -711,10 +893,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
 	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]%=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
@@ -725,6 +919,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -745,10 +940,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
 	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]*=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
@@ -759,6 +966,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -779,10 +987,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
 	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]&=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
@@ -793,6 +1013,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -813,11 +1034,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) counterr=readbegin;
-	  if (counterr<readbegin) counterr=readend+readbegin;
+	  if ((counterr-readbegin)>=readend) {
+	    counterr=readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }
+	  }	    
+	  if (counterr<=readbegin) {
+	    counterr=readend+readbegin;
+	    for (u8 x=0;x<howmanyreadvill;x++){
+	      village_read[x].running=1;
+	  }	    
+	  }
 	  last=0;
 	  for (u8 x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
+	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
 	      if (last>tmp) audio_buffer[village_read[x].samplepos%32768]=tmp;
 	      last=tmp;
 	      if (++village_read[x].del>=village_read[x].step){
@@ -828,6 +1061,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
@@ -850,25 +1084,37 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
    	// WRITE!
 
-	//	writeoverlay=7;
+	//	writeoverlay=0;
 	switch(writeoverlay){// 8 options
 	case 0:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
+	      //village_write[x].samplepos++;
 
 	      if (++village_write[x].del>=village_write[x].step){
 	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
+	      if (count<village_write[x].wrap && count>=0)
 	      {
 		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -877,9 +1123,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
 		}
 	    village_write[x].del=0;
-	      }
 	    }
-	  }
+	    }
+	    }
       if (++delwrite>writespeed) {
 		counter+=dirryw;
 		delwrite=0;
@@ -889,10 +1135,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 1:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      mono_buffer[xx]|=audio_buffer[village_write[x].samplepos%32768];
 
 	      if (++village_write[x].del>=village_write[x].step){
@@ -903,6 +1159,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -923,12 +1180,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 2:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      mono_buffer[xx]+=audio_buffer[village_write[x].samplepos%32768];
-
 	      if (++village_write[x].del>=village_write[x].step){
 	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
 	      if (count<village_write[x].wrap && count>0)
@@ -937,6 +1203,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -957,10 +1224,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 3:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      mono_buffer[xx]^=audio_buffer[village_write[x].samplepos%32768];
 	      if (++village_write[x].del>=village_write[x].step){
 	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
@@ -970,6 +1247,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -990,10 +1268,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 4:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      if (mono_buffer[xx]!=0){
 		if (audio_buffer[village_write[x].samplepos%32768]!=0) mono_buffer[xx]%=(audio_buffer[village_write[x].samplepos%32768]);}
 		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
@@ -1006,6 +1294,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -1026,10 +1315,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 5:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      if (mono_buffer[xx]!=0){
 		mono_buffer[xx]*=audio_buffer[village_write[x].samplepos%32768];
 	      }
@@ -1043,6 +1342,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -1063,10 +1363,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 6:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      if (mono_buffer[xx]!=0){
 		mono_buffer[xx]&=audio_buffer[village_write[x].samplepos%32768];
 	      }
@@ -1080,6 +1390,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -1100,11 +1411,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	case 7:
 	for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-      if ((counter-writebegin)>writeend) counter=writebegin;
-	  if (counter<writebegin) counter=writeend+writebegin;
+	  if ((counter-writebegin)>=writeend) {
+	    counter=writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }
+	  }	    
+	  if (counter<=writebegin) {
+	    counter=writeend+writebegin;
+	    for (u8 x=0;x<howmanywritevill;x++){
+	      village_write[x].running=1;
+	  }	    
+	  }
 	  last=0;
 	  for (u8 x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
 	      /*	      if (mono_buffer[xx]!=0){
 		mono_buffer[xx]=(float32_t)mono_buffer[xx]*FMODW*(float32_t)audio_buffer[village_write[x].samplepos%32768];
 	      }
@@ -1122,6 +1443,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  }
 	      else
 		{
+		  village_write[x].running=0;
 		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
@@ -1161,8 +1483,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   // question of granularity
 
 	// TESTY!
-	inp=2;
-	dohardwareswitch(0,0);
+	//	inp=2;
+	//	dohardwareswitch(0,0);
 
 #endif // for test eeg
 #endif // for straight

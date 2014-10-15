@@ -7,14 +7,20 @@ organ!
 
 * WED 15
 
-- all expansions after walker code!
-- how and where effects between write-villagers are timed
-- villager overlays/readbit should be per villager 
+TODO:
 
+- debug audio.c as has problems!
+- how and where effects between write-villagers are timed
+- villager overlays/readbit should be per villager ideally
+
+** DONE
+- all expansions after walker selects - still keep in mind
+
+check main.c line: howmuch for sim and CA are high?
 
 * MON/TUE 13/14 OCT
 
-** TODO:
+** TODO/notes:
 
 - some effects as buf16 code (eg. impulses, convolution, envelope detection/reduction)
 - mirror in villagers as pointer to villagers

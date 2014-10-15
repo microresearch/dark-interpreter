@@ -33,11 +33,21 @@
       u16 start;
       u16 wrap;
       u16 samplepos;
-      u8 effect,del,dirry,overlap;
+      u8 del,dirry;
       u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
+      u8 running;
     } villagerr;
 
+    typedef struct {
+      u16 start;
+      u16 wrap;
+      u16 position;
+      u8 del,dirry;
+      u8 speed, step, cpu; 
+      u8 dir; // TODO: do as union or whatever for dir//flag for mirror
+      u8 running;
+    } villager_generic;
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);

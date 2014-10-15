@@ -226,9 +226,12 @@ u8 fingerdirupdown(void){
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
   villagerr village_write[MAX_VILLAGERS+1];
   villagerr village_read[MAX_VILLAGERS+1];
   villagerr village_filt[MAX_VILLAGERS+1];
+villager_generic village_datagen[MAX_VILLAGERS+1];
+u8 howmanydatavill;
 
 u16 testfunction(void){
   u16 tester=adc_buffer[FIRST];
@@ -359,19 +362,10 @@ void main(void)
 
 #endif
 
-  u16 hwdel=0;
-  u16 hwpos=0;
-  signed char stack_pos=0;
-  signed char stack_posy=0;
-  u16 start=0,wrap=0;
-  u8 exenums=0, which=0,other=1;
-
-  struct stackey stackyy[STACK_SIZE];
-  struct stackeyyy stackyyy[STACK_SIZE];
   buf16 = (u16*) datagenbuffer;
-  u8 leakiness=randi()%255;
-  u8 infection=randi()%255;
-
+  m->m_leakiness=randi()%255;
+  m->m_infectprob=randi()%255;
+  m->m_memory=datagenbuffer;
 
   // fill datagenbuffer???
 
@@ -379,54 +373,6 @@ void main(void)
      buf16[x]=randi()<<4;
     delayxx();
   }
-
-
-  // CPUintrev3:
-  for (x=0; x<64; x++) // was 100
-    {
-      addr=rand()%65536; // AUG!
-      //      addr=randi()<<3;
-      cpustackpush(m,addr,rand()%65536,rand()%CPU_TOTAL,rand()%24); // was <<3 RAND AUG
-    }
-
-  //pureleak
-
-  for (x=0;x<100;x++){
-      addr=rand()%65536; // AUG!
-      //    addr=randi()<<3;
-    cpustackpushhh(datagenbuffer,addr,rand()%65536,rand()%CPU_TOTAL,rand()%24);// was <<3 RAND AUG
-  }
-
-  // CA
-  for (x=0;x<(STACK_SIZE);x++){
-    //          start=randi()<<4;
-    //          wrap=randi()<<4;
-      start=rand()%65536; // AUG!
-      wrap=rand()%65536;
-	  stack_posy=ca_pushn(stackyyy,rand()%65536,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
-  }
-
-
-  //simulationforstack:	
-    for (x=0;x<STACK_SIZE;x++){
-      //    start=randi()<<4;
-      //      wrap=randi()<<4;
-      start=rand()%65536; // AUG!
-      wrap=rand()%65536;
-      //      stack_pos=func_pushn(stackyy,randi()<<4,buf16,stack_pos,randi()<<4,start,wrap);
-      stack_pos=func_pushn(stackyy,rand()%65536,buf16,stack_pos,rand()%65536,start,wrap);//AUG!
-  }
-
-    // execution stack
-        for (x=0;x<MAX_EXE_STACK;x++){
-	  exenums=exestackpush(exenums,exestack,rand()%4); //exetype=0-3 
-			  //exenums=exestackpush(exenums,exestack,1); //exetype=0-3 TESTY!=CPU
-      }
-
-
-		    m->m_leakiness=leakiness;
-		    m->m_infectprob=infection;
-		    m->m_memory=datagenbuffer;
   
 	    // compile test
 	    //	    	    	    testvocode();
@@ -447,6 +393,35 @@ void main(void)
   }
 #else
 
+  /// HERE!
+
+  // experimentally run through datagen villagers - now just with CA!
+
+  u16 counterd, databegin=0,dataend=32768;
+
+  if ((counterd-databegin)>=dataend) {
+    counterd=databegin;
+    for (u8 x=0;x<howmanydatavill;x++){
+      village_datagen[x].running=1;
+    }
+  }	    
+  if (counterd<=databegin) {
+    counterd=dataend+databegin;
+    for (u8 x=0;x<howmanydatavill;x++){
+      village_datagen[x].running=1;
+	  }	    
+	  }
+
+  for (x=0;x<howmanydatavill;x++){
+    if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
+
+
+    switch(village_datagen[x].cpu){      
+    }
+  }
+  }
+  ///// end of DATAGEN villagers!
+
 #ifdef PCSIM
       // randomise adc_buffer
       for (x=0;x<10;x++){
@@ -457,32 +432,6 @@ void main(void)
       I2S_RX_CallBack(src, dst, BUFF_LEN/2); 
       //printf("STACKPOS %d\n",STACKPOSY);
 #endif
-      
-      //      func_runall(stackyy,STACKPOS); // simulations
-      
-     
-      for (x=0;x<exenums;x++){
-	switch(exestack[x]){
-	case 0:
-	  func_runall(stackyy,64); // simulations
-	  break;
-	case 1:
-	  ca_runall(stackyyy,64); // CA
-	  break;
-	case 2:
-	  	  machine_run(m); //cpu
-	  break;
-	case 3:
-	  //	  machine_count++;
-	  //	  if (machine_count>=MACHINESPEED){
-	    machine_runnn(datagenbuffer); // pureleak
-	    //	    machine_count=0;
-	    //	  }
-	  break;
-	case 4: // never used!
-	  break;
-	}
-	}
       
 #endif //eeg
 #endif //straight
