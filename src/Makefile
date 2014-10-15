@@ -13,7 +13,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
 			syscalls.o pureleak2.o audio.o hardware.o effect.o\
-			simforstacksansmem2.o CPUintrev3.o CAforstacksansmem2.o
+			simforstacksansmem2.o CPUintrev4.o CAforstacksansmem2.o
 
 # Linker script
 #LDSCRIPT = stm32f407.ld
