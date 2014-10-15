@@ -1102,13 +1102,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mono_buffer[xx]=0;
       if ((counter-writebegin)>writeend) counter=writebegin;
 	  if (counter<writebegin) counter=writeend+writebegin;
+	  last=0;
 	  for (u8 x=0;x<howmanywritevill;x++){
 	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].wrap>(counter-(village_write[x].offset%writeoffset))){
-	      if (mono_buffer[xx]!=0){
+	      /*	      if (mono_buffer[xx]!=0){
 		mono_buffer[xx]=(float32_t)mono_buffer[xx]*FMODW*(float32_t)audio_buffer[village_write[x].samplepos%32768];
 	      }
 		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
-	      
+	      */
+	      if (audio_buffer[village_write[x].samplepos%32768]>last) mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
+
+	      last=audio_buffer[village_write[x].samplepos%32768];
 
 	      if (++village_write[x].del>=village_write[x].step){
 	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
@@ -1157,7 +1161,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   // question of granularity
 
 	// TESTY!
-
 	inp=2;
 	dohardwareswitch(0,0);
 

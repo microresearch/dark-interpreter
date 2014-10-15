@@ -5,16 +5,22 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
+* WED 15
+
+- all expansions after walker code!
+- how and where effects between write-villagers are timed
+- villager overlays/readbit should be per villager 
+
+
 * MON/TUE 13/14 OCT
 
 ** TODO:
-
 
 - some effects as buf16 code (eg. impulses, convolution, envelope detection/reduction)
 - mirror in villagers as pointer to villagers
 - HW hangings in overlap scheme? how?
 - R/W and expands for leftread/leftwrite
-- modulus as effect in both master/TEST and towers
+- modulus as effect
 - walker for datagens supersedes stack code
 
 ** DONE
