@@ -70,7 +70,6 @@ extern u16 *buf16;
 u16 runnone(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
   for (u8 s = 0; s < howmuch; s++ ) {
       count++;
-      
   }
   return count;
 }
@@ -604,8 +603,6 @@ void Runge_Kutta(void)
 
 u16 runsimplesir(u8 step, u16 count, u16 start, u16 wrap){
 
-  u8 i;
-
     beta=(float32_t)buf16[0]/65536.0f;
     gamm=(float32_t)buf16[1]/65536.0f;
   S0=1.0-1e-6;
@@ -729,7 +726,7 @@ void seir_Runge_Kutta(void)
 }
 
 
-u16 runseir(uint8_t howmuch,u16 *buf16, u16 count, u16 start, u16 wrap){
+u16 runseir(u8 step, u16 count, u16 start, u16 wrap){
 
   u8 i;
   beta=(float32_t)buf16[0]/65536.0f;

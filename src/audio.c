@@ -295,7 +295,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>8;
+	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>6;// now 64 options
 	    }
 	    village_datagen[whichvillager].dir=xx;
 	    village_datagen[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
@@ -550,6 +550,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 	}
 	break;
+
 	case 5:
 	for (xx=0;xx<sz/2;xx++){
 	  src++;
