@@ -397,7 +397,7 @@ void main(void)
 
   // experimentally run through datagen villagers - now just with CA!
 
-  u16 counterd, databegin=0,dataend=32768;
+  u16 counterd, databegin=0,dataend=32768,deldata=0,dataspeed=1,dirryd=1;
 
   if ((counterd-databegin)>=dataend) {
     counterd=databegin;
@@ -413,13 +413,65 @@ void main(void)
 	  }
 
   for (x=0;x<howmanydatavill;x++){
+    // speed for each
+    
     if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
 
+      if (++village_datagen[x].del>=village_datagen[x].step){
 
     switch(village_datagen[x].cpu){      
+    case 0:
+      village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 1:
+      village_datagen[x].position=runkrum(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 2:
+      village_datagen[x].position=runhodge(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
+      break;
+    case 3:
+      village_datagen[x].position=runhodgenet(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 4:
+      village_datagen[x].position=runlife(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 5:
+      village_datagen[x].position=runcel(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 6:
+      village_datagen[x].position=runcel1d(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 7:
+      village_datagen[x].position=runfire(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 8:
+      village_datagen[x].position=runwire(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 9:
+      village_datagen[x].position=runSIR(village_datagen[x].speed,village_datagen[x].position);
+      break;
+    case 10:
+      village_datagen[x].position=runSIR16(village_datagen[x].speed,village_datagen[x].position);
+      break;
+
+      /// add in sims
+
+    } // end of switch
+
+    if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {
+      village_datagen[x].running=0;
+      // reset
+      village_datagen[x].position=village_datagen[x].start;
     }
+      }
+    } // if running
   }
+
+  if (++deldata>dataspeed) {
+    counterd+=dirryd;
+    deldata=0;
   }
+
   ///// end of DATAGEN villagers!
 
 #ifdef PCSIM

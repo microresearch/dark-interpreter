@@ -9,14 +9,22 @@ organ!
 
 TODO:
 
-- debug audio.c as has problems!
+- check main.c in master branch: howmuch for sim and CA are high// FIX?
 - how and where effects between write-villagers are timed
 - villager overlays/readbit should be per villager ideally
 
+- porting sim now as simforstacksansmem2.c - TODO pull into main and
+  protos in sim.h
+
+porting remaining CPUs as datagen walkers: pureleak with restraints on
+pokee and peekee from start and end
+
 ** DONE
 - all expansions after walker selects - still keep in mind
+- starting on datagen walkers:
+ported CA now as CAforstacksansmem2.c
 
-check main.c line: howmuch for sim and CA are high?
+
 
 * MON/TUE 13/14 OCT
 

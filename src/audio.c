@@ -187,7 +187,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	if (xx!=5){
 	  // which mode are we in?
 	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-	  //mainmode=3; //compression TESTY!
+	  mainmode=4; //datagen TESTY!
 
 	  switch(mainmode){
 	  case 0:// WRITE
@@ -307,8 +307,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	// process villagers - first attempt sans effects
 
 	// READ!
-	//	readoverlay=0; // TESTY!
-	//	readbit=1;
+	readoverlay=0; // TESTY!
+	readbit=1;
 
 	if (readbit){
 	switch(readoverlay){
@@ -678,6 +678,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      last=tmp16;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
+
 	      if (count<village_read[x].wrap && count>0)
 	      {
 		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
@@ -726,6 +727,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 
 	      audio_buffer[village_read[x].samplepos%32768]=tmp;
+
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
