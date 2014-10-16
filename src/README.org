@@ -10,7 +10,8 @@ organ!
 TODO:
 
 - dirry=dir*speed so speed should be 1+ // step can be 0 // speed in
-  generic eg. writespeed is more step
+  generic eg. writespeed is more step TEST as to why stops and starts
+  with fingers on???
 
 - check main.c in master branch: howmuch for sim and CA are high// FIX?
 
