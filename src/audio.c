@@ -207,7 +207,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    //	    village_write[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_write[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_write[whichvillager].step=(spd&240)>>4;
 
 	    //added for overlap of grains/villagers:
@@ -239,7 +239,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    //	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_read[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_read[whichvillager].step=(spd&240)>>4;
 
 	    //added for overlap of grains/villagers:
@@ -261,10 +261,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    writeend=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    writeoffset=loggy[adc_buffer[FOURTH]];
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryw=-((spd&240)>>4);
-	    else if (xx==1) dirryw=((spd&240)>>4);
+	    if (xx==0) dirryw=-(((spd&240)>>4)+1);
+	    else if (xx==1) dirryw=((spd&240)>>4)+1;
 	    else if (xx==2) dirryw=newdirection[wormdir];
-	    else dirryw=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
+	    else dirryw=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
 	    if (dirryw>0) counter=writebegin;
 	      else counter=writeend+writebegin;
 	    break;
@@ -276,10 +276,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    readend=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    readoffset=loggy[adc_buffer[FOURTH]];
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirry=-((spd&240)>>4);
-	    else if (xx==1) dirry=((spd&240)>>4);
+	    if (xx==0) dirry=-(((spd&240)>>4)+1);
+	    else if (xx==1) dirry=((spd&240)>>4)+1;
 	    else if (xx==2) dirry=newdirection[wormdir];
-	    else dirry=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
+	    else dirry=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
 	    if (dirry>0) counterr=readbegin;
 	    else counterr=readbegin+readend;
 	    break;
@@ -300,7 +300,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>6;// now 64 options
 	    }
 	    village_datagen[whichvillager].dir=xx;
-	    village_datagen[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 
 	    // and if is running already?
@@ -315,10 +315,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    //	    writeoffset=loggy[adc_buffer[FOURTH]];
 	    dataspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryd=-((spd&240)>>4);
-	    else if (xx==1) dirryd=((spd&240)>>4);
+	    if (xx==0) dirryd=-(((spd&240)>>4)+1);
+	    else if (xx==1) dirryd=((spd&240)>>4)+1;
 	    else if (xx==2) dirryd=newdirection[wormdir];
-	    else dirryd=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
+	    else dirryd=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
 	    if (dirryd>0) counterd=writebegin;
 	      else counterd=dataend+databegin;
 	    break;
@@ -344,12 +344,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_read[x].running=1;
 	  }
 	  }	    
+
 	  if (counterr<=readbegin) {
 	    counterr=readend+readbegin;
 	    for (u8 x=0;x<howmanyreadvill;x++){
 	      village_read[x].running=1;
 	  }	    
 	  }
+
 	  for (u8 x=0;x<howmanyreadvill;x++){
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;

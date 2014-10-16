@@ -9,10 +9,20 @@ organ!
 
 TODO:
 
+- dirry=dir*speed so speed should be 1+ // step can be 0 // speed in
+  generic eg. writespeed is more step
+
 - check main.c in master branch: howmuch for sim and CA are high// FIX?
-- how and where effects between write-villagers are timed
-- villager overlays/readbit should be per villager ideally
+
+- how and where effects between read-write-villagers are timed (as
+  offset in effects: whichvillager, sourcevillager,endvillager,
+  offset, whicheffect)
+
+- villager overlays/readbit should be per villager ideally - how/where to set?
 - check convolution examples in cpus/ca etc.
+
+- datagen ITSELf walker, HW walkers-see below, filter/effects tests and walkers,
+  mirror/infection etc.
 
 ** DONE
 - all expansions after walker selects - still keep in mind
@@ -26,12 +36,12 @@ ported cpuintrev4 TEST! prototypes in audio.hDONE
 
 ** TODO/notes:
 
-- some effects as buf16 code (eg. impulses, convolution, envelope detection/reduction)
+- some effects as buf16/simulations code (eg. impulses, convolution, envelope detection/reduction)
+
 - mirror in villagers as pointer to villagers
 - HW hangings in overlap scheme? how?
-- R/W and expands for leftread/leftwrite
-- modulus as effect
-- walker for datagens supersedes stack code
+- villagers and expands for leftread/leftwrite
+- modulus as effect???
 
 ** DONE
 
@@ -42,7 +52,7 @@ ported cpuintrev4 TEST! prototypes in audio.hDONE
 
 - overlaps as selected= and, or, mod, *, +, none
 - do we insert dategen/buf16 there in readin????DONE - as a swop
-
+  
 
 * FRI 10 OCT
 
