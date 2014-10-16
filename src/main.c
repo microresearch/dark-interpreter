@@ -335,10 +335,6 @@ void main(void)
 #endif
 #endif // for ifndef PCSIM
 
-  machine *m=(machine *)malloc(sizeof(machine));
-  m->m_threadcount=0;
-  m->m_threads = (thread*)malloc(sizeof(thread)*MAX_THREADS); //PROBLEM with _sbrk FIXED
-
 #ifdef PCSIM
   datagenbuffer=(u8*)malloc(65536);
   audio_buffer=(int16_t*)malloc(32768*sizeof(int16_t));
@@ -363,9 +359,6 @@ void main(void)
 #endif
 
   buf16 = (u16*) datagenbuffer;
-  m->m_leakiness=randi()%255;
-  m->m_infectprob=randi()%255;
-  m->m_memory=datagenbuffer;
 
   // fill datagenbuffer???
 
@@ -560,9 +553,9 @@ void main(void)
     case 46:
     case 47:
     case 48:
-      machine_runnn(village_datagen[x].start,village_datagen[x].wrap);
+      machine_runnn(village_datagen[x].start,village_datagen[x].wrap); // no position change??? always runs?
       break;
-
+      // last run is cpuintrev3/4 to port????!!!
 
     } // end of switch
 

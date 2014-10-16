@@ -90,13 +90,12 @@ void machine_pokeee(uint16_t addr, u8 data,u16 start,u16 end);
 void thread_runnn(u8 threadcount, u16 start,u16 end);
 
 void machine_runnn(u16 start,u16 end){
-  static u8 x; 
+  static u8 x; u16 addr;
   if (datagenbuffer[start]==0) datagenbuffer[start]=128;
   if (x>datagenbuffer[start]) x=0;
   //  for (x=0;x<datagenbuffer[0];x+=2){ 
   thread_runnn(x,start,end);
   x+=2;
-  // }
 }
 
 void cpustackpushhh(u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy,u16 start,u16 end){
@@ -1572,7 +1571,8 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       PCADDRHI=addr>>8;// hi/lo
       PCADDRLO=addr&255;
     }
-}
+      }
+      //      return addr;
 }
 
 inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end) {

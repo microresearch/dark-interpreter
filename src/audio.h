@@ -41,12 +41,15 @@
 
     typedef struct {
       u16 start;
+      u8 CPU;
       u16 wrap;
       u16 position;
       u8 del,dirry;
       u8 speed, step, cpu; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
+      signed char m_stack_pos;
+      u8 m_stack[16];
     } villager_generic;
 
 void Audio_Init(void);

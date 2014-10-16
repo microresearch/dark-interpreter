@@ -5,7 +5,7 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* WED 15
+* WED 15 OCT
 
 TODO:
 
@@ -13,18 +13,14 @@ TODO:
 - how and where effects between write-villagers are timed
 - villager overlays/readbit should be per villager ideally
 
-- porting sim now as simforstacksansmem2.c - TODO pull into main and
-  protos in sim.h
-
-porting remaining CPUs as datagen walkers: pureleak with restraints on
-pokee and peekee from start and end
+- CPUint needs stack etc. in villager--- to port, also needs to do one by one
 
 ** DONE
 - all expansions after walker selects - still keep in mind
 - starting on datagen walkers:
 ported CA now as CAforstacksansmem2.c
-
-
+ported sim TEST!
+ported pureleak TEST!
 
 * MON/TUE 13/14 OCT
 
