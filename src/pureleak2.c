@@ -163,7 +163,10 @@ void thread_runnn(u8 threadnum, u16 start,u16 end) {
   u8 instr,temp;
   u16 y,addr,temprr;
   u8 flag; u16 other=0;
-  u16 offset=(datagenbuffer[start+threadnum+1]<<8)+datagenbuffer[start+threadnum+2]; 
+  u16 wool, wooly;
+  wool=start+threadnum+1;
+  wooly=start+threadnum+2;
+  u16 offset=(datagenbuffer[wool]<<8)+datagenbuffer[wooly]; 
   u16 delay=offset+1;
   u16 delc=offset+2;
   u16 addrhi=offset+3;
@@ -272,7 +275,7 @@ break;
       //      machine_poke(machine_peekkk(datagenbuffer->m_pc++),randi()%255);     
         break;
 	case INP:
-	  machine_pokeee(machine_peekkk(addr++,start,end),datagenbuffer[thread_poppp(offset)%10],start,end);
+	  machine_pokeee(machine_peekkk(addr++,start,end),adc_buffer[thread_poppp(offset)%10],start,end);
 	  addr++;
 	  break;
 
@@ -1577,19 +1580,22 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
 inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end) {
   //	return datagenbuffer->m_heap[addr%HEAP_SIZE];
-  u16 addr2=addr+1;
-  return (datagenbuffer[(addr%end)%start]<<8)+datagenbuffer[addr2];
+  u16 woolier=(addr%end)+start;
+  u16 addr2=woolier+1;
+  return (datagenbuffer[woolier]<<8)+datagenbuffer[addr2];
 }
 
 inline u8 machine_p88kkk(uint16_t addr,u16 start,u16 end) {
   //	return datagenbuffer->m_heap[addr%HEAP_SIZE];
-  return (datagenbuffer[(addr%end)+start]);
+  u16 woolier=(addr%end)+start;
+  return (datagenbuffer[woolier]);
 }
 
 
 inline void machine_pokeee(uint16_t addr, u8 data, u16 start,u16 end) {
   //	datagenbuffer->m_heap[addr%HEAP_SIZE]=data;
-  datagenbuffer[(addr%end)+start]=data;// protecting 0 as number of threads???
+  u16 woolier=(addr%end)+start;
+  datagenbuffer[woolier]=data;// protecting 0 as number of threads???
   //  printf("%c",data);
 }
 

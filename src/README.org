@@ -5,22 +5,22 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* WED 15 OCT
+* WED/THU 15/16 OCT
 
 TODO:
 
 - check main.c in master branch: howmuch for sim and CA are high// FIX?
 - how and where effects between write-villagers are timed
 - villager overlays/readbit should be per villager ideally
-
-- CPUint needs stack etc. in villager--- to port, also needs to do one by one
+- check convolution examples in cpus/ca etc.
 
 ** DONE
 - all expansions after walker selects - still keep in mind
 - starting on datagen walkers:
 ported CA now as CAforstacksansmem2.c
-ported sim TEST!
-ported pureleak TEST!
+ported sim TEST!-done
+ported pureleak TEST!-done/bugsfixed
+ported cpuintrev4 TEST! prototypes in audio.hDONE
 
 * MON/TUE 13/14 OCT
 
@@ -236,7 +236,6 @@ hamming window
 difference convolution and vocoder? pitch shift// csound...
 
 http://music.columbia.edu/pipermail/music-dsp/2000-March/037231.html
-
 
 * THU 2 OCT
 

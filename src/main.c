@@ -239,6 +239,10 @@ u16 testfunction(void){
 }
 
 
+  u16 counterd, databegin=0,dataend=32768;
+  u8 deldata=0,dataspeed=1,dirryd=1;
+
+
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
@@ -390,8 +394,6 @@ void main(void)
 
   // experimentally run through datagen villagers - now just with CA!
 
-  u16 counterd, databegin=0,dataend=32768,deldata=0,dataspeed=1,dirryd=1;
-
   if ((counterd-databegin)>=dataend) {
     counterd=databegin;
     for (u8 x=0;x<howmanydatavill;x++){
@@ -412,6 +414,7 @@ void main(void)
 
       if (++village_datagen[x].del>=village_datagen[x].step){
 
+	//	village_datagen[x].cpu=51; // CRASH TESTY!
     switch(village_datagen[x].cpu){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
@@ -550,13 +553,64 @@ void main(void)
       village_datagen[x].position=runfitz(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
       break;
     case 45:
-    case 46:
-    case 47:
-    case 48:
-      machine_runnn(village_datagen[x].start,village_datagen[x].wrap); // no position change??? always runs?
+      machine_runnn(village_datagen[x].start,village_datagen[x].wrap); 
+      village_datagen[x].position+=village_datagen[x].speed;
       break;
       // last run is cpuintrev3/4 to port????!!!
-
+     case 46:
+      village_datagen[x].position=xxrunleakystack(&village_datagen[x]);
+      break;
+     case 47:
+      village_datagen[x].position=xxrunbiota(&village_datagen[x]);
+      break;
+     case 48:
+      village_datagen[x].position=xxrun1(&village_datagen[x]);
+      break;
+     case 49:
+      village_datagen[x].position=xxrunworm(&village_datagen[x]);
+      break;
+     case 50:
+      village_datagen[x].position=xxrunstack(&village_datagen[x]);
+      break;
+     case 51:
+      village_datagen[x].position=xxrunbefunge(&village_datagen[x]);
+      break;
+     case 52:
+      village_datagen[x].position=xxrunlang(&village_datagen[x]);
+      break;
+     case 53:
+      village_datagen[x].position=xxrunbf(&village_datagen[x]);
+      break;
+     case 54:
+      village_datagen[x].position=xxrunturm(&village_datagen[x]);
+      break;
+     case 55:
+      village_datagen[x].position=xxrunca(&village_datagen[x]);
+      break;
+     case 56:
+      village_datagen[x].position=xxrunhodge(&village_datagen[x]);
+      break;
+     case 57:
+      village_datagen[x].position=xxrunworm2(&village_datagen[x]);
+      break;
+     case 58:
+      village_datagen[x].position=xxrunleaky(&village_datagen[x]);
+      break;
+     case 59:
+      village_datagen[x].position=xxrunconvy(&village_datagen[x]);
+      break;
+     case 60:
+      village_datagen[x].position=xxrunplague(&village_datagen[x]);
+      break;
+     case 61:
+      village_datagen[x].position=xxrunmicro(&village_datagen[x]);
+      break;
+     case 62:
+      village_datagen[x].position=xxruncw(&village_datagen[x]);
+      break;
+     case 63:
+      village_datagen[x].position=xxrunmasque(&village_datagen[x]);
+      break;
     } // end of switch
 
     if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {

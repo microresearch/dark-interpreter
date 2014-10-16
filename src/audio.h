@@ -50,10 +50,32 @@
       u8 running;
       signed char m_stack_pos;
       u8 m_stack[16];
+      u16 m_reg16bit1;
+      u8 m_reg8bit1,m_reg8bit2;
     } villager_generic;
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);
 
+u16 xxrunleakystack(villager_generic *villager);
+u16 xxrunbiota(villager_generic *villager);
+u16 xxrun1(villager_generic *villager);
+u16 xxrunworm(villager_generic *villager);
+u16 xxrunstack(villager_generic *villager);
+u16 xxrunbefunge(villager_generic *villager);
+u16 xxrunlang(villager_generic *villager);
+u16 xxrunbf(villager_generic *villager);
+u16 xxrunturm(villager_generic *villager);
+u16 xxrunca(villager_generic *villager);
+u16 xxrunant(villager_generic *villager);
+u16 xxrunca2(villager_generic *villager);
+u16 xxrunhodge(villager_generic *villager);
+u16 xxrunworm2(villager_generic *villager);
+u16 xxrunleaky(villager_generic *villager);
+u16 xxrunconvy(villager_generic *villager);
+u16 xxrunplague(villager_generic *villager);
+u16 xxrunmicro(villager_generic *villager);
+u16 xxruncw(villager_generic *villager);
+u16 xxrunmasque(villager_generic *villager);
 #endif
 

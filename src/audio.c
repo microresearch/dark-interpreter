@@ -155,6 +155,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern villagerr village_read[MAX_VILLAGERS+1];
   extern villagerr village_filt[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
+  extern u16 databegin,dataend,counterd;
+  extern u8 dirryd,dataspeed;  
 
   //  howmanywritevill=64; // TESTY!
   //  howmanyreadvill=64; // TESTY!
@@ -187,7 +189,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	if (xx!=5){
 	  // which mode are we in?
 	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-	  mainmode=4; //datagen TESTY!
+	  //	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=4; //datagen TESTY!
+	  //	  else mainmode=5;
 
 	  switch(mainmode){
 	  case 0:// WRITE
@@ -247,8 +250,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    // and if is running already?
 	    if (village_read[whichvillager].running==0){
-	    
-	    if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
+	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
 	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
 	    }
 	    break;
@@ -301,14 +303,34 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_datagen[whichvillager].speed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 
-	  }
-	}
-	//////	
+	    // and if is running already?
+	    if (village_datagen[whichvillager].running==0){
+	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
+	    }
+	    break;
+
+	  case 5: // DATAGEN compression???
+	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
+	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    //	    writeoffset=loggy[adc_buffer[FOURTH]];
+	    dataspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    if (xx==0) dirryd=-((spd&240)>>4);
+	    else if (xx==1) dirryd=((spd&240)>>4);
+	    else if (xx==2) dirryd=newdirection[wormdir];
+	    else dirryd=direction[adc_buffer[DOWN]&1]*((spd&240)>>4);
+	    if (dirryd>0) counterd=writebegin;
+	      else counterd=dataend+databegin;
+	    break;
+	  } // switch mainmode
+	} // fingerrrrzzzxx
+
+	//////////////////////////////////////////////////////////	
 	// process villagers - first attempt sans effects
 
 	// READ!
-	readoverlay=0; // TESTY!
-	readbit=1;
+	//	readoverlay=0; // TESTY!
+	//	readbit=1;
 
 	if (readbit){
 	switch(readoverlay){
@@ -331,7 +353,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  for (u8 x=0;x<howmanyreadvill;x++){
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      buf16[village_read[x].samplepos%32768]=tmp+32768;
+	      //	      buf16[village_read[x].samplepos%32768]=tmp+32768;
 	      audio_buffer[village_read[x].samplepos%32768]=tmp16;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
