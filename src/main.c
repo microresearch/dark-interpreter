@@ -533,7 +533,7 @@ cpuattached=malloc(64);//[64];
     //          wrap=randi()<<4;
       start=rand()%65536; // AUG!
       wrap=rand()%65536;
-	  stack_posy=ca_pushn(stackyyy,rand()%65536,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
+      stack_posy=ca_pushn(stackyyy,rand()%65536,datagenbuffer,stack_posy,randi()<<4,start,wrap); 
   }
 
 
