@@ -239,8 +239,9 @@ u16 testfunction(void){
 }
 
 
-  u16 counterd, databegin=0,dataend=32768;
-  u8 deldata=0,dataspeed=1,dirryd=1;
+u16 counterd=0, databegin=0,dataend=32767;
+u8 deldata=0,dataspeed=1;
+int16_t dirryd=1;
 
 
 void main(void)
@@ -375,6 +376,13 @@ void main(void)
 	    //	    	    	    testvocode();
 	    //	    	    x=sqrtf(x);
 
+  // inits for datagens
+
+  seirinit(buf16);// LEAVE IN!
+  sicrinit(buf16);// LEAVE IN!
+  ifsinit(buf16);// LEAVE IN!
+
+
   while(1)
     {
 
@@ -400,6 +408,7 @@ void main(void)
       village_datagen[x].running=1;
     }
   }	    
+
   if (counterd<=databegin) {
     counterd=dataend+databegin;
     for (u8 x=0;x<howmanydatavill;x++){
@@ -409,12 +418,10 @@ void main(void)
 
   for (x=0;x<howmanydatavill;x++){
     // speed for each
-    
-    if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
+        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
+	  if (++village_datagen[x].del>=village_datagen[x].step){
 
-      if (++village_datagen[x].del>=village_datagen[x].step){
-
-	//	village_datagen[x].cpu=51; // CRASH TESTY!
+	    village_datagen[x].cpu=11; // CRASH TESTY!
     switch(village_datagen[x].cpu){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
@@ -618,11 +625,12 @@ void main(void)
       // reset
       village_datagen[x].position=village_datagen[x].start;
     }
+    village_datagen[x].del=0;
       }
     } // if running
-  }
+  } // end of x/run thru all villagers
 
-  if (++deldata>dataspeed) {
+  if (++deldata>=dataspeed) {
     counterd+=dirryd;
     deldata=0;
   }

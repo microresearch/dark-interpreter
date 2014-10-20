@@ -33,7 +33,8 @@
       u16 start;
       u16 wrap;
       u16 samplepos;
-      u8 del,dirry;
+      u8 del;
+      int16_t dirry;
       u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
@@ -44,7 +45,8 @@
       u8 CPU;
       u16 wrap;
       u16 position;
-      u8 del,dirry;
+      u8 del;
+      int16_t dirry;
       u8 speed, step, cpu; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;

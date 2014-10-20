@@ -156,7 +156,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern villagerr village_filt[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
   extern u16 databegin,dataend,counterd;
-  extern u8 dirryd,dataspeed;  
+  extern u8 dataspeed;  
+  extern int16_t dirryd;
 
   //  howmanywritevill=64; // TESTY!
   //  howmanyreadvill=64; // TESTY!
@@ -189,8 +190,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	if (xx!=5){
 	  // which mode are we in?
 	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-	  //	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=4; //datagen TESTY!
-	  //	  else mainmode=5;
+	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=4; //datagen TESTY!
+	  else mainmode=5;
+	  //	  mainmode=4;
 
 	  switch(mainmode){
 	  case 0:// WRITE
@@ -287,7 +289,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    // EXPERIMNET?TESTY!
 
 	  case 4: // DATAGEN villagers at moment just CA 0-10; %11
-
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -299,7 +300,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (adc_buffer[FOURTH]>10){
 	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>6;// now 64 options
 	    }
-	    village_datagen[whichvillager].dir=xx;
+	    //	    village_datagen[whichvillager].dir=xx;
 	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 
@@ -329,8 +330,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	// process villagers - first attempt sans effects
 
 	// READ!
-	//	readoverlay=0; // TESTY!
-	//	readbit=1;
+		readoverlay=0; // TESTY!
+		readbit=1; // TESTY for datagens see below also!!!!
 
 	if (readbit){
 	switch(readoverlay){
@@ -355,7 +356,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  for (u8 x=0;x<howmanyreadvill;x++){
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      //	      buf16[village_read[x].samplepos%32768]=tmp+32768;
+	      buf16[village_read[x].samplepos%32768]=tmp+32768; ///TESTY!
 	      audio_buffer[village_read[x].samplepos%32768]=tmp16;
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);

@@ -5,22 +5,59 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* WED/THU 15/16 OCT
+* MON 20 OCT
+
+** DONE:
+
+- dirry=dir*speed so speed should be 1+ // step can be 0 // speed in
+  generic eg. writespeed is more step TESTed
+
+- check inits for simulation etc...DONE. RE-TEST
+
+- check convolution examples in cpus/ca etc.NOTE: as overwrite own
+  values will be problem - fix with write to offset
+
+* FRI 17 OCT : TODO
+
+simplify walkers (also cpus) as function/pointers!?
+
+** HW walkers:
+
+1- which/start/end/effect ---> speed// set/unset/float (=fingers)
+
+now simply as 4 in options(what of float?), no overlap, 32 hardware
+options
+
++ question of HW granularity (should it be in other/say input loop?)
+
++ how we handle walkers for: 1-40106(always),2-lmer,3-maximer,4-hdgener //depending on
+  if selected or?
+
+as simple walker or set of villagers?
+
+/////
+
+** Effects:
+
+- do they operate across own chunks or across villagers (R/W) as source/end?
+- how are they timed? own start/end/offset kind of????
+
+** Mirrors/infection across villager sets/within:
+
+mirror as pointer/mirror as from datagen(from which walker-datagen itself walker)
+
+mirror villager defines this (control)
+
+* WED/THU 15/16 OCT TODO
 
 TODO:
 
-- dirry=dir*speed so speed should be 1+ // step can be 0 // speed in
-  generic eg. writespeed is more step TEST as to why stops and starts
-  with fingers on???
-
-- check main.c in master branch: howmuch for sim and CA are high// FIX?
 
 - how and where effects between read-write-villagers are timed (as
   offset in effects: whichvillager, sourcevillager,endvillager,
   offset, whicheffect)
 
 - villager overlays/readbit should be per villager ideally - how/where to set?
-- check convolution examples in cpus/ca etc.
 
 - datagen ITSELf walker, HW walkers-see below, filter/effects tests and walkers,
   mirror/infection etc.
@@ -38,11 +75,9 @@ ported cpuintrev4 TEST! prototypes in audio.hDONE
 ** TODO/notes:
 
 - some effects as buf16/simulations code (eg. impulses, convolution, envelope detection/reduction)
-
 - mirror in villagers as pointer to villagers
 - HW hangings in overlap scheme? how?
 - villagers and expands for leftread/leftwrite
-- modulus as effect???
 
 ** DONE
 
