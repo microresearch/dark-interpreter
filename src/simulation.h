@@ -82,3 +82,56 @@ signed char func_pop(u8 stack_pos);
 void ca_runall(struct stackeyyy stack[STACK_SIZE], u8 stack_posy);
 signed char ca_pushn(struct stackeyyy stack[STACK_SIZE], u16 typerr, u8* buffer, u8 stack_posy, u16 howmuch, u16 start, u16 wrap);
 signed char ca_pop(u8 stack_posy);
+
+u16 runnoney(u8 step, u16 x);
+u16 runkrum(u8 step, u16 x);
+u16 runhodge(u8 step, u16 x,u16 start,u16 wrap);
+u16 runhodgenet(u8 step, u16 x);
+u16 runlife(u8 step, u16 x);
+u16 runcel(u8 step, u16 x);
+u16 runcel1d(u8 step, u16 x);
+u16 runfire(u8 step, u16 x);
+u16 runwire(u8 step, u16 x);
+u16 runSIR(u8 step, u16 x);
+u16 runSIR16(u8 step, u16 x);
+
+u16 runform(u8 step, u16 count, u16 start, u16 wrap);
+u16 runconv(u8 step, u16 count, u16 start, u16 wrap);
+u16 runsine(u8 step, u16 count, u16 start, u16 wrap);
+u16 runchunk(u8 step, u16 count, u16 start, u16 wrap);
+u16 runderefchunk(u8 step, u16 count, u16 start, u16 wrap);
+u16 runwalkerchunk(u8 step, u16 count, u16 start, u16 wrap);
+u16 runswapchunk(u8 step, u16 count, u16 start, u16 wrap);
+u16 runinc(u8 step, u16 count, u16 start, u16 wrap);
+u16 rundec(u8 step, u16 count, u16 start, u16 wrap);
+u16 runleft(u8 step, u16 count, u16 start, u16 wrap);
+u16 runright(u8 step, u16 count, u16 start, u16 wrap);
+u16 runswap(u8 step, u16 count, u16 start, u16 wrap);
+u16 runnextinc(u8 step, u16 count, u16 start, u16 wrap);
+u16 runnextdec(u8 step, u16 count, u16 start, u16 wrap);
+u16 runnextmult(u8 step, u16 count, u16 start, u16 wrap);
+u16 runnextdiv(u8 step, u16 count, u16 start, u16 wrap);
+u16 runcopy(u8 step, u16 count, u16 start, u16 wrap);
+u16 runzero(u8 step, u16 count, u16 start, u16 wrap);
+u16 runfull(u8 step, u16 count, u16 start, u16 wrap);
+u16 runrand(u8 step, u16 count, u16 start, u16 wrap);
+u16 runknob(u8 step, u16 count, u16 start, u16 wrap);
+u16 runswapaudio(u8 step, u16 count, u16 start, u16 wrap);
+u16 runORaudio(u8 step, u16 count, u16 start, u16 wrap);
+u16 runsimplesir(u8 step, u16 count, u16 start, u16 wrap);
+u16 runseir(u8 step, u16 count, u16 start, u16 wrap);
+u16 runsicr(u8 step, u16 count, u16 start, u16 wrap);
+u16 runifs(u8 step, u16 count, u16 start, u16 wrap);
+u16 runrossler(u8 step, u16 count, u16 start, u16 wrap);
+u16 runsecondrossler(u8 step, u16 count, u16 start, u16 wrap);
+u16 runbrussel(u8 step, u16 count, u16 start, u16 wrap);
+u16 runspruce(u8 step, u16 count, u16 start, u16 wrap);
+u16 runoregon(u8 step, u16 count, u16 start, u16 wrap);
+u16 runfitz(u8 step, u16 count, u16 start, u16 wrap);
+
+void machine_runnn(u16 start,u16 end);
+
+
+void seirinit(u16 *workingbuffer);
+void sicrinit(u16 *workingbuffer);
+void ifsinit(u16 *workingbuffer);
