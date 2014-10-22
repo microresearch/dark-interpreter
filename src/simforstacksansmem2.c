@@ -105,8 +105,8 @@ u16 runform(u8 step, u16 count, u16 start, u16 wrap){
   float32_t xp = 0;
   
   //  for (u8 s = 0; s < 8; s++ ) {
-    x=(float32_t)(buf16[count%32768])/32768.0f;
-       x = x + 2.0f * cosf ( PI_2 * freqq ) * buf1Res * q - buf2Res * q * q;
+    x=(float32_t)(buf16[count%32768])/65536.0f;
+    x = x + 2.0f * cosf ( PI_2 * freqq ) * buf1Res * q - buf2Res * q * q;
     buf2Res = buf1Res;
     buf1Res = x;
     x = 0.75f * xp + x;
@@ -115,7 +115,7 @@ u16 runform(u8 step, u16 count, u16 start, u16 wrap){
     else
       accum+=x; // as float32_t
     if (f==2){
-      buf16[count%32768]=(float32_t)accum*32768.0f;
+      buf16[(count+16384)%32768]=(float32_t)accum*65536.0f; // changed OCT!
 #ifdef PCSIM 
       //      printf("%c",buffer[start+count]%255);
       //      printf("%d\n",start+count);
@@ -134,7 +134,7 @@ u16 runform(u8 step, u16 count, u16 start, u16 wrap){
 
 u16 runconv(u8 step, u16 count, u16 start, u16 wrap){
   u16 y,tmp;
-
+  float32_t tmppp;
   float32_t c0=(float32_t)buf16[0]/16384.0;
   float32_t c1=(float32_t)buf16[1]/16384.0;
   float32_t c2=(float32_t)buf16[2]/16384.0;
@@ -145,7 +145,9 @@ u16 runconv(u8 step, u16 count, u16 start, u16 wrap){
     y=count+16384;
     y=y%32768;
     tmp=count-1;
-    buf16[y]=((float32_t)buf16[tmp%32768]*c0)+((float32_t)buf16[count%32768]*c1)+((float32_t)buf16[(count+1)%32768]*c2);
+    //    buf16[y]=((float32_t)buf16[tmp%32768]*c0)+((float32_t)buf16[count%32768]*c1)+((float32_t)buf16[(count+1)%32768]*c2);
+  tmppp=(((float)(buf16[tmp%32768])/65536.0f)*c0)+(((float)(buf16[count%32768])/65536.0f)*c1)+(((float)(buf16[(count+1)%32768])/65536.0f)*c2);
+  buf16[y]=tmppp*65536.0f;
 
 #ifdef PCSIM
     //    //    //    printf("%d %d %d %d %d\n",tmp, count,(count+1)%32768, y, buf16[(count+start)%32768]);

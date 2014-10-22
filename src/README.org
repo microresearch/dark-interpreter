@@ -5,9 +5,103 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* MON 20 OCT
+* WED 22 OCT
+
+** TODO:
+
+- question is how we can have per villager offset _and_
+bitselect/overlapselect - on second compression?
+
+- global offset start - somehow fix compress/expand so is really so
 
 ** DONE:
+
+- fixed log array was one too short DONE
+- check sanity of read and write offset - TEST wrapping up read/writeDONE
+
+** EFFECTs
+
+effects earlier notes combined. to test now but all effects will be
+across villagers:
+
+now mostly in docs...
+
+[-1- old effects mix with datagen]
+0- convolution = example code?
+
+1. phase vocoder/FFT - our old pitchscale.c??? 
+
+JoshUGens/sc/classes/Vocoder.sc
+
+2. 16 channel bandpass/formant/vocoder: ladspa or vst-mda version
+
+mdaVocoder.cpp
+
+3. FFT based (spectral swops/exchange - SCcode=PV_SpectralMap, borsboom/zerius=vocoder in docs,
+snokoder) - breakdown stages
+
+FFT on ARM: http://coactionos.com/embedded%20design%20tips/2013/10/13/Tips-FFT-on-the-ARM-Cortex-M3/
+
+(convulution = multiplication in freq domain)
+
+4. simple formant filtering (above)//generic filter conv.
+
+formant frequency/vowel table (vowels announced from buf16 as text->vowels) 
+
+TTS?, other speech synth?, generate formants based on buf16?
+
+formant: filter signals - (SC=formant, BBandpass?, formlet? where?), biquad (single formant)
+
+biquad.c in docs
+
+** notes/links:
+
+arm_q15_to_float(ADC_samples, ADC_float_samples, NUM_SAMPLES);
+
+15 is signed 16 bit
+
+arm_scale_f32(ADC_float_samples, 32768, ADC_float_samples, NUM_SAMPLES);
+
+   //---------------- DCF block ---------------------------------------
+    //C implementation for a 4pole lowpass DCF with resonance:
+
+    vi=DCO;
+    vo = ((vo * (65536 - CUTOFF)) + (t1 * CUTOFF))/65536; //+3db
+    t1 = ((t1 * (65536 - CUTOFF)) + (t2 * CUTOFF))/65536; //+6db
+    t2 = ((t2 * (65536 - CUTOFF)) + (t3 * CUTOFF))/65536; //+9db
+    t3 = ((t3 * (65536 - CUTOFF)) + (t4 * CUTOFF))/65536; //+12db
+    t4 = ((t4 * (65536 - CUTOFF)) + (t5 * CUTOFF))/65536; //+15db
+    t5 = ((t5 * (65536 - CUTOFF)) + (t6 * CUTOFF))/65536; //+18db
+    t6 = ((t6 * (65536 - CUTOFF)) + (t7 * CUTOFF))/65536; //+21db
+    t7 = ((t7 * (65536 - CUTOFF)) + (t8 * CUTOFF))/65536; //+24db
+    t8 = vi-((vo*RESONANCE)/65536);                     //resonance feedback
+    DCF=vo;
+
+http://forum.arduino.cc/index.php?PHPSESSID=p65dcijap55ekhnm8no9h6s3b3&topic=224227.30
+
+simulation of VOSIM in sc3-plugins, formant ugens: http://gurzil.livejournal.com/15375.html
+
+SC synthdef for vowels with BBandPass : http://sccode.org/1-4Vk and
+
+http://www.sussex.ac.uk/Users/nc81/modules/cm1/scfiles/12.2%20Singing%20Voice%20Synthesis.html
+
+CLM: https://ccrma.stanford.edu/software/snd/snd/clm.html#formant
+
+OWL: http://www.muffwiggler.com/forum/viewtopic.php?p=1495970
+
+https://github.com/pierstitus/STM32F4-Synth
+
+* MON 20 OCT/TUE 21 OCT
+
+** DONE:
+
+- test that villagers are running as is FIXED bug there in audio.c and
+  main.c in walkers (counterr bouncing on >=)DONE
+
+- test difference conv floating as is and fractional /32768??? FIXED in sim
+
+- setup to test audio in and effects (need to read into some kind
+  of effects buffer)
 
 - dirry=dir*speed so speed should be 1+ // step can be 0 // speed in
   generic eg. writespeed is more step TESTed
@@ -51,7 +145,6 @@ mirror villager defines this (control)
 * WED/THU 15/16 OCT TODO
 
 TODO:
-
 
 - how and where effects between read-write-villagers are timed (as
   offset in effects: whichvillager, sourcevillager,endvillager,
@@ -249,7 +342,6 @@ MIRROR modes follow
 2- 16 channel bandpass/formant/vocoder
 3- FFT based (spectral swops/exchange - SCcode=PV_SpectralMap, borsboom,
 snokoder) - breakdown stages
-
 4- simple formant filtering (above)//generic filter conv.
 
 convolve/vocode across villagers

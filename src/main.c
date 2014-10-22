@@ -368,7 +368,7 @@ void main(void)
   // fill datagenbuffer???
 
   for (x=0;x<32768;x++){
-     buf16[x]=randi()<<4;
+    buf16[x]=rand()%65536; // was RANDI OCT
     delayxx();
   }
   
@@ -402,14 +402,14 @@ void main(void)
 
   // experimentally run through datagen villagers - now just with CA!
 
-  if ((counterd-databegin)>=dataend) {
+  if ((counterd-databegin)>dataend) {
     counterd=databegin;
     for (u8 x=0;x<howmanydatavill;x++){
       village_datagen[x].running=1;
     }
   }	    
 
-  if (counterd<=databegin) {
+  if (counterd<databegin) {
     counterd=dataend+databegin;
     for (u8 x=0;x<howmanydatavill;x++){
       village_datagen[x].running=1;
@@ -421,7 +421,7 @@ void main(void)
         if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
 	  if (++village_datagen[x].del>=village_datagen[x].step){
 
-	    village_datagen[x].cpu=11; // CRASH TESTY!
+	    //village_datagen[x].cpu=11; // CRASH TESTY!
     switch(village_datagen[x].cpu){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
