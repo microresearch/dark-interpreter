@@ -6,6 +6,8 @@ LINEIN/OUTL-filter
 
 */
 
+///#define M_PI 3.14159265358979323846
+
 #ifdef TENE
 #define FIRST 2
 #define SECOND 0
@@ -138,11 +140,51 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 u8 fingerdir(u8 *speedmod);
 
+float bandpass(float sample,float value, float fc, float gain){ // from OWL code - statevariable
+  float f,scale,q;
+  static float low=0,band=0;
+  q = sqrtf(1.0 - atanf(sqrtf(value)) * 2.0 / M_PI);
+  scale=sqrtf(q);
+  f = fc / 12000.0; //48000/4
+    //  f = 2* sinf(M_PI * fc /48000); // f = 2 sin (pi * cutoff / fs) //[approximately]
+  low = low + f * band;
+  //    float high = q * sample - low - q*band;
+  float high = scale * sample - low - q*band;
+  band = f * high + band;
+  return band*gain;
+}
+
 int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer, u16 howmany,u16 orfset){
   u16 *buf16 = (u16*) datagenbuffer;
-  float32_t xx,xxx,xxxx;
-  u16 x;
+  u16 x,xxxxx;
+  float xx,xxx,xxxx;
   for (x=0;x<howmany;x++){
+
+    /* formant ee: how to convert???
+
+VOWEL SOUND "EE" GAIN (dB) Q
+
+F1 270 0 5
+
+F2 2300 -15 20
+
+F3 3000 -9 50
+
+300
+870
+2250
+
+    */
+    xxxx=0.0;
+    xxx=(float)inbuffer[(x+orfset)%1024]/32768.0;
+    xx=bandpass(xxx,5.0,270.0,1.0); // q freq gain
+    xxxx+=xx;
+    xx=bandpass(xxx,20.0,2300.0,0.42); // q freq gain
+    xxxx+=xx;
+    xx=bandpass(xxx,50.0,3000.0,0.59); // q freq gain
+    xxxx+=xx;
+    xxxxx=xxxx*32768.0;
+    outbuffer[(x+orfset)%1024]=xxxxx;
     //    xx=(float32_t)(inbuffer[(x+orfset)%1024])/32768.0f;
     //    xxx=(float32_t)(buf16[(x+orfset)%1024]-32768.0)/32768.0f;
     //    xxxx=xxx*xx;
@@ -176,7 +218,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifdef TEST_EFFECTS
   int16_t effect_buffer[1024];
- static u16 sampleposr=0,samplepose=0;
+  static u16 sampleposw=0,sampleposr=0,samplepose=0;
 #endif
 
 
@@ -218,9 +260,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=effect_buffer[samplepos];//-32768;
-	  samplepos++;
-	  if (samplepos>=1024) samplepos=0;
+	  mono_buffer[x]=effect_buffer[sampleposw];//-32768;
+	  sampleposw++;
+	  if (sampleposw>=1024) sampleposw=0;
 	  }
 	// out!
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);

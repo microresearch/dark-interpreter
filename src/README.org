@@ -10,9 +10,9 @@ organ!
 ** TODO:
 
 - question is how we can have per villager offset _and_
-bitselect/overlapselect - on second compression?
+bitselect/overlapselect - on second compression knob pair?
 
-- global offset start - somehow fix compress/expand so is really so
+- global offset start - somehow fix compress/expand so is really doing so?
 
 ** DONE:
 
@@ -22,9 +22,11 @@ bitselect/overlapselect - on second compression?
 ** EFFECTs
 
 effects earlier notes combined. to test now but all effects will be
-across villagers:
+across villagers// size question?
 
 now mostly in docs...
+
+1-CONV/2-phase vocoder/3-bandpass vocoder/4-FFT spectral exchanges/5-simple formant vowels
 
 [-1- old effects mix with datagen]
 0- convolution = example code?
@@ -51,6 +53,8 @@ formant frequency/vowel table (vowels announced from buf16 as text->vowels)
 TTS?, other speech synth?, generate formants based on buf16?
 
 formant: filter signals - (SC=formant, BBandpass?, formlet? where?), biquad (single formant)
+
+/root/supercollider/server/plugins -> BBandpass (complicated)
 
 biquad.c in docs
 
@@ -616,7 +620,7 @@ and:
 - in audio.c and hardware.c now all digfilteraction is &1 for extra process of detached filter
 - extra bit on HW selects HW as walker or as attachment (and removed HW averaging)
 - change resistors on end/out so and RETEST with this volume/feedback
-  [R38 as 47k, R36 as 100R]
+  [R38 as 47k or remove???, R36 as 100R]
 - HW speed changes in mode 3
 - knob 3 selects which stack item to change in mode 4
 - villagers and anydata doubled up in modes 2 and 5(filt only)
