@@ -140,18 +140,29 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 u8 fingerdir(u8 *speedmod);
 
-float bandpass(float sample,float value, float fc, float gain){ // from OWL code - statevariable
-  float f,scale,q;
-  static float low=0,band=0;
-  q = sqrtf(1.0 - atanf(sqrtf(value)) * 2.0 / M_PI);
-  scale=sqrtf(q);
-  f = fc / 12000.0; //48000/4
-    //  f = 2* sinf(M_PI * fc /48000); // f = 2 sin (pi * cutoff / fs) //[approximately]
-  low = low + f * band;
+float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
+  float f,fb,hp,bp,scale;
+  static float buf0=0,buf1=0;
+  //  q = sqrtf(1.0 - atanf(sqrtf(value)) * 2.0 / M_PI);
+  //  q=value; scale=q;
+  //  scale=sqrtf(q);
+  //    f = fc / 12000.0; //48000/4
+  //  f = 2.0f* sinf(M_PI * fc /48000.0f); // f = 2 sin (pi * cutoff / fs) //[approximately]
+  f = 2.0*M_PI*fc/48000.0f;
+  fb= q + q/(1.0 - f);
+  //  low += f * band;
   //    float high = q * sample - low - q*band;
-  float high = scale * sample - low - q*band;
-  band = f * high + band;
-  return band*gain;
+  //  float high = scale * sample - low - (q*q) *band;
+  //  band += f * high;
+
+  //loop hp = in - buf0; bp = buf0 - buf1; buf0 = buf0 + f * (hp + fb * bp); buf1 = buf1 + f * (buf0 - buf1); out = buf1; 
+  hp=sample-buf0;
+  bp = buf0 - buf1; 
+  buf0 = buf0 + f * (hp + fb * bp); 
+  buf1 = buf1 + f * (buf0 - buf1);
+  //  buf0 = buf0 + f * (sample - buf0 + fb * (buf0 - buf1));
+  //  buf1 = buf1 + f * (buf0 - buf1);
+  return bp*gain;
 }
 
 int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer, u16 howmany,u16 orfset){
@@ -175,15 +186,14 @@ F3 3000 -9 50
 2250
 
     */
-    xxxx=0.0;
     xxx=(float)inbuffer[(x+orfset)%1024]/32768.0;
-    xx=bandpass(xxx,5.0,270.0,1.0); // q freq gain
-    xxxx+=xx;
-    xx=bandpass(xxx,20.0,2300.0,0.42); // q freq gain
-    xxxx+=xx;
-    xx=bandpass(xxx,50.0,3000.0,0.59); // q freq gain
-    xxxx+=xx;
-    xxxxx=xxxx*32768.0;
+    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
+    //    xx=bandpass(xx,0.5,270.0,1.0); // q freq gain
+    xx+=bandpass(xxx,0.8f,2300.0f,1.0f); // q freq gain
+    //    xx=bandpass(xx,0.5,2300.0,0.42); // q freq gain
+    xx+=bandpass(xxx,0.8f,3000.0f,1.0f); // q freq gain
+    //    xx=bandpass(xx,0.5,3000.0,0.59); // q freq gain
+    xxxxx=xx*32768.0;
     outbuffer[(x+orfset)%1024]=xxxxx;
     //    xx=(float32_t)(inbuffer[(x+orfset)%1024])/32768.0f;
     //    xxx=(float32_t)(buf16[(x+orfset)%1024]-32768.0)/32768.0f;
