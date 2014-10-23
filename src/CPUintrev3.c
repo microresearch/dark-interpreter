@@ -280,7 +280,7 @@ void thread_run(thread* this, machine *m) {
       }
       else this->m_pc+=biotadir[wormdir];
       //      printf("%c",this->m_pc);
-      //      break;
+      break;
       
 /////////////////////////////////////////////////////////////////
 
