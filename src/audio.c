@@ -278,11 +278,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #else
-
-	// TODO all audio!
-	// 1- set villagers
-
-	// if fingerdown we set appropriate villager based on mode
 	
 	xx=fingerdir(&spd);
 
@@ -306,26 +301,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (adc_buffer[FOURTH]>10){
 	    village_write[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
 	    }
-	    //	    village_write[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
+	    village_write[whichvillager].speed=(spd&15)+1; 
 	    village_write[whichvillager].step=(spd&240)>>4;
-
-	    //added for overlap of grains/villagers:
-
 	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
 
-	    // and if is running already?
 	    if (village_write[whichvillager].running==0){
 	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    }
 	    break;
 
+	  case 1:
+	    // WRITE again - select villager
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
+	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
+	    village_write[whichvillager].effect=adc_buffer[THIRD]>>7;// 5 bits=32
+	    village_write[whichvillager].hardware=adc_buffer[FOURTH]>>7;// 5 bits=32
+	    // dir and spd?
+	    // could be some kind of HW float patterns/ways of hw overlay???
+	    break;
 
-	  case 1:// READ
+	  case 2:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -337,26 +337,33 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (adc_buffer[FOURTH]>10){
 	    village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
 	    }
-
-	    //	    village_read[whichvillager].effect=adc_buffer[FOURTH]>>4; // 8 bits so far 
 	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
+	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
-
-	    //added for overlap of grains/villagers:
 
 	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
-
-	    // and if is running already?
 	    if (village_read[whichvillager].running==0){
 	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
 	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
 	    }
 	    break;
 
-	  case 2: // WRITEMODE compression???
+	  case 3:
+	    // READ again - select villager
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
+	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
+	    village_read[whichvillager].effect=adc_buffer[THIRD]>>7;// 5 bits=32
+	    //	    village_read[whichvillager].hardware=adc_buffer[FOURTH]>>7;// 5 bits=32
+	    // FOURTH?
+	    // dir and spd?
+	    // could be some kind of HW float patterns/ways of hw overlay???
+	    // in READcase DIR is incoming (also as datagen swap)? 
+	    break;
+
+	  case 4: // WRITEMODE compression???
 	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    //	    writestartoffset=loggy[adc_buffer[FIRST]]; //as logarithmic // TESTY!!!
 	    writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
@@ -371,7 +378,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      else counter=writeend+writebegin;
 	    break;
 
-	  case 3: // READMODE compression???
+	  case 5: // READMODE compression???
 	    readoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    readbit=(adc_buffer[FIRST]>>8)&1; // lowest bit
 	    readbegin=loggy[adc_buffer[SECOND]]; //as logarithmic
@@ -386,9 +393,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else counterr=readbegin+readend;
 	    break;
 
-	    // EXPERIMNET?TESTY!
-
-	  case 4: // DATAGEN villagers at moment just CA 0-10; %11
+	  case 6: // DATAGEN villagers at moment just CA 0-10; %11
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -410,7 +415,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    break;
 
-	  case 5: // DATAGEN compression???
+	  case 7: // DATAGEN compression???
 	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -427,14 +432,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	} // fingerrrrzzzxx
 
 	//////////////////////////////////////////////////////////	
-	// process villagers - first attempt sans effects
 
 	// READ!
-	readbit=0;readoverlay=0; // TESTY!
 
-	if (readbit){
-	switch(readoverlay){
-	case 0:
 	  for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
@@ -452,10 +452,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  for (x=0;x<howmanyreadvill;x++){
 	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
+	      /*	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]=tmp+32768; 
-	      audio_buffer[village_read[x].samplepos%32768]=tmp16;
+	      audio_buffer[village_read[x].samplepos%32768]=tmp16;*/
 
+	      // hardware in:
+	      // 1-datagen//2-LM358//3-STRAIGHTAUDIO//4-feedback
+
+	      // effect on it
+	      // overlay on that!
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
@@ -480,749 +485,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		delread=0;
 	      }
 	  }
-	break;
-	case 1:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      buf16[village_read[x].samplepos%32768]|=tmp+32768;
-	      audio_buffer[village_read[x].samplepos%32768]|=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 2:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      buf16[village_read[x].samplepos%32768]+=tmp+32768;
-	      audio_buffer[village_read[x].samplepos%32768]+=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 3:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
 
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      buf16[village_read[x].samplepos%32768]^=tmp+32768;
-	      audio_buffer[village_read[x].samplepos%32768]^=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 4:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+	// WRITE!
 
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
-	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]%=(tmp+32768);
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp16;
-	      else if (tmp16!=0) audio_buffer[village_read[x].samplepos%32768]%=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-
-	case 5:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
-	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]*=(tmp+32768);
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp16;
-	      else if (tmp16!=0) audio_buffer[village_read[x].samplepos%32768]*=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 6:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      if (buf16[village_read[x].samplepos%32768]==0) buf16[village_read[x].samplepos%32768]=tmp+32768;
-	      else if ((tmp+32768)!=0) buf16[village_read[x].samplepos%32768]&=(tmp+32768);
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp16;
-	      else if (tmp16!=0) audio_buffer[village_read[x].samplepos%32768]&=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 7:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  last=0;lastt=0;
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      if (tmp>lastt) buf16[village_read[x].samplepos%32768]=tmp+32768;
-	      lastt=tmp;
-	      if (tmp16>last) audio_buffer[village_read[x].samplepos%32768]=tmp16;
-	      last=tmp16;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	} // end switch
-	}
-	else{ // readbit=0
-	switch(readoverlay){
-	case 0: // TESTY!!
 	  for (xx=0;xx<sz/2;xx++){
-	    //	  xx=0;
-	    //	  while(xx<sz/2){
-	    src++;
-	    tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-	    if ((readstartoffset+(village_read[x].offset%readoffset))<=counterr && village_read[x].running==1){
-
-	      audio_buffer[village_read[x].samplepos%32768]=tmp; 
-
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	  if (++delread>=readspeed) { // TEST!
-		counterr+=dirry;
-		delread=0;
-		//		src++; xx++;
-		//	  	  tmp=*(src++); 
-	      }
-	}
-	break;
-	case 1:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      audio_buffer[village_read[x].samplepos%32768]|=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 2:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      audio_buffer[village_read[x].samplepos%32768]+=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 3:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      audio_buffer[village_read[x].samplepos%32768]^=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 4:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
-	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]%=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 5:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
-	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]*=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 6:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      if (audio_buffer[village_read[x].samplepos%32768]==0) audio_buffer[village_read[x].samplepos%32768]=tmp;
-	      else if (tmp!=0) audio_buffer[village_read[x].samplepos%32768]&=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	case 7:
-	for (xx=0;xx<sz/2;xx++){
-	  src++;
-	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
-	  last=0;
-	  for (x=0;x<howmanyreadvill;x++){
-	    //	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].wrap>(counterr-(village_read[x].offset%readoffset))){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
-
-	      if (last>tmp) audio_buffer[village_read[x].samplepos%32768]=tmp;
-	      last=tmp;
-	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
-	      if (count<village_read[x].wrap && count>0)
-	      {
-		village_read[x].samplepos+=village_read[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
-		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
-	    village_read[x].del=0;
-	      }
-	    }
-	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
-	}
-	break;
-	}
-	}
-	// END of all READS!
-
-   	// WRITE!
-	//	writeoverlay=0;
-	writeoverlay=0; // TESTY!
-
-	switch(writeoverlay){// 8 options
-	case 0: // TESTY!!!
-	  for (xx=0;xx<sz/2;xx++){
-	  //	  xx=0;
 	  mono_buffer[xx]=0;
-	    //	  while (xx<sz/2){
 	  if ((counter-writebegin)>writeend) {
 	    counter=writebegin;
 	    for (x=0;x<howmanywritevill;x++){
@@ -1236,8 +503,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }	    
 	  }
 	  for (x=0;x<howmanywritevill;x++){
-	    //	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	    if ((writestartoffset+(village_write[x].offset%writeoffset))<=counter && village_write[x].running==1){
+	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
+	    //	    if ((writestartoffset+(village_write[x].offset%writeoffset))<=counter && village_write[x].running==1){ // CHECK!
+
+	      // do effect
+	      // switch on overlay TODO!
+	      // hardware add/workout?
 	      mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
 
 	      if (++village_write[x].del>=village_write[x].step){
@@ -1260,352 +531,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    }
 	  }
-
 	  if (++delwrite>=writespeed) {
-	    counter+=dirryw;//xx++;
-	    //	    mono_buffer[xx]=0;
+	    counter+=dirryw;
 	    delwrite=0;
 	      }
 	  }
-	break;
-	case 1:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      mono_buffer[xx]|=audio_buffer[village_write[x].samplepos%32768];
 
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
+	  // final combine
 
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 2:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      mono_buffer[xx]+=audio_buffer[village_write[x].samplepos%32768];
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 3:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      mono_buffer[xx]^=audio_buffer[village_write[x].samplepos%32768];
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 4:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      if (mono_buffer[xx]!=0){
-		if (audio_buffer[village_write[x].samplepos%32768]!=0) mono_buffer[xx]%=(audio_buffer[village_write[x].samplepos%32768]);}
-		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
-
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 5:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      if (mono_buffer[xx]!=0){
-		mono_buffer[xx]*=audio_buffer[village_write[x].samplepos%32768];
-	      }
-		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
-
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 6:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      if (mono_buffer[xx]!=0){
-		mono_buffer[xx]&=audio_buffer[village_write[x].samplepos%32768];
-	      }
-		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
-
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-	case 7:
-	for (xx=0;xx<sz/2;xx++){
-	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  last=0;
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	      /*	      if (mono_buffer[xx]!=0){
-		mono_buffer[xx]=(float32_t)mono_buffer[xx]*FMODW*(float32_t)audio_buffer[village_write[x].samplepos%32768];
-	      }
-		  else mono_buffer[xx]=(audio_buffer[village_write[x].samplepos%32768]);
-	      */
-	      if (audio_buffer[village_write[x].samplepos%32768]>last) mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
-
-	      last=audio_buffer[village_write[x].samplepos%32768];
-
-	      if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
-	      {
-		village_write[x].samplepos=village_write[x].dirry;//)%32768;
-		  }
-	      else
-		{
-		  village_write[x].running=0;
-		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-
-		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		}
-	    village_write[x].del=0;
-	      }
-	    }
-	  }
-      if (++delwrite>=writespeed) {
-		counter+=dirryw;
-		delwrite=0;
-	      }
-	}
-	break;
-
-	}
-	/// end of ALL WRITES!
-
- 
-	// process HW in same time-scale as samples
-	// so step will be 32 sample step (BUFF_SIZE/4)
-
-	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
+	  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 
 #ifdef PCSIM
 //    for (x=0;x<sz/2;x++){

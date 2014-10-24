@@ -35,7 +35,7 @@
       u16 samplepos;
       u8 del;
       int16_t dirry;
-      u8 speed, step; 
+      u8 speed, step,effect,hardware; 
       u8 dir,databit,overlay; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
     } villagerr;

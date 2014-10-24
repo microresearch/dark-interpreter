@@ -9,7 +9,21 @@ organ!
 
 ** TODO:
 
--all TODOS defined: effects, HW walker, mirrors, infection etc.
+- *all TODOS defined: effects, HW walker, mirrors, infection etc.**
+
+-HW and input
+-villagers and compression
+-effects
+-left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
+-mirrors: mirror villagers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
+
+////////////
+
+- how effects to/from audio_buffer and buf16 work - that we can do for
+  example envelopes into buf16//fft???
+
+- maybe generic function for walkers? all state in villager. all
+  effect state also needs be in villager...
 
 - question is how we can have per villager offset _and_
 bitselect/overlapselect - on second compression knob pair?
