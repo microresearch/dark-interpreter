@@ -9,10 +9,17 @@ organ!
 
 ** TODO:
 
+-all TODOS defined: effects, HW walker, mirrors, infection etc.
+
 - question is how we can have per villager offset _and_
 bitselect/overlapselect - on second compression knob pair?
 
 what else could be on that knob (incoming HW? effects??)
+
+- decide on effects per sample (read and/or write and/or filter) or
+  effects walker??? (and/or FFT walker)
+
+- clearer scheme for buf16 read _and_ write out!
 
 - global offset start - somehow fix compress/expand so is really doing so?
 
@@ -38,6 +45,7 @@ examples now mostly in docs...
 exchanges/4-simple formant vowels/5-further
 
 [-1- old effects mix with datagen=*,+,and,or,mod,]
+
 0- convolution = example code?
 
 1. phase vocoder/FFT - our old pitchscale.c??? 
