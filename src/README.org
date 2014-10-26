@@ -12,12 +12,14 @@ organ!
 - *all TODOS defined: effects, HW walker, mirrors, infection etc.**
 
 -HW and input
--villagers and compression
+-villagers and compression->in process compression
 -effects
 -left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
 -mirrors: mirror villagers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
 
 ////////////
+
+- simple per sample effects/overlap and effects walker
 
 - how effects to/from audio_buffer and buf16 work - that we can do for
   example envelopes into buf16//fft???
@@ -25,17 +27,7 @@ organ!
 - maybe generic function for walkers? all state in villager. all
   effect state also needs be in villager...
 
-- question is how we can have per villager offset _and_
-bitselect/overlapselect - on second compression knob pair?
-
-what else could be on that knob (incoming HW? effects??)
-
-- decide on effects per sample (read and/or write and/or filter) or
-  effects walker??? (and/or FFT walker)
-
 - clearer scheme for buf16 read _and_ write out!
-
-- global offset start - somehow fix compress/expand so is really doing so?
 
 - nextdatagen() as function for datagen walker...
 
@@ -44,6 +36,11 @@ what else could be on that knob (incoming HW? effects??)
 
 ** DONE:
 
+- question is how we can have per villager offset _and_
+bitselect/overlapselect - on second compression knob pair - combine
+compression as simple expression with this (per village compression?)TEST
+
+- new scheme for per villager compression and counting TO TEST!
 - fixed log array was one too short DONE
 - check sanity of read and write offset - TEST wrapping up read/writeDONE
 
@@ -186,7 +183,7 @@ csound vosim
 
 simplify walkers (also cpus) as function/pointers!?
 
-** HW walkers:
+** Hardware walkers:
 
 1- which/start/end/effect ---> speed// set/unset/float (=fingers)
 

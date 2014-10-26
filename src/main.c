@@ -271,33 +271,11 @@ void main(void)
   village_read[0].offset=0;
   village_write[0].offset=0;
 
-  // TEST!
-  /*  for (u8 xx=0;xx<64;xx++){
-  village_read[xx].start=rand()%32768;
-	  village_read[xx].wrap=rand()%32768;
-	  village_read[xx].offset=rand()%32768;
-	  village_read[xx].dir=1;
-	  village_read[xx].del=0;
-	  village_read[xx].samplepos=0;
-	  village_read[xx].speed=rand()%16;
-	  village_read[xx].step=rand()%16;
-	  village_read[xx].dirry=direction[village_read[xx].dir]*village_read[xx].step;
-	  village_read[xx].samplepos=village_read[xx].start;
+  for (u8 xx=0;xx<64;xx++){
+    village_read[xx].counterr=0;
+    village_write[xx].counterr=0;
 	}
 
-      	for (u8 xx=0;xx<64;xx++){
-  village_write[xx].start=rand()%32768;
-	  village_write[xx].wrap=rand()%32768;
-	  village_write[xx].offset=rand()%32768;
-	  village_write[xx].dir=1;
-	  village_write[xx].del=0;
-	  village_write[xx].samplepos=0;
-	  village_write[xx].speed=rand()%16;
-	  village_write[xx].step=rand()%16;
-	  village_write[xx].dirry=direction[village_write[xx].dir]*village_write[xx].step;
-	  village_write[xx].samplepos=village_write[xx].start;
-	  }
-  */
   inittable(3,4,randi());
   const float32_t pi= 3.141592;
   float32_t w;

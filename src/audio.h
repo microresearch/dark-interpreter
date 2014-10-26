@@ -32,11 +32,12 @@
       u16 offset;
       u16 start;
       u16 wrap;
+      u16 counterr;
       u16 samplepos;
       u8 del;
       int16_t dirry;
-      u8 speed, step,effect,hardware; 
-      u8 dir,databit,overlay; // TODO: do as union or whatever for dir//flag for mirror
+      u8 speed, step,effect,hardware,hardwaremod; 
+      u8 dir,compress,overlay; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
     } villagerr;
 

@@ -214,9 +214,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   float FMODW=0.5f;
   static u8 howmanywritevill=1,howmanyreadvill=1,writeoverlay=0,readoverlay=0;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,readbit=0,readspeed=1,writespeed=1;
-  static int16_t dirryw=1,dirry=1;
+  static int16_t dirryw=1,dirryr=1;
   static u16 counter=0,counterr=0;
-  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
+  //  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
   extern u8 howmanydatavill;
   extern villagerr village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
@@ -314,15 +314,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    break;
 
-	  case 1:
-	    // WRITE again - select villager
+	  case 1: // WRITE overlays/HW and compression
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
 	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
-	    village_write[whichvillager].effect=adc_buffer[THIRD]>>7;// 5 bits=32
-	    village_write[whichvillager].hardware=adc_buffer[FOURTH]>>7;// 5 bits=32
-	    // dir and spd?
-	    // could be some kind of HW float patterns/ways of hw overlay???
+	    village_write[whichvillager].hardware=adc_buffer[THIRD]>>7;// 5 bits=32
+	    village_write[whichvillager].compress=loggy[adc_buffer[FOURTH]];// 5 bits=32
+	    // could be some kind of HW floating patterns/ways of hw overlay from dir/xx???
+	    village_write[whichvillager].hardwaremod=xx;
+	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
+	    dirryw=(spd&240)>>4;
 	    break;
 
 	  case 2:// READ
@@ -355,45 +356,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
 	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
-	    village_read[whichvillager].effect=adc_buffer[THIRD]>>7;// 5 bits=32
-	    //	    village_read[whichvillager].hardware=adc_buffer[FOURTH]>>7;// 5 bits=32
-	    // FOURTH?
-	    // dir and spd?
-	    // could be some kind of HW float patterns/ways of hw overlay???
-	    // in READcase DIR is incoming (also as datagen swap)? 
-	    break;
-
-	  case 4: // WRITEMODE compression???
-	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
-	    //	    writestartoffset=loggy[adc_buffer[FIRST]]; //as logarithmic // TESTY!!!
-	    writebegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    writeend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    writeoffset=loggy[adc_buffer[FOURTH]];
-	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryw=-(((spd&240)>>4)+1);
-	    else if (xx==1) dirryw=((spd&240)>>4)+1;
-	    else if (xx==2) dirryw=newdirection[wormdir];
-	    else dirryw=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
-	    if (dirryw>0) counter=writebegin;
-	      else counter=writeend+writebegin;
-	    break;
-
-	  case 5: // READMODE compression???
-	    readoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
-	    readbit=(adc_buffer[FIRST]>>8)&1; // lowest bit
-	    readbegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    readend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    readoffset=loggy[adc_buffer[FOURTH]];
+	    village_read[whichvillager].effect=adc_buffer[THIRD]>>7;// TODO: effect AND overlay?
+	    village_read[whichvillager].compress=loggy[adc_buffer[FOURTH]];// 5 bits=32
+	    village_read[whichvillager].hardware=xx;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirry=-(((spd&240)>>4)+1);
-	    else if (xx==1) dirry=((spd&240)>>4)+1;
-	    else if (xx==2) dirry=newdirection[wormdir];
-	    else dirry=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
-	    if (dirry>0) counterr=readbegin;
-	    else counterr=readbegin+readend;
+	    dirryr=(spd&240)>>4;
 	    break;
 
-	  case 6: // DATAGEN villagers at moment just CA 0-10; %11
+	  case 4: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -415,7 +385,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    break;
 
-	  case 7: // DATAGEN compression???
+	  case 5: // DATAGEN compression???
 	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -425,11 +395,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else if (xx==1) dirryd=((spd&240)>>4)+1;
 	    else if (xx==2) dirryd=newdirection[wormdir];
 	    else dirryd=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
-	    if (dirryd>0) counterd=writebegin;
+	    if (dirryd>0) counterd=databegin;
 	      else counterd=dataend+databegin;
 	    break;
 	  } // switch mainmode
 	} // fingerrrrzzzxx
+
+	// HW->6/7/8???1-40106(always),2-lmer,3-maximer,4-hdgener=6/7/8/9???
 
 	//////////////////////////////////////////////////////////	
 
@@ -438,20 +410,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  for (xx=0;xx<sz/2;xx++){
 	  src++;
 	  tmp=*(src++); 
-	  if ((counterr-readbegin)>readend) {
-	    counterr=readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }
-	  }	    
-	  if (counterr<readbegin) {
-	    counterr=readend+readbegin;
-	    for (x=0;x<howmanyreadvill;x++){
-	      village_read[x].running=1;
-	  }	    
-	  }
+	  delread++;
+	  if (delread>=readspeed) {
+	    delread=0;
+	      }
 	  for (x=0;x<howmanyreadvill;x++){
-	    if ((village_read[x].offset%readoffset)<=counterr && village_read[x].running==1){
+
+	  ///TODO: per villager counterr and compression to sort!DONE_TEST!
+	    if (delread==0) village_read[x].counterr+=dirryr;
+	    if (village_read[x].counterr>=(32768/village_read[x].compress)) village_read[x].counterr=0;
+
+	    if ((village_read[x].offset/village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 	      /*	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]=tmp+32768; 
 	      audio_buffer[village_read[x].samplepos%32768]=tmp16;*/
@@ -459,8 +428,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      // hardware in:
 	      // 1-datagen//2-LM358//3-STRAIGHTAUDIO//4-feedback
 
-	      // effect on it
-	      // overlay on that!
+	      // overlay on it!
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
@@ -480,33 +448,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 	    }
 	  }
-	      if (++delread>=readspeed) {
-		counterr+=dirry;
-		delread=0;
-	      }
 	  }
 
 	// WRITE!
 
 	  for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
-	  if ((counter-writebegin)>writeend) {
-	    counter=writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }
-	  }	    
-	  if (counter<writebegin) {
-	    counter=writeend+writebegin;
-	    for (x=0;x<howmanywritevill;x++){
-	      village_write[x].running=1;
-	  }	    
-	  }
-	  for (x=0;x<howmanywritevill;x++){
-	    if ((village_write[x].offset%writeoffset)<=counter && village_write[x].running==1){
-	    //	    if ((writestartoffset+(village_write[x].offset%writeoffset))<=counter && village_write[x].running==1){ // CHECK!
 
-	      // do effect
+	  ///TODO: per villager counterr and compression to sort!DONE_TEST!
+
+	  if (delwrite==0) village_write[x].counterr+=dirryw;
+	  if (village_write[x].counterr>=(32768/village_write[x].compress)) village_write[x].counterr=0;
+
+
+	  for (x=0;x<howmanywritevill;x++){
+
+	    if ((village_write[x].offset/village_write[x].compress)<=village_write[x].counterr && village_write[x].running==1){
+
 	      // switch on overlay TODO!
 	      // hardware add/workout?
 	      mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
@@ -531,10 +489,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    }
 	  }
-	  if (++delwrite>=writespeed) {
-	    counter+=dirryw;
-	    delwrite=0;
-	      }
 	  }
 
 	  // final combine
