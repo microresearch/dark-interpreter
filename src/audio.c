@@ -72,6 +72,7 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 #else
 #include "audio.h"
 #include "CPUint.h"
+#include "effect.h"
 //#include "settings.h"
 #include "hardware.h"
 #include "simulation.h"
@@ -140,69 +141,6 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 u8 fingerdir(u8 *speedmod);
 
-float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
-  float f,fb,hp,bp,scale;
-  static float buf0=0,buf1=0;
-  //  q = sqrtf(1.0 - atanf(sqrtf(value)) * 2.0 / M_PI);
-  //  q=value; scale=q;
-  //  scale=sqrtf(q);
-  //    f = fc / 12000.0; //48000/4
-  //  f = 2.0f* sinf(M_PI * fc /48000.0f); // f = 2 sin (pi * cutoff / fs) //[approximately]
-  f = 2.0*M_PI*fc/48000.0f;
-  fb= q + q/(1.0 - f);
-  //  low += f * band;
-  //    float high = q * sample - low - q*band;
-  //  float high = scale * sample - low - (q*q) *band;
-  //  band += f * high;
-
-  //loop hp = in - buf0; bp = buf0 - buf1; buf0 = buf0 + f * (hp + fb * bp); buf1 = buf1 + f * (buf0 - buf1); out = buf1; 
-  hp=sample-buf0;
-  bp = buf0 - buf1; 
-  buf0 = buf0 + f * (hp + fb * bp); 
-  buf1 = buf1 + f * (buf0 - buf1);
-  //  buf0 = buf0 + f * (sample - buf0 + fb * (buf0 - buf1));
-  //  buf1 = buf1 + f * (buf0 - buf1);
-  return bp*gain;
-}
-
-int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer, u16 howmany,u16 orfset){
-  u16 *buf16 = (u16*) datagenbuffer;
-  u16 x,xxxxx;
-  float xx,xxx,xxxx;
-  for (x=0;x<howmany;x++){
-
-    /* formant ee: how to convert???
-
-VOWEL SOUND "EE" GAIN (dB) Q
-
-F1 270 0 5
-
-F2 2300 -15 20
-
-F3 3000 -9 50
-
-300
-870
-2250
-
-    */
-    xxx=(float)inbuffer[(x+orfset)%1024]/32768.0;
-    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
-    //    xx=bandpass(xx,0.5,270.0,1.0); // q freq gain
-    xx+=bandpass(xxx,0.8f,2300.0f,1.0f); // q freq gain
-    //    xx=bandpass(xx,0.5,2300.0,0.42); // q freq gain
-    xx+=bandpass(xxx,0.8f,3000.0f,1.0f); // q freq gain
-    //    xx=bandpass(xx,0.5,3000.0,0.59); // q freq gain
-    xxxxx=xx*32768.0;
-    outbuffer[(x+orfset)%1024]=xxxxx;
-    //    xx=(float32_t)(inbuffer[(x+orfset)%1024])/32768.0f;
-    //    xxx=(float32_t)(buf16[(x+orfset)%1024]-32768.0)/32768.0f;
-    //    xxxx=xxx*xx;
-    //    outbuffer[(x+orfset)%1024]=(u16)(xxxx*32768.0f);
-    //    outbuffer[(x+orfset)%1024]=inbuffer[(x+orfset)%1024];
-    //outbuffer[(x+orfset)%1024]=buf16[(x+orfset)%1024]-32768;
-  }
-}
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
@@ -227,10 +165,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern int16_t dirryd;
 
 #ifdef TEST_EFFECTS
-  int16_t effect_buffer[1024];
-  static u16 sampleposw=0,sampleposr=0,samplepose=0;
+  int16_t effect_buffer[32];
 #endif
 
+#ifdef TEST_EFFECTS
+  static u16 samplepos=0;
+#endif
 
   //  howmanywritevill=64; // TESTY!
   //  howmanyreadvill=64; // TESTY!
@@ -254,29 +194,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #else
 
 #ifdef TEST_EFFECTS
-	// read into audio_buffer limited to 1024
-	int offset;
 	for (x=0;x<sz/2;x++){
-	  offset=sampleposr;
 	  src++;
 	  tmp=*(src++); 
-	  audio_buffer[sampleposr]=tmp;
-	  //  mono_buffer[sampleposr]=tmp;
-	  sampleposr++;
-	  if (sampleposr>=1024) sampleposr=0;
+	  audio_buffer[x]=tmp;
 	}
+
 	// process/test effect on buffer or fragment into effects
-	test_effect(audio_buffer,effect_buffer,sz/2,offset);
+	test_effect(audio_buffer,effect_buffer);
 
 	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=effect_buffer[sampleposw];//-32768;
-	  sampleposw++;
-	  if (sampleposw>=1024) sampleposw=0;
+	  mono_buffer[x]=effect_buffer[x];//-32768;
 	  }
 	// out!
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
-
 #else
 	
 	xx=fingerdir(&spd);
@@ -319,7 +251,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
 	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
 	    village_write[whichvillager].hardware=adc_buffer[THIRD]>>7;// 5 bits=32
-	    village_write[whichvillager].compress=loggy[adc_buffer[FOURTH]];// 5 bits=32
+	    village_write[whichvillager].compress=(32768-adc_buffer[FOURTH])+1;//
 	    // could be some kind of HW floating patterns/ways of hw overlay from dir/xx???
 	    village_write[whichvillager].hardwaremod=xx;
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
@@ -357,7 +289,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
 	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
 	    village_read[whichvillager].effect=adc_buffer[THIRD]>>7;// TODO: effect AND overlay?
-	    village_read[whichvillager].compress=loggy[adc_buffer[FOURTH]];// 5 bits=32
+	    village_read[whichvillager].compress=(32768-adc_buffer[FOURTH])+1;//
 	    village_read[whichvillager].hardware=xx;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    dirryr=(spd&240)>>4;
@@ -385,7 +317,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    break;
 
-	  case 5: // DATAGEN compression???
+	  case 5: // DATAGEN compression??? - also redo TODO datagen compression as bove
 	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic

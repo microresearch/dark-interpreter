@@ -58,7 +58,6 @@ void setlmmmpwm(u16 one){
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/unistd.h>
-
 #include "stm32f4xx.h"
 #include "codec.h"
 #include "i2s.h"
@@ -112,7 +111,6 @@ u8 EFFECTFILTER;
 
 signed char direction[2]={-1,1};
 u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
-u8 inp;
 u16 *buf16;
 
 #define delay()						 do {	\
@@ -226,10 +224,10 @@ u8 fingerdirupdown(void){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-  villagerr village_write[MAX_VILLAGERS+1];
-  villagerr village_read[MAX_VILLAGERS+1];
-  villagerr village_filt[MAX_VILLAGERS+1];
+VocoderInstance* vocoder;
+villagerr village_write[MAX_VILLAGERS+1];
+villagerr village_read[MAX_VILLAGERS+1];
+villagerr village_filt[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
 u8 howmanydatavill;
 
@@ -247,8 +245,10 @@ int16_t dirryd=1;
 void main(void)
 {
   // order that all inits and audio_init called seems to be important
-  u16 x,addr;
+  u16 x,addr,count;
   u8 exestack[MAX_EXE_STACK];
+
+  vocoder=instantiateVocoder();
 
   // we just need init first of all villagers NON?
 
@@ -282,9 +282,9 @@ void main(void)
   float32_t yi;
   float32_t phase=0;
   int sign_samp,i;
-  inp=0; // STRAIGHT IN
   w= 2*pi;
   w= w/256;
+
   for (i = 0; i <= 256; i++)
     {
       yi= 32767*sinf(phase); // was 2047???
@@ -367,6 +367,13 @@ void main(void)
 #ifdef TEST_STRAIGHT
       // do nothing
 #else
+
+#ifdef TEST_EFFECTS
+      //runsine
+      //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
+      count=runsine(1,count,0,32767);
+#else
+
 
 #ifdef TEST_EEG
       //write ADC9 into buf16
@@ -628,7 +635,7 @@ void main(void)
       
 #endif //eeg
 #endif //straight
-      //#endif 
+#endif //test effects
     }
       }
 

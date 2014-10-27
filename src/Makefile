@@ -12,7 +12,7 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
-			syscalls.o pureleak2.o audio.o hardware.o effect.o\
+			syscalls.o pureleak2.o audio.o hardware.o effect.o vocode.o\
 			simforstacksansmem2.o cpuintrev4.o CAforstacksansmem2.o
 
 # Linker script
@@ -25,7 +25,7 @@ LDSCRIPT = stm32_flash.ld
 # was -02 before below... 
 
 CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -std=gnu99 \
-	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE -DTEST_EFFECTS \
 	-mthumb -ggdb\
 	-mfpu=fpv4-sp-d16 \
 	-c -lm -lc -fno-common -O3 \

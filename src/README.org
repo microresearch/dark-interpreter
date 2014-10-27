@@ -11,11 +11,20 @@ organ!
 
 - *all TODOS defined: effects, HW walker, mirrors, infection etc.**
 
--HW and input
--villagers and compression->in process compression
--effects
+-overlap, HW and input-FINISH/TEST
+-villagers and compression->in process compression-TEST
+
+///TODO:
+-do datagen compression anew
 -left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
+-datagen walker
 -mirrors: mirror villagers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
+
+//////////
+
+-effects // but how much memory if we have say vocode instance for each villager
+
+Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16??? 
 
 ////////////
 
@@ -27,12 +36,17 @@ organ!
 - maybe generic function for walkers? all state in villager. all
   effect state also needs be in villager...
 
-- clearer scheme for buf16 read _and_ write out!
+- clearer scheme for buf16 read _and_ write out????
 
 - nextdatagen() as function for datagen walker...
 
 - villager-villager effects - make a clearer format as also need
-  process each effect in chunks (and to keep track of these)
+  process each effect in chunks (and to keep track of these - within
+  each villager)
+
+- effects somehow decided as specific chunk
+
+process chunk x -> chunk y in size of audio=32 size
 
 ** DONE:
 
@@ -63,16 +77,16 @@ exchanges/4-simple formant vowels/5-further
 
 JoshUGens/sc/classes/Vocoder.sc
 
-2. 16 channel bandpass/formant/vocoder: ladspa or vst-mda version
+2. 16 channel bandpass/formant/vocoder: ladspa DONE
 
-mdaVocoder.cpp
+or vst-mda version: mdaVocoder.cpp TEST/TRY
 
 3. FFT based (spectral swops/exchange - SCcode=PV_SpectralMap, borsboom/zerius=vocoder in docs,
 snokoder) - breakdown stages
 
 FFT on ARM: http://coactionos.com/embedded%20design%20tips/2013/10/13/Tips-FFT-on-the-ARM-Cortex-M3/
 
-(convulution = multiplication in freq domain)
+(convolution = multiplication in freq domain)
 
 4. simple formant filtering (above)//generic filter conv.
 
