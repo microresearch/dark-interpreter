@@ -240,6 +240,7 @@ u16 testfunction(void){
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
 int16_t dirryd=1;
+u8 inp;
 
 
 void main(void)
@@ -371,7 +372,7 @@ void main(void)
 #ifdef TEST_EFFECTS
       //runsine
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
-      count=runsine(1,count,0,32767);
+      count=runnoise(1,count,0,32767);
 #else
 
 

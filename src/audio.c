@@ -184,6 +184,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	int16_t *ldst=left_buffer;
 	int16_t *rdst=right_buffer;
 
+	/// HARDWARE at start
+
 #ifdef TEST_EEG
 	// write buf16 into mono
 	for (x=0;x<sz/2;x++){
@@ -250,10 +252,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect, HW (but how is HW by overlap? or bitwise?)
 	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
-	    village_write[whichvillager].hardware=adc_buffer[THIRD]>>7;// 5 bits=32
+	    village_write[whichvillager].effect=adc_buffer[THIRD]>>7;// 5 bits=32
 	    village_write[whichvillager].compress=(32768-adc_buffer[FOURTH])+1;//
-	    // could be some kind of HW floating patterns/ways of hw overlay from dir/xx???
-	    village_write[whichvillager].hardwaremod=xx;
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    dirryw=(spd&240)>>4;
 	    break;
@@ -290,7 +290,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
 	    village_read[whichvillager].effect=adc_buffer[THIRD]>>7;// TODO: effect AND overlay?
 	    village_read[whichvillager].compress=(32768-adc_buffer[FOURTH])+1;//
-	    village_read[whichvillager].hardware=xx;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    dirryr=(spd&240)>>4;
 	    break;
@@ -317,7 +316,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    break;
 
-	  case 5: // DATAGEN compression??? - also redo TODO datagen compression as bove
+	  case 5: // DATAGEN compression??? - also redo TODO datagen compression as above
 	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
 	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -357,8 +356,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      buf16[village_read[x].samplepos%32768]=tmp+32768; 
 	      audio_buffer[village_read[x].samplepos%32768]=tmp16;*/
 
-	      // hardware in:
-	      // 1-datagen//2-LM358//3-STRAIGHTAUDIO//4-feedback
+ 	      // 1-datagen//2-LM358//3-STRAIGHTAUDIO//4-feedback
 
 	      // overlay on it!
 	      if (++village_read[x].del>=village_read[x].step){
@@ -398,7 +396,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if ((village_write[x].offset/village_write[x].compress)<=village_write[x].counterr && village_write[x].running==1){
 
 	      // switch on overlay TODO!
-	      // hardware add/workout?
 	      mono_buffer[xx]=audio_buffer[village_write[x].samplepos%32768];
 
 	      if (++village_write[x].del>=village_write[x].step){
@@ -434,9 +431,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif
 
       /////////////////////////////////////
-
-  // 4-hardware operations shifted here
-  // question of granularity
 
 	// TESTY!
 	//	inp=2;

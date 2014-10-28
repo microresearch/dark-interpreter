@@ -1,12 +1,20 @@
+// TESTING various effects
+
+/*0-CONV/1-phase vocoder/2-bandpass vocoder/3-FFT spectral
+  exchanges/4-simple formant vowels/5-further eg envelope, formant
+  synth, windowing etc.*/
+
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "effect.h"
 #include "vocode.h"
 #include "audio.h"
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 extern u8 *datagenbuffer;
 
-// sqrtf which uses FPU, the standard one apparently doesn't
+// sqrtf which uses FPU, the standard one apparently doesn't????
 float vsqrtf(float op1) {
   float result;
   __ASM volatile ("vsqrt.f32 %0, %1" : "=w" (result) : "w" (op1) );
@@ -51,24 +59,22 @@ void floot_to_int(int16_t* outbuffer, float* inbuffer){
 
 int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
-  extern VocoderInstance* vocoder;  //  u16 x,xxxxx;
-  //  float xx,xxx,xxxx;
+  extern VocoderInstance* vocoder; u8 x;
+  float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
   // convert to float
-  int_to_floot(inbuffer,tmpbuffer);
+
+  // VOCODER:
+  /*  int_to_floot(inbuffer,tmpbuffer);
   intun_to_floot(buf16,tmpotherbuffer);
-
-  // do vocoder
   runVocoder(vocoder, tmpbuffer, tmpotherbuffer, tmpbuffer, BUFF_LEN/4);
-
-  //void runVocoder(VocoderInstance *vocoder, float *formant=voice, float *carrier, float *out, unsigned int SampleCount)
-
-
-  // convert back to int
   floot_to_int(outbuffer,tmpbuffer);
+  */
 
-  //  for (x=0;x<howmany;x++){
+  int_to_floot(inbuffer,tmpbuffer);
+
+  for (x=0;x<32;x++){
 
     /* formant ee: how to convert???
 VOWEL SOUND "EE" GAIN (dB) Q
@@ -83,16 +89,14 @@ F3 3000 -9 50
 870
 2250
     */
-
-    /*
-    xxx=(float)inbuffer[(x+orfset)%1024]/32768.0;
-    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
-    xx+=bandpass(xxx,0.8f,2300.0f,1.0f); // q freq gain
-    xx+=bandpass(xxx,0.8f,3000.0f,1.0f); // q freq gain
-    xxxxx=xx*32768.0;
-    outbuffer[(x+orfset)%1024]=xxxxx;
-    */
-  //  }
+    //    xxx=(float)inbuffer[x]/32768.0;
+    xxx=tmpbuffer[x];
+    //    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
+    //    xx+=bandpass(xxx,0.8f,2300.0f,1.0f); // q freq gain
+    xx=bandpass(xxx,0.7f,3000.0f,1.0f); // q freq gain
+    tmpbuffer[x]=xx;
+      }
+  floot_to_int(outbuffer,tmpbuffer);
 }
 
 
@@ -125,22 +129,16 @@ for( ... )
 
 */
 
-/* 2-convolution
+// 2-convolution
 
 //r[] as zeroed first
-//max function?
-// #define MAX(a,b) (((a)>(b))?(a):(b))
+//max function above
 
-void conv(const float v1[], size_t n1, const float v2[], size_t n2, float r[])
+void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
 {
     for (size_t n = 0; n < n1 + n2 - 1; n++)
-        for (size_t k = 0; k < max(n1, n2); k++)
-            r[n] += (k < n1 ? v1[k] : 0) * (n - k < n2 ? v2[n - k] : 0);
+        for (size_t k = 0; k < MAX(n1, n2); k++)
+            out[n] += (k < n1 ? convolve1[k] : 0) * (n - k < n2 ? convolve2[n - k] : 0);
 }
 
-*/
-
-
-/*0-CONV/1-phase vocoder/2-bandpass vocoder/3-FFT spectral
-  exchanges/4-simple formant vowels/5-further eg envelope*/
 

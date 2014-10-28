@@ -5,7 +5,21 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* WED/THU 22/23 OCT
+* TUE 28 OCT+
+
+- test all effects with simple audio I/O (see below):
+
+differing bandpasses (LIST) with frequency tables
+convolution
+phase/FFT vocoding/spectral
+diff bandpass vocoder tests (mdaVocoder.cpp)
+envelope/windowing
+
+4. basic working model with overlap/compression/left-filter/HW/datagens/mirrors
+5. integration all buf16/audio/villagers
+6. further new datagens+incorporate villagers/klatt/paf etc...
+
+* WED/THU 22/23 OCT+++ new week
 
 ** TODO:
 
@@ -18,10 +32,7 @@ organ!
 -do datagen compression anew
 -left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
 -datagen walker
--mirrors: mirror villagers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
-
-//////////
-
+-mirrors: mirror villagers as buffers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
 -effects // but how much memory if we have say vocode instance for each villager
 
 Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16??? 
@@ -46,7 +57,7 @@ Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16???
 
 - effects somehow decided as specific chunk
 
-process chunk x -> chunk y in size of audio=32 size
+process chunk x -> chunk y in size of audio=32 size (or if less than less!)
 
 ** DONE:
 
@@ -66,8 +77,8 @@ to test now but all effects will be across villagers// size question?
 
 examples now mostly in docs...
 
-0-CONV/1-phase vocoder/2-bandpass vocoder/3-FFT spectral
-exchanges/4-simple formant vowels/5-further
+0-CONV/1-phase vocoder/2-bandpass vocoder-DONE/TEST/3-FFT spectral
+exchanges/4-simple formant vowels-BPF->TEST/freqtable??/5-further=env&windows
 
 [-1- old effects mix with datagen=*,+,and,or,mod,]
 
@@ -655,7 +666,6 @@ speechgen: TTS, approaches -> back to formant
 vocoder: supercollider, ladspa plugin, see links
 
 also: http://www.kvraudio.com/forum/viewtopic.php?t=299932
-
 
 * MON 22 SEPT 
 
