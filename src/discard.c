@@ -1,5 +1,6 @@
 
 	      village_read[x].overlay=20; // TESTY!
+
 	      if (village_read[x].overlay>>4){ // datagen business readin!
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
 	      buf16[village_read[x].samplepos%32768]=tmp+32768; // leave buf16 as here only
