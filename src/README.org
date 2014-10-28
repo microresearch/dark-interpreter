@@ -16,6 +16,7 @@ diff bandpass vocoder tests (mdaVocoder.cpp)
 envelope/windowing
 
 - overlap/effect in audio.c now with parameter? - like FMOD? - IN PROCESS?TODO?TEST
+- hw can be super simple consecutive walker, also simplify other HW walkers
 
 4. basic working model with overlap/left-filter/HW/datagens/mirrors
 5. integration all buf16/audio/villagers - tidy all unused bits
