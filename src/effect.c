@@ -9,6 +9,7 @@
 #include "effect.h"
 #include "vocode.h"
 #include "audio.h"
+#include "biquad.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
@@ -141,4 +142,19 @@ for( ... )
 */
 
 
+/* hanning:
 
+hanning:
+for (int i = 0; i < 2048; i++) {
+    double multiplier = 0.5 * (1 - cos(2*PI*i/2047));
+    dataOut[i] = multiplier * dataIn[i];
+}
+
+*/
+
+/* more bandpasses formant: filter signals - (SC=formlet in FilterUGens.cpp),
+biquad (=single formant)
+
+biquad in CMSIS,,,
+
+ */

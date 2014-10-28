@@ -69,6 +69,7 @@ void setlmmmpwm(u16 one){
 #include "CA.h"
 //#include "settings.h"
 #include "vocode.h"
+#include "biquad.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -250,6 +251,8 @@ void main(void)
   u8 exestack[MAX_EXE_STACK];
 
   vocoder=instantiateVocoder();
+
+  biquad *biquad=BiQuad_new(BPF,0.8f,2000.0f,48000.0f,1.0f);
 
   // we just need init first of all villagers NON?
 

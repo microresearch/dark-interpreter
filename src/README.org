@@ -5,20 +5,210 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
+* new scheme for development notes
+
+From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
+
+** Effects and effects walker
+
+- test all effects with simple audio I/O (see below)//EVENINGS:
+
+- villager-villager effects walker - make a clearer format as also need
+  process each effect in chunks (and to keep track of these - within
+  each villager)
+
+- process chunk x -> chunk y in size of audio=32 size (or if less than
+  less!) as all floats/buffer?
+
+- villager-villager effects - make a clearer format as also need
+  process each effect in chunks (and to keep track of these - within
+  each villager)
+
+- effects // but how much memory if we have say vocode instance for each villager
+
+- Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16??? 
+
+- how effects to/from audio_buffer and buf16 work - that we can do for
+  example envelopes into buf16//fft???
+
+- maybe generic function for walkers? all state in villager. all
+  effect state also needs be in villager...
+
+*** Effects themselves
+
+0-try differing bandpasses. 
+
+///formant: filter signals - (SC=bbandpass, formlet in  FilterUGens.cpp), biquad
+(single formant), biquad.c (porting NOW)
+
+or biquad/arm as used in owlpatches->zoelzer
+
+- set up frequency tables/init all filters
+
+1- convolution -DONE
+2- *phase/FFT vocoding/spectral*
+
+pitchscale
+
+JoshUGens/sc/classes/Vocoder.sc
+
+SCcode=PV_SpectralMap, borsboom, snokoder
+
+**** notes
+
+/root/stm32f4/dump/TTS_ADC_V002/lib/CMSIS/ use of lib and look at in general (text to speech)
+
+convolution in time domain=mult in frequency
+
+generic FIR, filter, FFT somehow which code can work with???
+
+code operations on fft bins???
+
+fft bins multiplied/other ops
+
+how flows?
+
+rfft: analysis
+ifft: inverse
+
+arm_cfft_f32(&arm_cfft_sR_f32_len1024, testInput_f32_10khz, ifftFlag, doBitReverse);???
+
+ifftFlag=flag for the selection of CFFT/CIFFT
+
+data must be real/imag=complex - how convert? look back to curs?
+
+hamming window
+
+difference convolution and vocoder? pitch shift// csound...
+
+http://music.columbia.edu/pipermail/music-dsp/2000-March/037231.html
+
+
+3- diff bandpass vocoder tests (try mdaVocoder.cpp)
+
+or SC/BPF:
+
+analysisfilters = Amplitude.kr(BPF.ar(analysissignal, centrefreqs, rq));
+//modulate bandwise the resynthesis
+synthesisfilters = analysisfilters*BPF.ar(synthesissignal, centrefreqs, rq);
+
+4- *envelope/windowing* - see also window.c
+
+- overlap/effect in audio.c now with parameter like FMOD - IN PROCESS?TODO?TEST
+
+//or have double inout buffers for float
+
+*** DONE
+
+** Overlap/effects
+
+- finish and test all for RW
+
+- overlap/effect in audio.c now with parameter like FMOD - IN PROCESS?TODO?TEST
+
+//or have double inout buffers for float
+
+
+*** DONE
+
+** Left/Filter
+
+- left/filter channel: left into audio_buffer/buf16, out from villagers=audio/buf16
+
+- port from RW (given above?)
+
+*** DONE
+
+** Hardware Walker
+
+- that hw can be super simple consecutive walker, also simplify other HW walkers
+
+1- which/start/end/effect ---> speed// set/unset/float (=fingers)
+
+now simply as 4 in options(what of float?), no overlap, 32 hardware
+options
+
++ question of HW granularity (should it be in other/say input loop?)
+
++ how we handle walkers for: 1-40106(always),2-lmer,3-maximer,4-hdgener //depending on
+  if selected or?
+
+as simple walker or set of villagers?
+
+- say 8 or 16 hardware villagers
+
+*** DONE
+
+** Datagen Walker
+
+- datagen walker ITSELF
+
+- nextdatagen() as function for datagen walker to serve others
+
+*** DONE
+** Mirrors/infection
+
+- mirrors: mirror villagers as buffers, mirror villager
+parameters->datagen/eeg/knob/fingers,fingers in code
+
+- mirror as pointer/mirror as from datagen(from which walker-datagen
+  itself walker) mirror villager defines this (control)
+
+- mirror as adding to or constraining what we have already defined for
+  say end/start etc (table)
+
+- so divide as to mirror walker struct as another(pointer) and to bend/constrain/influence another
+
+*** DONE
+** New datagens
+
+- further new datagens+incorporate villagers/klatt/paf/VOSIM
+
+- some effects as buf16/simulations code (eg. impulses, convolution, envelope detection/reduction)
+
+
+*** DONE
+
+** Integration/tests/cleanups
+
+- remove excess variables.
+
+- clean up structs/memory
+
+*** DONE
+
 * TUE 28 OCT+
 
 - test all effects with simple audio I/O (see below)//EVENINGS:
 
-differing bandpasses (LIST) with frequency tables
-convolution -DONE
-phase/FFT vocoding/spectral
-diff bandpass vocoder tests (mdaVocoder.cpp)
-envelope/windowing
+0-try differing bandpasses with frequency tables
 
-- overlap/effect in audio.c now with parameter? - like FMOD? - IN PROCESS?TODO?TEST
-- hw can be super simple consecutive walker, also simplify other HW walkers
+///formant: filter signals - (SC=bbandpass, formlet in  FilterUGens.cpp), biquad
+(single formant), biquad.c (porting NOW)
 
-4. basic working model with overlap/left-filter/HW/datagens/mirrors
+or biquad/arm as used in owlpatches->zoelzer
+
+1- convolution -DONE
+2- *phase/FFT vocoding/spectral*
+3- diff bandpass vocoder tests (try mdaVocoder.cpp)
+
+or SC/BPF:
+
+analysisfilters = Amplitude.kr(BPF.ar(analysissignal, centrefreqs, rq));
+
+//modulate bandwise the resynthesis
+
+synthesisfilters = analysisfilters*BPF.ar(synthesissignal, centrefreqs, rq);
+
+4- *envelope/windowing* - see also window.c
+
+- overlap/effect in audio.c now with parameter like FMOD - IN PROCESS?TODO?TEST
+
+//or have double inout buffers for float
+
+- that hw can be super simple consecutive walker, also simplify other HW walkers
+
+4. basic working model with overlap/left-filterRW/HW/datagens/mirrors
 5. integration all buf16/audio/villagers - tidy all unused bits
 /////
 6. further new datagens+incorporate villagers/klatt/paf etc...
@@ -38,15 +228,15 @@ envelope/windowing
 
 ///TODO:
 -left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
+
 -datagen walker ITSELF
--mirrors: mirror villagers as buffers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
+
+-mirrors: mirror villagers as buffers, mirror villager
+parameters->datagen/eeg/knob/fingers,fingers in code
+
 -effects // but how much memory if we have say vocode instance for each villager
 
 Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16??? 
-
-////////////
-
-- simple per sample effects/overlap and effects walker
 
 - how effects to/from audio_buffer and buf16 work - that we can do for
   example envelopes into buf16//fft???
@@ -54,17 +244,13 @@ Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16???
 - maybe generic function for walkers? all state in villager. all
   effect state also needs be in villager...
 
-- clearer scheme for buf16 read _and_ write out????
-
 - nextdatagen() as function for datagen walker...
 
 - villager-villager effects - make a clearer format as also need
   process each effect in chunks (and to keep track of these - within
   each villager)
 
-- effects somehow decided as specific chunk
-
-process chunk x -> chunk y in size of audio=32 size (or if less than less!)
+- process chunk x -> chunk y in size of audio=32 size (or if less than less!)
 
 ** DONE:
 
@@ -95,6 +281,8 @@ exchanges/4-simple formant vowels-BPF->TEST/freqtable??/5-further=env&windows
 
 JoshUGens/sc/classes/Vocoder.sc
 
+SCcode=PV_SpectralMap, borsboom, snokoder
+
 2. 16 channel bandpass/formant/vocoder: ladspa DONE
 
 or vst-mda version: mdaVocoder.cpp TEST/TRY
@@ -111,12 +299,6 @@ FFT on ARM: http://coactionos.com/embedded%20design%20tips/2013/10/13/Tips-FFT-o
 formant frequency/vowel table (vowels announced from buf16 as text->vowels,Qlength of vowel?) 
 
 TTS?, other speech synth?, generate formants based on buf16?
-
-formant: filter signals - (SC=formant.ar, BBandpass?, formlet? where?), biquad (single formant)
-
-/root/supercollider/server/plugins -> BBandpass (complicated)
-
-biquad.c in docs
 
 5. further
 
@@ -235,7 +417,7 @@ as simple walker or set of villagers?
 
 - do they operate across own chunks or across villagers (R/W) as source/end?
 - how are they timed? own start/end/offset kind of????
-
+  
 ** Mirrors/infection across villager sets/within:
 
 mirror as pointer/mirror as from datagen(from which walker-datagen itself walker)
