@@ -275,7 +275,25 @@ void main(void)
   for (u8 xx=0;xx<64;xx++){
     village_read[xx].counterr=0;
     village_write[xx].counterr=0;
+    village_read[xx].compress=1;
+    village_write[xx].compress=1;
 	}
+
+  // random init: TESTY!
+
+  /*      	for (u8 xx=0;xx<64;xx++){
+	  village_read[xx].start=rand()%32768;
+	  village_read[xx].wrap=rand()%32768;
+	  village_read[xx].offset=rand()%32768;
+	  village_read[xx].dir=1;
+	  village_read[xx].del=0;
+	  village_read[xx].samplepos=0;
+	  village_read[xx].speed=rand()%16;
+	  village_read[xx].step=rand()%16;
+	  village_read[xx].dirry=direction[village_read[xx].dir]*village_read[xx].step;
+	  village_read[xx].samplepos=village_read[xx].start;
+	  }*/
+
 
   inittable(3,4,randi());
   const float32_t pi= 3.141592;
@@ -387,6 +405,11 @@ void main(void)
   /// HERE!
 
   // experimentally run through datagen villagers - now just with CA!
+
+  if (++deldata>=dataspeed) {
+    counterd+=dirryd;
+    deldata=0;
+  }
 
   if ((counterd-databegin)>dataend) {
     counterd=databegin;
@@ -549,7 +572,6 @@ void main(void)
       machine_runnn(village_datagen[x].start,village_datagen[x].wrap); 
       village_datagen[x].position+=village_datagen[x].speed;
       break;
-      // last run is cpuintrev3/4 to port????!!!
      case 46:
       village_datagen[x].position=xxrunleakystack(&village_datagen[x]);
       break;
@@ -616,10 +638,6 @@ void main(void)
     } // if running
   } // end of x/run thru all villagers
 
-  if (++deldata>=dataspeed) {
-    counterd+=dirryd;
-    deldata=0;
-  }
 
   ///// end of DATAGEN villagers!
 

@@ -1,3 +1,91 @@
+
+	      village_read[x].overlay=20; // TESTY!
+	      if (village_read[x].overlay>>4){ // datagen business readin!
+	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
+	      buf16[village_read[x].samplepos%32768]=tmp+32768; // leave buf16 as here only
+	      // overlay on it!
+	      switch(village_read[x].overlay&15){
+	      case 0:
+		audio_buffer[village_read[x].samplepos%32768]=tmp16; 
+	      break;
+	      case 1:
+		audio_buffer[village_read[x].samplepos%32768]|=tmp16; 
+	      break;
+	      case 2:
+		audio_buffer[village_read[x].samplepos%32768]^=tmp16; 
+	      break;
+	      case 3:
+		audio_buffer[village_read[x].samplepos%32768]+=tmp16; 
+	      break;
+	      case 4:
+		// last thing...
+	      if (tmp16>last) audio_buffer[village_read[x].samplepos%32768]=tmp16;
+	      last=tmp16;
+
+	      // others if not 0= &, %, *(should be float), and, last value???
+	      case 5:
+		if (audio_buffer[village_read[x].samplepos%32768]!=0 && tmp16!=0)
+		  audio_buffer[village_read[x].samplepos%32768]%=tmp16; 
+		else audio_buffer[village_read[x].samplepos%32768]=tmp16; 
+		break;
+	      case 6:
+		if (audio_buffer[village_read[x].samplepos%32768]!=0 && tmp16!=0)
+		  audio_buffer[village_read[x].samplepos%32768]&=tmp16; 
+		else audio_buffer[village_read[x].samplepos%32768]=tmp16; 
+		break;
+	      case 7:
+		if (audio_buffer[village_read[x].samplepos%32768]!=0 && tmp16!=0)
+		  audio_buffer[village_read[x].samplepos%32768]*=tmp16; 
+		else audio_buffer[village_read[x].samplepos%32768]=tmp16; 
+		break;
+	      // FMODed parameters as floats - question of saturation/clipping?
+	      case 8:
+		fsum=(float32_t)tmp16 * village_read[x].effect;
+		tmp32=fsum;
+		audio_buffer[village_read[x].samplepos%32768]=tmp32;
+		break;
+	      case 9:
+		fsum=(float32_t)tmp16 * village_read[x].effect;
+		tmp32=fsum;
+		audio_buffer[village_read[x].samplepos%32768]+=tmp32;
+		break;
+	      case 10:
+		fsum=(float32_t)tmp16 * village_read[x].effect;
+		tmp32=fsum;
+		audio_buffer[village_read[x].samplepos%32768]^=tmp32;
+		break;
+	      case 11:
+		fsum=(float32_t)tmp16 * village_read[x].effect;
+		tmp32=fsum;
+		audio_buffer[village_read[x].samplepos%32768]|=tmp32;
+		break;
+	      case 12:
+		if (audio_buffer[village_read[x].samplepos%32768]!=0 && tmp16!=0)
+		  //  audio_buffer[village_read[x].samplepos%32768]*=tmp16; 
+		  {
+		fsum=(float32_t)tmp16 * village_read[x].effect;
+		tmp32=fsum;
+		audio_buffer[village_read[x].samplepos%32768]*=tmp32;
+		  }
+		else audio_buffer[village_read[x].samplepos%32768]=tmp16; 
+		break;
+		//		13/14/15/16 buf16*tmp,+tmp, |tmp, &tmp
+
+/////////////////
+
+	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
+	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    //	    writeoffset=loggy[adc_buffer[FOURTH]];
+	    dataspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
+	    if (xx==0) dirryd=-(((spd&240)>>4)+1);
+	    else if (xx==1) dirryd=((spd&240)>>4)+1;
+	    else if (xx==2) dirryd=newdirection[wormdir];
+	    else dirryd=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
+	    if (dirryd>0) counterd=databegin;
+	      else counterd=dataend+databegin;
+
+
 //// FFT test
 
 // first test dsplib

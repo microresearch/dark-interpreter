@@ -21,6 +21,21 @@ float vsqrtf(float op1) {
   return (result);
 }
 
+// 2-convolution
+
+//r[] as zeroed first
+//max function above
+
+// watch amount of out
+void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
+{
+  for (u16 n = 0; n < n1 + n2 - 1; n++){
+      out[n]=0.0f;
+      for (u16 k = 0; k < MAX(n1, n2); k++)
+	out[n] += (k < n1 ? convolve1[k] : 0) * (n - k < n2 ? convolve2[n - k] : 0);
+  }
+}
+
 float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
   float f,fb,hp,bp,scale;
   static float buf0=0,buf1=0;
@@ -63,6 +78,7 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
+  float out[BUFF_LEN];
   // convert to float
 
   // VOCODER:
@@ -72,23 +88,11 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   floot_to_int(outbuffer,tmpbuffer);
   */
 
-  int_to_floot(inbuffer,tmpbuffer);
 
-  for (x=0;x<32;x++){
+  // BANDPASS:
 
-    /* formant ee: how to convert???
-VOWEL SOUND "EE" GAIN (dB) Q
-
-F1 270 0 5
-
-F2 2300 -15 20
-
-F3 3000 -9 50
-
-300
-870
-2250
-    */
+  /*    int_to_floot(inbuffer,tmpbuffer);
+    for (x=0;x<32;x++){
     //    xxx=(float)inbuffer[x]/32768.0;
     xxx=tmpbuffer[x];
     //    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
@@ -96,7 +100,14 @@ F3 3000 -9 50
     xx=bandpass(xxx,0.7f,3000.0f,1.0f); // q freq gain
     tmpbuffer[x]=xx;
       }
-  floot_to_int(outbuffer,tmpbuffer);
+      floot_to_int(outbuffer,tmpbuffer);*/
+
+  // CONVOLVE:
+    int_to_floot(inbuffer,tmpbuffer);
+    intun_to_floot(buf16,tmpotherbuffer);
+    convolvee(tmpbuffer,32,tmpotherbuffer,16,out);
+  //void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
+    floot_to_int(outbuffer,out);
 }
 
 
@@ -129,16 +140,5 @@ for( ... )
 
 */
 
-// 2-convolution
-
-//r[] as zeroed first
-//max function above
-
-void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
-{
-    for (size_t n = 0; n < n1 + n2 - 1; n++)
-        for (size_t k = 0; k < MAX(n1, n2); k++)
-            out[n] += (k < n1 ? convolve1[k] : 0) * (n - k < n2 ? convolve2[n - k] : 0);
-}
 
 

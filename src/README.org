@@ -7,17 +7,28 @@ organ!
 
 * TUE 28 OCT+
 
-- test all effects with simple audio I/O (see below):
+- test all effects with simple audio I/O (see below)//EVENINGS:
 
 differing bandpasses (LIST) with frequency tables
-convolution
+convolution -DONE
 phase/FFT vocoding/spectral
 diff bandpass vocoder tests (mdaVocoder.cpp)
 envelope/windowing
 
-4. basic working model with overlap/compression/left-filter/HW/datagens/mirrors
+- overlap/effect in audio.c now with parameter? - like FMOD?
+
+but need to define effects/overlays - do we split on datagen swop or
+is that just one effect?
+
+4. basic working model with overlap/left-filter/HW/datagens/mirrors
 5. integration all buf16/audio/villagers
+/////
 6. further new datagens+incorporate villagers/klatt/paf etc...
+
+** DONE (from below)
+
+- vocoder test code, bandpass test code, convolution test code
+- villagers and compression->in process compression-TEST-DONE
 
 * WED/THU 22/23 OCT+++ new week
 
@@ -26,12 +37,10 @@ envelope/windowing
 - *all TODOS defined: effects, HW walker, mirrors, infection etc.**
 
 -overlap, HW and input-FINISH/TEST
--villagers and compression->in process compression-TEST
 
 ///TODO:
--do datagen compression anew
 -left/filter channel: left into audio_buffer/buf16, out from villagers/audio/buf16
--datagen walker
+-datagen walker ITSELF
 -mirrors: mirror villagers as buffers, mirror villager parameters->datagen/eeg/knob/fingers,fingers in code
 -effects // but how much memory if we have say vocode instance for each villager
 
