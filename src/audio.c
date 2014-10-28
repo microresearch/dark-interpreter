@@ -253,8 +253,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 1: // WRITE overlays and compression
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
-	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>8;// 4 bits=16
-	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// as value of effectTODO!
+	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
+	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
+	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effectinv;
 	    village_write[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;//
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    // no finger/dir?
@@ -290,8 +291,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    // READ again - select villager
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect as param
-	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>7; // 5 bits =32 top bit is datagen
-	    village_read[whichvillager].effect=(float)adc_buffer[THIRD]/4096.0f;// // as value of effectTODO!
+	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>6; // 6 bits =64 top bit is datagen
+	    village_read[whichvillager].effect=(float)adc_buffer[THIRD]/4096.0f;//
+	    village_read[whichvillager].effectinv=1.0f-village_read[whichvillager].effectinv;
 	    village_read[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    dirryr=(spd&240)>>4;
@@ -361,20 +363,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    if ((village_read[x].offset/village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 
-		// TODO: we (could) have: overlay as:
-		// effect (=,&,+,*)=4=2 bits
-		// overlay(=,|,+,last)=4=2 bits
-		// Fmodded always// also inv mod
-		// constrained or not 1 bit = 5 bits=32+top=64
-
-
+	      // TODO: we (could) have: overlay as:
+	      // effect (=,&,+,*)=4=2 bits
+	      // overlay(=,|,+,last)=4=2 bits
+	      // Fmodded always// also inv mod
+	      // constrained or not 1 bit = 5 bits=32+top=64
+	      // top bit is swop or not - 2 sets of cases as before
+	      if (village_read[x].overlay>>5){ // datagen business readin! - top bit=64
+	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
+	      buf16[village_read[x].samplepos%32768]=tmp+32768; // leave buf16 as here only
+	      // deal with buf16
 	      }
-	      }
-	      else {
-	      switch(village_read[x].overlay&15){
-		///TODO! from above
-	      }
-	      }
+	      else
+		{
+		  // deal with tmp
+		}
 
 	      if (++village_read[x].del>=village_read[x].step){
 	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);

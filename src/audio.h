@@ -38,7 +38,7 @@
       int16_t dirry;
       u16 compress;
       u8 speed, step;
-      float effect; // now as value of effect! TODO!
+      float effect,effectinv; // now as value of effect! TODO!
       u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
     } villagerr;
