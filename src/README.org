@@ -12,6 +12,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 ** General TODO: 
  
 - check datagens run ok 
+- importance of datagens for all so need fingers_in_all as last mode
 
 ** Effects and effects walker
 

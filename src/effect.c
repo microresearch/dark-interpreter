@@ -19,8 +19,8 @@ extern biquad *biquaddd;
 extern arm_biquad_casd_df1_inst_f32* df1;
 extern BBandPass *unit;
 extern Formlet *unitt;
-//extern mdavocoder *unittt;
-extern mdavocal *unittt;
+extern mdavocoder *unittt;
+extern mdavocal *unitttt;
 
 void Formlet_init(Formlet* unit){
   const float log001=logf(0.001);
@@ -242,13 +242,21 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
 
-  //mdavocoder
+  //mdavocoder - no results!!!!
 
     int_to_floot(inbuffer,tmpbuffer);
     intun_to_floot(buf16,tmpotherbuffer);
-    //    mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
-    mdavocal_process(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+    mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
     floot_to_int(outbuffer,tmpotherotherbuffer);
+  
+    ///mdavocal (vocoder carrier gen???)
+  /*
+  int_to_floot(inbuffer,tmpbuffer);
+  intun_to_floot(buf16,tmpotherbuffer);
+  mdavocal_process(unitttt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+  floot_to_int(outbuffer,tmpotherotherbuffer);
+  */
+
 
   // Formlet from SC
     /*    int_to_floot(inbuffer,tmpbuffer);
@@ -353,9 +361,3 @@ for (int i = 0; i < 2048; i++) {
 
 */
 
-/* more bandpasses formant: filter signals - (SC=formlet in FilterUGens.cpp),
-biquad (=single formant)
-
-biquad in CMSIS,,,
-
- */

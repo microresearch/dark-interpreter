@@ -244,8 +244,8 @@ biquad *biquaddd;
 VocoderInstance* vocoder;
 BBandPass *unit;
 Formlet *unitt;
-// mdavocoder *unittt;
-mdavocal *unittt;
+mdavocoder *unittt;
+mdavocal *unitttt;
 
 //arm_biquad_casd_df1_inst_f32* df1;
 //float* state;
@@ -265,9 +265,10 @@ void main(void)
   //  unit=(BBandPass *)malloc(sizeof(BBandPass));
   unitt=(Formlet *)malloc(sizeof(Formlet));
   Formlet_init(unitt);
-  unittt=(mdavocal *)malloc(sizeof(mdavocal));
-  //  mdaVocoder_init(unittt);
-  mdavocal_init(unittt);
+  unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
+  unitttt=(mdavocal *)malloc(sizeof(mdavocal));
+  mdaVocoder_init(unittt);
+  mdavocal_init(unitttt);
   //////////////
 
   // we just need init first of all villagers NON?

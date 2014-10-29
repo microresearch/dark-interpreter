@@ -7,7 +7,7 @@ typedef struct {
   float gain; //output level
   float thru, high; //hf thru
   float kout; //downsampled output
-  u16 kval; //downsample counter
+  u8 kval; //downsample counter
   u8 nbnd; //number of bands
   float f[16][13]; //[0-8][0 1 2 | 0 1 2 3 | 0 1 2 3 | val rate]
   float param[8];
@@ -34,4 +34,4 @@ typedef struct {
 void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *output, int sampleFrames);
 void mdaVocoder_init(mdavocoder* unit);
 void mdavocal_init(mdavocal* unit);
-  void mdavocal_process(mdavocal *unit, float *input1, float *input2, float *output, int sampleFrames);
+void mdavocal_process(mdavocal *unit, float *input1, float *input2, float *output, int sampleFrames);

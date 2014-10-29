@@ -2,23 +2,30 @@
 
 #include "mdavocoder.h"
 
-void mdaVocoder_init(mdavocoder* unit) ///update internal parameters...
+void mdaVocoder_init(mdavocoder* unit) 
 {
   unit->param[0] = 0.33f;  //input select
-  unit->param[1] = 0.90f;  //output dB
-  unit->param[2] = 0.40f;  //hi unit->thru
+  unit->param[1] = 0.50f;  //output dB
+  unit->param[2] = 0.40f;  //hi unit->thru was 0.40
   unit->param[3] = 0.40f;  //hi band was 0.40
-  unit->param[4] = 0.16f;  //envelope
-  unit->param[5] = 0.55f;  //filter q was 0.55
-  unit->param[6] = 0.6667f;//freq range       
+  unit->param[4] = 0.16f;  //envelope was 0.16
+  unit->param[5] = 0.75f;  //filter q was 0.55
+  unit->param[6] = 0.6667f;//freq range was 0.6667
   
-  unit->param[7] = 0.1f;  //num bands      was 0.66 
+  unit->param[7] = 0.66f;  //num bands      was 0.66 
   
-  const double tpofs = (M_PI*2)/48000.0f;
+  const double tpofs = 6.2831853f/48000.0f;
   double rr, th, re;
   float sh;
-  u8 i;
+  u8 i,ii;
 
+  for (i=0;i<16;i++){
+      for (ii=0;ii<13;ii++){
+	unit->f[i][ii]=0.0f;
+      }
+}
+
+  unit->kval=0;
   unit->swap = 1; if(unit->param[0]>0.5f) unit->swap = 0;
   unit->gain = pow(10.0f, 2.0f * unit->param[1] - 3.0f * unit->param[5] - 2.0f);
   unit->thru = pow(10.0f, 0.5f + 2.0f * unit->param[1]);
@@ -65,8 +72,8 @@ void mdaVocoder_init(mdavocoder* unit) ///update internal parameters...
   else
   {
     unit->f[0][12] = pow(10.0f, -1.7f - 2.7f * unit->param[4]); //envelope speed
-    
-    rr = 0.022f / (float)unit->nbnd; //minimum proportional to frequency to stop distortion
+    rr = 0.022f / (float)unit->nbnd; //minimum proportional to frequency to stop distortion0.022f/
+
     for(i=1;i<unit->nbnd;i++) 
     {                   
       unit->f[i][12] = (float)(0.025f - rr * (double)i);// was 0.025
@@ -77,8 +84,8 @@ void mdaVocoder_init(mdavocoder* unit) ///update internal parameters...
 
   rr = 1.0 - pow(10.0f, -1.0f - 1.2f * unit->param[5]);///
   sh = (float)pow(2.0f, 3.0f * unit->param[6] - 1.0f); //filter bank range shift 
-  //  rr=0.1f;
-  //    sh=0.1f;
+  //  rr=1.0f;
+  //  sh=1.0f;
 
   for(i=1;i<unit->nbnd;i++)
   {
@@ -107,7 +114,7 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 {
   float a, b, o=0.0f, aa, bb, oo=unit->kout, g=unit->gain, ht=unit->thru, hh=unit->high, tmp;
   u8 i, sw=unit->swap, nb=unit->nbnd;
-  u16 k=unit->kval;
+  u8 k=unit->kval;
   --input1;
   --input2;
   --output;
@@ -130,7 +137,7 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 
     if(++k & 1) //this block runs at half sample rate
       {
-	oo = 0.0f;
+	//	oo = 0.0f;
       aa = a + unit->f[0][9] - unit->f[0][8] - unit->f[0][8];  //apply zeros here instead of in each reson
       unit->f[0][9] = unit->f[0][8];  unit->f[0][8] = a;
      
@@ -159,7 +166,6 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
       }
   }
         o += oo * g; //effect of interpolating back up to Fs would be minimal (aliasing >16kHz)
-    //    o=unit->f[i][5]*0.0001f;
 
     *++output = o;
   }
