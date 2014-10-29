@@ -8,12 +8,172 @@
 #include "arm_const_structs.h"
 #include "effect.h"
 #include "vocode.h"
+#include "mdavocoder.h"
 #include "audio.h"
 #include "biquad.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 extern u8 *datagenbuffer;
+extern biquad *biquaddd;
+extern arm_biquad_casd_df1_inst_f32* df1;
+extern BBandPass *unit;
+extern Formlet *unitt;
+//extern mdavocoder *unittt;
+extern mdavocal *unittt;
+
+void Formlet_init(Formlet* unit){
+  const float log001=logf(0.001);
+  const float mRadiansPerSample=(2 * M_PI) /48000.0f;
+  unit->m_freq = 440.0f; // replace values
+  unit->m_attackTime = 1.0f;
+  unit->m_decayTime = 0.9f;
+  unit->m_b01 = 0.f;
+  unit->m_b02 = 0.f;
+  unit->m_y01 = 0.f;
+  unit->m_y02 = 0.f;
+  unit->m_b11 = 0.f;
+  unit->m_b12 = 0.f;
+  unit->m_y11 = 0.f;
+  unit->m_y12 = 0.f;
+
+  float attackTime = unit->m_attackTime;
+  float decayTime = unit->m_decayTime;
+
+  float y00;
+  float y10;
+  float y01 = unit->m_y01;
+  float y11 = unit->m_y11;
+  float y02 = unit->m_y02;
+  float y12 = unit->m_y12;
+  
+  float b01 = unit->m_b01;
+  float b11 = unit->m_b11;
+  float b02 = unit->m_b02;
+  float b12 = unit->m_b12;
+
+  float ffreq = unit->m_freq * mRadiansPerSample;
+  
+  float R = decayTime == 0.f ? 0.f : expf(log001/(decayTime * 48000.0f));
+  float twoR = 2.f * R;
+  float R2 = R * R;
+  float cost = (twoR * cosf(ffreq)) / (1.f + R2);
+
+  b01 = twoR * cost;
+  b02 = -R2;
+  
+  R = attackTime == 0.f ? 0.f : expf(log001/(attackTime * 48000.0f));
+  twoR = 2.f * R;
+  R2 = R * R;
+  cost = (twoR * cosf(ffreq)) / (1.f + R2);
+  b11 = twoR * cost;
+  b12 = -R2;
+
+  unit->m_b01 = b01;
+  unit->m_b02 = b02;
+  unit->m_b11 = b11;
+  unit->m_b12 = b12;
+  unit->m_y01 = y01;
+  unit->m_y02 = y02;
+  unit->m_y11 = y11;
+  unit->m_y12 = y12;
+}
+
+
+void Formlet_process(Formlet *unit, int inNumSamples, float* inbuffer, float* outbuffer){
+
+  float y00;
+  float y10;
+  float y01 = unit->m_y01;
+  float y11 = unit->m_y11;
+  float y02 = unit->m_y02;
+  float y12 = unit->m_y12;
+
+  float b01 = unit->m_b01;
+  float b11 = unit->m_b11;
+  float b02 = unit->m_b02;
+  float b12 = unit->m_b12;
+  float ain;
+
+  for (int i=0;i<inNumSamples;i++){
+  ain = inbuffer[i];
+  y00 = ain + b01 * y01 + b02 * y02;
+  y10 = ain + b11 * y11 + b12 * y12;
+  outbuffer[i] = 0.25* ((y00 - y02) - (y10 - y12)); //was 0.25*
+
+  y02 = y01;
+  y01 = y00;
+  y12 = y11;
+  y11 = y10;
+  }
+
+  unit->m_y01 = y01;
+  unit->m_y02 = y02;
+  unit->m_y11 = y11;
+  unit->m_y12 = y12;
+}
+
+
+void BBandPass_init(BBandPass* unit){
+	float freq = unit->m_freq = 2000.0;
+	float bw = unit->m_bw = 0.1;
+
+	float w0 = 2*M_PI * (float)freq / 48000.0;
+	float sinw0 = sinf(w0);
+	float alpha = sinw0 * (sinhf((0.34657359027997 * (float)bw * w0) / sinw0));
+	float b0rz = 1. / (1. + alpha);
+	float a0 = unit->m_a0 = alpha * b0rz;
+	unit->m_a1 = 0.0f;
+	unit->m_a2 = -a0;
+	unit->m_b1 = cosf(w0) * 2. * b0rz;
+	unit->m_b2 = (1. - alpha) * -b0rz;
+	unit->m_y1 = 0.;
+	unit->m_y2 = 0.;
+}
+
+void BBandPass_process(BBandPass *unit, int inNumSamples,float* inbuffer, float* outbuffer)
+{
+	float a0, a1, a2, b1, b2, w0, sinw0, alpha, b0rz;
+	float y0, y1, y2;
+
+	y1 = unit->m_y1;
+	y2 = unit->m_y2;
+
+	a0 = unit->m_a0;
+	a1 = unit->m_a1;
+	a2 = unit->m_a2;
+	b1 = unit->m_b1;
+	b2 = unit->m_b2;
+
+	/*	LOOP(unit->mRate->mFilterLoops, //this is the unroll by 3
+
+		y0 = ZXP(in) + b1 * y1 + b2 * y2;
+		ZXP(out) = a0 * y0 + a1 * y1 + a2 * y2;
+
+		y2 = ZXP(in) + b1 * y0 + b2 * y1;
+		ZXP(out) = a0 * y2 + a1 * y0 + a2 * y1;
+
+		y1 = ZXP(in) + b1 * y2 + b2 * y0;
+		ZXP(out) = a0 * y1 + a1 * y2 + a2 * y0;
+		);*/
+
+	for (int i=0;i<inNumSamples;i++){
+	  //	LOOP(unit->mRate->mFilterRemain,
+		y0 = inbuffer[i] + b1 * y1 + b2 * y2;
+		outbuffer[i] = a0 * y0 + a1 * y1 + a2 * y2;
+		y2 = y1;
+		y1 = y0;
+	}
+
+	unit->m_a0 = a0;
+	unit->m_a1 = a1;
+	unit->m_a2 = a2;
+	unit->m_b1 = b1;
+	unit->m_b2 = b2;
+	unit->m_y1 = y1;
+	unit->m_y2 = y2;
+}
+
 
 // sqrtf which uses FPU, the standard one apparently doesn't????
 float vsqrtf(float op1) {
@@ -79,10 +239,51 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
+  float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
-  // convert to float
+
+  //mdavocoder
+
+    int_to_floot(inbuffer,tmpbuffer);
+    intun_to_floot(buf16,tmpotherbuffer);
+    //    mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+    mdavocal_process(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+    floot_to_int(outbuffer,tmpotherotherbuffer);
+
+  // Formlet from SC
+    /*    int_to_floot(inbuffer,tmpbuffer);
+    Formlet_process(unitt,32,tmpbuffer,tmpotherbuffer);
+    floot_to_int(outbuffer,tmpotherbuffer);*/
+
+  // BBandPass from SC
+    /*    int_to_floot(inbuffer,tmpbuffer);
+        BBandPass_process(unit,32,tmpbuffer,tmpotherbuffer);
+        floot_to_int(outbuffer,tmpotherbuffer);
+    */
+
+  // BPF filter from: ZoelzerMultiFilterPatch_hpp__ - only appears work for some coeffs
+  /*    arm_biquad_cascade_df1_f32(&df1, buf, buf, size);
+   */
+
+  /*
+    int_to_floot(inbuffer,tmpbuffer);
+    arm_biquad_cascade_df1_f32(df1,tmpbuffer,tmpotherbuffer,32);
+    floot_to_int(outbuffer,tmpotherbuffer);
+  */
+
+  // BIQUAD bandpass from biquad.c
+  /*  int_to_floot(inbuffer,tmpbuffer);
+    for (x=0;x<32;x++){
+    xxx=tmpbuffer[x];
+    xx=BiQuad(xxx,biquaddd); 
+    tmpbuffer[x]=xx;
+      }
+      floot_to_int(outbuffer,tmpbuffer);*/
+
+
 
   // VOCODER:
+  // convert to float
   /*  int_to_floot(inbuffer,tmpbuffer);
   intun_to_floot(buf16,tmpotherbuffer);
   runVocoder(vocoder, tmpbuffer, tmpotherbuffer, tmpbuffer, BUFF_LEN/4);
@@ -104,12 +305,12 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
       floot_to_int(outbuffer,tmpbuffer);*/
 
   // CONVOLVE:
-    int_to_floot(inbuffer,tmpbuffer);
+  /*    int_to_floot(inbuffer,tmpbuffer);
     intun_to_floot(buf16,tmpotherbuffer);
     convolvee(tmpbuffer,32,tmpotherbuffer,16,out);
   //void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
-    floot_to_int(outbuffer,out);
-}
+  floot_to_int(outbuffer,out);*/
+    }
 
 
 /* 1-envelope
@@ -146,7 +347,7 @@ for( ... )
 
 hanning:
 for (int i = 0; i < 2048; i++) {
-    double multiplier = 0.5 * (1 - cos(2*PI*i/2047));
+    float multiplier = 0.5 * (1 - cos(2*PI*i/2047));
     dataOut[i] = multiplier * dataIn[i];
 }
 

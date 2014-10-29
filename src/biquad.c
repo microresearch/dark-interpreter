@@ -1,4 +1,5 @@
 #include "biquad.h"
+#include "simulation.h"
 
 /* Computes a BiQuad filter on a sample */
 smp_type BiQuad(smp_type sample, biquad * b)
@@ -21,9 +22,9 @@ smp_type BiQuad(smp_type sample, biquad * b)
 }
 
 float fastsqrt1( float x ) {
-  union { int32_t i; float x; } u;
+  union { uint32_t i; float x; } u;
   u.x = x;
-  u.i = ((int32_t)1<<29) + (u.i >> 1) - ((int32_t)1<<22); 
+  u.i = ((uint32_t)1<<29) + (u.i >> 1) - ((uint32_t)1<<22); 
   return u.x;
 }
 

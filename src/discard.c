@@ -1,4 +1,91 @@
 
+    //  float omega = (M_PI/2.0f - 0.01f)*(2000.0f/48000.0f) + 0.00001f; // Frequency
+    /*  float omega = M_PI*(2000.0f/48000.0f); // Frequency
+  float K = tanf(omega);
+  float Q = 1.0f * 10.0f + 0.1f; // Resonance
+  //  float gain = 1.0f;
+  //  float V = abs(gain-0.5f)*60.0f + 1.0f; // Gain
+  float norm;*/
+  //  state = (float*)malloc(4*sizeof(float));
+  float coeffs[5];
+
+  //    case ZOELZER_BANDPASS_FILTER_MODE:
+
+float omega=(float)(2*M_PI*2000/48000);
+float sn=sinf(omega);
+float cs=cosf(omega);
+ float alpha=(float)(sn/(2*0.1));// 1.0 is Q
+float inv=(float)(1.0/(1.0+alpha));
+coeffs[0] =  (float)(1.0*inv*alpha);
+coeffs[1] =  0.f;
+coeffs[2] =  (float)(-1.0*inv*alpha);
+coeffs[3] =  (float)(-1*cs*inv);
+coeffs[4] =  (float)((1 - alpha)*inv);
+
+      for (i=0;i<5;i++){
+	printf("COEFF %d =%f\n",i,coeffs[i]);
+}
+
+      //    printf("float=%f\n",xxx);
+
+  /*  for (i = 0; i <= 256; i++)
+    {
+      yi= 32767*sinf(phase); // was 2047???
+      phase=phase+w;
+      sign_samp=32767+yi;     // dc offset
+      printf("samp=%d",sign_samp); // write value into array
+      }*/
+
+
+
+  //		double w0 = frequency * (2 * 3.141592654 / AUDIO_SAMPLE_RATE_EXACT);
+
+  /*float omega=(float)(2*M_PI*200/48000);
+float sn=sinf(omega);
+float cs=cosf(omega);
+ float alpha=(float)(sn/(2*0.1));//Q
+float inv=(float)(1.0/(1.0+alpha));
+ coeffs[0] =  (float)(1.0*inv*alpha);
+ coeffs[1] =  0.f;
+ coeffs[2] =  (float)(-1.0*inv*alpha);
+ coeffs[3] =  (float)(-1*cs*inv)/2.0f;
+ coeffs[4] =  (float)((1 - alpha)*inv);*/
+
+  coeffs[0] = 0.05014382013893669/2.0f;//616991280577938;
+  coeffs[1] = 0.01;
+  coeffs[2] = -0.05014382013893669/2.0f;//616991280577938;
+  coeffs[3] = -1.8850117538910771/2.0f;
+  coeffs[4] = 0.8997123597221269/2.0f;
+
+
+  state = (float*)malloc(4*sizeof(float));
+  df1= (arm_biquad_casd_df1_inst_f32*)malloc(sizeof(arm_biquad_casd_df1_inst_f32));
+
+  //  float coeffs[] = {1,   0.558697707784438,   0.257307012382698,  -0.292447944767337,   0.108452664934473};
+
+  //float coeffs[]={1.000000000000000,  -1.957555609146701,   0.957555609146701, -1.562244197866329,   0.641280516968023};//{a0 a1 a2 -b1 -b2}
+
+  arm_biquad_cascade_df1_init_f32(df1, 1, coeffs, state); // before coefficients???
+
+
+  //    case ZOELZER_BANDPASS_FILTER_MODE:
+  /*  norm = 1 / (1 + K / Q + K * K);
+      coeffs[0] = K / Q * norm;
+      coeffs[1] = 0;
+      coeffs[2] = -coeffs[0];
+      coeffs[3] = 2 * (K * K - 1) * norm;
+      coeffs[4] = (1 - K / Q + K * K) * norm;*/
+
+
+  //  omega = 2*PI*frequency/sample_rate
+  float omega = (M_PI/2.0f - 0.01f)*(2000.0f/48000.0f) + 0.00001f; // Frequency
+  //  float omega = M_PI*(2000.0f/48000.0f); // Frequency
+  float K = tanf(omega);
+  float Q = 1.0f * 10.0f + 0.1f; // Resonance
+  //  float gain = 1.0f;
+  //  float V = abs(gain-0.5f)*60.0f + 1.0f; // Gain
+  float norm;
+
 	      village_read[x].overlay=20; // TESTY!
 
 	      if (village_read[x].overlay>>4){ // datagen business readin!

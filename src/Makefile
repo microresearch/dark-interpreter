@@ -13,20 +13,21 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_gpio.o stm32f4xx_i2c.o stm32f4xx_rcc.o \
 			stm32f4xx_spi.o stm32f4xx_dma.o stm32f4xx_adc.o misc.o \
 			syscalls.o pureleak2.o audio.o hardware.o effect.o biquad.o vocode.o\
+			mdavocoder.o mdavoc.o\
 			simforstacksansmem2.o cpuintrev4.o CAforstacksansmem2.o
 
 # Linker script
 #LDSCRIPT = stm32f407.ld
 LDSCRIPT = stm32_flash.ld
 
-#CFLAGS = -g -O2 -mlittle-endian -mthumb -std=gnu99
+#CFLAGS = -g -ggdb -O2 -mlittle-endian -mthumb -std=gnu99
 #CFLAGS +=  -I. -DARM_MATH_CM4 -D'__FPU_PRESENT=1'-DTEST_PUSHPULL #-DTEST_STRAIGHT #-DPCSIM #-DLACH #-DSUSP #-DTENE #-DTEST_EEG  -DTEST_EFFECTS
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 # was -02 before below... 
 
 CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -std=gnu99 \
-	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
-	-mthumb -ggdb\
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE -DTEST_EFFECTS \
+	-mthumb \
 	-mfpu=fpv4-sp-d16 \
 	-c -lm -lc -fno-common -O3 \
 	-mcpu=cortex-m4 \

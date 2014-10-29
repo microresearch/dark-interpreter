@@ -64,12 +64,14 @@ void setlmmmpwm(u16 one){
 #include "adc.h"
 #include "audio.h"
 #include "hardware.h"
+#include "mdavocoder.h"
 #include "simulation.h"
 #include "CPUint.h"
 #include "CA.h"
 //#include "settings.h"
 #include "vocode.h"
 #include "biquad.h"
+#include "effect.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -225,23 +227,29 @@ u8 fingerdirupdown(void){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-VocoderInstance* vocoder;
 villagerr village_write[MAX_VILLAGERS+1];
 villagerr village_read[MAX_VILLAGERS+1];
 villagerr village_filt[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
 u8 howmanydatavill;
 
-u16 testfunction(void){
-  u16 tester=adc_buffer[FIRST];
-  return tester;
-}
-
-
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
 int16_t dirryd=1;
 u8 inp;
+
+// effects tests
+
+biquad *biquaddd;
+VocoderInstance* vocoder;
+BBandPass *unit;
+Formlet *unitt;
+// mdavocoder *unittt;
+mdavocal *unittt;
+
+//arm_biquad_casd_df1_inst_f32* df1;
+//float* state;
+//float coeffs[5];
 
 
 void main(void)
@@ -249,10 +257,18 @@ void main(void)
   // order that all inits and audio_init called seems to be important
   u16 x,addr,count;
   u8 exestack[MAX_EXE_STACK];
+  u8 tmp,oldtmp; // TESTY!
+  // effects tests
 
   vocoder=instantiateVocoder();
-
-  biquad *biquad=BiQuad_new(BPF,0.8f,2000.0f,48000.0f,1.0f);
+  biquaddd=BiQuad_new(BPF,1.0f,50.0f,48000.0f,0.5f);
+  //  unit=(BBandPass *)malloc(sizeof(BBandPass));
+  unitt=(Formlet *)malloc(sizeof(Formlet));
+  Formlet_init(unitt);
+  unittt=(mdavocal *)malloc(sizeof(mdavocal));
+  //  mdaVocoder_init(unittt);
+  mdavocal_init(unittt);
+  //////////////
 
   // we just need init first of all villagers NON?
 
@@ -395,7 +411,6 @@ void main(void)
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
       count=runnoise(1,count,0,32767);
 #else
-
 
 #ifdef TEST_EEG
       //write ADC9 into buf16
