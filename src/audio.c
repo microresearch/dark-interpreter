@@ -148,7 +148,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 x, xx,spd;
   u8 mainmode, whichvillager,step;
   float32_t fsum;
-  int16_t tmp16,last,count;
+  int16_t tmp16,last;
+  static int16_t count=0,countr=0;//countr and as static is testy!
   int32_t tmp32;
   int16_t tmp;
   static u8 howmanywritevill=1,howmanyreadvill=1,writeoverlay=0,readoverlay=0;
@@ -167,7 +168,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   //  static u16 samplepos=0; // TESTY!
 
 #ifdef TEST_EFFECTS
-  int16_t effect_buffer[32];
+  static int16_t effect_buffer[256]; //was 32 TESTY
 #endif
 
 #ifdef TEST_EEG
@@ -201,15 +202,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (x=0;x<sz/2;x++){
 	  src++;
 	  tmp=*(src++); 
-	  audio_buffer[x]=tmp;
+	  audio_buffer[count]=tmp;
+	  count++; if (count==256) {
+	    count=0;
+	  }	    
 	}
-
-	// process/test effect on buffer or fragment into effects
-	test_effect(audio_buffer,effect_buffer);
+	test_effect(audio_buffer, effect_buffer);
 
 	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=effect_buffer[x];//-32768;
+	  mono_buffer[x]=effect_buffer[countr];//-32768;
+	  countr++; if (countr==256) countr=0;
 	  }
 	// out!
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);

@@ -48,21 +48,28 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 2- *phase/FFT vocoding/spectral*
 
+which FFT to use?, window should be const (as is size then of FFT)
+
 pitchscale
 
-JoshUGens/sc/classes/Vocoder.sc
+SCcode=PV_SpectralMap (and all PV uses FFT from SC)
 
-SCcode=PV_SpectralMap, borsboom, snokoder
+borsboom model- flow only or re-assess
 
-3- band vocoder:
+OCT30: so far using arm_cfft_q15 test code...
 
-- how do we swap bands in our vocode.c and mda TODO/ TEST!
+3- band vocoders: how do we swap bands in our vocode.c and mda TODO/TEST!
 
-- port also mdaTalkBox.cpp!
+(JoshUGens/sc/classes/Vocoder.sc is bandpass vocoder using BPF)
 
-4- *envelope/windowing/hanning* - see also window.c and window in mdavocal.c
+4- *envelope/windowing/hanning* - see also teensy, window.c and window in mdavocal.c
 
-5- *envelope detection - how to test?*
+5- *envelope detection - test by enveloping another signal*
+
+6- other effects once we have effect walker in place: morph one to
+size of other, loop one within other...
+
+recheck mda-lva, sc for any other ports
 
 **** notes
 
@@ -109,12 +116,16 @@ synthesisfilters = analysisfilters*BPF.ar(synthesissignal, centrefreqs, rq);
 //or have double inout buffers for float
 
 *** DONE
+**** THU 30 OCT
+
+starting on PV_vocoder.c
+
 **** WED 29 OCT
 
-- as vocoder input/processor/possible envelope see mdavoc.c
-- mdaVocoder works when set 0.0 all filter array f[x][x] (is init in C++ as zero?)
+- as vocoder input/processor/possible envelope see mdavoc.c PORTED
+- mdaVocoder works when set 0.0 all filter array f[x][x] (is init in C++ as zero?) DONE
 - biquad.c tested and working
-- Zoelzer/CMSIS only seems work with some coefficients
+- Zoelzer/CMSIS only seems work with some coefficients...
 - BBandPass from SC ported and working (though could unroll loops and
   also live filter if changes)
 - Formlet from SC ported and working (again unroll and live question -

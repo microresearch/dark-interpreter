@@ -11,6 +11,7 @@
 #include "mdavocoder.h"
 #include "audio.h"
 #include "biquad.h"
+#include "PV_vocoder.h"
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
@@ -236,19 +237,24 @@ void floot_to_int(int16_t* outbuffer, float* inbuffer){
 int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   extern VocoderInstance* vocoder; u8 x;
+  extern PV* pv;
   float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
 
-  //mdavocoder - no results!!!!
+  // testing first FFT/phase vocoder attempt:
 
-    int_to_floot(inbuffer,tmpbuffer);
+  pvvocprocess(pv, inbuffer, outbuffer);// // NOW!256 samples
+
+  //mdavocoder - working
+  /*    int_to_floot(inbuffer,tmpbuffer);
     intun_to_floot(buf16,tmpotherbuffer);
     mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
     floot_to_int(outbuffer,tmpotherotherbuffer);
-  
+  */
+
     ///mdavocal (vocoder carrier gen???)
   /*
   int_to_floot(inbuffer,tmpbuffer);

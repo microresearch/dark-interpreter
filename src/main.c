@@ -72,6 +72,7 @@ void setlmmmpwm(u16 one){
 #include "vocode.h"
 #include "biquad.h"
 #include "effect.h"
+#include "PV_vocoder.h"
 
 /* DMA buffers for I2S */
 __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
@@ -246,6 +247,7 @@ BBandPass *unit;
 Formlet *unitt;
 mdavocoder *unittt;
 mdavocal *unitttt;
+PV *pv;
 
 //arm_biquad_casd_df1_inst_f32* df1;
 //float* state;
@@ -267,8 +269,10 @@ void main(void)
   Formlet_init(unitt);
   unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
   unitttt=(mdavocal *)malloc(sizeof(mdavocal));
+  pv=(PV *)malloc(sizeof(PV));
   mdaVocoder_init(unittt);
   mdavocal_init(unitttt);
+
   //////////////
 
   // we just need init first of all villagers NON?
@@ -410,7 +414,7 @@ void main(void)
 #ifdef TEST_EFFECTS
       //runsine
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
-      count=runnoise(1,count,0,32767);
+      ///      count=runnoise(1,count,0,32767);
 #else
 
 #ifdef TEST_EEG
