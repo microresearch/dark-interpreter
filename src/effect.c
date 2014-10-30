@@ -237,16 +237,12 @@ void floot_to_int(int16_t* outbuffer, float* inbuffer){
 int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   extern VocoderInstance* vocoder; u8 x;
-  extern PV* pv;
   float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
 
-  // testing first FFT/phase vocoder attempt:
-
-  pvvocprocess(pv, inbuffer, outbuffer);// // NOW!256 samples
 
   //mdavocoder - working
   /*    int_to_floot(inbuffer,tmpbuffer);
@@ -276,9 +272,6 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
     */
 
   // BPF filter from: ZoelzerMultiFilterPatch_hpp__ - only appears work for some coeffs
-  /*    arm_biquad_cascade_df1_f32(&df1, buf, buf, size);
-   */
-
   /*
     int_to_floot(inbuffer,tmpbuffer);
     arm_biquad_cascade_df1_f32(df1,tmpbuffer,tmpotherbuffer,32);
@@ -294,8 +287,6 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
       }
       floot_to_int(outbuffer,tmpbuffer);*/
 
-
-
   // VOCODER:
   // convert to float
   /*  int_to_floot(inbuffer,tmpbuffer);
@@ -303,7 +294,6 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   runVocoder(vocoder, tmpbuffer, tmpotherbuffer, tmpbuffer, BUFF_LEN/4);
   floot_to_int(outbuffer,tmpbuffer);
   */
-
 
   // BANDPASS:
 
@@ -357,7 +347,7 @@ for( ... )
 */
 
 
-/* hanning:
+/* hanning: use const window!!
 
 hanning:
 for (int i = 0; i < 2048; i++) {
