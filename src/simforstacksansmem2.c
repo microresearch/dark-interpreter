@@ -167,7 +167,7 @@ static u8 cc=0;
   //  for (i=0; i<howmuch; i++) {
     count+=step;
     //    
-    buf16[count%32768]=sin_data[cc%256]; 
+    buf16[count%32768]=sin_data[cc]; 
 #ifdef PCSIM
     //    //    printf("%c",buf16[(count+start)%32768]);
 #endif
@@ -175,6 +175,15 @@ static u8 cc=0;
     //  }
   return count;
 }
+
+u16 runnoise(u8 step, u16 count, u16 start, u16 wrap){// TSTY!
+  static u16 xx;
+    count+=step;
+    //    
+    buf16[count%32768]=xx++; 
+  return count;
+}
+
 
 //////////////////////////////////////////////////////////
 /* chunking 
@@ -854,26 +863,15 @@ return count;
 
 // IFS
 
-  float32_t prob[5];
-  float32_t coeff[4][6];
-  Point p1,p2;
+float32_t prob[5];
+float32_t coeff[4][6];
+Point p1,p2;
 
 void ifsinit(u16 *buf16){
-  
+  u8 column = 6, row = 4;
+  u8 iter,i;
   p1.x=0.1f;
   p1.y=0.1f;         
-  }
-
-u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
-
-  float32_t randiom_num;
-  u8 i,x,iter;
-  u8 column = 6, row = 4;
-
-
-  randiom_num = (float32_t)randi()/4096.0f;
-
-
   for (iter=0;iter<row;iter++){
     for (i=0;i<column;i++){
 
@@ -894,7 +892,15 @@ u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
       */
     }
   }
+  }
 
+u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
+
+  float32_t randiom_num;
+  u8 i; 
+  u8 column = 6, row = 4;
+
+  randiom_num = (float32_t)randi()/4096.0f;
 
   //  for (x=0;x<howmuch;x++){
     count+=step;
