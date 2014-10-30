@@ -23,7 +23,7 @@ void mdaVocoder_init(mdavocoder* unit)
       for (ii=0;ii<13;ii++){
 	unit->f[i][ii]=0.0f;
       }
-}
+      }
 
   unit->kval=0;
   unit->swap = 1; if(unit->param[0]>0.5f) unit->swap = 0;

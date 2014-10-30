@@ -54,13 +54,13 @@ JoshUGens/sc/classes/Vocoder.sc
 
 SCcode=PV_SpectralMap, borsboom, snokoder
 
-3- *band vocoder: maybe port mdaVocoder.cpp*
+3- band vocoder:
 
-- how do we swap bands in our vocode.c TEST!
+- how do we swap bands in our vocode.c and mda TODO/ TEST!
 
-- see also mdaTalkBox.cpp!
+- port also mdaTalkBox.cpp!
 
-4- *envelope/windowing/hanning* - see also window.c
+4- *envelope/windowing/hanning* - see also window.c and window in mdavocal.c
 
 5- *envelope detection - how to test?*
 
@@ -112,14 +112,14 @@ synthesisfilters = analysisfilters*BPF.ar(synthesissignal, centrefreqs, rq);
 **** WED 29 OCT
 
 - as vocoder input/processor/possible envelope see mdavoc.c
-- can't seem get mdaVocoder work though very briefly some results????
+- mdaVocoder works when set 0.0 all filter array f[x][x] (is init in C++ as zero?)
 - biquad.c tested and working
 - Zoelzer/CMSIS only seems work with some coefficients
 - BBandPass from SC ported and working (though could unroll loops and
   also live filter if changes)
 - Formlet from SC ported and working (again unroll and live question -
   also attack and decay must differ) but interesting effect...
-
+  
 ** Overlap/effects
 
 - finish and test all for RW
