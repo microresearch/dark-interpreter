@@ -56,11 +56,11 @@ static void  copy_from_fft_buffer(void *destination, const void *source)
 			}
 }
 
-static void apply_window_to_fft_buffer(void *buffer, const void *window)
+static void apply_window_to_fft_buffer(void *buffer)
 {
 	int16_t *buf = (int16_t *)buffer;
-	const int16_t *win = (int16_t *)window;;
-
+	//	const int16_t *win = (int16_t *)window;;
+	const int16_t *win = (int16_t *)AudioWindowHanning256;
 	for (int i=0; i < 256; i++) {
 		int32_t val = *buf * *win++;
 		//*buf = signed_saturate_rshift(val, 16, 15);
@@ -70,13 +70,23 @@ static void apply_window_to_fft_buffer(void *buffer, const void *window)
 
 }
 
+void hanningprocess(int16_t* inbuffer, int16_t* outbuffer){ // 256 samples
+  const int16_t *win = (int16_t *)AudioWindowHanning256;
+
+  for (int i=0; i < 256; i++) {
+    int32_t val = *inbuffer * *win++;
+		//*buf = signed_saturate_rshift(val, 16, 15);
+    *outbuffer = val >> 15;
+    outbuffer += 2;
+  }
+}
 
 void pvvocprocess(PV *unit, int16_t* inbuffer, int16_t* outbuffer){ // 256 samples
 
   /// try without overlap/window
   //  memcpy(unit->buffer,inbuffer,512);
   //copy_to_fft_buffer(unit->buffer, inbuffer);
-  apply_window_to_fft_buffer(unit->buffer, AudioWindowHanning256);
+  apply_window_to_fft_buffer(unit->buffer);
   arm_cfft_q15(&unit->fft_inst, unit->buffer,0,0);
   // invert
   arm_cfft_q15(&unit->fft_inst, unit->buffer,1,0);

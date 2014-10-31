@@ -8,7 +8,8 @@
 //#define ARM_MATH_CM4
 
 #ifdef PCSIM
-#define int16_t unsigned short int
+#define int16_t signed short int
+#define u16 unsigned short int
 #else
 #include "stm32f4xx.h"
 #include "arm_math.h"

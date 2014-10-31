@@ -234,7 +234,21 @@ void floot_to_int(int16_t* outbuffer, float* inbuffer){
 		}
 }
 
-int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
+void envelopefollower(int16_t* envbuffer, int16_t* inbuffer, int16_t* outbuffer){ // stick to 32 samples=48k/32 ms???
+  // but env is dependent on that size
+
+  float envout = 0.0f; int16_t env=0;
+ for (int x=0;x<32;x++){
+   if (abs(env)<envbuffer[x]) env=inbuffer[x];
+}
+ envout=(float)env/65536.0;
+ for (int x=0;x<32;x++){
+   outbuffer[x]=(float)inbuffer[x]*envout;
+}
+} 
+ 
+
+void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   extern VocoderInstance* vocoder; u8 x;
   float xx,xxx;
@@ -243,7 +257,8 @@ int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
 
-
+  // env without lowpass
+  //  envelopefollower(inbuffer, outbuffer);
   //mdavocoder - working
   /*    int_to_floot(inbuffer,tmpbuffer);
     intun_to_floot(buf16,tmpotherbuffer);
@@ -347,13 +362,4 @@ for( ... )
 */
 
 
-/* hanning: use const window!!
-
-hanning:
-for (int i = 0; i < 2048; i++) {
-    float multiplier = 0.5 * (1 - cos(2*PI*i/2047));
-    dataOut[i] = multiplier * dataIn[i];
-}
-
-*/
 

@@ -168,7 +168,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   //  static u16 samplepos=0; // TESTY!
 
 #ifdef TEST_EFFECTS
-  static int16_t effect_buffer[256]; //was 32 TESTY
+  static int16_t effect_buffer[32]; //was 32 TESTY
 #endif
 
 #ifdef TEST_EEG
@@ -202,17 +202,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	for (x=0;x<sz/2;x++){
 	  src++;
 	  tmp=*(src++); 
-	  audio_buffer[count]=tmp;
-	  count++; if (count==256) {
-	    count=0;
-	  }	    
+	  audio_buffer[x]=tmp;
 	}
+
 	test_effect(audio_buffer, effect_buffer);
 
 	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=effect_buffer[countr];//-32768;
-	  countr++; if (countr==256) countr=0;
+	  mono_buffer[x]=effect_buffer[x];//-32768;
+	  //	  countr++; if (countr==32) countr=0;
 	  }
 	// out!
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
@@ -368,18 +366,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	      // TODO: we (could) have: overlay as:
 	      // effect (=,&,+,*)=4=2 bits
-	      // overlay(=,|,+,last)=4=2 bits
+	      // overlay(=,|,+,last)=4=2 bits - 16 bits
 	      // Fmodded always// also inv mod
-	      // constrained or not 1 bit = 5 bits=32+top=64
+	      // constrained or not 1 bit = 5 bits=32+top=64TOTAL
 	      // top bit is swop or not - 2 sets of cases as before
 	      if (village_read[x].overlay>>5){ // datagen business readin! - top bit=64
 	      tmp16=buf16[village_read[x].samplepos%32768]-32768;
-	      buf16[village_read[x].samplepos%32768]=tmp+32768; // leave buf16 as here only
-	      // deal with buf16
+	      // deal with buf16 and audiobuffer
+	      buf16[village_read[x].samplepos%32768]=tmp+32768; // TODO_OVERLAY!
 	      }
 	      else
 		{
-		  // deal with tmp
+		  // deal with audiobuffer
 		}
 
 	      if (++village_read[x].del>=village_read[x].step){

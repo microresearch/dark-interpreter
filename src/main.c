@@ -414,7 +414,7 @@ void main(void)
 #ifdef TEST_EFFECTS
       //runsine
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
-      ///      count=runnoise(1,count,0,32767);
+         count=runnoise(1,count,0,32767);
 #else
 
 #ifdef TEST_EEG
@@ -426,6 +426,10 @@ void main(void)
 #else
 
   /// HERE!
+
+  // effects walkers
+
+  // mirrorings
 
   // experimentally run through datagen villagers - now just with CA!
 
@@ -657,7 +661,7 @@ void main(void)
       village_datagen[x].position=village_datagen[x].start;
     }
     village_datagen[x].del=0;
-      }
+	  }
     } // if running
   } // end of x/run thru all villagers
 

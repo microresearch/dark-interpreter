@@ -12,7 +12,51 @@ typedef struct{
 	float m_y11, m_y12, m_b11, m_b12;
 } Formlet;
 
-int16_t* test_effect(int16_t* inbuffer, int16_t* outbuffer);
+typedef struct{
+      u16 offset;
+      u16 start;
+      u16 wrap;
+      u16 counterr;
+      u8 del;
+      int16_t dirry;
+      u8 whicheffect; // which effect and flag for datagenbuffer/audio <->
+      u8 villagertwo; // for effect
+      u16 villagertwopos;
+      float effect,effectinv; 
+      u8 running;
+      float states[8];
+      void* unit;
+    } eff_villagerr;
+
+/* notes: but what of effects which need to maintain state (so far
+   either in static or in unit) as states in above and units just hold
+   established...
+
+other simple effects: squash, morph, mix, etc...
+
+Formlet_init - various inited formlet units
+Formlet_process
+
+BBandPass_init - tables of bandpasses for 
+BBandPass_process
+
+convolvee - no great changes
+
+bandpass (static) - active changes
+
+envelopefollower (static)
+
+mdavocoder - ???
+mdavocal - ???
+
+pvvocprocess(PV *unit, int16_t* inbuffer, int16_t* outbuffer);
+hanningprocess(int16_t* inbuffer, int16_t* outbuffer);
+
+port all above to do_effect(eff_villagerr)
+
+*/
+
+void test_effect(int16_t* inbuffer, int16_t* outbuffer);
 void BBandPass_process(BBandPass *unit, int inNumSamples, float* inbuffer, float* outbuffer);
 void BBandPass_init(BBandPass* unit);
 void Formlet_init(Formlet* unit);

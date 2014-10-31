@@ -11,23 +11,25 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
  
-- check datagens run ok. eg in sim: ifs, globals test in sim etc.
-
-sim/ca/cpu/leak
-
 - importance of datagens for all so need fingers_in_all as last mode
 
-- *buf16 should also be additive (or/and/+ etc)*
-
+- sketch roughly out whole thing then maybe return to effects and
+  effect walker as maybe change model there???
+  
 *** DONE
 **** OCT 30
 
 - shifted some of ifs into init
 
+**** OCT 31
+
+- few changes to ifs, few tests that all seems run okay
+- re-tested main villager loop
+
 ** Effects and effects walker
 
 - should effects walker overlap. how to time it and keep memory of
-  timings, data structs
+  timings, data structs???
 
 - how to assign/control parameters of effects (with setting for
   effects param) model this clearly
@@ -44,7 +46,7 @@ sim/ca/cpu/leak
 - effects structures// but how much memory if we have say vocode instance for
   each villager
 
-- all data structures for effects (instantiated also)
+- all data structures for effects (instantiated also) and what if we need to int a structure (eg. mdavoc)
 
 - Q of vocode/effect villager to villager in audio_buffer or audio_buffer/buf16??? 
 
@@ -57,6 +59,8 @@ sim/ca/cpu/leak
 - set up frequency tables/init all filters
 
 *** Effects themselves
+
+*3- band vocoders: how do we swap bands in our vocode.c and mda TODO/TEST!*
 
 2- phase/FFT vocoding/spectral
 
@@ -76,66 +80,31 @@ OCT30: so far using arm_cfft_q15 test code//question of float approach
 
 slow/down speed up against other villager
 
-3- band vocoders: how do we swap bands in our vocode.c and mda TODO/TEST!
 
 (JoshUGens/sc/classes/Vocoder.sc is bandpass vocoder sc code using BPF)
 
-4- windowing/hanning - see also teensy, window.c and window in mdavocal.c
+4- windowing/hanning - see also teensy, window.c and window in mdavocal.cDONE
 
-5- envelope detection - test by enveloping another signal
+5- envelope detection - test by enveloping another signalDONE
 
-6- other effects once we have effect walker in place: morph one to
-size of other, loop one within other etc.. stretches....
+*6- other effects once we have effect walker in place: morph one to
+size of other, loop one within other etc.. stretches....*
 
-8- recheck teensy,mda-lva, sc for any other ports
+**** Filter tables for vowels:
 
-**** notes
+from SC/BBandpass examples:
 
-convolution in time domain=mult in frequency
+from tables/notes:
 
-code operations on fft bins???
-
-fft bins multiplied/other ops
-
-how flows?
-
-ifftFlag=flag for the selection of CFFT/CIFFT
-
-difference convolution and vocoder? pitch shift// csound: http://music.columbia.edu/pipermail/music-dsp/2000-March/037231.html
-
-//or have double inout buffers for float
-
-I am trying to implement a channel vocoder using the iOS Accelerate
-vDSP FFT algorithms. I am having trouble figuring out how to treat the
-DC component and Nyquist frequency.
-
-The modulator and carrier signals are both float arrays of length
-n. On each, I perform a forward FFT and am returned a frequency plot
-(call it bin[]) of length n/2.
-
-As per the vDSP specifications, bin[1] contains the first frequency
-above 0Hz, bin[2] the second, etc... bin[0] contains the DC Component
-in the real part and the Nyquist frequency (which would normally be in
-bin[n/2]) in the imaginary part. vDSP essentially packs the frequency
-plot into as little space as possible (the imaginary part for bin[0]
-and bin[n/2] should always be zero before the packing).
-
-I split the frequency plot for both carrier and modulator into k
-bands. My goal is to multiply each frequency in carrier.band[x] by the
-total magnitude of the frequencies in modulator.band[x]. Essentially,
-increasing the intensity of those frequencies in the carrier that are
-also present in the modulator.
-
-So if n=8 and k=2, the second band for the modulator would contain
-contain bin[2] and bin[3]. Simple enough to find the total magnitude,
-simply sum the magnitudes of each bin (for example mag[2] = sqrt(
-bin[2].real*bin[2]*real + bin[2].imag*bin[2]*imag )).
-
-That works great for all bands except the first one, because the first
-band contains the weird bin[0] with the DC component and Nyquist
-frequency.
 
 *** DONE
+
+**** FRI 31 OCT
+
+- recheck teensy,mda-lva, scNOTE-dspinst.h copied
+- envelope detection
+- windowing
+
 **** THU 30 OCT
 
 starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
@@ -154,6 +123,8 @@ starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
 ** Overlap/effects
 
 - finish and test all for RW
+
+- *buf16 should also be additive (or/and/+ etc)*
 
 - overlap/effect in audio.c now with parameter like FMOD - IN
   PROCESS?TODO?TEST or have double inout buffers for float...all as floats
@@ -208,6 +179,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 - mirror as adding to or constraining what we have already defined for
   say end/start etc (two arrays and add/subtract/%)
 
+
 - so either mirror walker struct as another(pointer) /or/
   bend/constrain/influence another
 
@@ -222,6 +194,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 ** Integration/tests/cleanups
 
+- defines for HW versionings!
 - remove excess statics and variables.
 - any math speedups inspired by teensy(sqrt etc....)
 - clean up structs/memory
