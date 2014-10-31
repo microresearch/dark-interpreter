@@ -17,14 +17,14 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
   effect walker as maybe change model there???
   
 *** DONE
-**** OCT 30
-
-- shifted some of ifs into init
-
 **** OCT 31
 
 - few changes to ifs, few tests that all seems run okay
 - re-tested main villager loop
+
+**** OCT 30
+
+- shifted some of ifs into init
 
 ** Effects and effects walker
 
