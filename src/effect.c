@@ -22,6 +22,52 @@ extern BBandPass *unit;
 extern Formlet *unitt;
 extern mdavocoder *unittt;
 extern mdavocal *unitttt;
+extern BPFSC *bpfunit;
+
+void BPFSC_init (BPFSC* unit){
+  const float mRadiansPerSample=(2 * M_PI) /48000.0f;
+  unit->m_a0 = 0.f;
+  unit->m_b1 = 0.f;
+  unit->m_b2 = 0.f;
+  unit->m_y1 = 0.f;
+  unit->m_y2 = 0.f;
+  unit->m_freq = 800.0f;
+  unit->m_bw = 80.0f;
+
+  float pfreq = mRadiansPerSample;
+  float pbw   = unit->m_bw   * pfreq * 0.5;
+	
+  float C = 1.f / tanf(pbw);
+  float D = 2.f * cosf(pfreq);
+	
+  float a0 = 1.f / (1.f + C);
+  float b1 = C * D * a0 ;
+  float b2 = (1.f - C) * a0;
+
+  unit->m_a0 = a0;
+  unit->m_b1 = b1;
+  unit->m_b2 = b2;
+	  }
+
+void BPFSC_process(BPFSC *unit, int inNumSamples, float* inbuffer, float* outbuffer){
+
+  float y0;
+  float y1 = unit->m_y1;
+  float y2 = unit->m_y2;
+  float a0 = unit->m_a0;
+  float b1 = unit->m_b1;
+  float b2 = unit->m_b2;
+
+  for (int i=0;i<inNumSamples;i++){
+  y0 = inbuffer[i] + b1 * y1 + b2 * y2;
+  outbuffer[i] = a0 * (y0 - y2);
+  y2 = y1;
+  y1 = y0;
+}
+
+unit->m_y1 = y1;
+unit->m_y2 = y2;
+}
 
 void Formlet_init(Formlet* unit){
   const float log001=logf(0.001);

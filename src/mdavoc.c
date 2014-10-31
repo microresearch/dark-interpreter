@@ -36,12 +36,12 @@ void mdavocal_init(mdavocal* unit)
   ifs = 1.0f / fs;
 
   unit->track = (int32_t)(2.99f * unit->param[0]);
-  unit->pmult = (float)pow(1.0594631f, floor(48.0f * unit->param[1] - 24.0f));
+  unit->pmult = (float)powf(1.0594631f, floor(48.0f * unit->param[1] - 24.0f));
   if(unit->track==0) unit->pstep = 110.0f * unit->pmult * ifs;
 
   unit->noise = 6.0f * unit->param[2];
   unit->lfreq = 660.0f * ifs;
-  unit->minp = (float)pow(16.0f, 0.5f - unit->param[4]) * fs / 440.0f;
+  unit->minp = (float)powf(16.0f, 0.5f - unit->param[4]) * fs / 440.0f;
   unit->maxp = 0.03f * fs;
   unit->root = log10(8.1757989f * ifs);
   unit->vuv = unit->param[3] * unit->param[3];
@@ -95,7 +95,7 @@ void mdavocal_process(mdavocal *unit, float *input1, float *input2, float *outpu
           if(tr==2)            //quantize pitch
           {
             ds = rootm * (float)(log10(ds) - unit->root);
-            ds = (float)pow(1.0594631, floor(ds + 0.5) + rootm * unit->root);
+            ds = (float)powf(1.0594631, floor(ds + 0.5) + rootm * unit->root);
           }
         }
         l3 = l2;               //restart period measurement
@@ -112,8 +112,8 @@ void mdavocal_process(mdavocal *unit, float *input1, float *input2, float *outpu
   }
   unit->sawbuf=s;
 
-  if(fabs(he)>1.0e-10) unit->henv = he; else unit->henv=0.0f; //catch denormals
-  if(fabs(l1)>1.0e-10) { unit->lbuf0=l0; unit->lbuf1=l1; unit->lenv=le; } else { unit->lbuf0 = unit->lbuf1= unit->lenv = 0.0f; }
+  if(fabsf(he)>1.0e-10) unit->henv = he; else unit->henv=0.0f; //catch denormals
+  if(fabsf(l1)>1.0e-10) { unit->lbuf0=l0; unit->lbuf1=l1; unit->lenv=le; } else { unit->lbuf0 = unit->lbuf1= unit->lenv = 0.0f; }
 
   unit->lbuf2=l2, unit->lbuf3=l3;
   if(tr) unit->pstep=ds;

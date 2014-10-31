@@ -60,12 +60,21 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 *** Effects themselves
 
+TODO: filter from teensy:
+
+int32_t definition[32];  // up to 4 cascaded biquads
+///
+filter_biquad.cpp
+filter_biquad.h
+
 *3- band vocoders: how do we swap bands in our vocode.c and mda TODO/TEST!*
 
 2- phase/FFT vocoding/spectral
 
 *maybe leave as FFT in/out of buf16/audiobuffer as int process also with/without
 window also as additional process*
+
+
 
 window should be const (as is size then of FFT)
 
@@ -94,14 +103,90 @@ size of other, loop one within other etc.. stretches....*
 
 from SC/BBandpass examples:
 
+would need 25 initialised bandpasses!
+
+va = BBandPass.ar(
+		in: in,
+		freq: [ 600, 1040, 2250, 2450, 2750 ],
+		bw: [ 0.1, 0.067307692307692, 0.048888888888889, 0.048979591836735, 0.047272727272727 ],
+		mul: [ 1, 0.44668359215096, 0.35481338923358, 0.35481338923358, 0.1 ]);
+
+	ve = BBandPass.ar(
+		in: in,
+		freq: [ 400, 1620, 2400, 2800, 3100 ] ,
+		bw: [ 0.1, 0.049382716049383, 0.041666666666667, 0.042857142857143, 0.038709677419355 ],
+		mul: [ 1, 0.25118864315096, 0.35481338923358, 0.25118864315096, 0.12589254117942 ]);
+
+	vi = BBandPass.ar(
+		in: in,
+		freq: [ 250, 1750, 2600, 3050, 3340 ] ,
+		bw: [ 0.24, 0.051428571428571, 0.038461538461538, 0.039344262295082, 0.035928143712575 ],
+		mul: [ 1, 0.031622776601684, 0.15848931924611, 0.079432823472428, 0.03981071705535 ] );
+
+	vo = BBandPass.ar(
+		in: in,
+		freq:[ 400, 750, 2400, 2600, 2900 ] ,
+		bw: [ 0.1, 0.10666666666667, 0.041666666666667, 0.046153846153846, 0.041379310344828 ],
+		mul: [ 1, 0.28183829312645, 0.089125093813375, 0.1, 0.01 ]);
+
+	vu = BBandPass.ar(
+		in: in,
+		freq: [ 350, 600, 2400, 2675, 2950 ],
+		bw: [ 0.11428571428571, 0.13333333333333, 0.041666666666667, 0.044859813084112, 0.040677966101695 ],
+		mul: [ 1, 0.1, 0.025118864315096, 0.03981071705535, 0.015848931924611 ]);
+
+	centerFreqs = [100, 200, 300, 350, 400, 500, 600, 800, 1000, 
+	 				1200, 1400, 1600, 2400, 3200, 4800, 9600];
+
+/////////////////////////
+
+		splitFilt = BPF.ar(sig, centerFreqs + MouseX.kr(10, 300), 0.03); 
+
+//////////////
+
+formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
+
+formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
+
+formantbandwidths=[80,90,120,130,140];  //bandwidths
+
+/the decaytime of the formlet is the filter's resonant decay time; a
+small bandwidth corresponds to a long decay (a 'ringing' filter). So I
+take the reciprocal of the formant bandwidth as an estimate of
+decaytime here, multiplied by a scaling factor for degree of resonance
+
+output= Mix(Formlet.ar(source, formantfreqs, 0.001, 50*formantbandwidths.reciprocal, formantamps))*10*amp; 
+
+formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
+
+formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
+
+formantbandwidths=[80,90,120,130,140];  //bandwidths
+
+source = if(voiced,Impulse.ar(freq),WhiteNoise.ar(0.2));
+
+output= Mix(BPF.ar(source, formantfreqs,formantbandwidths/formantfreqs,formantamps))*10*amp; 
+
+/////////////////////
+
+
 from tables/notes:
 
+ow 570 840 2410
+u 300 870 2240
+a 440 1020  2240
+uh 520 1190 2440
+er 490 1350 1690
+ae 660 1720 2410
+e 530 1840 2480
+i 390 1990 2550
+lee 270 2290 3010
 
 *** DONE
 
 **** FRI 31 OCT
 
-- recheck teensy,mda-lva, scNOTE-dspinst.h copied
+- recheck teensy,mda-lva, scNOTE-dspinst.h copied, added BPFSC - untested!
 - envelope detection
 - windowing
 
@@ -200,6 +285,8 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 - clean up structs/memory
 
 *** DONE
+
+
 
 * TUE 28 OCT+
 
@@ -354,38 +441,6 @@ arm_scale_f32(ADC_float_samples, 32768, ADC_float_samples, NUM_SAMPLES);
 formant ugens: http://gurzil.livejournal.com/15375.html
 
 SC synthdef for vowels with BBandPass : http://sccode.org/1-4Vk:
-
-va = BBandPass.ar(
-		in: in,
-		freq: [ 600, 1040, 2250, 2450, 2750 ],
-		bw: [ 0.1, 0.067307692307692, 0.048888888888889, 0.048979591836735, 0.047272727272727 ],
-		mul: [ 1, 0.44668359215096, 0.35481338923358, 0.35481338923358, 0.1 ]);
-
-	ve = BBandPass.ar(
-		in: in,
-		freq: [ 400, 1620, 2400, 2800, 3100 ] ,
-		bw: [ 0.1, 0.049382716049383, 0.041666666666667, 0.042857142857143, 0.038709677419355 ],
-		mul: [ 1, 0.25118864315096, 0.35481338923358, 0.25118864315096, 0.12589254117942 ]);
-
-	vi = BBandPass.ar(
-		in: in,
-		freq: [ 250, 1750, 2600, 3050, 3340 ] ,
-		bw: [ 0.24, 0.051428571428571, 0.038461538461538, 0.039344262295082, 0.035928143712575 ],
-		mul: [ 1, 0.031622776601684, 0.15848931924611, 0.079432823472428, 0.03981071705535 ] );
-
-	vo = BBandPass.ar(
-		in: in,
-		freq:[ 400, 750, 2400, 2600, 2900 ] ,
-		bw: [ 0.1, 0.10666666666667, 0.041666666666667, 0.046153846153846, 0.041379310344828 ],
-		mul: [ 1, 0.28183829312645, 0.089125093813375, 0.1, 0.01 ]);
-
-	vu = BBandPass.ar(
-		in: in,
-		freq: [ 350, 600, 2400, 2675, 2950 ],
-		bw: [ 0.11428571428571, 0.13333333333333, 0.041666666666667, 0.044859813084112, 0.040677966101695 ],
-		mul: [ 1, 0.1, 0.025118864315096, 0.03981071705535, 0.015848931924611 ]);
-
-
 
 and:
 

@@ -14,8 +14,8 @@ void mdaVocoder_init(mdavocoder* unit)
   
   unit->param[7] = 0.66f;  //num bands      was 0.66 
   
-  const double tpofs = 6.2831853f/48000.0f;
-  double rr, th, re;
+  const float tpofs = 6.2831853f/48000.0f;
+  float rr, th, re;
   float sh;
   u8 i,ii;
 
@@ -71,32 +71,32 @@ void mdaVocoder_init(mdavocoder* unit)
   }
   else
   {
-    unit->f[0][12] = pow(10.0f, -1.7f - 2.7f * unit->param[4]); //envelope speed
+    unit->f[0][12] = powf(10.0f, -1.7f - 2.7f * unit->param[4]); //envelope speed
     rr = 0.022f / (float)unit->nbnd; //minimum proportional to frequency to stop distortion0.022f/
 
     for(i=1;i<unit->nbnd;i++) 
     {                   
-      unit->f[i][12] = (float)(0.025f - rr * (double)i);// was 0.025
+      unit->f[i][12] = (float)(0.025f - rr * (float)i);// was 0.025
       if(unit->f[0][12] < unit->f[i][12]) unit->f[i][12] = unit->f[0][12];
     }
     unit->f[0][12] = 0.5f * unit->f[0][12]; //only top band is at full rate
   }
 
-  rr = 1.0 - pow(10.0f, -1.0f - 1.2f * unit->param[5]);///
-  sh = (float)pow(2.0f, 3.0f * unit->param[6] - 1.0f); //filter bank range shift 
+  rr = 1.0 - powf(10.0f, -1.0f - 1.2f * unit->param[5]);///
+  sh = (float)powf(2.0f, 3.0f * unit->param[6] - 1.0f); //filter bank range shift 
   //  rr=1.0f;
   //  sh=1.0f;
 
   for(i=1;i<unit->nbnd;i++)
   {
     unit->f[i][2] *= sh;
-    th = acos((2.0f * rr * cos(tpofs * unit->f[i][2])) / (1.0f + rr * rr));
-    unit->f[i][0] = (float)(2.0f * rr * cos(th)); //a0
+    th = acosf((2.0f * rr * cosf(tpofs * unit->f[i][2])) / (1.0f + rr * rr));
+    unit->f[i][0] = (float)(2.0f * rr * cosf(th)); //a0
     unit->f[i][1] = (float)(-rr * rr);           //a1
                 //was .98
     unit->f[i][2] *= 0.96f; //shift 2nd stage slightly to stop unit->high resonance peaks
-    th = acos((2.0f * rr * cos(tpofs * unit->f[i][2])) / (1.0f + rr * rr));
-    unit->f[i][2] = (float)(2.0f * rr * cos(th));
+    th = acosf((2.0f * rr * cosf(tpofs * unit->f[i][2])) / (1.0f + rr * rr));
+    unit->f[i][2] = (float)(2.0f * rr * cosf(th));
   }
 }
 
@@ -172,10 +172,10 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 
   unit->kout = oo;  
   unit->kval = k & 1;
-  if(fabs(unit->f[0][11])<1.0e-10) unit->f[0][11] = 0.0f; //catch HF envelope denormal
+  if(fabsf(unit->f[0][11])<1.0e-10) unit->f[0][11] = 0.0f; //catch HF envelope denormal
 
       for(i=1;i<nb;i++) 
-    if(fabs(unit->f[i][3])<1.0e-10 || fabs(unit->f[i][7])<1.0e-10) 
+    if(fabsf(unit->f[i][3])<1.0e-10 || fabsf(unit->f[i][7])<1.0e-10) 
       for(k=3; k<12; k++) unit->f[i][k] = 0.0f; //catch reson & envelope denormals
     
       if(fabs(o)>10.0f) mdaVocodersuspend(unit); //catch instability
