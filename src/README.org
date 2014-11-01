@@ -15,6 +15,10 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
+
+=overlaps/leftwalkers/hW walker/datagen walker and mirrors/infection
+
+- specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
   
 *** DONE
 **** OCT 31
@@ -67,14 +71,14 @@ int32_t definition[32];  // up to 4 cascaded biquads
 filter_biquad.cpp
 filter_biquad.h
 
+1- convolution -DONE
+
 *3- band vocoders: how do we swap bands in our vocode.c and mda TODO/TEST!*
 
 2- phase/FFT vocoding/spectral
 
 *maybe leave as FFT in/out of buf16/audiobuffer as int process also with/without
 window also as additional process*
-
-
 
 window should be const (as is size then of FFT)
 
@@ -88,7 +92,6 @@ in  /root/latestresearch/sc3-plugins-src-2012-05-26/source/JoshUGens:
 OCT30: so far using arm_cfft_q15 test code//question of float approach
 
 slow/down speed up against other villager
-
 
 (JoshUGens/sc/classes/Vocoder.sc is bandpass vocoder sc code using BPF)
 
@@ -220,7 +223,9 @@ starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
 
 - left/filter channel: left into audio_buffer/buf16, out from villagers=audio/buf16
 
-- port from RW (given above?)
+- port from RW (given above?)  but how we handle if we have no in from
+  left/no filter action?? or is always activated in HW? unless we have
+  seperate smaller left readin buffer
 
 *** DONE
 
