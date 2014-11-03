@@ -109,10 +109,6 @@ u16 stacker[STACK_SIZE*4]; // 64*4 MAX
 #define RIGHT 7
 #endif
 
-u8 EFFECTWRITE;
-u8 EFFECTREAD;
-u8 EFFECTFILTER;
-
 signed char direction[2]={-1,1};
 u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
 u16 *buf16;
@@ -230,7 +226,8 @@ u8 fingerdirupdown(void){
 
 villagerr village_write[MAX_VILLAGERS+1];
 villagerr village_read[MAX_VILLAGERS+1];
-villagerr village_filt[MAX_VILLAGERS+1];
+villagerr village_filtin[MAX_VILLAGERS+1];
+villagerr village_filtout[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
 u8 howmanydatavill;
 
@@ -248,6 +245,7 @@ Formlet *unitt;
 mdavocoder *unittt;
 mdavocal *unitttt;
 PV *pv;
+BPFSC* bpfunit;
 
 //arm_biquad_casd_df1_inst_f32* df1;
 //float* state;
@@ -266,6 +264,8 @@ void main(void)
   biquaddd=BiQuad_new(BPF,1.0f,50.0f,48000.0f,0.5f);
   //  unit=(BBandPass *)malloc(sizeof(BBandPass));
   unitt=(Formlet *)malloc(sizeof(Formlet));
+  bpfunit=(BPFSC*)malloc(sizeof(BPFSC));
+  BPFSC_init(bpfunit);
   Formlet_init(unitt);
   unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
   unitttt=(mdavocal *)malloc(sizeof(mdavocal));
@@ -296,11 +296,35 @@ void main(void)
   village_read[0].offset=0;
   village_write[0].offset=0;
 
+  village_filtout[0].start=0;
+  village_filtin[0].start=0;
+  village_filtout[0].wrap=32767;
+  village_filtin[0].wrap=32767;
+  village_filtout[0].dir=1;
+  village_filtin[0].dir=1;
+  village_filtout[0].del=0;
+  village_filtin[0].del=0;
+  village_filtout[0].speed=1;
+  village_filtin[0].speed=1;
+  village_filtout[0].step=1;
+  village_filtin[0].step=1;
+  village_filtin[0].dirry=direction[village_filtin[0].dir]*village_filtin[0].step;
+  village_filtin[0].samplepos=village_filtin[0].start;
+  village_filtout[0].dirry=direction[village_filtout[0].dir]*village_filtout[0].step;
+  village_filtout[0].samplepos=village_filtout[0].start;
+  village_filtin[0].offset=0;
+  village_filtout[0].offset=0;
+
   for (u8 xx=0;xx<64;xx++){
     village_read[xx].counterr=0;
     village_write[xx].counterr=0;
     village_read[xx].compress=1;
     village_write[xx].compress=1;
+
+    village_filtin[xx].counterr=0;
+    village_filtout[xx].counterr=0;
+    village_filtin[xx].compress=1;
+    village_filtout[xx].compress=1;
 	}
 
   // random init: TESTY!
@@ -426,6 +450,7 @@ void main(void)
 #else
 
   /// HERE!
+  //  count=runnoise(1,count,0,32767); // TESTY!
 
   // effects walkers
 

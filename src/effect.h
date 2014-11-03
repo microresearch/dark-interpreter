@@ -71,3 +71,5 @@ void BBandPass_process(BBandPass *unit, int inNumSamples, float* inbuffer, float
 void BBandPass_init(BBandPass* unit);
 void Formlet_init(Formlet* unit);
 void Formlet_process(Formlet *unit, int inNumSamples, float* inbuffer, float* outbuffer);
+void BPFSC_init(BPFSC* unit);
+void BPFSC_process(BPFSC *unit, int inNumSamples, float* inbuffer, float* outbuffer);

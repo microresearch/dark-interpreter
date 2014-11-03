@@ -16,11 +16,19 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlaps/leftwalkers/hW walker/datagen walker and mirrors/infection
+=overlapsDONE/leftwalkers/hW walker/datagen walker and mirrors/infection by 4th...
+
+- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for LACH or SUSP+TENE
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
   
 *** DONE
+
+**** NOV 3
+
+- all overlays finished and tested!
+- started on leftwalkers
+
 **** OCT 31
 
 - few changes to ifs, few tests that all seems run okay
@@ -63,13 +71,6 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - set up frequency tables/init all filters
 
 *** Effects themselves
-
-TODO: filter from teensy:
-
-int32_t definition[32];  // up to 4 cascaded biquads
-///
-filter_biquad.cpp
-filter_biquad.h
 
 1- convolution -DONE
 
@@ -186,6 +187,16 @@ i 390 1990 2550
 lee 270 2290 3010
 
 *** DONE
+
+**** MON 3 NOV
+
+- BPFSC fixed and testedWELL!
+
+discarded as too much double stuff and we have floating point: filter from teensy: int32_t definition[32];  // up to 4 cascaded biquads
+///
+filter_biquad.cpp
+filter_biquad.h
+
 
 **** FRI 31 OCT
 

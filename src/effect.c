@@ -32,9 +32,9 @@ void BPFSC_init (BPFSC* unit){
   unit->m_y1 = 0.f;
   unit->m_y2 = 0.f;
   unit->m_freq = 800.0f;
-  unit->m_bw = 80.0f;
+  unit->m_bw = 0.1f;
 
-  float pfreq = mRadiansPerSample;
+  float pfreq = unit->m_freq*mRadiansPerSample;
   float pbw   = unit->m_bw   * pfreq * 0.5;
 	
   float C = 1.f / tanf(pbw);
@@ -302,6 +302,14 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
+
+  // BPFSC
+
+  int_to_floot(inbuffer,tmpbuffer);
+  BPFSC_process(bpfunit,32,tmpbuffer,tmpotherbuffer);
+  floot_to_int(outbuffer,tmpotherbuffer);
+
+
 
   // env without lowpass
   //  envelopefollower(inbuffer, outbuffer);
