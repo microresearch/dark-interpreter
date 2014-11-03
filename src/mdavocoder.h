@@ -26,7 +26,7 @@ typedef struct {
   float lfreq;        //LF filter coeff
   float vuv;          //voiced/unvoiced threshold
   float maxp, minp;   //preferred period range
-  double root;        //tuning reference (MIDI note 0 in Hz)
+  float root;        //tuning reference (MIDI note 0 in Hz)
   float param[5];
 } mdavocal;
 

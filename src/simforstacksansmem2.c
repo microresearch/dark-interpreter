@@ -1204,8 +1204,8 @@ u16 runfitz(u8 step, u16 count, u16 start, u16 wrap){
     u+=dudt;
     ww+=dwdt;
     //assumes fmod works correctly for negative values
-        if ((u>1.0) || (u<-1.0)) u=fabs(fmodf(u-1.0,4.0)-2.0)-1.0;
-    //    if ((u>1.0) || (u<-1.0)) u=fabs(u-2.0)-1.0;
+        if ((u>1.0) || (u<-1.0)) u=fabsf(fmodf(u-1.0,4.0)-2.0)-1.0;
+    //    if ((u>1.0) || (u<-1.0)) u=fabsf(u-2.0)-1.0;
 
 	    int z=((float32_t)(u)*3600);
     //    int zz=((float32_t)(w)*1500);

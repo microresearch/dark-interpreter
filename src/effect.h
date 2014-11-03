@@ -7,6 +7,11 @@ typedef struct{
 } BBandPass;
 
 typedef struct{
+	float m_y1, m_y2, m_a0, m_b1, m_b2;
+	float m_freq, m_bw;
+} BPFSC;
+
+typedef struct{
 	float m_freq, m_decayTime, m_attackTime;
 	float m_y01, m_y02, m_b01, m_b02;
 	float m_y11, m_y12, m_b11, m_b12;
@@ -34,6 +39,11 @@ typedef struct{
 
 other simple effects: squash, morph, mix, etc...
 
+BiQuad
+
+BPFSC_init - tables also for BPF....
+BPFSC_process
+
 Formlet_init - various inited formlet units
 Formlet_process
 
@@ -42,7 +52,7 @@ BBandPass_process
 
 convolvee - no great changes
 
-bandpass (static) - active changes
+bandpass/owl (static) - active changes
 
 envelopefollower (static)
 
