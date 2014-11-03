@@ -18,7 +18,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 =overlapsDONE/leftwalkers/hW walker/datagen walker and mirrors/infection by 4th...
 
-- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for LACH or SUSP+TENE
+- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
   
@@ -27,7 +27,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 **** NOV 3
 
 - all overlays finished and tested!
-- started on leftwalkers
+- left/filterwalkers done and tested (still TODO: check sanity of)
 
 **** OCT 31
 

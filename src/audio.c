@@ -225,7 +225,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
 	  //	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=0; //TESTY!
 	  //	  else mainmode=1; //TESTY!
-	  mainmode=9; //TESTY!
+	  //	  mainmode=9; //TESTY!
 
 	  // TODO _ ordering of modes at end!!!
 	  switch(mainmode){
@@ -416,9 +416,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    filtoutspeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    // no finger/dir?
 	    dirryff=(spd&240)>>4;
-	    break;
-
-
 	    break;
 	  } // switch mainmode
 	} // fingerrrrzzzxx
@@ -1093,8 +1090,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    delfiltout=0;
 	      }
 	  lasttmp=0;
-	  tmp16=buf16[lp]-32768;
-	  tmp=audio_buffer[lp];
 
 	  for (x=0;x<howmanyfiltoutvill;x++){
 	  if (delfiltout==0) village_filtout[x].counterr+=dirryff;
@@ -1106,6 +1101,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if ((village_filtout[x].offset/village_filtout[x].compress)<=village_filtout[x].counterr && village_filtout[x].running==1){
 
 	      lp=village_filtout[x].samplepos%32768;
+	      tmp16=buf16[lp]-32768;
+	      tmp=audio_buffer[lp];
 
 	      switch(village_filtout[x].overlay&15){
 	      case 0: // straight. no fmod
@@ -1289,7 +1286,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    }
 	  }
-}
+	  }
 
 	// WRITE!
 
@@ -1513,7 +1510,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// TESTY!
 	  //	  inp=2;
-	  dohardwareswitch(26,0);
+	  //	  dohardwareswitch(26,0);
 
 #endif // for test effects
 #endif // for test eeg

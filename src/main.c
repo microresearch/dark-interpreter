@@ -234,7 +234,7 @@ u8 howmanydatavill;
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
 int16_t dirryd=1;
-u8 inp;
+u8 inp=0;
 
 // effects tests
 
@@ -298,8 +298,8 @@ void main(void)
 
   village_filtout[0].start=0;
   village_filtin[0].start=0;
-  village_filtout[0].wrap=32767;
-  village_filtin[0].wrap=32767;
+  village_filtout[0].wrap=1;
+  village_filtin[0].wrap=1;
   village_filtout[0].dir=1;
   village_filtin[0].dir=1;
   village_filtout[0].del=0;
