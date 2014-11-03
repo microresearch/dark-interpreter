@@ -39,10 +39,11 @@ Based in part on SLUGens by Nicholas Collins.
 #define float32_t float
 
 
-extern u16 sin_data[256];
-extern u16 *stacker;//[256]; // 16*3 MAX
-extern uint16_t adc_buffer[10];
-extern int16_t* audio_buffer;
+u16 sin_data[256];
+u16 *stacker;//[256]; // 16*3 MAX
+uint16_t adc_buffer[10];
+int16_t audio_buffer[32768];
+uint16_t buf16[32768];
 /* 
 u16 sin_data[256];
 u16 stacker[256]; 
@@ -61,9 +62,9 @@ extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 extern u16 sin_data[256];
 extern u16 stacker[STACK_SIZE*4]; // 16*4 MAX
+extern u16 *buf16;
 #endif
 
-extern u16 *buf16;
 
 //////////////////////////////////////////////////////////
 
@@ -194,8 +195,8 @@ u16 runnoise(u8 step, u16 count, u16 start, u16 wrap){// TSTY!
 */
 
 #ifdef PCSIM
-//signed char direction[2]={-1,1};
-extern signed char direction[2];
+signed char direction[2]={-1,1};
+//extern signed char direction[2];
 #else
 extern signed char direction[2];
 #endif
@@ -876,21 +877,21 @@ void ifsinit(u16 *buf16){
     for (i=0;i<column;i++){
 
       coeff[iter][i]=(float32_t)randi()/4096.0f;
-      //      if ((float32_t)randi()/4096.0f>0.5f) coeff[iter][i]= coeff[iter][i]-1.0f;
+      if ((float32_t)randi()/4096.0f>0.5f) coeff[iter][i]= coeff[iter][i]-1.0f;
       prob[iter]=(float32_t)randi()/4096.0f;
 
-      prob[0]=(float32_t)buf16[0]/65536.0f;
-      prob[1]=(float32_t)buf16[1]/65536.0f;
-      prob[2]=(float32_t)buf16[2]/65536.0f;
-      prob[3]=(float32_t)buf16[3]/65536.0f;
-      prob[4]=(float32_t)buf16[4]/65536.0f;
-      /*  prob[0]=0.00f;
+    }
+    /*        prob[0]=0.00f;
   prob[1]=0.01f; 
   prob[2]=0.85f; 
   prob[3]=0.07f; 
   prob[4]=0.07f; 
-      */
-    }
+    */
+    prob[0]=(float32_t)buf16[0]/65536.0f;
+      prob[1]=(float32_t)buf16[1]/65536.0f;
+      prob[2]=(float32_t)buf16[2]/65536.0f;
+      prob[3]=(float32_t)buf16[3]/65536.0f;
+      prob[4]=(float32_t)buf16[4]/65536.0f;
   }
   }
 
@@ -902,6 +903,10 @@ u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
 
   randiom_num = (float32_t)randi()/4096.0f;
 
+#ifdef PCSIM
+  //  printf("p1=%d\n",p1);
+#endif
+
   //  for (x=0;x<howmuch;x++){
     count+=step;
   for(i = 0; i < row; i++){
@@ -912,14 +917,9 @@ u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
     }
     //  }
   p1=p2;  
-					
-  
-
-      buf16[count%32768]=(u16)p2.y;
+  buf16[count%32768]=(u16)p2.y;
 #ifdef PCSIM
-      //printf("%d\n",buf16[count%32768]);
-      //      //      //    if (count>32767) printf("IFSCRASH%d\n",count);
-
+  printf("%c",buf16[count%32768]);
 #endif
   /*    iter=randi()%row;
     i=randi()%column;
@@ -1214,9 +1214,66 @@ u16 runfitz(u8 step, u16 count, u16 start, u16 wrap){
 
 #ifdef PCSIM
        //       //	//        printf("fitz: %c",u); 
-       //            printf("%c",buf16[count%32768]); 
+       printf("%c",buf16[count%32768]); 
 #endif
 
        //  }
   return count;
   }
+
+#ifdef PCSIM
+
+void main(int argc, char **argv)
+{
+  int x,count; 
+  u16 howmuch,i;
+  //   uint16_t xxx[MAX_SAM];
+  //     u8 xxx[65536];
+     srand(time(NULL)*rand());
+
+  u16 AUDIO_BUFSZ=32768;
+  u16 f0106erpos=0, F0106ERSTEP=1, F0106ERWRAP, F0106ERSTART, f0cons,tmp,wrapper;
+
+  u8 stack_pos=0;
+  struct stackey stackyy[STACK_SIZE];
+  //  u16 direction[8]={32512,32513,1,257,256,255,32767,32511}; //for 16 bits 32768
+
+  for (x=0;x<65535;x++){
+    buf16[x]=randi()%65536;
+  }
+
+  float32_t pi= 3.141592;
+  float32_t w;
+  float32_t yi;
+  float32_t phase;
+  int sign_samp;
+  w= 2*pi;
+  w= w/256;
+  for (i = 0; i <= 256; i++)
+    {
+      yi= 16383*sinf(phase); // was 2047
+      phase=phase+w;
+      sign_samp=16383+yi;     // dc offset translated for a 12 bit DAC - but is 16 bit?
+      sin_data[i]=sign_samp; // write value into array
+    }
+
+
+  //    u16 *buf16 = (u16*) xxx;
+  
+  //  struct FORM *unity=malloc(sizeof(struct FORM));
+
+  //  forminit(unity, xxx,0,3);
+
+////  //  printf("test%d\n",256<<7);
+//  	 for (x=0;x<1;x++){
+  u16 addr=rand()%32768;u16 xx,xxxx;
+  u16 which=(rand()%31)<<10;//
+  ifsinit(buf16);// LEAVE IN!
+
+  while(1){
+    count=runifs(1,count,0,32000);
+  }
+
+				 }
+#endif
+
