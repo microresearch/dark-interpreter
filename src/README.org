@@ -5,18 +5,16 @@ organ!
 
 [Thomas de Quincey. The Dark Interpreter] 
 
-* new scheme for development notes
+* new scheme for development
 
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
  
-- importance of datagens for all so need fingers_in_all as last mode (well now is hardware)
-
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection by 4th...
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 4NOV
 
 - what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 

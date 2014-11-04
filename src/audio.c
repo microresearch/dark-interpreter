@@ -1577,6 +1577,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  // hdgener=16// note hdgener is 8 bits
 	  if (digfilterflag&16){
+	    // copy from above
 
 	  }
 
