@@ -32,6 +32,7 @@ TO RESOLVE: effects processing, datagen walker, mirroring
 
 **** NOV 4
 
+- started on mirror structure and effects to start to fill out!
 - corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes...
 
 **** NOV 3
@@ -85,7 +86,13 @@ TO RESOLVE: effects processing, datagen walker, mirroring
 
 - set up frequency tables/init all filters
 
-*** Effects themselves
+*** DONE
+
+**** 4 NOV
+
+- first prototype for effect - how to test?? also start fill out effect setting in audio.c
+
+** Effects themselves
 
 1- convolution -DONE
 
@@ -118,7 +125,7 @@ slow/down speed up against other villager
 *6- other effects once we have effect walker in place: morph one to
 size of other, loop one within other etc.. stretches....*
 
-**** Filter tables for vowels:
+*** Filter tables for vowels:
 
 from SC/BBandpass examples:
 
@@ -211,7 +218,6 @@ discarded as too much double stuff and we have floating point: filter from teens
 ///
 filter_biquad.cpp
 filter_biquad.h
-
 
 **** FRI 31 OCT
 
@@ -314,6 +320,11 @@ parameters->datagen/eeg/knob/fingers,fingers in code
   bend/constrain/influence another
 
 *** DONE
+
+**** NOV 4
+
+- started on mirror structure
+
 ** New datagens
 
 - further new datagens+incorporate villagers/klatt/paf/VOSIM

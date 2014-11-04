@@ -16,6 +16,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 extern u8 *datagenbuffer;
+extern int16_t *audio_buffer;
 extern biquad *biquaddd;
 extern arm_biquad_casd_df1_inst_f32* df1;
 extern BBandPass *unit;
@@ -293,12 +294,18 @@ void envelopefollower(int16_t* envbuffer, int16_t* inbuffer, int16_t* outbuffer)
 }
 } 
  
+void doringcopy(int16_t *inbuffer,int16_t *modbuffer,int16_t* outbuffer,u8 longest){
+  u8 xx;
+  for (xx=0;xx<longest;xx++){
+    outbuffer[xx]=modbuffer[xx];
+  }
+}
 
 void do_effect(villager_effect* vill_eff){
 
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
-  u16 x,xx;
+  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
 
   // chunk in size 32
   // pos and wrap are fixed by select/knob in audio.c!
@@ -316,17 +323,62 @@ void do_effect(villager_effect* vill_eff){
   // and do the effect
   // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
 
+  // still need speed and step somehow!! TODO!
 
-  // what are the effects...
+  // what are the effects... outline here
 
   switch(vill_eff->whicheffect){
   case 0: // prototype sans float and same sizes say do nothing?
+    // so copy into inbuffer
+    if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
+    else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
+    
+    if (tmpinlong==0) {
+      vill_eff->inpos=vill_eff->instart;
+      // try again on size
+      if ((vill_eff->inpos+32)<vill_eff->inwrap) tmpinlong=32;
+      else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
+    }
 
+    // same for mod...
+
+    if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
+    else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
+    
+    if (tmpmodlong==0) {
+      vill_eff->modpos=vill_eff->modstart;
+      // try again on size
+      if ((vill_eff->modpos+32)<vill_eff->modwrap) tmpmodlong=32;
+      else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
+    }
+
+    //    now copy with length as longest
+    if (tmpinlong>=tmpmodlong) longest=tmpinlong;
+    else longest=tmpmodlong;
+
+    for (xx=0;xx<longest;xx++){
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpinlong))%32768];
+      modbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpmodlong))%32768];
+    }
+
+    // do effect
+    doringcopy(inbuffer,modbuffer,outbuffer,longest);    
+
+    // copy outbuffer to audio
+    for (xx=0;xx<longest;xx++){
+      audio_buffer[vill_eff->outstart+vill_eff->outpos%32768]=outbuffer[xx];
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+    
+  // and update vill_eff
+    vill_eff->modpos+=tmpmodlong;
+    vill_eff->inpos+=tmpinlong;
+    vill_eff->outpos+=longest;
     break;
   }
 
 
-  // and update vill_eff
 }
 
 
