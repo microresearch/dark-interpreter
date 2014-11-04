@@ -22,7 +22,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
 
-- need to initialise all villagers and mirror villagers for later swaps
+- need to initialise _all_ villagers and mirror villagers for later swaps/effects etc.
 
 - decide how mirror villagers work (is it just for offset.start and wrap and how mirrors modulate?)
 

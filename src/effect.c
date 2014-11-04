@@ -327,8 +327,10 @@ void do_effect(villager_effect* vill_eff){
 
   // what are the effects... outline here
 
+  // 1-FFT/2-genericfilters/3-vowelcascadeBPFs/4-window/5-morph&loop/6-convolution/7-envelope follower so maybe 16 variations
+
   switch(vill_eff->whicheffect){
-  case 0: // prototype sans float and same sizes say do nothing?
+  case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
     // so copy into inbuffer
     if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 

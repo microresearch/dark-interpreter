@@ -716,7 +716,7 @@ void main(void)
 	  mirrormode=adc_buffer[FIFTH]>>7; // 5 bits=32
 
 	  switch(mirrormode){
-	  case 16: // swop and copy
+	  case 17: // swop and copy
 	    ranger=adc_buffer[FIRST]>>8; // 3 bits=8 ????
 	    whichx=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[THIRD]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
@@ -809,13 +809,13 @@ void main(void)
 copy x to y 
 copy y to x
 swop x with y
-and/add/subs choose one but how to stop?
+modulus
 
 ///////////////
 
-- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
-- fingers in the code
-- infection across (how?)
+18- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
+19- fingers in the code
+20- infection across (how?)
 
 use set of mirrored villagers and write datagens, hands into these
 
@@ -829,10 +829,12 @@ swaps, dump all settings to datagen and back?, infection across settingsarray, f
 	///// end of mirrors and infection
 
 	////// start effects
-	/// work through each of village_effect[howmanyeffectvill] with call to each effect as generic... 32 byte chunk or less at time
+
 	  for (x=0;x<howmanyeffectvill;x++){
 	    do_effect(&village_effect[x]);
 	  }
+
+	  /// end effects/ALLLL!!!!
 
 #ifdef PCSIM
       // randomise adc_buffer

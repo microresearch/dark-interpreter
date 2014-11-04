@@ -524,11 +524,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
 	    break;
 
-	  case 15: // effects
+	  case 15: // effects across also case 16:
 
 	    // SET:       u16 inpos,modpos,outpos;// various counters
 	    //       u16 instart,modstart,outstart;
 	    //      u16 inwrap,modwrap,outwrap here depending on selected villagers from read/write etc...
+
+	    // so we have: 1-whichvillager 2-inmod(selected from write,read)=128,3-outmod(selected from write,read)=128,4-effect
+
+	    //case 16=== 1-whichvillager 2-outstart=32768, 3-outwrap=32768, 4-?
+
+	    // and fingers - speed/setp but no dir???
 
 	    break;
 
