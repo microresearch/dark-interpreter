@@ -144,26 +144,34 @@ u8 fingerdir(u8 *speedmod);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   int lasttmp=0,lasttmp16=0;
-  extern u8 inp;// testy!
   u16 lp;
-  u8 x, xx,spd;
-  u8 mainmode, whichvillager,step;
+  u8 x,xx,spd;
+  static u8 hdgener; 
+  u8 whichvillager,step;
   float32_t fsum,fsumd;
   int16_t tmp16;
-  static int16_t count=0,countf=0,countff=0,countr=0;//countr and as static is testy!
+  static int16_t count=0,countf=0,countff=0,countr=0,count40106=0;//countr and as static is testy!
   int32_t tmp32,tmp32d,tmptmp32;
   int16_t tmp;
-  static u8 howmanywritevill=1,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1,writeoverlay=0,readoverlay=0;
+  static u8 howmanywritevill=1,which40106villager=0,whichhwvillager=0,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1,howmanyhardvill=1,howmany40106vill=1,writeoverlay=0,readoverlay=0,hardcompress=1;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,delfiltin=0,delfiltout=0,readspeed=1,writespeed=1,filtinspeed=1,filtoutspeed=1;
   static int16_t dirryw=1,dirryr=1,dirryf=1,dirryff=1;
-  static u16 counter=0,counterr=0;
+
+  static u16 counter=0,counterr=0,counthw=0;
   //  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
   extern u8 howmanydatavill;
+  extern u8 mainmode;
   extern villagerr village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   extern villagerr village_filtin[MAX_VILLAGERS+1];
   extern villagerr village_filtout[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
+  extern villager_hardware village_hardware[17];
+  extern villager_hardwarehaha village_40106[17];
+  extern villager_hardwarehaha village_hdgener[17];
+  extern villager_hardwarehaha village_lmer[17];
+  extern villager_hardwarehaha village_maximer[17];
+
   extern u16 databegin,dataend,counterd;
   extern u8 dataspeed;  
   extern int16_t dirryd;
@@ -222,12 +230,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	if (xx!=5){
 	  // which mode are we in?
-	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
+	  mainmode=adc_buffer[FIFTH]>>7; // 5 bits=32
 	  //	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=0; //TESTY!
 	  //	  else mainmode=1; //TESTY!
 	  //	  mainmode=9; //TESTY!
 
 	  // TODO _ ordering of modes at end!!!
+	  // group as main walkers, followed by compression series...
 	  switch(mainmode){
 	  case 0:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
@@ -303,8 +312,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    dirryr=(spd&240)>>4;
 	    // no finger/dir?
 	    break;
-
-
 
 	  case 4: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
@@ -417,6 +424,47 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    // no finger/dir?
 	    dirryff=(spd&240)>>4;
 	    break;
+
+	  case 10: // HW walker - what we need for this walker? TEST case now NOV 3!
+	    // max is say 16 walkers???
+	    // sequential = 1-which,2-speed=same as length, 3-HW set(32 options), 4=compress all=overall speed, finger-input/step?
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanyhardvill=whichvillager+1;
+	    village_hardware[whichvillager].length=adc_buffer[SECOND];
+	    village_hardware[whichvillager].setting=adc_buffer[THIRD]>>7; // 5 bits=32
+	    hardcompress=adc_buffer[FOURTH]>>4; // 8 bits
+	    village_hardware[whichvillager].inp=xx;
+	    // or overlap/bitwise? but then how handle floating?
+	    break;
+
+	  case 11: // 40106 walker as sequential but offset as free period???
+	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
+	    // but start and wrap for datagen
+
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmany40106vill=whichvillager+1;
+	    village_40106[whichvillager].length=adc_buffer[SECOND]; 
+	    village_40106[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_40106[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic
+
+	    village_40106[whichvillager].dir=xx;
+	    village_40106[whichvillager].speed=(spd&15)+1; 
+	    village_40106[whichvillager].step=(spd&240)>>4;
+
+	    if (village_40106[whichvillager].dir==2) village_40106[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_40106[whichvillager].dir==3) village_40106[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_40106[whichvillager].speed;
+	    else village_40106[whichvillager].dirry=direction[village_40106[whichvillager].dir]*village_40106[whichvillager].speed;
+
+
+
+	    break;
+	    //+ 12-lmer,13-maximer,14-hdgener 15-datagen for use in???
+
+	    ///////////////////////////
+
+
+	    // attachment/mirror --> 16 left for mirrors and infection handled in main
+
 	  } // switch mainmode
 	} // fingerrrrzzzxx
 
@@ -1508,10 +1556,50 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
       /////////////////////////////////////
 
-	// TESTY!
-	  //	  inp=2;
-	  //	  dohardwareswitch(26,0);
+	  // process 40106, hdhgener maximer and lmer
 
+	  // 40106 always
+	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
+
+	  x=which40106villager%howmany40106vill;
+	  count40106+=village_40106[x].step;
+
+	  set40106pwm(village_40106[x].knoboffset+buf16[(village_40106[x].dataoffset+village_40106[x].samplepos)%32768]);
+
+	  village_40106[x].samplepos+=village_40106[x].dirry;
+	  if (village_40106[x].samplepos>=village_40106[x].length) village_40106[x].samplepos=0;
+	  else if (village_40106[x].samplepos<0) village_40106[x].samplepos=village_40106[x].length;
+
+	  if (count40106>=village_40106[x].length){
+	    count40106=0;
+	    which40106villager++; //u8
+	  }
+
+	  // hdgener=16// note hdgener is 8 bits
+	  if (digfilterflag&16){
+
+	  }
+
+	  // maxim=8
+	  if (digfilterflag&8){
+
+	  }
+	  
+	  // lm=4
+	  if (digfilterflag&4){
+
+	  }
+
+	  // process village_hardware[whichhwvillager%howmany]	  
+	  // max length is 4096 =2.7 seconds
+	  counthw+=hardcompress; // with compression
+	  x=whichhwvillager%howmanyhardvill;
+	  dohardwareswitch(village_hardware[x].setting, village_hardware[x].inp,hdgener);
+	  if (counthw>=village_hardware[x].length){
+	    counthw=0;
+	    whichhwvillager++; //u8
+	  }
+	  
 #endif // for test effects
 #endif // for test eeg
 #endif // for straight

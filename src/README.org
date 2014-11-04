@@ -11,12 +11,12 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
  
-- importance of datagens for all so need fingers_in_all as last mode
+- importance of datagens for all so need fingers_in_all as last mode (well now is hardware)
 
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkers/hW walker/datagen walker and mirrors/infection by 4th...
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection by 4th...
 
 - what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 
@@ -28,6 +28,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 - all overlays finished and tested!
 - left/filterwalkers done and tested (still TODO: check sanity of)
+- started on HW walkers TO TEST!
 
 **** OCT 31
 
@@ -221,28 +222,37 @@ starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
   
 ** Overlap/effects
 
-- finish and test all for RW
+- finish and test all for RW DONE
 
-- *buf16 should also be additive (or/and/+ etc)*
+- buf16 should also be additive (or/and/+ etc)DONE
 
 - overlap/effect in audio.c now with parameter like FMOD - IN
-  PROCESS?TODO?TEST or have double inout buffers for float...all as floats
+  PROCESS?TODO?TEST DONE
 
 *** DONE
+
+**** NOV 3
+
+- all overlays finished and tested!
 
 ** Left/Filter
 
-- left/filter channel: left into audio_buffer/buf16, out from villagers=audio/buf16
+- left/filter channel: left into audio_buffe, out from villagers=audio DONE
 
 - port from RW (given above?)  but how we handle if we have no in from
   left/no filter action?? or is always activated in HW? unless we have
-  seperate smaller left readin buffer
+  seperate smaller left readin buffer = always DONE
 
 *** DONE
 
+**** NOV 3
+
+- left/filterwalkers done and tested (still TODO: check sanity of)
+
+
 ** Hardware Walker
 
-- how switch bit/overlap mode or simple
+- how switch bit/overlap mode or simple SIMPLE so far!
 
 - that hw can be super simple consecutive walker, also simplify other HW walkers
 
@@ -258,9 +268,13 @@ options
 
 as simple walker or set of villagers?
 
-- say 8 or 16 hardware villagers
+- say 16 hardware villagers
 
 *** DONE
+
+**** NOV 3
+
+- started on HW walkers TO TEST!
 
 ** Datagen Walker
 
@@ -295,14 +309,16 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 ** Integration/tests/cleanups
 
-- defines for HW versionings!
+- defines for HW versionings or seperate makefiles!
 - remove excess statics and variables.
-- any math speedups inspired by teensy(sqrt etc....)
+- any math speedups 
 - clean up structs/memory
 
 *** DONE
 
 
+
+* ////////////////////////
 
 * TUE 28 OCT+
 

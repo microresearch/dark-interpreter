@@ -8,7 +8,7 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
 
-void dohardwareswitch(u8 modder, u8 hdgen);
+void dohardwareswitch(u8 modder, u8 inp, u8 hdgen);
 void setup_switches(void);
 void reset_switches(void);
 void reset_clocks(void);

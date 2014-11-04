@@ -229,7 +229,13 @@ villagerr village_read[MAX_VILLAGERS+1];
 villagerr village_filtin[MAX_VILLAGERS+1];
 villagerr village_filtout[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
-u8 howmanydatavill;
+villager_hardware village_hardware[17];
+villager_hardwarehaha village_40106[17];
+villager_hardwarehaha village_hdgener[17];
+villager_hardwarehaha village_lmer[17];
+villager_hardwarehaha village_maximer[17];
+
+u8 howmanydatavill,mainmode;
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -381,7 +387,7 @@ void main(void)
     I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
 #ifndef LACH
-  dohardwareswitch(0,0);
+    dohardwareswitch(0,0,0);
 #endif
 #endif // for ifndef PCSIM
 

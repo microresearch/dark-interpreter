@@ -30,6 +30,22 @@
 // test struct for multiple grains/villagers
 
     typedef struct {
+      u16 length;
+      u8 setting,inp;
+    } villager_hardware;
+
+    typedef struct {
+      u16 length;
+      u16 dataoffset;
+      u16 knoboffset;
+      int16_t samplepos;
+      int16_t dirry;
+      u8 speed, step;
+      u8 dir;
+    } villager_hardwarehaha;
+
+
+    typedef struct {
       u16 offset;
       u16 start;
       u16 wrap;
