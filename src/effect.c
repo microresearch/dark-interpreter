@@ -294,6 +294,42 @@ void envelopefollower(int16_t* envbuffer, int16_t* inbuffer, int16_t* outbuffer)
 } 
  
 
+void do_effect(villager_effect* vill_eff){
+
+  int16_t inbuffer[32],modbuffer[32],outbuffer[32];
+  float finbuffer[32],fmodbuffer[32],foutbuffer[32];
+  u16 x,xx;
+
+  // chunk in size 32
+  // pos and wrap are fixed by select/knob in audio.c!
+  // pos is NOT with start!
+
+  /*
+      u8 whicheffect,speed,step;
+      u16 instart,modstart,outstart;
+      u16 inpos,modpos,outpos;// various counters
+      u16 inwrap,modwrap,outwrap;
+   */
+
+  // in each switch/case - easier here
+  // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
+  // and do the effect
+  // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
+
+
+  // what are the effects...
+
+  switch(vill_eff->whicheffect){
+  case 0: // prototype sans float and same sizes say do nothing?
+
+    break;
+  }
+
+
+  // and update vill_eff
+}
+
+
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   extern VocoderInstance* vocoder; u8 x;

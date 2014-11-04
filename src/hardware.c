@@ -687,7 +687,7 @@ void initpwm(void){ // THIS ONE WORKS!
   TIM_Cmd(TIM1, ENABLE);
 }
 
-void setlmpwm(uint16_t value, uint16_t value2){
+void setlmpwm(uint16_t value){
  
   ///  TIM3->CCR4 = value2;
   //  PrescalerValue = (uint16_t) ((SystemCoreClock /2) / 28000000) - 1; // was by 28 MHz

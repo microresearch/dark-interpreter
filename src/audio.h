@@ -19,15 +19,12 @@
 #define BUFF_LEN 128 // TEST! reduce to 16 
 #define AUDIO_BUFSZ 32768 // was 32768
 
-/*    typedef struct {
-      u16 start;
-      u16 wrap;
-      u8 effect;
-      u8 speed_step; // TODO: how do as fractional?
-      u8 dir; // TODO: do as union or whatever for dir//flag for mirror
-    } villagerr;*/
-
-// test struct for multiple grains/villagers
+    typedef struct {
+      u8 whicheffect,speed,step;
+      u16 instart,modstart,outstart;
+      u16 inpos,modpos,outpos;// various counters
+      u16 inwrap,modwrap,outwrap;
+    } villager_effect;
 
     typedef struct {
       u16 length;
@@ -44,8 +41,7 @@
       u8 dir;
     } villager_hardwarehaha;
 
-
-    typedef struct {
+typedef struct {
       u16 offset;
       u16 start;
       u16 wrap;
@@ -59,6 +55,14 @@
       u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
     } villagerr;
+
+typedef struct {
+  u16 start;
+  u16 wrap;
+  u16 samplepos;
+  u8  mirrormod; // how mirror effects mainline start/wrap and samplepos
+  u8 fingered; // what is input here as modifier
+    } mirror;
 
     typedef struct {
       u16 start;

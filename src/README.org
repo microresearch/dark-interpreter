@@ -14,13 +14,25 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 4NOV
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 4NOV// effects and effect walker finally
+
+// test.c sanity AND test all WED05 *try and finish sketch*
 
 - what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
-  
+
+- need to initialise all villagers and mirror villagers for later swaps
+
+- decide how mirror villagers work (is it just for offset.start and wrap and how mirrors modulate?)
+
+TO RESOLVE: effects processing, datagen walker, mirroring
+
 *** DONE
+
+**** NOV 4
+
+- corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes...
 
 **** NOV 3
 
@@ -38,6 +50,10 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - shifted some of ifs into init
 
 ** Effects and effects walker
+
+- remember to initialise pos and all rest in audio.c!
+
+- speeds still to do in effects walker
 
 - should effects walker overlap. how to time it and keep memory of
   timings, data structs???
@@ -247,7 +263,6 @@ starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
 
 - left/filterwalkers done and tested (still TODO: check sanity of)
 
-
 ** Hardware Walker
 
 - how switch bit/overlap mode or simple SIMPLE so far!
@@ -269,6 +284,9 @@ as simple walker or set of villagers?
 - say 16 hardware villagers
 
 *** DONE
+**** NOV 4
+
+- corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes/all filled out
 
 **** NOV 3
 
@@ -291,7 +309,6 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 - mirror as adding to or constraining what we have already defined for
   say end/start etc (two arrays and add/subtract/%)
-
 
 - so either mirror walker struct as another(pointer) /or/
   bend/constrain/influence another

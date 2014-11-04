@@ -228,14 +228,24 @@ villagerr village_write[MAX_VILLAGERS+1];
 villagerr village_read[MAX_VILLAGERS+1];
 villagerr village_filtin[MAX_VILLAGERS+1];
 villagerr village_filtout[MAX_VILLAGERS+1];
+
+villager_effect village_effect[17];
+
+mirror mvillage_write[MAX_VILLAGERS+1];
+mirror mvillage_read[MAX_VILLAGERS+1];
+mirror mvillage_filtin[MAX_VILLAGERS+1];
+mirror mvillage_filtout[MAX_VILLAGERS+1];
+
+
 villager_generic village_datagen[MAX_VILLAGERS+1];
 villager_hardware village_hardware[17];
 villager_hardwarehaha village_40106[17];
 villager_hardwarehaha village_hdgener[17];
-villager_hardwarehaha village_lmer[17];
-villager_hardwarehaha village_maximer[17];
+villager_hardwarehaha village_lm[17];
+villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatavill,mainmode;
+u8 howmanydatavill;
+u8 howmanyeffectvill;
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -696,8 +706,133 @@ void main(void)
     } // if running
   } // end of x/run thru all villagers
 
-
   ///// end of DATAGEN villagers!
+
+  u8 xx, mirrormode,ranger,whichx,whichy,spd;
+
+  xx=fingerdir(&spd);
+
+	if (xx!=5){
+	  mirrormode=adc_buffer[FIFTH]>>7; // 5 bits=32
+
+	  switch(mirrormode){
+	  case 16: // swop and copy
+	    ranger=adc_buffer[FIRST]>>8; // 3 bits=8 ????
+	    whichx=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    whichy=adc_buffer[THIRD]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    // and FOURTH knob??? as mirror modulator
+	    //	    action=xx;
+	    switch(xx){ 
+	    case 0:
+	      switch(ranger){
+	      case 0:
+		village_write[whichx]=village_write[whichy]; // restrict here or???
+		break;
+	      case 1:
+		village_write[whichx]=village_read[whichy];
+		break;
+	      case 2:
+		village_write[whichx]=village_filtin[whichy];
+		break;
+	      case 3:
+		village_write[whichx]=village_filtout[whichy];
+		break;
+	      case 4:
+		// copy appropriate datagen settings
+		village_write[whichx].start=village_datagen[whichy].start;
+		village_write[whichx].wrap=village_datagen[whichy].wrap;
+		village_write[whichx].samplepos=village_datagen[whichy].position;
+		village_write[whichx].dirry=village_datagen[whichy].dirry;
+		village_write[whichx].dir=village_datagen[whichy].dir;
+		village_write[whichx].step=village_datagen[whichy].step;
+		village_write[whichx].speed=village_datagen[whichy].speed;
+		break;
+	      case 5:
+		// datagen walker when done???
+		break;
+	      case 6:
+		// with its mirror
+		village_write[whichx].start=mvillage_write[whichy].start;
+		village_write[whichx].wrap=mvillage_write[whichy].wrap;
+		village_write[whichx].samplepos=mvillage_write[whichy].samplepos;
+		break;
+	      case 7:
+		///???
+		break;
+
+	      } // end of ranger
+	      
+		/* example actions
+	      case 1:
+		village_read[whichx]=village_write[whichy];
+		break;
+		
+	      case 2:// swop
+		tmpvillage=village_write[whichx];
+		village_write[whichx]=village_read[whichy];
+		village_read[whichy]=tmpvillage;
+		break;
+
+	    case 3:// unknown???  constrain %
+		village_read[whichx]%=(village_write[whichy]+1);
+		*/
+	    
+
+	    break;
+	    } // end of xx = action
+	    break; // case 16
+
+	  } // end of mirrormodes
+	}// xx!=5
+
+  /* do mirror and infections between:
+
+  extern villagerr village_write[MAX_VILLAGERS+1];
+  extern villagerr village_read[MAX_VILLAGERS+1];
+  extern villagerr village_filtin[MAX_VILLAGERS+1];
+  extern villagerr village_filtout[MAX_VILLAGERS+1];
+  extern villager_generic village_datagen[MAX_VILLAGERS+1];
+
+  extern villager_hardware village_hardware[17];
+  extern villager_hardwarehaha village_40106[17];
+  extern villager_hardwarehaha village_hdgener[17];
+  extern villager_hardwarehaha village_lm[17];
+  extern villager_hardwarehaha village_maxim[17];
+
+- mirror1 - settings of one become settings of another (just swop/copy)
+
+--which villager of write etc... (10 but how match hw ones)
+--which x villager =64
+--which y villager =64
+--which actions =finger
+
+copy x to y 
+copy y to x
+swop x with y
+and/add/subs choose one but how to stop?
+
+///////////////
+
+- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
+- fingers in the code
+- infection across (how?)
+
+use set of mirrored villagers and write datagens, hands into these
+
+and then run through
+
+what was previous set/approach: settingsarrayattached, algoattached,
+swaps, dump all settings to datagen and back?, infection across settingsarray, fingers in the code
+
+   */
+
+	///// end of mirrors and infection
+
+	////// start effects
+	/// work through each of village_effect[howmanyeffectvill] with call to each effect as generic... 32 byte chunk or less at time
+	  for (x=0;x<howmanyeffectvill;x++){
+	    do_effect(&village_effect[x]);
+	  }
 
 #ifdef PCSIM
       // randomise adc_buffer

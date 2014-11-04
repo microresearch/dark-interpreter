@@ -150,27 +150,28 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 whichvillager,step;
   float32_t fsum,fsumd;
   int16_t tmp16;
-  static int16_t count=0,countf=0,countff=0,countr=0,count40106=0;//countr and as static is testy!
+  static int16_t count=0,countf=0,countff=0,countr=0,count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
   int32_t tmp32,tmp32d,tmptmp32;
   int16_t tmp;
-  static u8 howmanywritevill=1,which40106villager=0,whichhwvillager=0,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1,howmanyhardvill=1,howmany40106vill=1,writeoverlay=0,readoverlay=0,hardcompress=1;
+  static u8 howmanywritevill=1,which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=0,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1,howmanyhardvill=1,howmany40106vill=1,howmanylmvill=1,howmanyhdgenervill=1,howmanymaximvill=1,writeoverlay=0,readoverlay=0,hardcompress=1;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,delfiltin=0,delfiltout=0,readspeed=1,writespeed=1,filtinspeed=1,filtoutspeed=1;
   static int16_t dirryw=1,dirryr=1,dirryf=1,dirryff=1;
 
   static u16 counter=0,counterr=0,counthw=0;
   //  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
-  extern u8 howmanydatavill;
-  extern u8 mainmode;
+  extern u8 howmanydatavill, howmanyeffectvill;
+  u8 mainmode;
   extern villagerr village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   extern villagerr village_filtin[MAX_VILLAGERS+1];
   extern villagerr village_filtout[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
+  extern villager_effect village_effect[17];
   extern villager_hardware village_hardware[17];
   extern villager_hardwarehaha village_40106[17];
   extern villager_hardwarehaha village_hdgener[17];
-  extern villager_hardwarehaha village_lmer[17];
-  extern villager_hardwarehaha village_maximer[17];
+  extern villager_hardwarehaha village_lm[17];
+  extern villager_hardwarehaha village_maxim[17];
 
   extern u16 databegin,dataend,counterd;
   extern u8 dataspeed;  
@@ -233,7 +234,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  mainmode=adc_buffer[FIFTH]>>7; // 5 bits=32
 	  //	  if ((adc_buffer[FIFTH]>>8)<8)	  mainmode=0; //TESTY!
 	  //	  else mainmode=1; //TESTY!
-	  //	  mainmode=9; //TESTY!
+	  //	  mainmode=11; //TESTY!
 
 	  // TODO _ ordering of modes at end!!!
 	  // group as main walkers, followed by compression series...
@@ -432,7 +433,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    howmanyhardvill=whichvillager+1;
 	    village_hardware[whichvillager].length=adc_buffer[SECOND];
 	    village_hardware[whichvillager].setting=adc_buffer[THIRD]>>7; // 5 bits=32
-	    hardcompress=adc_buffer[FOURTH]>>4; // 8 bits
+	    hardcompress=(adc_buffer[FOURTH]>>5)+1; // 7 bits
 	    village_hardware[whichvillager].inp=xx;
 	    // or overlap/bitwise? but then how handle floating?
 	    break;
@@ -445,25 +446,99 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    howmany40106vill=whichvillager+1;
 	    village_40106[whichvillager].length=adc_buffer[SECOND]; 
 	    village_40106[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    village_40106[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic
+	    village_40106[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
 
 	    village_40106[whichvillager].dir=xx;
 	    village_40106[whichvillager].speed=(spd&15)+1; 
-	    village_40106[whichvillager].step=(spd&240)>>4;
+	    village_40106[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 
 	    if (village_40106[whichvillager].dir==2) village_40106[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_40106[whichvillager].dir==3) village_40106[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_40106[whichvillager].speed;
 	    else village_40106[whichvillager].dirry=direction[village_40106[whichvillager].dir]*village_40106[whichvillager].speed;
 
+	    if (village_40106[whichvillager].dirry>0) village_40106[whichvillager].samplepos=0;
+	    else village_40106[whichvillager].samplepos=village_40106[whichvillager].length;
+	    break;
 
+	  case 12: // lm walker as sequential but offset as free period???
+	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
+	    // but start and wrap for datagen
+
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanylmvill=whichvillager+1;
+	    village_lm[whichvillager].length=adc_buffer[SECOND]; 
+	    village_lm[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_lm[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+
+	    village_lm[whichvillager].dir=xx;
+	    village_lm[whichvillager].speed=(spd&15)+1; 
+	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
+
+	    if (village_lm[whichvillager].dir==2) village_lm[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_lm[whichvillager].dir==3) village_lm[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_lm[whichvillager].speed;
+	    else village_lm[whichvillager].dirry=direction[village_lm[whichvillager].dir]*village_lm[whichvillager].speed;
+
+	    if (village_lm[whichvillager].dirry>0) village_lm[whichvillager].samplepos=0;
+	    else village_lm[whichvillager].samplepos=village_lm[whichvillager].length;
+	    break;
+	  case 13: // maxim walker as sequential but offset as free period???
+	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
+	    // but start and wrap for datagen
+
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanymaximvill=whichvillager+1;
+	    village_maxim[whichvillager].length=adc_buffer[SECOND]; 
+	    village_maxim[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_maxim[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+
+	    village_maxim[whichvillager].dir=xx;
+	    village_maxim[whichvillager].speed=(spd&15)+1; 
+	    village_maxim[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
+
+	    if (village_maxim[whichvillager].dir==2) village_maxim[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_maxim[whichvillager].dir==3) village_maxim[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_maxim[whichvillager].speed;
+	    else village_maxim[whichvillager].dirry=direction[village_maxim[whichvillager].dir]*village_maxim[whichvillager].speed;
+
+	    if (village_maxim[whichvillager].dirry>0) village_maxim[whichvillager].samplepos=0;
+	    else village_maxim[whichvillager].samplepos=village_maxim[whichvillager].length;
+	    break;
+	  case 14: // hdgener walker as sequential but offset as free period???
+	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
+	    // but start and wrap for datagen
+
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanyhdgenervill=whichvillager+1;
+	    village_hdgener[whichvillager].length=adc_buffer[SECOND]; 
+	    village_hdgener[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_hdgener[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+
+	    village_hdgener[whichvillager].dir=xx;
+	    village_hdgener[whichvillager].speed=(spd&15)+1; 
+	    village_hdgener[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
+
+	    if (village_hdgener[whichvillager].dir==2) village_hdgener[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_hdgener[whichvillager].dir==3) village_hdgener[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_hdgener[whichvillager].speed;
+	    else village_hdgener[whichvillager].dirry=direction[village_hdgener[whichvillager].dir]*village_hdgener[whichvillager].speed;
+
+	    if (village_hdgener[whichvillager].dirry>0) village_hdgener[whichvillager].samplepos=0;
+	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
+	    break;
+
+	  case 15: // effects
+
+	    // SET:       u16 inpos,modpos,outpos;// various counters
+	    //       u16 instart,modstart,outstart;
+	    //      u16 inwrap,modwrap,outwrap here depending on selected villagers from read/write etc...
 
 	    break;
-	    //+ 12-lmer,13-maximer,14-hdgener 15-datagen for use in???
+
+	    // datagen walker????
+
 
 	    ///////////////////////////
 
 
-	    // attachment/mirror --> 16 left for mirrors and infection handled in main
+	    // attachment/mirror --> 16/8/4 left for mirrors and infection handled in main
 
 	  } // switch mainmode
 	} // fingerrrrzzzxx
@@ -1563,8 +1638,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  x=which40106villager%howmany40106vill;
 	  count40106+=village_40106[x].step;
+	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
 
-	  set40106pwm(village_40106[x].knoboffset+buf16[(village_40106[x].dataoffset+village_40106[x].samplepos)%32768]);
+	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+village_40106[x].samplepos)%32768])%(2048-tmp));
 
 	  village_40106[x].samplepos+=village_40106[x].dirry;
 	  if (village_40106[x].samplepos>=village_40106[x].length) village_40106[x].samplepos=0;
@@ -1577,29 +1653,69 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  // hdgener=16// note hdgener is 8 bits
 	  if (digfilterflag&16){
-	    // copy from above
+	  x=whichhdgenervillager%howmanyhdgenervill;
+	  counthdgener+=village_hdgener[x].step;
+	  tmp=village_hdgener[x].knoboffset>>7; // 8 bits
 
+	  hdgener=(tmp+(buf16[(village_hdgener[x].dataoffset+village_hdgener[x].samplepos)%32768])%(255-tmp));
+
+	  village_hdgener[x].samplepos+=village_hdgener[x].dirry;
+	  if (village_hdgener[x].samplepos>=village_hdgener[x].length) village_hdgener[x].samplepos=0;
+	  else if (village_hdgener[x].samplepos<0) village_hdgener[x].samplepos=village_hdgener[x].length;
+
+	  if (counthdgener>=village_hdgener[x].length){
+	    counthdgener=0;
+	    whichhdgenervillager++; //u8
+	  }
 	  }
 
-	  // maxim=8
+	  // maxim=8 depth is 13 bits 8192
 	  if (digfilterflag&8){
+	  x=whichmaximvillager%howmanymaximvill;
+	  countmaxim+=village_maxim[x].step;
+	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
+	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+village_maxim[x].samplepos)%32768])%(8192-tmp));
+	  village_maxim[x].samplepos+=village_maxim[x].dirry;
+	  if (village_maxim[x].samplepos>=village_maxim[x].length) village_maxim[x].samplepos=0;
+	  else if (village_maxim[x].samplepos<0) village_maxim[x].samplepos=village_maxim[x].length;
 
+	  if (countmaxim>=village_maxim[x].length){
+	    countmaxim=0;
+	    whichmaximvillager++; //u8
+	  }
 	  }
 	  
 	  // lm=4
 	  if (digfilterflag&4){
+	    // copy from above - change depth/2048
+	  x=whichlmvillager%howmanylmvill;
+	  countlm+=village_lm[x].step;
+	  tmp=village_lm[x].knoboffset>>3; // 12 bits=4096 for lm
 
+	  setlmpwm(tmp+(buf16[(village_lm[x].dataoffset+village_lm[x].samplepos)%32768])%(4096-tmp));
+
+	  village_lm[x].samplepos+=village_lm[x].dirry;
+	  if (village_lm[x].samplepos>=village_lm[x].length) village_lm[x].samplepos=0;
+	  else if (village_lm[x].samplepos<0) village_lm[x].samplepos=village_lm[x].length;
+
+	  if (countlm>=village_lm[x].length){
+	    countlm=0;
+	    whichlmvillager++; //u8
+	  }
 	  }
 
 	  // process village_hardware[whichhwvillager%howmany]	  
 	  // max length is 4096 =2.7 seconds
-	  counthw+=hardcompress; // with compression
+
+	  //	  dohardwareswitch(5, 0,hdgener);// TESTY for 40106
+
+	  	  counthw+=hardcompress; // with compression
 	  x=whichhwvillager%howmanyhardvill;
 	  dohardwareswitch(village_hardware[x].setting, village_hardware[x].inp,hdgener);
 	  if (counthw>=village_hardware[x].length){
 	    counthw=0;
 	    whichhwvillager++; //u8
-	  }
+	    }
 	  
 #endif // for test effects
 #endif // for test eeg

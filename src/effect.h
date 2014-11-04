@@ -1,5 +1,6 @@
 #include "stm32f4xx.h"
 #include "arm_math.h"
+#include "audio.h"
 
 typedef struct{
 	float m_y1, m_y2, m_a0, m_a1, m_a2, m_b1, m_b2;
@@ -65,7 +66,7 @@ hanningprocess(int16_t* inbuffer, int16_t* outbuffer);
 port all above to do_effect(eff_villagerr)
 
 */
-
+void do_effect(villager_effect* vill_eff);
 void test_effect(int16_t* inbuffer, int16_t* outbuffer);
 void BBandPass_process(BBandPass *unit, int inNumSamples, float* inbuffer, float* outbuffer);
 void BBandPass_init(BBandPass* unit);
