@@ -25,15 +25,15 @@ extern mdavocoder *unittt;
 extern mdavocal *unitttt;
 extern BPFSC *bpfunit;
 
-void BPFSC_init (BPFSC* unit){
+void BPFSC_init (BPFSC* unit, float frequency, float bandwidth){
   const float mRadiansPerSample=(2 * M_PI) /48000.0f;
   unit->m_a0 = 0.f;
   unit->m_b1 = 0.f;
   unit->m_b2 = 0.f;
   unit->m_y1 = 0.f;
   unit->m_y2 = 0.f;
-  unit->m_freq = 800.0f;
-  unit->m_bw = 0.1f;
+  unit->m_freq = frequency;
+  unit->m_bw = bandwidth;
 
   float pfreq = unit->m_freq*mRadiansPerSample;
   float pbw   = unit->m_bw   * pfreq * 0.5;
@@ -66,16 +66,17 @@ void BPFSC_process(BPFSC *unit, int inNumSamples, float* inbuffer, float* outbuf
   y1 = y0;
 }
 
-unit->m_y1 = y1;
-unit->m_y2 = y2;
+  unit->m_y1 = y1;//so these are only ones which change
+  unit->m_y2 = y2;
 }
 
-void Formlet_init(Formlet* unit){
+void Formlet_init(Formlet* unit, float frequency){
   const float log001=logf(0.001);
   const float mRadiansPerSample=(2 * M_PI) /48000.0f;
-  unit->m_freq = 440.0f; // replace values
-  unit->m_attackTime = 1.0f;
-  unit->m_decayTime = 0.9f;
+  unit->m_freq = frequency;
+  //  unit->m_bw = bandwidth;
+  unit->m_attackTime = 0.001f;
+  unit->m_decayTime = 0.001f;
   unit->m_b01 = 0.f;
   unit->m_b02 = 0.f;
   unit->m_y01 = 0.f;
@@ -223,12 +224,6 @@ void BBandPass_process(BBandPass *unit, int inNumSamples,float* inbuffer, float*
 }
 
 
-// sqrtf which uses FPU, the standard one apparently doesn't????
-float vsqrtf(float op1) {
-  float result;
-  __ASM volatile ("vsqrt.f32 %0, %1" : "=w" (result) : "w" (op1) );
-  return (result);
-}
 
 // 2-convolution
 
@@ -382,7 +377,7 @@ void do_effect(villager_effect* vill_eff){
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
-  extern VocoderInstance* vocoder; u8 x;
+  //  extern VocoderInstance* vocoder; u8 x;
   float xx,xxx;
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
@@ -391,22 +386,23 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
 
   // BPFSC
 
-  int_to_floot(inbuffer,tmpbuffer);
+
+  /*  int_to_floot(inbuffer,tmpbuffer);
   BPFSC_process(bpfunit,32,tmpbuffer,tmpotherbuffer);
   floot_to_int(outbuffer,tmpotherbuffer);
-
+  */
 
 
   // env without lowpass
   //  envelopefollower(inbuffer, outbuffer);
   //mdavocoder - working
-  /*    int_to_floot(inbuffer,tmpbuffer);
-    intun_to_floot(buf16,tmpotherbuffer);
-    mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
-    floot_to_int(outbuffer,tmpotherotherbuffer);
+  /* int_to_floot(inbuffer,tmpbuffer);
+  intun_to_floot(buf16,tmpotherbuffer);
+  mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+  floot_to_int(outbuffer,tmpotherotherbuffer);
   */
-
     ///mdavocal (vocoder carrier gen???)
+  
   /*
   int_to_floot(inbuffer,tmpbuffer);
   intun_to_floot(buf16,tmpotherbuffer);
@@ -445,8 +441,8 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   // VOCODER:
   // convert to float
   /*  int_to_floot(inbuffer,tmpbuffer);
-  intun_to_floot(buf16,tmpotherbuffer);
-  runVocoder(vocoder, tmpbuffer, tmpotherbuffer, tmpbuffer, BUFF_LEN/4);
+   intun_to_floot(buf16,tmpotherbuffer);
+   runVocoder(vocoder, tmpbuffer, tmpotherbuffer, tmpbuffer, BUFF_LEN/4);
   floot_to_int(outbuffer,tmpbuffer);
   */
 

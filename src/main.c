@@ -15,8 +15,6 @@
  make stlink_flash
 */
 
-#define MAX_EXE_STACK 4
-
 #ifdef PCSIM
 #include <string.h>
 #include <sys/time.h>
@@ -149,21 +147,6 @@ u8 wormdir; // worm direction
 u8 table[21]; 
 u16 sin_data[256];  // sine LUT Array
 
-u8 exestackpush(u8 exenum, u8* exestack, u8 exetype){
-  if (exenum<MAX_EXE_STACK){
-    exestack[exenum]=exetype;
-    exenum++;
-  }
-  return exenum;
-}
-
-u8 exestackpop(u8 exenum){
-  if (exenum>0){
-    exenum--;
-  }
-  return exenum;
-  }
-
 u8 fingerdir(u8 *speedmod){
   u8 handleft, handright, up=0,down=0,left=0,right=0;//,upspeed=0,downspeed=0,leftspeed=0,rightspeed=0;
   u8 handupp, handdown;
@@ -261,20 +244,17 @@ u8 inp=0;
 
 // effects tests
 
+#ifdef TEST_EFFECTS
 biquad *biquaddd;
 VocoderInstance* vocoder;
 BBandPass *unit;
+testyyy *unitest;
 Formlet *unitt;
 mdavocoder *unittt;
 mdavocal *unitttt;
 PV *pv;
 BPFSC* bpfunit;
-
-
-
-//arm_biquad_casd_df1_inst_f32* df1;
-//float* state;
-//float coeffs[5];
+#endif
 
 u16 nextdatagen(void){
   u16 tmp,tmpp;
@@ -285,7 +265,7 @@ u16 nextdatagen(void){
   x=whichdatagenwalkervillager%howmanydatagenwalkervill;
   countdatagenwalker+=village_datagenwalker[x].step;
   tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
-
+  if (tmp==32768) tmp=32767;
   tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768])%(32768-tmp);
   //  tmp=buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768];
 
@@ -300,6 +280,13 @@ u16 nextdatagen(void){
   return tmpp;
 }
 
+/*BPFSC* bpf800;
+BPFSC* bpf1150;
+BPFSC* bpf2900;
+BPFSC* bpf3900;
+BPFSC* bpf4950;
+*/
+
 void main(void)
 {
   // formerly in audio.c
@@ -308,26 +295,48 @@ void main(void)
 
   // order that all inits and audio_init called seems to be important
   u16 x,addr,count;
-  u8 exestack[MAX_EXE_STACK];
-  u8 tmp,oldtmp,xx; // TESTY!
+  //  u8 exestack[MAX_EXE_STACK];
+  u8 xx; // TESTY!
   // effects tests
 
-  /*
-  vocoder=instantiateVocoder();
-  biquaddd=BiQuad_new(BPF,1.0f,50.0f,48000.0f,0.5f);
+#ifdef TEST_EFFECTS
   //  unit=(BBandPass *)malloc(sizeof(BBandPass));
-  unitt=(Formlet *)malloc(sizeof(Formlet));
-  bpfunit=(BPFSC*)malloc(sizeof(BPFSC));
-  BPFSC_init(bpfunit);
-  Formlet_init(unitt);
-  unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
-  unitttt=(mdavocal *)malloc(sizeof(mdavocal));
+  //  unitest=(testyyy *)malloc(sizeof(testyyy));
+  //  unitt=(Formlet *)malloc(sizeof(Formlet));
+  //  bpfunit=(BPFSC*)malloc(sizeof(BPFSC));
+  //unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
+  //  unitttt=(mdavocal *)malloc(sizeof(mdavocal));
   pv=(PV *)malloc(sizeof(PV));
-  mdaVocoder_init(unittt);
-  mdavocal_init(unitttt);
-  */
+  //  pv->fft_inst.fftLen=256;
+  //  BPFSC_init(bpfunit,440.0f,1.0f);
+  //  Formlet_init(unitt,440.0f,1.0f);
+  //  mdaVocoder_init(unittt);
+  //  mdavocal_init(unitttt);
+  //  vocoder=instantiateVocoder();
+#endif
 
   // malloc and instantiate all filters, formlet, mdaVocoder, PV? and mdaVocal (anything else?)
+
+  /* BPFSC=
+formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
+formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
+formantbandwidths=[80,90,120,130,140];  //bandwidths
+output= Mix(BPF.ar(source, formantfreqs,formantbandwidths/formantfreqs,formantamps))*10*amp; 
+  */
+
+  /*bpf800=(BPFSC*)malloc(sizeof(BPFSC));
+bpf1150=(BPFSC*)malloc(sizeof(BPFSC));
+bpf2900=(BPFSC*)malloc(sizeof(BPFSC));
+bpf3900=(BPFSC*)malloc(sizeof(BPFSC));
+bpf4950=(BPFSC*)malloc(sizeof(BPFSC));
+BPFSC_init(bpf800,800.0f,80.0f);
+BPFSC_init(bpf1150,800.0f,90.0f);
+BPFSC_init(bpf2900,2900.0f,120.0f);
+BPFSC_init(bpf3900,3900.0f,130.0f);
+BPFSC_init(bpf4950,4950.0f,140.0f);
+  */
+
+// formlets different
 
   //////////////
 
@@ -1382,10 +1391,13 @@ void main(void)
 		break;
 	      case 3: // addition up to 32768
 		tmpp=32768-village_write[whichx].kstart;
+		if (tmpp==0) tmpp=1;
 		village_write[whichx].start=village_write[whichx].kstart+(village_write[whichx].mstart%tmpp);
 		tmpp=32768-village_write[whichx].kwrap;
+		if (tmpp==0) tmpp=1;
 		village_write[whichx].wrap=village_write[whichx].kwrap+(village_write[whichx].mwrap%tmpp);
 		tmpp=32768-village_write[whichx].kcompress;
+		if (tmpp==0) tmpp=1;
 		village_write[whichx].compress=village_write[whichx].kcompress+(village_write[whichx].mcompress%tmpp);
 		break;
 		// TODO: other cases: subtraction, and, or, modulus

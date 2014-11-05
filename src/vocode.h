@@ -3,7 +3,7 @@
 #define LADSPA_Data float
 
 
-struct bandpass
+struct bandpass// 44 bytes
 {
   LADSPA_Data c, f, att;
   LADSPA_Data freq;
@@ -16,16 +16,11 @@ struct bandpass
 struct bands_out{
   LADSPA_Data decay;
   LADSPA_Data oldval;
-  LADSPA_Data level;		/* 0.0 - 1.0 level of this output band */
 };
 
 /* Instance data for the vocoder plugin */
-typedef struct {
+typedef struct { //44*16*3=2k!
   LADSPA_Data SampleRate;
-
-  u8 num_bands;		/* current number of bands */
-  float mainvol;		/* main volume */
-
   struct bandpass bands_formant[MAX_BANDS]; /* one structure per band */
   struct bandpass bands_carrier[MAX_BANDS]; /* one structure per band */
   struct bands_out bands_out[MAX_BANDS]; /* one structure per band */
@@ -35,8 +30,6 @@ typedef struct {
   LADSPA_Data * portFormant;	/* Formant signal port data location */
   LADSPA_Data * portCarrier;	/* Carrier signal port data location */
   LADSPA_Data * portOutput;	/* Output audio port data location */
-  LADSPA_Data ctrlBandCount;	/* Band count control */
-  LADSPA_Data ctrlBandLevels[MAX_BANDS]; /* level controls for each band */
 
 } VocoderInstance;
 

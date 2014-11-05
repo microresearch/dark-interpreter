@@ -221,7 +221,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=effect_buffer[x];//-32768;
+	  	  mono_buffer[x]=effect_buffer[x];//-32768;
+	  //	  mono_buffer[x]=audio_buffer[x];//-32768;
 	  //	  countr++; if (countr==32) countr=0;
 	  }
 	// out!

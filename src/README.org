@@ -18,24 +18,42 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
-///THU:
+///THU/FRI:
 
+- swop and copy somehow confusing - bit clearer now! but needs be tested and filled out
 - test basics with mainmode in main.c
 - HW tests/re-check
 - both sets of mirrors:  TEST(how?) and then fillout rest of cases 
-- effects test and fillout
+- simple effects test and fillout
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
 
 /////WED:
 
-- specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
-- effects cleaned up/init all effect structures, filter banks
-- swop and copy somehow confusing - bit clearer now! but needs be filled out
+- specify effects: 
+
+to init once or for each setting and share.. rethink cascade!!!
+
+--sets of fixed bandpasses= BPFSC, Formlet, discard:BBandpass, biquad.c - choose one or two with set of parameters init
+--one FFT in pv (seperate out as needs 256 samples???)
+
+but we should set PV->fftLen=256
+
+[--mdavocXremove]
+--mdavocoder/// or vocode.c (delete vocode.c as not really working)
+
+as not to init:
+--convolve
+--envelope follower
+--windower -- but is set for 256
+--variable bandpass
+
+////- effects cleaned up/init all effect structures, filter structures
 
 *** DONE
 
 **** NOV 5
 
+- added check so compress never hits 0... check also for all potential div and mod by zero DONE
 - try maybe move all mainmode sets into main... what would this mean???? and/or what happens with interrupt in fingerdir?
 - need to initialise _all_ villagers and mirror villagers for later swaps/effects etc./DONE
 - datagenmirrors-where mirrors are in audio.c and if need change structuresIN PROGRESS DONE
@@ -97,6 +115,8 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 - first prototype for effect - how to test?? also start fill out effect setting in audio.c
 
 ** Effects themselves
+
+see general above.... 
 
 1- convolution -DONE
 
@@ -170,32 +190,30 @@ va = BBandPass.ar(
 
 /////////////////////////
 
-		splitFilt = BPF.ar(sig, centerFreqs + MouseX.kr(10, 300), 0.03); 
+
 
 //////////////
 
-formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
-
-formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
-
-formantbandwidths=[80,90,120,130,140];  //bandwidths
+formlet and BPF
 
 /the decaytime of the formlet is the filter's resonant decay time; a
 small bandwidth corresponds to a long decay (a 'ringing' filter). So I
 take the reciprocal of the formant bandwidth as an estimate of
 decaytime here, multiplied by a scaling factor for degree of resonance
 
-output= Mix(Formlet.ar(source, formantfreqs, 0.001, 50*formantbandwidths.reciprocal, formantamps))*10*amp; 
+for ahhh:::
 
 formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
-
 formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
-
 formantbandwidths=[80,90,120,130,140];  //bandwidths
 
 source = if(voiced,Impulse.ar(freq),WhiteNoise.ar(0.2));
 
 output= Mix(BPF.ar(source, formantfreqs,formantbandwidths/formantfreqs,formantamps))*10*amp; 
+
+
+output= Mix(Formlet.ar(source, formantfreqs, 0.001, 50*formantbandwidths.reciprocal, formantamps))*10*amp; 
+
 
 /////////////////////
 
@@ -304,13 +322,9 @@ as simple walker or set of villagers?
 
 ** Datagen Walker
 
-- datagen walker ITSELF
-
-- nextdatagen() as function for datagen walker to serve others
-
 *** DONE
 
-**** NOV 4
+**** NOV 4/5
 
 - rough sketch of nextdatagen and walker
 
