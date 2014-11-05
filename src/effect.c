@@ -341,9 +341,7 @@ void do_effect(villager_effect* vill_eff){
       if ((vill_eff->inpos+32)<vill_eff->inwrap) tmpinlong=32;
       else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
     }
-
     // same for mod...
-
     if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
     else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     
@@ -353,7 +351,6 @@ void do_effect(villager_effect* vill_eff){
       if ((vill_eff->modpos+32)<vill_eff->modwrap) tmpmodlong=32;
       else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     }
-
     //    now copy with length as longest
     if (tmpinlong>=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
@@ -362,25 +359,24 @@ void do_effect(villager_effect* vill_eff){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpinlong))%32768];
       modbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpmodlong))%32768];
     }
-
     // do effect
-    doringcopy(inbuffer,modbuffer,outbuffer,longest);    
-
+    doringcopy(inbuffer,modbuffer,outbuffer,longest);    /// EFFECT!
     // copy outbuffer to audio
     for (xx=0;xx<longest;xx++){
       audio_buffer[vill_eff->outstart+vill_eff->outpos%32768]=outbuffer[xx];
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
-    
-  // and update vill_eff
+      // and update vill_eff
     vill_eff->modpos+=tmpmodlong;
     vill_eff->inpos+=tmpinlong;
     vill_eff->outpos+=longest;
     break;
+
+ case 1:
+   break;  
+
   }
-
-
 }
 
 

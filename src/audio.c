@@ -159,12 +159,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
   static u16 counter=0,counterr=0,counthw=0;
   //  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
-  extern u8 howmanydatavill, howmanyeffectvill;
+  extern u8 howmanydatavill, howmanyeffectvill,howmanydatagenwalkervill;;
   u8 mainmode;
   extern villagerr village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   extern villagerr village_filtin[MAX_VILLAGERS+1];
   extern villagerr village_filtout[MAX_VILLAGERS+1];
+  extern villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
   extern villager_effect village_effect[17];
   extern villager_hardware village_hardware[17];
@@ -441,7 +442,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  case 11: // 40106 walker as sequential but offset as free period???
 	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
 	    // but start and wrap for datagen
-
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmany40106vill=whichvillager+1;
 	    village_40106[whichvillager].length=adc_buffer[SECOND]; 
@@ -525,26 +525,48 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    break;
 
 	  case 15: // effects across also case 16:
-
-	    // SET:       u16 inpos,modpos,outpos;// various counters
-	    //       u16 instart,modstart,outstart;
-	    //      u16 inwrap,modwrap,outwrap here depending on selected villagers from read/write etc...
-
-	    // so we have: 1-whichvillager 2-inmod(selected from write,read)=128,3-outmod(selected from write,read)=128,4-effect
-
-	    //case 16=== 1-whichvillager 2-outstart=32768, 3-outwrap=32768, 4-?
-
-	    // and fingers - speed/setp but no dir???
-
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
+	    howmanyeffectvill=whichvillager+1;
+	    // but if effect is running? or will just reset itself????
+	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
+	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
+	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>8; // bits is 4=16
+	    village_effect[whichvillager].speed=spd;
 	    break;
-
+	  case 16: // effects outstart,outwrap
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
+	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_effect[whichvillager].modifier=loggy[adc_buffer[FOURTH]];
+	    village_effect[whichvillager].step=spd;
+	    break;
 	    // datagen walker????
+	  case 17:
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanydatagenwalkervill=whichvillager+1;
+	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 
+	    village_datagenwalker[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    village_datagenwalker[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+
+	    village_datagenwalker[whichvillager].dir=xx;
+	    village_datagenwalker[whichvillager].speed=(spd&15)+1; 
+	    village_datagenwalker[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
+
+	    if (village_datagenwalker[whichvillager].dir==2) village_datagenwalker[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_datagenwalker[whichvillager].dir==3) village_datagenwalker[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_datagenwalker[whichvillager].speed;
+	    else village_datagenwalker[whichvillager].dirry=direction[village_datagenwalker[whichvillager].dir]*village_datagenwalker[whichvillager].speed;
+
+	    if (village_datagenwalker[whichvillager].dirry>0) village_datagenwalker[whichvillager].samplepos=0;
+	    else village_datagenwalker[whichvillager].samplepos=village_datagenwalker[whichvillager].length;
+	    break;
 
 
 	    ///////////////////////////
 
 
-	    // attachment/mirror --> 16/8/4 left for mirrors and infection handled in main
+	    // 18+ attachment/mirror --> 8/or/4 left for mirrors and infection handled in main
 
 	  } // switch mainmode
 	} // fingerrrrzzzxx
@@ -1715,7 +1737,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  //	  dohardwareswitch(5, 0,hdgener);// TESTY for 40106
 
-	  	  counthw+=hardcompress; // with compression
+	  counthw+=hardcompress; // with compression
 	  x=whichhwvillager%howmanyhardvill;
 	  dohardwareswitch(village_hardware[x].setting, village_hardware[x].inp,hdgener);
 	  if (counthw>=village_hardware[x].length){

@@ -24,6 +24,8 @@
       u16 instart,modstart,outstart;
       u16 inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
+      u16  modifier;
+      //      u8 running;
     } villager_effect;
 
     typedef struct {
@@ -40,6 +42,16 @@
       u8 speed, step;
       u8 dir;
     } villager_hardwarehaha;
+
+    typedef struct {
+      u16 length;
+      u16 dataoffset;
+      u16 knoboffset;
+      int16_t samplepos;
+      int16_t dirry;
+      u8 speed, step;
+      u8 dir;
+    } villager_datagenwalker;
 
 typedef struct {
       u16 offset;
@@ -60,7 +72,8 @@ typedef struct {
   u16 start;
   u16 wrap;
   u16 samplepos;
-  u8  mirrormod; // how mirror effects mainline start/wrap and samplepos
+  u8 mirrormod,mirrorspeed,mirrorstep; // how mirror effects mainline start/wrap and samplepos
+  u8 infectedstart,infectedwrap;
   u8 fingered; // what is input here as modifier
     } mirror;
 

@@ -14,26 +14,37 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 4NOV// effects and effect walker finally
-
-// test.c sanity AND test all WED05 *try and finish sketch*
-
-- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 5NOV// effects and effect walker finally-close4NOV
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
 
 - need to initialise _all_ villagers and mirror villagers for later swaps/effects etc.
 
-- decide how mirror villagers work (is it just for offset.start and wrap and how mirrors modulate?)
+- decide how mirror villagers work (is it just for offset.start and wrap and how and where mirrors modulate?)
 
-TO RESOLVE: effects processing, datagen walker, mirroring
+TO RESOLVE: effects processing-nearlyDONE//, datagen walkerformirror-delivery, mirroring as trickiest
+
+TEST: HW walkers, basics of first mirroring, basics of effect walker
+
+/////
+mirror struct:// where this is written to modify start and ends?
+
+  u16 start;
+  u16 wrap;
+  u16 samplepos;
+  u8 mirrormod,mirrorspeed,mirrorstep; // how mirror effects mainline start/wrap and samplepos
+  u8 infectedstart,infectedwrap;
+  u8 fingered; // what is input here as modifier
+////
+
 
 *** DONE
 
 **** NOV 4
 
-- started on mirror structure and effects to start to fill out!
+- started on mirror structures and effects to start to fill out!
 - corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes...
+- rough sketch of nextdatagen and walker
 
 **** NOV 3
 
@@ -52,15 +63,7 @@ TO RESOLVE: effects processing, datagen walker, mirroring
 
 ** Effects and effects walker
 
-- remember to initialise pos and all rest in audio.c!
-
-- speeds still to do in effects walker
-
-- should effects walker overlap. how to time it and keep memory of
-  timings, data structs???
-
-- how to assign/control parameters of effects (with setting for
-  effects param) model this clearly
+- speeds and step still to do in effects walker
 
 - test all effects with simple audio I/O (see below)/nearlyDONE
 
@@ -304,7 +307,14 @@ as simple walker or set of villagers?
 
 - nextdatagen() as function for datagen walker to serve others
 
+
+
 *** DONE
+
+**** NOV 4
+
+- rough sketch of nextdatagen and walker
+
 ** Mirrors/infection
 
 - mirrors: mirror villagers as buffers, mirror villager
@@ -336,9 +346,11 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 ** Integration/tests/cleanups
 
 - defines for HW versionings or seperate makefiles!
+- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 - remove excess statics and variables.
 - any math speedups 
 - clean up structs/memory
+- check EVERYTHING!
 
 *** DONE
 

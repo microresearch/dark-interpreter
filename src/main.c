@@ -237,6 +237,7 @@ mirror mvillage_filtin[MAX_VILLAGERS+1];
 mirror mvillage_filtout[MAX_VILLAGERS+1];
 
 
+villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
 villager_hardware village_hardware[17];
 villager_hardwarehaha village_40106[17];
@@ -263,10 +264,35 @@ mdavocal *unitttt;
 PV *pv;
 BPFSC* bpfunit;
 
+u8 howmanydatagenwalkervill;
+
 //arm_biquad_casd_df1_inst_f32* df1;
 //float* state;
 //float coeffs[5];
 
+u16 nextdatagen(void){
+  u16 tmp,tmpp;
+  u8 x;
+  static u8 whichdatagenwalkervillager;
+  static u16 countdatagenwalker=0;
+
+  x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+  countdatagenwalker+=village_datagenwalker[x].step;
+  tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
+
+  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768])%(32768-tmp);
+  //  tmp=buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768];
+
+  village_datagenwalker[x].samplepos+=village_datagenwalker[x].dirry;
+  if (village_datagenwalker[x].samplepos>=village_datagenwalker[x].length) village_datagenwalker[x].samplepos=0;
+  else if (village_datagenwalker[x].samplepos<0) village_datagenwalker[x].samplepos=village_datagenwalker[x].length;
+
+  if (countdatagenwalker>=village_datagenwalker[x].length){
+    countdatagenwalker=0;
+    whichdatagenwalkervillager++; //u8
+  }
+  return tmpp;
+}
 
 void main(void)
 {
@@ -716,7 +742,7 @@ void main(void)
 	  mirrormode=adc_buffer[FIFTH]>>7; // 5 bits=32
 
 	  switch(mirrormode){
-	  case 17: // swop and copy
+	  case 18: // swop and copy
 	    ranger=adc_buffer[FIRST]>>8; // 3 bits=8 ????
 	    whichx=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[THIRD]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
@@ -757,11 +783,12 @@ void main(void)
 		village_write[whichx].samplepos=mvillage_write[whichy].samplepos;
 		break;
 	      case 7:
-		///???
+		/// copy outmod for effects! outstart, outwrap
 		break;
-
 	      } // end of ranger
-	      
+	      break;
+	    case 1: // next action
+	      break;
 		/* example actions
 	      case 1:
 		village_read[whichx]=village_write[whichy];
@@ -776,12 +803,10 @@ void main(void)
 	    case 3:// unknown???  constrain %
 		village_read[whichx]%=(village_write[whichy]+1);
 		*/
-	    
-
-	    break;
 	    } // end of xx = action
-	    break; // case 16
-
+	    break; // case 18
+	  case 19:
+	    break;
 	  } // end of mirrormodes
 	}// xx!=5
 
@@ -813,9 +838,9 @@ modulus
 
 ///////////////
 
-18- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
-19- fingers in the code
-20- infection across (how?)
+19- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
+20- fingers in the code
+21- infection across (how?)
 
 use set of mirrored villagers and write datagens, hands into these
 
