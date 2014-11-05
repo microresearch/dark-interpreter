@@ -775,6 +775,13 @@ void main(void)
 		break;
 	      case 5:
 		// datagen walker when done???
+		village_write[whichx].start=village_datagenwalker[whichy].dataoffset;
+		village_write[whichx].wrap=village_datagenwalker[whichy].length;
+		village_write[whichx].samplepos=village_datagenwalker[whichy].samplepos;
+		village_write[whichx].dirry=village_datagenwalker[whichy].dirry;
+		village_write[whichx].dir=village_datagenwalker[whichy].dir;
+		village_write[whichx].step=village_datagenwalker[whichy].step;
+		village_write[whichx].speed=village_datagenwalker[whichy].speed;
 		break;
 	      case 6:
 		// with its mirror
@@ -794,7 +801,7 @@ void main(void)
 	      break;
 		/* example actions
 	      case 1:
-		village_read[whichx]=village_write[whichy];
+		village_read[whichx]=village_write[whichy]; // other way round
 		break;
 		
 	      case 2:// swop
