@@ -784,6 +784,9 @@ void main(void)
 		break;
 	      case 7:
 		/// copy outmod for effects! outstart, outwrap
+		village_write[whichx].start=village_effect[whichx].outstart;
+		village_write[whichx].wrap=village_effect[whichx].outwrap;
+		village_write[whichx].samplepos=village_effect[whichx].outpos;
 		break;
 	      } // end of ranger
 	      break;

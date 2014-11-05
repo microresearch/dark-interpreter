@@ -14,7 +14,9 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker) = mirrors/infection 5NOV// effects and effect walker finally-close4NOV
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect walker finally-close4NOV
+
+NOTE//WED 5: OPEN FIRE: mirrors and datagenmirrors//effects//tests of HW
 
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
 
@@ -307,8 +309,6 @@ as simple walker or set of villagers?
 
 - nextdatagen() as function for datagen walker to serve others
 
-
-
 *** DONE
 
 **** NOV 4
@@ -335,7 +335,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 - started on mirror structure
 
-** New datagens
+** New datagens - for next phase!
 
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
 
@@ -345,16 +345,13 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 ** Integration/tests/cleanups
 
-- defines for HW versionings or seperate makefiles!
-- what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
+- defines for HW versionings or seperate makefiles= what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
 - remove excess statics and variables.
 - any math speedups 
 - clean up structs/memory
-- check EVERYTHING!
+- check EVERYTHING again and again!
 
 *** DONE
-
-
 
 * ////////////////////////
 
