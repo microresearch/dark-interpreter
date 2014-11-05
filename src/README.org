@@ -20,6 +20,7 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 ///THU:
 
+- test basics with mainmode in main.c
 - HW tests/re-check
 - both sets of mirrors:  TEST(how?) and then fillout rest of cases 
 - effects test and fillout
@@ -27,7 +28,6 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 /////WED:
 
-- try maybe move all mainmode sets into main... what would this mean???? and/or what happens withj interrupt in fingerdir?
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
 - effects cleaned up/init all effect structures, filter banks
 - swop and copy somehow confusing - bit clearer now! but needs be filled out
@@ -36,6 +36,7 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 **** NOV 5
 
+- try maybe move all mainmode sets into main... what would this mean???? and/or what happens with interrupt in fingerdir?
 - need to initialise _all_ villagers and mirror villagers for later swaps/effects etc./DONE
 - datagenmirrors-where mirrors are in audio.c and if need change structuresIN PROGRESS DONE
 - that compress settings can use finger for mirror (mirror is here only as datagen or EEG (TENE)/finger(LACH)DONE
