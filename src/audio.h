@@ -54,28 +54,30 @@
     } villager_datagenwalker;
 
 typedef struct {
-      u16 offset;
-      u16 start;
-      u16 wrap;
-      u16 counterr;
-      u16 samplepos;
-      u8 del;
-      int16_t dirry;
-      u16 compress;
-      u8 speed, step;
-      float effect,effectinv; // now as value of effect! TODO!
-      u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
-      u8 running;
+  u16 kstart,kcompress,kwrap;
+  u16 mstart,mcompress,mwrap;
+  u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
+  u8 infected;
+  u8 fingered; // what is input here as modifier
+
+  u16 start,offset,wrap;
+  u16 counterr;
+  u16 samplepos;
+  u8 del;
+  int16_t dirry;
+  u16 compress;
+  u8 speed, step;
+  float effect,effectinv; // now as value of effect! TODO!
+  u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
+  u8 running;
     } villagerr;
 
-typedef struct {
-  u16 start;
-  u16 wrap;
-  u16 samplepos;
+/*typedef struct {
+  u16 start,wrap,compress;
   u8 mirrormod,mirrorspeed,mirrorstep; // how mirror effects mainline start/wrap and samplepos
   u8 infectedstart,infectedwrap;
   u8 fingered; // what is input here as modifier
-    } mirror;
+  } mirror;*/
 
     typedef struct {
       u16 start;
@@ -84,7 +86,7 @@ typedef struct {
       u16 position;
       u8 del;
       int16_t dirry;
-      u8 speed, step, cpu; 
+      u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
       signed char m_stack_pos;

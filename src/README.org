@@ -1,4 +1,4 @@
-Oh, eternity with outstretched wings, that broodest over the secret
+h, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
 organ!
@@ -16,35 +16,33 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 =overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect walker finally-close4NOV
 
-NOTE//WED 5: OPEN FIRE: mirrors and datagenmirrors//effects//tests of HW
+WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
+///THU:
+
+- HW tests/re-check
+- both sets of mirrors:  TEST(how?) and then fillout rest of cases 
+- effects test and fillout
+- extra modes in main.c: 20- fingers in the code 21- infection across (how?)
+
+/////WED:
+
+- try maybe move all mainmode sets into main... what would this mean???? and/or what happens withj interrupt in fingerdir?
 - specify effects: vocoder/spectral=FFT/genericfilters/vowelcascadeBPFs/envelope&windows/morph&loop/convolution
-
-- need to initialise _all_ villagers and mirror villagers for later swaps/effects etc.
-
-- decide how mirror villagers work (is it just for offset.start and wrap and how and where mirrors modulate?)
-
-TO RESOLVE: effects processing-nearlyDONE//, datagen walkerformirror-delivery, mirroring as trickiest
-
-TEST: HW walkers, basics of first mirroring, basics of effect walker
-
-/////
-mirror struct:// where this is written to modify start and ends?
-
-  u16 start;
-  u16 wrap;
-  u16 samplepos;
-  u8 mirrormod,mirrorspeed,mirrorstep; // how mirror effects mainline start/wrap and samplepos
-  u8 infectedstart,infectedwrap;
-  u8 fingered; // what is input here as modifier
-////
-
+- effects cleaned up/init all effect structures, filter banks
+- swop and copy somehow confusing - bit clearer now! but needs be filled out
 
 *** DONE
 
+**** NOV 5
+
+- need to initialise _all_ villagers and mirror villagers for later swaps/effects etc./DONE
+- datagenmirrors-where mirrors are in audio.c and if need change structuresIN PROGRESS DONE
+- that compress settings can use finger for mirror (mirror is here only as datagen or EEG (TENE)/finger(LACH)DONE
+
 **** NOV 4
 
-- started on mirror structures and effects to start to fill out!
+- started on mirror structures, and effects to start to fill out!
 - corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes...
 - rough sketch of nextdatagen and walker
 
@@ -317,6 +315,11 @@ as simple walker or set of villagers?
 
 ** Mirrors/infection
 
+- starting on real mirror: set when we set walkers and set in main.c
+
+  //fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
+
+
 - mirrors: mirror villagers as buffers, mirror villager
 parameters->datagen/eeg/knob/fingers,fingers in code
 
@@ -330,6 +333,9 @@ parameters->datagen/eeg/knob/fingers,fingers in code
   bend/constrain/influence another
 
 *** DONE
+
+**** NOV 5
+- started on real mirrors and structures
 
 **** NOV 4
 

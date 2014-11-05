@@ -231,10 +231,10 @@ villagerr village_filtout[MAX_VILLAGERS+1];
 
 villager_effect village_effect[17];
 
-mirror mvillage_write[MAX_VILLAGERS+1];
-mirror mvillage_read[MAX_VILLAGERS+1];
-mirror mvillage_filtin[MAX_VILLAGERS+1];
-mirror mvillage_filtout[MAX_VILLAGERS+1];
+//mirror mvillage_write[MAX_VILLAGERS+1];
+//mirror mvillage_read[MAX_VILLAGERS+1];
+//mirror mvillage_filtin[MAX_VILLAGERS+1];
+//mirror mvillage_filtout[MAX_VILLAGERS+1];
 
 
 villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
@@ -245,8 +245,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatavill;
-u8 howmanyeffectvill;
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1;
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -264,7 +263,7 @@ mdavocal *unitttt;
 PV *pv;
 BPFSC* bpfunit;
 
-u8 howmanydatagenwalkervill;
+
 
 //arm_biquad_casd_df1_inst_f32* df1;
 //float* state;
@@ -273,7 +272,7 @@ u8 howmanydatagenwalkervill;
 u16 nextdatagen(void){
   u16 tmp,tmpp;
   u8 x;
-  static u8 whichdatagenwalkervillager;
+  static u8 whichdatagenwalkervillager=0;
   static u16 countdatagenwalker=0;
 
   x=whichdatagenwalkervillager%howmanydatagenwalkervill;
@@ -299,9 +298,10 @@ void main(void)
   // order that all inits and audio_init called seems to be important
   u16 x,addr,count;
   u8 exestack[MAX_EXE_STACK];
-  u8 tmp,oldtmp; // TESTY!
+  u8 tmp,oldtmp,xx; // TESTY!
   // effects tests
 
+  /*
   vocoder=instantiateVocoder();
   biquaddd=BiQuad_new(BPF,1.0f,50.0f,48000.0f,0.5f);
   //  unit=(BBandPass *)malloc(sizeof(BBandPass));
@@ -314,77 +314,173 @@ void main(void)
   pv=(PV *)malloc(sizeof(PV));
   mdaVocoder_init(unittt);
   mdavocal_init(unitttt);
+  */
+
+  // malloc and instantiate all filters, formlet, mdaVocoder, PV? and mdaVocal (anything else?)
 
   //////////////
 
-  // we just need init first of all villagers NON?
+  // init all basic villagers
 
-  village_write[0].start=0;
-  village_read[0].start=0;
-  village_write[0].wrap=32767;
-  village_read[0].wrap=32767;
-  village_write[0].dir=1;
-  village_read[0].dir=1;
-  village_write[0].del=0;
-  village_read[0].del=0;
-  village_write[0].speed=1;
-  village_read[0].speed=1;
-  village_write[0].step=1;
-  village_read[0].step=1;
-  village_read[0].dirry=direction[village_read[0].dir]*village_read[0].step;
-  village_read[0].samplepos=village_read[0].start;
-  village_write[0].dirry=direction[village_write[0].dir]*village_write[0].step;
-  village_write[0].samplepos=village_write[0].start;
-  village_read[0].offset=0;
-  village_write[0].offset=0;
+  for (xx=0;xx<64;xx++){
 
-  village_filtout[0].start=0;
-  village_filtin[0].start=0;
-  village_filtout[0].wrap=1;
-  village_filtin[0].wrap=1;
-  village_filtout[0].dir=1;
-  village_filtin[0].dir=1;
-  village_filtout[0].del=0;
-  village_filtin[0].del=0;
-  village_filtout[0].speed=1;
-  village_filtin[0].speed=1;
-  village_filtout[0].step=1;
-  village_filtin[0].step=1;
-  village_filtin[0].dirry=direction[village_filtin[0].dir]*village_filtin[0].step;
-  village_filtin[0].samplepos=village_filtin[0].start;
-  village_filtout[0].dirry=direction[village_filtout[0].dir]*village_filtout[0].step;
-  village_filtout[0].samplepos=village_filtout[0].start;
-  village_filtin[0].offset=0;
-  village_filtout[0].offset=0;
-
-  for (u8 xx=0;xx<64;xx++){
     village_read[xx].counterr=0;
-    village_write[xx].counterr=0;
+    village_read[xx].del=0;
     village_read[xx].compress=1;
-    village_write[xx].compress=1;
+    village_read[xx].mirrormod=0;
+    village_read[xx].mirrordel=0;
+    village_read[xx].infected=0;
+    village_read[xx].samplepos=0;
+    village_read[xx].speed=1;
+    village_read[xx].step=1;
+    village_read[xx].start=0;
+    village_read[xx].wrap=100; // TODO test
+    village_read[xx].dir=1;
+    village_read[xx].dirry=1;
+    village_read[xx].samplepos=0;
+    village_read[xx].offset=0;
+    village_read[xx].effect=1.0f;
+    village_read[xx].effectinv=0.0f;
+    village_read[xx].overlay=0;
+    village_read[xx].running=0;
 
+    village_write[xx].counterr=0;
+    village_write[xx].del=0;
+    village_write[xx].compress=1;
+    village_write[xx].mirrormod=0;
+    village_write[xx].mirrordel=0;
+    village_write[xx].infected=0;
+    village_write[xx].samplepos=0;
+    village_write[xx].speed=1;
+    village_write[xx].step=1;
+    village_write[xx].start=0;
+    village_write[xx].wrap=100; // TODO test
+    village_write[xx].dir=1;
+    village_write[xx].dirry=1;
+    village_write[xx].samplepos=0;
+    village_write[xx].offset=0;
+    village_write[xx].effect=1.0f;
+    village_write[xx].effectinv=0.0f;
+    village_write[xx].overlay=0;
+    village_write[xx].running=0;
+
+#ifndef LACH
     village_filtin[xx].counterr=0;
-    village_filtout[xx].counterr=0;
+    village_filtin[xx].del=0;
     village_filtin[xx].compress=1;
+    village_filtin[xx].mirrormod=0;
+    village_filtin[xx].mirrordel=0;
+    village_filtin[xx].infected=0;
+    village_filtin[xx].samplepos=0;
+    village_filtin[xx].speed=1;
+    village_filtin[xx].step=1;
+    village_filtin[xx].start=0;
+    village_filtin[xx].wrap=100; // TODO test
+    village_filtin[xx].dir=1;
+    village_filtin[xx].dirry=1;
+    village_filtin[xx].samplepos=0;
+    village_filtin[xx].offset=0;
+    village_filtin[xx].effect=1.0f;
+    village_filtin[xx].effectinv=0.0f;
+    village_filtin[xx].overlay=0;
+    village_filtin[xx].running=0;
+
+    village_filtout[xx].counterr=0;
+    village_filtout[xx].del=0;
     village_filtout[xx].compress=1;
+    village_filtout[xx].mirrormod=0;
+    village_filtout[xx].mirrordel=0;
+    village_filtout[xx].infected=0;
+    village_filtout[xx].samplepos=0;
+    village_filtout[xx].speed=1;
+    village_filtout[xx].step=1;
+    village_filtout[xx].start=0;
+    village_filtout[xx].wrap=100; // TODO test
+    village_filtout[xx].dir=1;
+    village_filtout[xx].dirry=1;
+    village_filtout[xx].samplepos=0;
+    village_filtout[xx].offset=0;
+    village_filtout[xx].effect=1.0f;
+    village_filtout[xx].effectinv=0.0f;
+    village_filtout[xx].overlay=0;
+#endif
+
+    // datagenwalker
+    village_datagenwalker[xx].length = 100;
+    village_datagenwalker[xx].dataoffset = 0;
+    village_datagenwalker[xx].knoboffset = 0;
+    village_datagenwalker[xx].samplepos = 0;
+    village_datagenwalker[xx].dirry =1;
+    village_datagenwalker[xx].speed = 1;
+    village_datagenwalker[xx].step = 1;
+    village_datagenwalker[xx].dir = 1;
+    
+    // datagen
+    village_datagen[xx].start = 0;
+    village_datagen[xx].CPU = 0;
+    village_datagen[xx].wrap=100;
+    village_datagen[xx].position=0;
+    village_datagen[xx].del=0;
+    village_datagen[xx].step=1;
+    village_datagen[xx].speed=1;
+    village_datagen[xx].dir=1;
+    village_datagen[xx].running=0;
+    village_datagen[xx].m_stack_pos=0;
+    village_datagen[xx].m_reg16bit1=0;
+    village_datagen[xx].m_reg8bit1=0;
+    village_datagen[xx].m_reg8bit2=0;
 	}
 
-  // random init: TESTY!
 
-  /*      	for (u8 xx=0;xx<64;xx++){
-	  village_read[xx].start=rand()%32768;
-	  village_read[xx].wrap=rand()%32768;
-	  village_read[xx].offset=rand()%32768;
-	  village_read[xx].dir=1;
-	  village_read[xx].del=0;
-	  village_read[xx].samplepos=0;
-	  village_read[xx].speed=rand()%16;
-	  village_read[xx].step=rand()%16;
-	  village_read[xx].dirry=direction[village_read[xx].dir]*village_read[xx].step;
-	  village_read[xx].samplepos=village_read[xx].start;
-	  }*/
+#ifndef LACH
+  for (xx=0;xx<17;xx++){
+    village_hardware[xx].length=16;
+    village_hardware[xx].inp=0;
+    village_hardware[xx].setting=0;
 
+    village_40106[xx].length=16;
+    village_40106[xx].dataoffset=0;
+    village_40106[xx].knoboffset=0;
+    village_40106[xx].samplepos=0;
+    village_40106[xx].dirry=1;
+    village_40106[xx].dir=1;
+    village_40106[xx].speed=1;
+    village_40106[xx].step=1;
 
+    village_hdgener[xx].length=16;
+    village_hdgener[xx].dataoffset=0;
+    village_hdgener[xx].knoboffset=0;
+    village_hdgener[xx].samplepos=0;
+    village_hdgener[xx].dirry=1;
+    village_hdgener[xx].dir=1;
+    village_hdgener[xx].speed=1;
+    village_hdgener[xx].step=1;
+
+    village_lm[xx].length=16;
+    village_lm[xx].dataoffset=0;
+    village_lm[xx].knoboffset=0;
+    village_lm[xx].samplepos=0;
+    village_lm[xx].dirry=1;
+    village_lm[xx].dir=1;
+    village_lm[xx].speed=1;
+    village_lm[xx].step=1;
+
+    village_maxim[xx].length=16;
+    village_maxim[xx].dataoffset=0;
+    village_maxim[xx].knoboffset=0;
+    village_maxim[xx].samplepos=0;
+    village_maxim[xx].dirry=1;
+    village_maxim[xx].dir=1;
+    village_maxim[xx].speed=1;
+    village_maxim[xx].step=1;
+  }
+#endif
+
+  // any other inits/variables????
+
+  // think is all set
+
+  //////////////// older inits
   inittable(3,4,randi());
   const float32_t pi= 3.141592;
   float32_t w;
@@ -492,13 +588,8 @@ void main(void)
 #else
 
   /// HERE!
-  //  count=runnoise(1,count,0,32767); // TESTY!
 
-  // effects walkers
-
-  // mirrorings
-
-  // experimentally run through datagen villagers - now just with CA!
+  // run through datagen villagers
 
   if (++deldata>=dataspeed) {
     counterd+=dirryd;
@@ -525,7 +616,7 @@ void main(void)
 	  if (++village_datagen[x].del>=village_datagen[x].step){
 
 	    //village_datagen[x].cpu=11; // CRASH TESTY!
-    switch(village_datagen[x].cpu){      
+    switch(village_datagen[x].CPU){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
       break;
@@ -738,14 +829,30 @@ void main(void)
 
   xx=fingerdir(&spd);
 
+  /* do mirror and infections between:
+
+  extern villagerr village_write[MAX_VILLAGERS+1];
+  extern villagerr village_read[MAX_VILLAGERS+1];
+  extern villagerr village_filtin[MAX_VILLAGERS+1];
+  extern villagerr village_filtout[MAX_VILLAGERS+1];
+  extern villager_generic village_datagen[MAX_VILLAGERS+1];
+
+  extern villager_hardware village_hardware[17];
+  extern villager_hardwarehaha village_40106[17];
+  extern villager_hardwarehaha village_hdgener[17];
+  extern villager_hardwarehaha village_lm[17];
+  extern villager_hardwarehaha village_maxim[17];
+
+   */
+
 	if (xx!=5){
 	  mirrormode=adc_buffer[FIFTH]>>7; // 5 bits=32
 
 	  switch(mirrormode){
 	  case 18: // swop and copy
-	    ranger=adc_buffer[FIRST]>>8; // 3 bits=8 ????
-	    whichx=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
-	    whichy=adc_buffer[THIRD]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    ranger=adc_buffer[THIRD]>>6; // 64
 	    // and FOURTH knob??? as mirror modulator
 	    //	    action=xx;
 	    switch(xx){ 
@@ -774,7 +881,7 @@ void main(void)
 		village_write[whichx].speed=village_datagen[whichy].speed;
 		break;
 	      case 5:
-		// datagen walker when done???
+		// datagen walker 
 		village_write[whichx].start=village_datagenwalker[whichy].dataoffset;
 		village_write[whichx].wrap=village_datagenwalker[whichy].length;
 		village_write[whichx].samplepos=village_datagenwalker[whichy].samplepos;
@@ -785,9 +892,9 @@ void main(void)
 		break;
 	      case 6:
 		// with its mirror
-		village_write[whichx].start=mvillage_write[whichy].start;
-		village_write[whichx].wrap=mvillage_write[whichy].wrap;
-		village_write[whichx].samplepos=mvillage_write[whichy].samplepos;
+		village_write[whichx].start=village_write[whichy].mstart;
+		village_write[whichx].wrap=village_write[whichy].mwrap;
+		village_write[whichx].compress=village_write[whichy].mcompress;
 		break;
 	      case 7:
 		/// copy outmod for effects! outstart, outwrap
@@ -795,16 +902,15 @@ void main(void)
 		village_write[whichx].wrap=village_effect[whichx].outwrap;
 		village_write[whichx].samplepos=village_effect[whichx].outpos;
 		break;
+		/// TODO: mult all above by village_read,village_datagen,village_datagenwalker,village mirrors,outmod=8*8=64
+
 	      } // end of ranger
 	      break;
-	    case 1: // next action
+	    case 1: // next actionsssTODO!
 	      break;
 		/* example actions
-	      case 1:
-		village_read[whichx]=village_write[whichy]; // other way round
-		break;
 		
-	      case 2:// swop
+		// swop
 		tmpvillage=village_write[whichx];
 		village_write[whichx]=village_read[whichy];
 		village_read[whichy]=tmpvillage;
@@ -815,55 +921,89 @@ void main(void)
 		*/
 	    } // end of xx = action
 	    break; // case 18
-	  case 19:
+	  case 19: // mirror
+	    // 1-set which villager is mirrored - but depends on how many
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    // 2-which group also TODO!
+	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
+	    village_write[whichx].fingered=xx; // TODO... other groups
+	    // 3-set how mirror effects = mirrormod if 0 then nothing happens
+	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>6;
+	    // finger-speed and step for this
+	    village_write[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
+	    /// TODO:
+	    //20- fingers in the code
+	    //21- infection across (how?)
 	  } // end of mirrormodes
 	}// xx!=5
 
-  /* do mirror and infections between:
+	// MIRROR! TODO- here is just village_write!
+	u16 tmpp;
 
-  extern villagerr village_write[MAX_VILLAGERS+1];
-  extern villagerr village_read[MAX_VILLAGERS+1];
-  extern villagerr village_filtin[MAX_VILLAGERS+1];
-  extern villagerr village_filtout[MAX_VILLAGERS+1];
-  extern villager_generic village_datagen[MAX_VILLAGERS+1];
+	for (whichx=0;whichx<howmanywritevill;whichx++){
+	  if (village_write[whichx].mirrormod){
+	    // speed wrapper
+	    if (++village_write[whichx].mirrordel>=village_write[whichx].speed){
+	      village_write[whichx].mirrordel=0;
+	    // then do mirrormod and fingered on start,wrap and compress
+	      // but all are same fingered.TODO????
+	      switch(village_write[whichx].fingered){
+	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
+	      case 0: // LEFT=finger
+		village_write[whichx].mstart=adc_buffer[LEFT]<<3;
+		village_write[whichx].mwrap=adc_buffer[LEFT]<<3;
+		village_write[whichx].mcompress=adc_buffer[LEFT]<<3;
+		break;
+	      case 1: //RIGHT= knob 
+		village_write[whichx].mstart=adc_buffer[FOURTH]<<3;
+		village_write[whichx].mwrap=adc_buffer[FOURTH]<<3;
+		village_write[whichx].mcompress=adc_buffer[FOURTH]<<3;
+		break;
+	      case 2: // UP=datagen
+		village_write[whichx].mstart=nextdatagen();
+		village_write[whichx].mwrap=nextdatagen();
+		village_write[whichx].mcompress=nextdatagen();
+		break;
+	      case 3: // DOWN=EEG ifdef
+#ifdef TENE
+		village_write[whichx].mstart=adc_buffer[9]<<3;
+		village_write[whichx].mwrap=adc_buffer[9]<<3;
+		village_write[whichx].mcompress=adc_buffer[9]<<3;
+#else
+		village_write[whichx].mstart=adc_buffer[LEFT]<<3;
+		village_write[whichx].mwrap=adc_buffer[LEFT]<<3;
+		village_write[whichx].mcompress=adc_buffer[LEFT]<<3;
+#endif
+		break;
+	      }
 
-  extern villager_hardware village_hardware[17];
-  extern villager_hardwarehaha village_40106[17];
-  extern villager_hardwarehaha village_hdgener[17];
-  extern villager_hardwarehaha village_lm[17];
-  extern villager_hardwarehaha village_maxim[17];
+	      switch(village_write[whichx].mirrormod){
+	      case 1: // straight datagen
+		village_write[whichx].start=village_write[whichx].mstart;
+		village_write[whichx].wrap=village_write[whichx].mwrap;
+		village_write[whichx].compress=village_write[whichx].mcompress;
+		break;
+	      case 2: // addition with wrap
+		village_write[whichx].start=(village_write[whichx].kstart+village_write[whichx].mstart)%32768;
+		village_write[whichx].wrap=(village_write[whichx].kwrap+village_write[whichx].mwrap)%32768;
+		village_write[whichx].compress=(village_write[whichx].kcompress+village_write[whichx].mcompress)%32768;
+		break;
+	      case 3: // addition up to 32768
+		tmpp=32768-village_write[whichx].kstart;
+		village_write[whichx].start=village_write[whichx].kstart+(village_write[whichx].mstart%tmpp);
+		tmpp=32768-village_write[whichx].kwrap;
+		village_write[whichx].wrap=village_write[whichx].kwrap+(village_write[whichx].mwrap%tmpp);
+		tmpp=32768-village_write[whichx].kcompress;
+		village_write[whichx].compress=village_write[whichx].kcompress+(village_write[whichx].mcompress%tmpp);
+		break;
+		// TODO: other cases: subtraction, and, or, modulus
+	      }
+	    }
+	  }	
+	}
 
-- mirror1 - settings of one become settings of another (just swop/copy)
-
---which villager of write etc... (10 but how match hw ones)
---which x villager =64
---which y villager =64
---which actions =finger
-
-copy x to y 
-copy y to x
-swop x with y
-modulus
-
-///////////////
-
-19- mirror2 - datagen/eeg/finger/knob into settings - constraining/expand settings (how?)
-20- fingers in the code
-21- infection across (how?)
-
-use set of mirrored villagers and write datagens, hands into these
-
-and then run through
-
-what was previous set/approach: settingsarrayattached, algoattached,
-swaps, dump all settings to datagen and back?, infection across settingsarray, fingers in the code
-
-   */
-
-	///// end of mirrors and infection
-
-	////// start effects
+	////// all effects
 
 	  for (x=0;x<howmanyeffectvill;x++){
 	    do_effect(&village_effect[x]);

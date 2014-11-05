@@ -140,20 +140,20 @@ void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 
 u8 fingerdir(u8 *speedmod);
 
+extern u8 howmanywritevill,howmanyfiltinvill,howmanyfiltoutvill,howmanyreadvill;
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   int lasttmp=0,lasttmp16=0;
-  u16 lp;
+  u16 lp,tmpw,tmps,tmpp;
   u8 x,xx,spd;
   static u8 hdgener; 
   u8 whichvillager,step;
   float32_t fsum,fsumd;
-  int16_t tmp16;
+  int16_t tmp,tmp16;
   static int16_t count=0,countf=0,countff=0,countr=0,count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
   int32_t tmp32,tmp32d,tmptmp32;
-  int16_t tmp;
-  static u8 howmanywritevill=1,which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=0,howmanyfiltinvill=1, howmanyfiltoutvill=1,howmanyreadvill=1,howmanyhardvill=1,howmany40106vill=1,howmanylmvill=1,howmanyhdgenervill=1,howmanymaximvill=1,writeoverlay=0,readoverlay=0,hardcompress=1;
+  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,howmanyhardvill=1,howmany40106vill=1,howmanylmvill=1,howmanyhdgenervill=1,howmanymaximvill=1,writeoverlay=0,readoverlay=0,hardcompress=1;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,delfiltin=0,delfiltout=0,readspeed=1,writespeed=1,filtinspeed=1,filtoutspeed=1;
   static int16_t dirryw=1,dirryr=1,dirryf=1,dirryff=1;
 
@@ -244,13 +244,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
-	    village_write[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	      //	    village_write[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	      tmps=loggy[adc_buffer[SECOND]];
 	    }
 	    if (adc_buffer[THIRD]>10){
-	      village_write[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	      //	      village_write[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	      tmpw=loggy[adc_buffer[THIRD]]; 
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	    village_write[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
+	      village_write[whichvillager].offset=loggy[adc_buffer[FOURTH]]; // as logarithmic
 	    }
 	    village_write[whichvillager].dir=xx;
 	    village_write[whichvillager].speed=(spd&15)+1; 
@@ -259,6 +261,33 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
 
+	    // deal with mirror here:
+		village_write[whichvillager].kstart=tmps;
+		village_write[whichvillager].kwrap=tmpw;
+	    
+	    if (village_write[whichvillager].mirrormod){
+	      switch(village_write[whichvillager].mirrormod){
+	      case 1: // straight datagen
+		village_write[whichvillager].start=village_write[whichvillager].mstart;
+		village_write[whichvillager].wrap=village_write[whichvillager].mwrap;
+		break;
+	      case 2: // addition with wrap
+		village_write[whichvillager].start=(tmps+village_write[whichvillager].mstart)%32768;
+		village_write[whichvillager].wrap=(tmpw+village_write[whichvillager].mwrap)%32768;
+		break;
+	      case 3: // addition up to 32768
+		tmpp=32768-tmps;
+		village_write[whichvillager].start=tmps+(village_write[whichvillager].mstart%tmpp);
+		tmpp=32768-tmpw;
+		village_write[whichvillager].wrap=tmpw+(village_write[whichvillager].mwrap%tmpp);
+		break;
+		// TODO: other cases: subtraction, and, or, modulus
+	      }
+	    }
+	      else {
+		village_write[whichvillager].start=tmps;
+		village_write[whichvillager].wrap=tmpw;
+	      }
 	    if (village_write[whichvillager].running==0){
 	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
@@ -271,11 +300,32 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
 	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
 	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effect;
-	    village_write[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;//
+	    tmpp=(32768-(adc_buffer[FOURTH]<<3))+1;//
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
-	    // no finger/dir?
 	    dirryw=(spd&240)>>4;
+	    // finger as mirrormod finger is---> UP.2 DOWN.3 LEFT.0. RIGHT.1b
+	    if (xx==2 || xx==3){
+	    village_write[whichvillager].mirrormod=1;
+	    village_write[whichvillager].fingered=xx;
+	    }
+
+	    // deal with mirror here
+	    village_write[whichvillager].kcompress=tmpp;
+
+	    if (village_write[whichvillager].mirrormod){
+	      switch(village_write[whichvillager].mirrormod){
+	      case 1: // straight datagen
+		village_write[whichvillager].compress=village_write[whichvillager].mcompress;
+		break;
+		// as above to fill out! TODO!
+	      }
+	    }
+	    else {
+	      village_write[whichvillager].compress=tmpp;
+	    }
 	    break;
+
+	    ///TODO: above as models for rest of walkers
 
 	  case 2:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -325,7 +375,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	      village_datagen[whichvillager].cpu=adc_buffer[FOURTH]>>6;// now 64 options
+	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
 	    }
 	    //	    village_datagen[whichvillager].dir=xx;
 	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
@@ -586,13 +636,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  lasttmp=0,lasttmp16=0;
 
 	  for (x=0;x<howmanyreadvill;x++){
+	    tmpp=village_read[x].compress; if (tmpp==0) tmpp=1;
 
 	    if (delread==0) village_read[x].counterr+=dirryr;
-	    if (village_read[x].counterr>=(32768/village_read[x].compress)) {
+	    if (village_read[x].counterr>=(32768/tmpp)) {
 	      village_read[x].counterr=0;
 	      village_read[x].running=1;
 	    }
-	    if ((village_read[x].offset/village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
+	    if ((village_read[x].offset/tmpp)<=village_read[x].counterr && village_read[x].running==1){
 
 	    lp=village_read[x].samplepos%32768;
 
@@ -1016,6 +1067,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 
 
+#ifndef LACH
 	  // READFILTIN - effects are across LEFT and right
 
 	  ldst=left_buffer;
@@ -1033,13 +1085,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  lasttmp=0;
 	  for (x=0;x<howmanyfiltinvill;x++){
 
+	    tmpp=village_filtin[x].compress; if (tmpp==0) tmpp=1;
+
 	    if (delfiltin==0) village_filtin[x].counterr+=dirryf;
-	    if (village_filtin[x].counterr>=(32768/village_filtin[x].compress)) {
+	    if (village_filtin[x].counterr>=(32768/tmpp)) {
 	      village_filtin[x].counterr=0;
 	      village_filtin[x].running=1;
 	    }
 
-	    if ((village_filtin[x].offset/village_filtin[x].compress)<=village_filtin[x].counterr && village_filtin[x].running==1){
+	    if ((village_filtin[x].offset/tmpp)<=village_filtin[x].counterr && village_filtin[x].running==1){
 
 	    lp=village_filtin[x].samplepos%32768;
 
@@ -1243,13 +1297,16 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  lasttmp=0;
 
 	  for (x=0;x<howmanyfiltoutvill;x++){
+
+	    tmpp=village_filtout[x].compress; if (tmpp==0) tmpp=1;
+
 	  if (delfiltout==0) village_filtout[x].counterr+=dirryff;
-	  if (village_filtout[x].counterr>=(32768/village_filtout[x].compress)) {
+	  if (village_filtout[x].counterr>=(32768/tmpp)) {
 	    village_filtout[x].counterr=0;
 	    village_filtout[x].running=1;
 	  }
 
-	    if ((village_filtout[x].offset/village_filtout[x].compress)<=village_filtout[x].counterr && village_filtout[x].running==1){
+	    if ((village_filtout[x].offset/tmpp)<=village_filtout[x].counterr && village_filtout[x].running==1){
 
 	      lp=village_filtout[x].samplepos%32768;
 	      tmp16=buf16[lp]-32768;
@@ -1427,7 +1484,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		{
 		  village_filtout[x].running=0;
 		if (village_filtout[x].dir==2) village_filtout[x].dirry=newdirection[wormdir];
-		else if (village_filtout[x].dir==3) village_filtout[x].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[x].speed;
+		if (village_filtout[x].dir==3) village_filtout[x].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[x].speed;
 		else village_filtout[x].dirry=direction[village_filtout[x].dir]*village_filtout[x].speed;
 
 		if (village_filtout[x].dirry>0) village_filtout[x].samplepos=village_filtout[x].start;
@@ -1438,6 +1495,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	  }
 	  }
+#endif
 
 	// WRITE!
 
@@ -1452,12 +1510,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  lasttmp=0;
 	  for (x=0;x<howmanywritevill;x++){
 	  if (delwrite==0) village_write[x].counterr+=dirryw;
-	  if (village_write[x].counterr>=(32768/village_write[x].compress)) {
+
+	  tmpp=village_write[x].compress; if (tmpp==0) tmpp=1;
+
+	  if (village_write[x].counterr>=(32768/tmpp)) {
 	    village_write[x].counterr=0;
 	    village_write[x].running=1;
 	  }
 
-	    if ((village_write[x].offset/village_write[x].compress)<=village_write[x].counterr && village_write[x].running==1){
+	    if ((village_write[x].offset/tmpp)<=village_write[x].counterr && village_write[x].running==1){
 
 	      lp=village_write[x].samplepos%32768;
 	      tmp16=buf16[lp]-32768;
