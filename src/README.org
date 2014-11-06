@@ -18,7 +18,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
-///THU/FRI:
+*///THU/FRI:*
 
 - swop and copy somehow confusing - bit clearer now! but needs be tested and filled out
 - test basics with mainmode in main.c
@@ -27,16 +27,17 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 - simple effects test and fillout
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
 
-/////WED:
+- finish effects: 
 
-- specify effects: 
+to init once or for each setting and share.. rethink BPF and Formlet cascade and vowel - also add in amp!
 
-to init once or for each setting and share.. rethink cascade!!!
+NOT cascade but in parallel?
 
---sets of fixed bandpasses= BPFSC, Formlet, discard:BBandpass, biquad.c - choose one or two with set of parameters init
---one FFT in pv (seperate out as needs 256 samples???)
+////////if (freq != unit->m_freq || bw != unit->m_bw) {
 
-but we should set PV->fftLen=256
+discard:BBandpass???, biquad.c
+
+--one FFT in pv (now with 32 samples)
 
 [--mdavocXremove]
 --mdavocoder/// or vocode.c (delete vocode.c as not really working)
@@ -214,6 +215,12 @@ output= Mix(BPF.ar(source, formantfreqs,formantbandwidths/formantfreqs,formantam
 
 output= Mix(Formlet.ar(source, formantfreqs, 0.001, 50*formantbandwidths.reciprocal, formantamps))*10*amp; 
 
+inline float64 sc_reciprocal(float64 x)
+{
+    return 1. / x;
+}
+
+Note: return pow_()(FloatType(10.), db * FloatType(0.05));
 
 /////////////////////
 
@@ -231,6 +238,10 @@ i 390 1990 2550
 lee 270 2290 3010
 
 *** DONE
+
+**** THU 6 NOV
+
+- arm_biquad working as need invert last two coefficients. try also with several stages
 
 **** MON 3 NOV
 

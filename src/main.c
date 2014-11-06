@@ -252,8 +252,11 @@ testyyy *unitest;
 Formlet *unitt;
 mdavocoder *unittt;
 mdavocal *unitttt;
-PV *pv;
 BPFSC* bpfunit;
+//arm_biquad_casd_df1_inst_q15 df1;
+arm_biquad_casd_df1_inst_f32 df[5];
+
+//int16_t coeffs[]={27147,0,0,-27147,2909,21526}; // TESTY!
 #endif
 
 u16 nextdatagen(void){
@@ -306,13 +309,46 @@ void main(void)
   //  bpfunit=(BPFSC*)malloc(sizeof(BPFSC));
   //unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
   //  unitttt=(mdavocal *)malloc(sizeof(mdavocal));
-  pv=(PV *)malloc(sizeof(PV));
   //  pv->fft_inst.fftLen=256;
   //  BPFSC_init(bpfunit,440.0f,1.0f);
   //  Formlet_init(unitt,440.0f,1.0f);
   //  mdaVocoder_init(unittt);
   //  mdavocal_init(unitttt);
   //  vocoder=instantiateVocoder();
+  // TESTING biquad!
+
+  typedef struct {
+    float Fc[5],Q[5];
+  }filterr;
+
+  float coeffs[5][5];//{a0 a1 a2 -b1 -b2} b1 and b2 negate
+  float Fc,Fs=48000.0f,Q,peakGain;
+  float a0,a1,a2,b1,b2,norm,V,K;
+  //    V = pow(10, abs(peakGain) / 20); // we don't use
+  float *state[5];
+  
+  filterr filteraah={
+    {800,1150,2900,3900,4950},
+    {0.2,0.2,0.2,0.2,0.2}};
+  
+  for (x=0;x<5;x++){
+    Fc=filteraah.Fc[x];
+    Q=filteraah.Q[x];
+      K = tanf(M_PI * Fc / Fs);
+      norm = 1 / (1 + K / Q + K * K);
+      a0 = K / Q * norm;
+      a1 = 0;
+      a2 = -a0;
+      b1 = 2 * (K * K - 1) * norm;
+      b2 = (1 - K / Q + K * K) * norm;
+      coeffs[x][0]=a0; coeffs[x][1]=a1; coeffs[x][2]=a2; coeffs[x][3]=-b1; coeffs[x][4]=-b2;
+  state[x] = (float*)malloc(20*sizeof(float));
+  arm_biquad_cascade_df1_init_f32(&df[x],1,coeffs[x],state[x]);
+  }
+
+
+  // but we need filters in parallel and then mix???
+
 #endif
 
   // malloc and instantiate all filters, formlet, mdaVocoder, PV? and mdaVocal (anything else?)

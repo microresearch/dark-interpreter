@@ -3,6 +3,7 @@
 #include "arm_math.h"
 #include "stdlib.h"
 #include "stdint.h"
+#include "arm_const_structs.h"
 #endif
 
 #ifdef PCSIM

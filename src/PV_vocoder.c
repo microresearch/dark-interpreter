@@ -6,7 +6,7 @@
 #include "simulation.h"
 #include "PV_vocoder.h"
 
-const int16_t AudioWindowHanning256[] __attribute__ ((aligned (4))) = {
+/*const int16_t AudioWindowHanning256[] __attribute__ ((aligned (4))) = {
      0,     5,    20,    45,    80,   124,   179,   243,   317,   401,
    495,   598,   711,   833,   965,  1106,  1257,  1416,  1585,  1763,
   1949,  2145,  2349,  2561,  2782,  3011,  3249,  3494,  3747,  4008,
@@ -33,15 +33,19 @@ const int16_t AudioWindowHanning256[] __attribute__ ((aligned (4))) = {
   3011,  2782,  2561,  2349,  2145,  1949,  1763,  1585,  1416,  1257,
   1106,   965,   833,   711,   598,   495,   401,   317,   243,   179,
    124,    80,    45,    20,     5,     0,
-};
+   };*/
 
+const int16_t AudioWindowHanning32[] = {
+  0,335,1327,2936,5095,7717,10693,13903,17213,20490,23599,26412,28815,30709,32016,32683,32683,
+  32016,30709,28815,26412,23599,20490,17213,13903,10693,7717,5095,2936,1327,335,0
+};
 
 static void copy_to_fft_buffer(void *destination, const void *source)
 {
 	const int16_t *src = (const int16_t *)source;
 	uint32_t *dst = (uint32_t *)destination;
 
-	for (int i=0; i < 256; i++) {
+	for (int i=0; i < 32; i++) {
 		*dst++ = *src++;  // real sample plus a zero for imaginary
 	}
 }
@@ -50,12 +54,13 @@ static void  copy_from_fft_buffer(void *destination, const void *source)
 {
 	int16_t *dst = (int16_t *)destination;
 	const uint32_t *src = (uint32_t *)source;
-	for (int i=0; i < 256; i++) {
+	for (int i=0; i < 32; i++) {
 	  *dst++ = *(src++);  // real sample plus a zero for imaginary
 	  //	    dst[i] += src[2*i];
 			}
 }
 
+/*
 static void apply_window_to_fft_buffer(void *buffer)
 {
 	int16_t *buf = (int16_t *)buffer;
@@ -80,18 +85,32 @@ void hanningprocess(int16_t* inbuffer, int16_t* outbuffer){ // 256 samples
     outbuffer += 2;
   }
 }
+*/
 
-void pvvocprocess(PV *unit, int16_t* inbuffer, int16_t* outbuffer){ // 256 samples
+void hanningprocess(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
+  const int16_t *win = (int16_t *)AudioWindowHanning32;
+
+  for (int i=0; i <32; i++) {
+    int32_t val = *inbuffer * *win++;
+		//*buf = signed_saturate_rshift(val, 16, 15);
+    *outbuffer = val >> 15;
+    outbuffer ++;
+  }
+}
+
+
+void pvvocprocess(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
+  int16_t buffer[64]; // working buffer
 
   /// try without overlap/window
   //  memcpy(unit->buffer,inbuffer,512);
-  //copy_to_fft_buffer(unit->buffer, inbuffer);
-  apply_window_to_fft_buffer(unit->buffer);
-  arm_cfft_q15(&unit->fft_inst, unit->buffer,0,0);
+  copy_to_fft_buffer(buffer, inbuffer);
+  //  apply_window_to_fft_buffer(inbuffer);
+  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,0,0);
   // invert
-  arm_cfft_q15(&unit->fft_inst, unit->buffer,1,0);
+  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,1,0);
   // copy 256 from fft buffer????
-  copy_from_fft_buffer(outbuffer,unit->buffer);
+  copy_from_fft_buffer(outbuffer,buffer);
   //  memcpy(outbuffer,inbuffer,512);
   // do we need windows
 }

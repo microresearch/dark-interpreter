@@ -18,14 +18,16 @@
 extern u8 *datagenbuffer;
 extern int16_t *audio_buffer;
 extern biquad *biquaddd;
-extern arm_biquad_casd_df1_inst_f32* df1;
+//extern arm_biquad_casd_df1_inst_f32* df1;
+extern arm_biquad_casd_df1_inst_f32 df[5];
 extern BBandPass *unit;
 extern Formlet *unitt;
 extern mdavocoder *unittt;
 extern mdavocal *unitttt;
 extern BPFSC *bpfunit;
 
-void BPFSC_init (BPFSC* unit, float frequency, float bandwidth){
+
+void BPFSC_init (BPFSC* unit, float frequency, float bandwidth){ // init say 5 cascaded filters float* frequency, float* bandwidth
   const float mRadiansPerSample=(2 * M_PI) /48000.0f;
   unit->m_a0 = 0.f;
   unit->m_b1 = 0.f;
@@ -62,6 +64,7 @@ void BPFSC_process(BPFSC *unit, int inNumSamples, float* inbuffer, float* outbuf
   for (int i=0;i<inNumSamples;i++){
   y0 = inbuffer[i] + b1 * y1 + b2 * y2;
   outbuffer[i] = a0 * (y0 - y2);
+
   y2 = y1;
   y1 = y0;
 }
@@ -374,6 +377,11 @@ void do_effect(villager_effect* vill_eff){
   }
 }
 
+void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer){//can also do amp?
+  for (u8 x=0;x<32;x++){
+    tmpotherotherbuffer[x]+=tmpotherbuffer[x];
+  }
+}
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
@@ -383,7 +391,7 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
-
+  memset(tmpotherotherbuffer,0,32); 
   // BPFSC
 
 
@@ -423,11 +431,23 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
     */
 
   // BPF filter from: ZoelzerMultiFilterPatch_hpp__ - only appears work for some coeffs
-  /*
-    int_to_floot(inbuffer,tmpbuffer);
-    arm_biquad_cascade_df1_f32(df1,tmpbuffer,tmpotherbuffer,32);
-    floot_to_int(outbuffer,tmpotherbuffer);
-  */
+  
+  int_to_floot(inbuffer,tmpbuffer);
+  //  arm_biquad_cascade_df1_q15(df1,inbuffer,outbuffer,32); // trying now with int rather than float
+  // how to do parallel filter for formant?
+
+  arm_biquad_cascade_df1_f32(&df[0],tmpbuffer,tmpotherotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer);// could also amp this?
+  arm_biquad_cascade_df1_f32(&df[1],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer);// could also amp this?
+  arm_biquad_cascade_df1_f32(&df[2],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer);// could also amp this?
+  arm_biquad_cascade_df1_f32(&df[3],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer);// could also amp this?
+  arm_biquad_cascade_df1_f32(&df[4],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer);// could also amp this?
+  floot_to_int(outbuffer,tmpotherotherbuffer);
+  
 
   // BIQUAD bandpass from biquad.c
   /*  int_to_floot(inbuffer,tmpbuffer);
