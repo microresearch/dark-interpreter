@@ -1202,7 +1202,7 @@ void main(void)
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
-	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>8; // bits is 4=16
+	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // bits is 3=8 options
 	    village_effect[whichvillager].speed=spd;
 	    break;
 	  case 16: // effects outstart,outwrap
