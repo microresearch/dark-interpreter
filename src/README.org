@@ -29,17 +29,19 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 *- finish effects: *
 
---doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!
---one FFT in pv (now with 32 samples)
---mdavocoder - how to swap channels and re-test
+make sure we init these in main!
+
+--doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!and inited
+--one FFT in pv (now with 32 samples) - doesn't seem need to init
+--mdavocoder - how to swap channels and re-test THIS - inited
 
 as not to init:
 --convolve
 --envelope follower
---windower -- but is set for 256
+--windower
 --variable bandpass
 
-////- effects cleaned up/init all effect structures, filter structures
+////- effects cleaned up/init all effect structures
 
 *** DONE
 **** NOV 6
@@ -111,6 +113,170 @@ as not to init:
 
 ** Effects themselves
 
+1--doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!XXX
+2--one FFT in pv (now with 32 samples)
+3--mdavocoder - how to swap channels and re-test?
+
+as not to init:
+4--convolve
+5--envelope follower
+6--windower -- but is set for 256
+7--variable bandpass
+
+*** DONE
+
+**** THU 6 NOV
+
+- finished and tested doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){// or as floats ????
+- arm_biquad working as need invert last two coefficients. try also with several stages
+
+**** MON 3 NOV
+
+- BPFSC fixed and testedWELL!
+
+discarded as too much double stuff and we have floating point: filter from teensy: int32_t definition[32];  // up to 4 cascaded biquads
+///
+filter_biquad.cpp
+filter_biquad.h
+
+**** FRI 31 OCT
+
+- recheck teensy,mda-lva, scNOTE-dspinst.h copied, added BPFSC - untested!
+- envelope detection
+- windowing
+
+**** THU 30 OCT
+
+starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
+
+**** WED 29 OCT
+
+- as vocoder input/processor/possible envelope see mdavoc.c PORTED
+- mdaVocoder works when set 0.0 all filter array f[x][x] (is init in C++ as zero?) DONE
+- biquad.c tested and working
+- Zoelzer/CMSIS only seems work with some coefficients...
+- BBandPass from SC ported and working (though could unroll loops and
+  also live filter if changes)
+- Formlet from SC ported and working (again unroll and live question -
+  also attack and decay must differ) but interesting effect...
+  
+** Overlap/effects
+
+- finish and test all for RW DONE
+
+- buf16 should also be additive (or/and/+ etc)DONE
+
+- overlap/effect in audio.c now with parameter like FMOD - IN
+  PROCESS?TODO?TEST DONE
+
+*** DONE
+
+**** NOV 3
+
+- all overlays finished and tested!
+
+** Left/Filter
+
+- left/filter channel: left into audio_buffe, out from villagers=audio DONE
+
+- port from RW (given above?)  but how we handle if we have no in from
+  left/no filter action?? or is always activated in HW? unless we have
+  seperate smaller left readin buffer = always DONE
+
+*** DONE
+
+**** NOV 3
+
+- left/filterwalkers done and tested (still TODO: check sanity of)
+  
+** Hardware Walker
+
+- how switch bit/overlap mode or simple SIMPLE so far!
+
+- that hw can be super simple consecutive walker, also simplify other HW walkers
+
+1- which/start/end/effect ---> speed// set/unset/float (=fingers)
+
+now simply as 4 in options(what of float?), no overlap, 32 hardware
+options
+
++ question of HW granularity (should it be in other/say input loop?)
+
++ how we handle walkers for: 1-40106(always),2-lmer,3-maximer,4-hdgener //depending on
+  if selected or?
+
+as simple walker or set of villagers?
+
+- say 16 hardware villagers
+
+*** DONE
+**** NOV 4
+
+- corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes/all filled out
+
+**** NOV 3
+
+- started on HW walkers TO TEST!
+
+** Datagen Walker
+
+*** DONE
+
+**** NOV 4/5
+
+- rough sketch of nextdatagen and walker
+
+** Mirrors/infection
+
+- starting on real mirror: set when we set walkers and set in main.c
+
+  //fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
+
+
+- mirrors: mirror villagers as buffers, mirror villager
+parameters->datagen/eeg/knob/fingers,fingers in code
+
+- mirror as pointer/mirror as from datagen(from which walker-datagen
+  itself walker) mirror villager defines this (control)
+
+- mirror as adding to or constraining what we have already defined for
+  say end/start etc (two arrays and add/subtract/%)
+
+- so either mirror walker struct as another(pointer) /or/
+  bend/constrain/influence another
+
+*** DONE
+
+**** NOV 5
+- started on real mirrors and structures
+
+**** NOV 4
+
+- started on mirror structure
+
+** New datagens - for next phase!
+
+- further new datagens+incorporate villagers/klatt/paf/VOSIM
+
+- some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
+
+*** DONE
+
+** Integration/tests/cleanups
+
+- ordering fo modes - first should be HW
+- defines for HW versions
+- remove excess statics and variables.
+- any math speedups 
+- clean up structs/memory
+- check EVERYTHING again and again!
+
+*** DONE
+
+** dumped notes
+
+*** effects
+
 see general above.... 
 
 1- convolution -DONE
@@ -144,7 +310,7 @@ slow/down speed up against other villager
 *6- other effects once we have effect walker in place: morph one to
 size of other, loop one within other etc.. stretches....*
 
-*** Filter tables for vowels:
+**** Filter tables for vowels:
 
 from SC/BBandpass examples:
 
@@ -231,154 +397,6 @@ e 530 1840 2480
 i 390 1990 2550
 lee 270 2290 3010
 
-*** DONE
-
-**** THU 6 NOV
-
-- finished and tested doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){// or as floats ????
-- arm_biquad working as need invert last two coefficients. try also with several stages
-
-**** MON 3 NOV
-
-- BPFSC fixed and testedWELL!
-
-discarded as too much double stuff and we have floating point: filter from teensy: int32_t definition[32];  // up to 4 cascaded biquads
-///
-filter_biquad.cpp
-filter_biquad.h
-
-**** FRI 31 OCT
-
-- recheck teensy,mda-lva, scNOTE-dspinst.h copied, added BPFSC - untested!
-- envelope detection
-- windowing
-
-**** THU 30 OCT
-
-starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
-
-**** WED 29 OCT
-
-- as vocoder input/processor/possible envelope see mdavoc.c PORTED
-- mdaVocoder works when set 0.0 all filter array f[x][x] (is init in C++ as zero?) DONE
-- biquad.c tested and working
-- Zoelzer/CMSIS only seems work with some coefficients...
-- BBandPass from SC ported and working (though could unroll loops and
-  also live filter if changes)
-- Formlet from SC ported and working (again unroll and live question -
-  also attack and decay must differ) but interesting effect...
-  
-** Overlap/effects
-
-- finish and test all for RW DONE
-
-- buf16 should also be additive (or/and/+ etc)DONE
-
-- overlap/effect in audio.c now with parameter like FMOD - IN
-  PROCESS?TODO?TEST DONE
-
-*** DONE
-
-**** NOV 3
-
-- all overlays finished and tested!
-
-** Left/Filter
-
-- left/filter channel: left into audio_buffe, out from villagers=audio DONE
-
-- port from RW (given above?)  but how we handle if we have no in from
-  left/no filter action?? or is always activated in HW? unless we have
-  seperate smaller left readin buffer = always DONE
-
-*** DONE
-
-**** NOV 3
-
-- left/filterwalkers done and tested (still TODO: check sanity of)
-
-** Hardware Walker
-
-- how switch bit/overlap mode or simple SIMPLE so far!
-
-- that hw can be super simple consecutive walker, also simplify other HW walkers
-
-1- which/start/end/effect ---> speed// set/unset/float (=fingers)
-
-now simply as 4 in options(what of float?), no overlap, 32 hardware
-options
-
-+ question of HW granularity (should it be in other/say input loop?)
-
-+ how we handle walkers for: 1-40106(always),2-lmer,3-maximer,4-hdgener //depending on
-  if selected or?
-
-as simple walker or set of villagers?
-
-- say 16 hardware villagers
-
-*** DONE
-**** NOV 4
-
-- corrections to 40106 code. next step is to test it!TESTED first okay, test again, also HW walker tested fine and few changes/all filled out
-
-**** NOV 3
-
-- started on HW walkers TO TEST!
-
-** Datagen Walker
-
-*** DONE
-
-**** NOV 4/5
-
-- rough sketch of nextdatagen and walker
-
-** Mirrors/infection
-
-- starting on real mirror: set when we set walkers and set in main.c
-
-  //fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
-
-
-- mirrors: mirror villagers as buffers, mirror villager
-parameters->datagen/eeg/knob/fingers,fingers in code
-
-- mirror as pointer/mirror as from datagen(from which walker-datagen
-  itself walker) mirror villager defines this (control)
-
-- mirror as adding to or constraining what we have already defined for
-  say end/start etc (two arrays and add/subtract/%)
-
-- so either mirror walker struct as another(pointer) /or/
-  bend/constrain/influence another
-
-*** DONE
-
-**** NOV 5
-- started on real mirrors and structures
-
-**** NOV 4
-
-- started on mirror structure
-
-** New datagens - for next phase!
-
-- further new datagens+incorporate villagers/klatt/paf/VOSIM
-
-- some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
-
-*** DONE
-
-** Integration/tests/cleanups
-
-- defines for HW versionings or seperate makefiles= what are difference TENE?SUSP (in HW) so can also have 2 makefiles just for 1/LACH or 2/SUSP+TENE
-- remove excess statics and variables.
-- any math speedups 
-- clean up structs/memory
-- check EVERYTHING again and again!
-
-*** DONE
 
 * ////////////////////////
 

@@ -53,6 +53,8 @@
       u8 dir;
     } villager_datagenwalker;
 
+/// TODO: mirrors for above!
+
 typedef struct {
   u16 kstart,kcompress,kwrap;
   u16 mstart,mcompress,mwrap;
@@ -93,7 +95,7 @@ typedef struct {
       u8 m_stack[16];
       u16 m_reg16bit1;
       u8 m_reg8bit1,m_reg8bit2;
-    } villager_generic;
+    } villager_generic;//TODO: and  mirror?
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);

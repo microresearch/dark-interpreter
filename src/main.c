@@ -268,18 +268,9 @@ u8 inp=0;
 
 // effects tests
 
-#ifdef TEST_EFFECTS
-biquad *biquaddd;
-VocoderInstance* vocoder;
-BBandPass *unit;
-testyyy *unitest;
-Formlet *unitt;
-mdavocoder *unittt;
-mdavocal *unitttt;
-BPFSC* bpfunit;
+mdavocoder *mdavocod;
 arm_biquad_casd_df1_inst_f32 df[5][5];
 float coeffs[5][5][5];//{a0 a1 a2 -b1 -b2} b1 and b2 negate
-#endif
 
 u16 nextdatagen(void){
   u16 tmp,tmpp;
@@ -305,13 +296,6 @@ u16 nextdatagen(void){
   return tmpp;
 }
 
-/*BPFSC* bpf800;
-BPFSC* bpf1150;
-BPFSC* bpf2900;
-BPFSC* bpf3900;
-BPFSC* bpf4950;
-*/
-
 void main(void)
 {
   // formerly in audio.c
@@ -322,22 +306,11 @@ void main(void)
   u16 x,addr,count;
   //  u8 exestack[MAX_EXE_STACK];
   u8 xx; // TESTY!
-  // effects tests
 
-#ifdef TEST_EFFECTS
-  //  unit=(BBandPass *)malloc(sizeof(BBandPass));
-  //  unitest=(testyyy *)malloc(sizeof(testyyy));
-  //  unitt=(Formlet *)malloc(sizeof(Formlet));
-  //  bpfunit=(BPFSC*)malloc(sizeof(BPFSC));
-  //unittt=(mdavocoder *)malloc(sizeof(mdavocoder));
-  //  unitttt=(mdavocal *)malloc(sizeof(mdavocal));
-  //  pv->fft_inst.fftLen=256;
-  //  BPFSC_init(bpfunit,440.0f,1.0f);
-  //  Formlet_init(unitt,440.0f,1.0f);
-  //  mdaVocoder_init(unittt);
-  //  mdavocal_init(unitttt);
-  //  vocoder=instantiateVocoder();
-  // TESTING biquad!
+  // effects init
+
+  mdavocod=(mdavocoder *)malloc(sizeof(mdavocoder));
+  mdaVocoder_init(mdavocod);
 
   float Fc,Fs=48000.0f,Q,peakGain;
   float a0,a1,a2,b1,b2,norm,V,K;
@@ -362,30 +335,6 @@ void main(void)
     arm_biquad_cascade_df1_init_f32(&df[xx][x],1,coeffs[xx][x],state[xx][x]);
   }
   }
-#endif
-
-  // malloc and instantiate all filters, formlet, mdaVocoder, PV? and mdaVocal (anything else?)
-
-  /* BPFSC=
-formantfreqs= [800,1150,2900,3900,4950]; //centre frequencies of formants
-formantamps= ([0 ,-6,-32,-20,-50]-6).dbamp; //peaks of formants
-formantbandwidths=[80,90,120,130,140];  //bandwidths
-output= Mix(BPF.ar(source, formantfreqs,formantbandwidths/formantfreqs,formantamps))*10*amp; 
-  */
-
-  /*bpf800=(BPFSC*)malloc(sizeof(BPFSC));
-bpf1150=(BPFSC*)malloc(sizeof(BPFSC));
-bpf2900=(BPFSC*)malloc(sizeof(BPFSC));
-bpf3900=(BPFSC*)malloc(sizeof(BPFSC));
-bpf4950=(BPFSC*)malloc(sizeof(BPFSC));
-BPFSC_init(bpf800,800.0f,80.0f);
-BPFSC_init(bpf1150,800.0f,90.0f);
-BPFSC_init(bpf2900,2900.0f,120.0f);
-BPFSC_init(bpf3900,3900.0f,130.0f);
-BPFSC_init(bpf4950,4950.0f,140.0f);
-  */
-
-// formlets different
 
   //////////////
 
@@ -908,7 +857,7 @@ BPFSC_init(bpf4950,4950.0f,140.0f);
 	  //	  else mainmode=1; //TESTY!
 	  //	  mainmode=11; //TESTY!
 
-	  // TODO _ ordering of modes at end!!!
+	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
 	  switch(mainmode){
 	  case 0:// WRITE
@@ -1366,15 +1315,18 @@ BPFSC_init(bpf4950,4950.0f,140.0f);
 		village_read[whichy]=tmpvillage;
 		break;
 
-	    case 3:// unknown???  constrain %
+	    case 2:// constrain %
 		village_read[whichx]%=(village_write[whichy]+1);
+
+		case 3:unknown????
+
 		*/
 	    } // end of xx = action
 	    break; // case 18
 	  case 19: // mirror
 	    // 1-set which villager is mirrored - but depends on how many
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
-	    // 2-which group also TODO!
+	    // 2-which group also TODO! here is just WRITE!
 	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
 	    village_write[whichx].fingered=xx; // TODO... other groups
 	    // 3-set how mirror effects = mirrormod if 0 then nothing happens
@@ -1388,7 +1340,8 @@ BPFSC_init(bpf4950,4950.0f,140.0f);
 	  } // end of mainmodes
 	}// Xx!=5
 
-	// MIRROR! TODO- here is just village_write!
+	// all MIRRORS! TODO- here is just village_write!
+	// mirrormod for effects we need vill_eff->modifier??
 	u16 tmpp;
 
 	for (whichx=0;whichx<howmanywritevill;whichx++){

@@ -17,14 +17,8 @@
 
 extern u8 *datagenbuffer;
 extern int16_t *audio_buffer;
-extern biquad *biquaddd;
-//extern arm_biquad_casd_df1_inst_f32* df1;
 extern arm_biquad_casd_df1_inst_f32 df[5][5];
-extern BBandPass *unit;
-extern Formlet *unitt;
-extern mdavocoder *unittt;
-extern mdavocal *unitttt;
-extern BPFSC *bpfunit;
+extern mdavocoder *mdavocod;
 extern float coeffs[5][5];
 
 void BPFSC_init (BPFSC* unit, float frequency, float bandwidth){ // init say 5 cascaded filters float* frequency, float* bandwidth
@@ -304,7 +298,7 @@ void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer,u16 howmany){
   }
 }
 
-void doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){// or as floats ????
+void doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
@@ -324,8 +318,29 @@ void doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel
   floot_to_int(outbuffer,tmpotherotherbuffer,howmany);
   }
 
-void do_effect(villager_effect* vill_eff){
+void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
+  float tmpbuffer[BUFF_LEN/4];
+  float tmpotherbuffer[BUFF_LEN/4];
+  float tmpotherotherbuffer[BUFF_LEN/4];
+  memset(tmpotherotherbuffer,0,32*4); 
+  vowel=vowel%5;  
+  //  int_to_floot(inbuffer,tmpbuffer,howmany);///or do conv when we sort out buffers
+  arm_biquad_cascade_df1_f32(&df[vowel][0],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][1],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][2],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][3],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][4],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  //  floot_to_int(outbuffer,tmpotherotherbuffer,howmany);
+  memcpy(outbuffer,tmpotherotherbuffer,howmany);//dest,src,howmany
+  }
 
+void do_effect(villager_effect* vill_eff){
+  int16_t tmp;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
@@ -339,18 +354,13 @@ void do_effect(villager_effect* vill_eff){
       u16 instart,modstart,outstart;
       u16 inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
+      u16  modifier;
    */
 
   // in each switch/case - easier here
   // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
-  // and do the effect
   // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
-
   // still need speed and step somehow!! TODO!
-
-  // what are the effects... outline here
-
-  // 1-FFT/2-genericfilters/3-vowelcascadeBPFs/4-window/5-morph&loop/6-convolution/7-envelope follower so maybe 16 variations
 
   switch(vill_eff->whicheffect){
   case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
@@ -396,9 +406,40 @@ void do_effect(villager_effect* vill_eff){
     vill_eff->outpos+=longest;
     break;
 
- case 1:
-   break;  
+  case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
+    // just in->out as float 
+    if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
+    else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
+    
+    if (tmpinlong==0) {
+      vill_eff->inpos=vill_eff->instart;
+      // try again on size
+      if ((vill_eff->inpos+32)<vill_eff->inwrap) tmpinlong=32;
+      else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
+    }
 
+    for (xx=0;xx<tmpinlong;xx++){
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+xx)%32768]/32768.0f;
+    }
+    // do effect
+    doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
+    // copy outbuffer to audio and do float back
+    for (xx=0;xx<longest;xx++){
+    tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
+    tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+    audio_buffer[vill_eff->outstart+vill_eff->outpos%32768]=(int16_t)tmp;
+    vill_eff->outpos++;
+    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+      // and update vill_eff
+    vill_eff->modpos+=tmpmodlong;
+    vill_eff->inpos+=tmpinlong;
+    vill_eff->outpos+=longest;
+   break; 
+ 
+  case 2: //FFT in PV from inbuffer into buf16
+
+    break;
   }
 }
 
