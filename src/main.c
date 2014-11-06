@@ -253,10 +253,8 @@ Formlet *unitt;
 mdavocoder *unittt;
 mdavocal *unitttt;
 BPFSC* bpfunit;
-//arm_biquad_casd_df1_inst_q15 df1;
 arm_biquad_casd_df1_inst_f32 df[5];
-
-//int16_t coeffs[]={27147,0,0,-27147,2909,21526}; // TESTY!
+float coeffs[5][6];//{a0 a1 a2 -b1 -b2} b1 and b2 negate last as amp
 #endif
 
 u16 nextdatagen(void){
@@ -317,37 +315,49 @@ void main(void)
   //  vocoder=instantiateVocoder();
   // TESTING biquad!
 
-  typedef struct {
-    float Fc[5],Q[5];
-  }filterr;
-
-  float coeffs[5][5];//{a0 a1 a2 -b1 -b2} b1 and b2 negate
   float Fc,Fs=48000.0f,Q,peakGain;
   float a0,a1,a2,b1,b2,norm,V,K;
-  //    V = pow(10, abs(peakGain) / 20); // we don't use
   float *state[5];
-  
-  filterr filteraah={
-    {800,1150,2900,3900,4950},
-    {0.2,0.2,0.2,0.2,0.2}};
-  
+
+  const float freq_va[5]={600, 1040, 2250, 2450, 2750};
+  const float q_va[5]={14.424072,21.432398,29.508234,29.453644,30.517193};
+  const float mul_va[5]={1, 0.44668359215096, 0.35481338923358, 0.35481338923358, 0.1};
+
+  const float freq_ve[5]={400, 1620, 2400, 2800, 3100};
+  const float q_ve[5]={14.424072,29.213112,34.623474,33.661621,37.268467};
+  const float mul_vw[5]={1, 0.25118864315096, 0.35481338923358, 0.25118864315096, 0.12589254117942};
+
+  const float freq_vi[5]={250, 1750, 2600, 3050, 3340};
+  const float q_vi[5]={6.004305,28.050945,37.508934,36.667324,40.153900};
+  const float mul_vi[5]={1, 0.031622776601684, 0.15848931924611, 0.079432823472428, 0.03981071705535};
+
+
+  const float freq_vo[5]={400, 750, 2400, 2600, 2900};
+  const float q_vo[5]={14.424072,13.522194,34.623474,31.257082,34.863983};
+  const float mul_vo[5]={1, 0.28183829312645, 0.089125093813375, 0.1, 0.01};
+
+
+  const float freq_vu[5]={350, 600, 2400, 2675, 2950};
+  const float q_vu[5]={12.620288,10.816360,34.623474,32.158768,35.465038};
+  const float mul_vu[5]={ 1, 0.1, 0.025118864315096, 0.03981071705535, 0.015848931924611};
+
+
   for (x=0;x<5;x++){
-    Fc=filteraah.Fc[x];
-    Q=filteraah.Q[x];
-      K = tanf(M_PI * Fc / Fs);
-      norm = 1 / (1 + K / Q + K * K);
-      a0 = K / Q * norm;
-      a1 = 0;
-      a2 = -a0;
-      b1 = 2 * (K * K - 1) * norm;
-      b2 = (1 - K / Q + K * K) * norm;
-      coeffs[x][0]=a0; coeffs[x][1]=a1; coeffs[x][2]=a2; coeffs[x][3]=-b1; coeffs[x][4]=-b2;
-  state[x] = (float*)malloc(20*sizeof(float));
-  arm_biquad_cascade_df1_init_f32(&df[x],1,coeffs[x],state[x]);
+    Fc=freq_ve[x];
+    Q=q_ve[x];
+    K = tanf(M_PI * Fc / Fs);
+    norm = 1 / (1 + K / Q + K * K);
+    a0 = K / Q * norm;
+    a1 = 0;
+    a2 = -a0;
+    b1 = 2 * (K * K - 1) * norm;
+    b2 = (1 - K / Q + K * K) * norm;
+
+    coeffs[x][0]=a0; coeffs[x][1]=a1; coeffs[x][2]=a2; coeffs[x][3]=-b1; coeffs[x][4]=-b2;coeffs[x][5]=mul_va[x];
+      /// can also just mult coeffs????
+    state[x] = (float*)malloc(4*sizeof(float));
+    arm_biquad_cascade_df1_init_f32(&df[x],1,coeffs[x],state[x]);
   }
-
-
-  // but we need filters in parallel and then mix???
 
 #endif
 

@@ -27,7 +27,7 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 - simple effects test and fillout
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
 
-- finish effects: 
+*- finish effects: *
 
 to init once or for each setting and share.. rethink BPF and Formlet cascade and vowel - also add in amp!
 
@@ -51,6 +51,9 @@ as not to init:
 ////- effects cleaned up/init all effect structures, filter structures
 
 *** DONE
+**** NOV 6
+
+- effects changes
 
 **** NOV 5
 
