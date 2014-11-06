@@ -19,13 +19,13 @@ extern u8 *datagenbuffer;
 extern int16_t *audio_buffer;
 extern biquad *biquaddd;
 //extern arm_biquad_casd_df1_inst_f32* df1;
-extern arm_biquad_casd_df1_inst_f32 df[5];
+extern arm_biquad_casd_df1_inst_f32 df[5][5];
 extern BBandPass *unit;
 extern Formlet *unitt;
 extern mdavocoder *unittt;
 extern mdavocal *unitttt;
 extern BPFSC *bpfunit;
-extern float coeffs[5][6];
+extern float coeffs[5][5];
 
 void BPFSC_init (BPFSC* unit, float frequency, float bandwidth){ // init say 5 cascaded filters float* frequency, float* bandwidth
   const float mRadiansPerSample=(2 * M_PI) /48000.0f;
@@ -255,23 +255,23 @@ float bandpass(float sample,float q, float fc, float gain){ // from OWL code - s
   return bp*gain;
 }
 
-void int_to_floot(int16_t* inbuffer, float* outbuffer){
-  for (int n = 0; n < BUFF_LEN/4; n++) {
+void int_to_floot(int16_t* inbuffer, float* outbuffer, u16 howmany){
+  for (int n = 0; n < howmany; n++) {
     outbuffer[n]=(float32_t)(inbuffer[n])/32768.0f;
   }
 }
 
-void intun_to_floot(int16_t* inbuffer, float* outbuffer){
-  for (int n = 0; n < BUFF_LEN/4; n++) {
+void intun_to_floot(int16_t* inbuffer, float* outbuffer,u16 howmany){
+  for (int n = 0; n < howmany; n++) {
     outbuffer[n]=(float32_t)(inbuffer[n]-32768)/32768.0f;
   }
 }
 
 
-void floot_to_int(int16_t* outbuffer, float* inbuffer){
+void floot_to_int(int16_t* outbuffer, float* inbuffer,u16 howmany){
   int16_t tmp;
 
-  for (int n = 0; n < BUFF_LEN/4; n++) {
+  for (int n = 0; n < howmany; n++) {
     tmp = (int32_t)(inbuffer[n] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     outbuffer[n] = (int16_t)tmp;
@@ -297,6 +297,32 @@ void doringcopy(int16_t *inbuffer,int16_t *modbuffer,int16_t* outbuffer,u8 longe
     outbuffer[xx]=modbuffer[xx];
   }
 }
+
+void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer,u16 howmany){
+  for (u16 x=0;x<howmany;x++){
+    tmpotherotherbuffer[x]+=(tmpotherbuffer[x]*10.0f);
+  }
+}
+
+void doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){// or as floats ????
+  float tmpbuffer[BUFF_LEN/4];
+  float tmpotherbuffer[BUFF_LEN/4];
+  float tmpotherotherbuffer[BUFF_LEN/4];
+  memset(tmpotherotherbuffer,0,32*4); 
+  vowel=vowel%5;  
+  int_to_floot(inbuffer,tmpbuffer,howmany);///or do conv when we sort out buffers
+  arm_biquad_cascade_df1_f32(&df[vowel][0],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][1],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][2],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][3],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  arm_biquad_cascade_df1_f32(&df[vowel][4],tmpbuffer,tmpotherbuffer,32); 
+  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
+  floot_to_int(outbuffer,tmpotherotherbuffer,howmany);
+  }
 
 void do_effect(villager_effect* vill_eff){
 
@@ -376,12 +402,6 @@ void do_effect(villager_effect* vill_eff){
   }
 }
 
-void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer, float mul){//can also do amp?
-  for (u8 x=0;x<32;x++){
-    tmpotherotherbuffer[x]+=(tmpotherbuffer[x]*mul*10.0f);// was *mul
-  }
-}
-
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   //  extern VocoderInstance* vocoder; u8 x;
@@ -390,10 +410,11 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   float out[BUFF_LEN];
-  memset(tmpotherotherbuffer,0,32*4); 
+
+  doformantfilter(inbuffer, outbuffer, 32, 0);
+
+
   // BPFSC
-
-
   /*  int_to_floot(inbuffer,tmpbuffer);
   BPFSC_process(bpfunit,32,tmpbuffer,tmpotherbuffer);
   floot_to_int(outbuffer,tmpotherbuffer);
@@ -429,31 +450,6 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
         floot_to_int(outbuffer,tmpotherbuffer);
     */
 
-  // BPF filter from: ZoelzerMultiFilterPatch_hpp__ - only appears work for some coeffs
-  
-  //  arm_biquad_cascade_df1_q15(df1,inbuffer,outbuffer,32); // trying now with int rather than float
-  // how to do parallel filter for formant? attempt below
-  // otherwise try just reformat coeff table
-  // encapsulate and coeff table already inited
-
-  //  doformantfilter(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel); // pointer includes amp as coeff[x][6] say!
-
-  // we cannot share filter instances/states...
-  //       coeffs[x][0]=a0; coeffs[x][1]=a1; coeffs[x][2]=a2; coeffs[x][3]=-b1; coeffs[x][4]=-b2;
-
-  int_to_floot(inbuffer,tmpbuffer);
-  arm_biquad_cascade_df1_f32(&df[0],tmpbuffer,tmpotherbuffer,32); 
-  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,coeffs[0][5]);// could also amp this?
-  arm_biquad_cascade_df1_f32(&df[1],tmpbuffer,tmpotherbuffer,32); 
-   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,coeffs[1][5]);// could also amp this?
-  arm_biquad_cascade_df1_f32(&df[2],tmpbuffer,tmpotherbuffer,32); 
-  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,coeffs[2][5]);// could also amp this?
-  arm_biquad_cascade_df1_f32(&df[3],tmpbuffer,tmpotherbuffer,32); 
-  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,coeffs[3][5]);// could also amp this?
-  arm_biquad_cascade_df1_f32(&df[4],tmpbuffer,tmpotherbuffer,32); 
-  accumbuffer(tmpotherbuffer,tmpotherotherbuffer,coeffs[4][5]);// could also amp this?
-  floot_to_int(outbuffer,tmpotherotherbuffer);
-  
 
   // BIQUAD bandpass from biquad.c
   /*  int_to_floot(inbuffer,tmpbuffer);

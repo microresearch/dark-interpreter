@@ -29,18 +29,9 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 *- finish effects: *
 
-to init once or for each setting and share.. rethink BPF and Formlet cascade and vowel - also add in amp!
-
-NOT cascade but in parallel?
-
-////////if (freq != unit->m_freq || bw != unit->m_bw) {
-
-discard:BBandpass???, biquad.c
-
+--doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!
 --one FFT in pv (now with 32 samples)
-
-[--mdavocXremove]
---mdavocoder/// or vocode.c (delete vocode.c as not really working)
+--mdavocoder - how to swap channels and re-test
 
 as not to init:
 --convolve
@@ -244,6 +235,7 @@ lee 270 2290 3010
 
 **** THU 6 NOV
 
+- finished and tested doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel){// or as floats ????
 - arm_biquad working as need invert last two coefficients. try also with several stages
 
 **** MON 3 NOV
