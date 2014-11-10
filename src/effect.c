@@ -255,9 +255,9 @@ void int_to_floot(int16_t* inbuffer, float* outbuffer, u16 howmany){
   }
 }
 
-void intun_to_floot(int16_t* inbuffer, float* outbuffer,u16 howmany){
+void intun_to_floot(u16* inbuffer, float* outbuffer,u16 howmany){
   for (int n = 0; n < howmany; n++) {
-    outbuffer[n]=(float32_t)(inbuffer[n]-32768)/32768.0f;
+    outbuffer[n]=((float32_t)(inbuffer[n])/32768.0f)-1.0f;
   }
 }
 
@@ -266,7 +266,7 @@ void floot_to_int(int16_t* outbuffer, float* inbuffer,u16 howmany){
   int16_t tmp;
 
   for (int n = 0; n < howmany; n++) {
-    tmp = (int32_t)(inbuffer[n] * 32768.0f);
+    tmp = inbuffer[n] * 32768.0f;
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     outbuffer[n] = (int16_t)tmp;
 		}
@@ -454,12 +454,12 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   u16 *buf16 = (u16*) datagenbuffer;
   //  extern VocoderInstance* vocoder; u8 x;
   float xx,xxx;
-  float tmpbuffer[BUFF_LEN/4];
-  float tmpotherbuffer[BUFF_LEN/4];
-  float tmpotherotherbuffer[BUFF_LEN/4];
-  float out[BUFF_LEN];
+  float tmpbuffer[32];
+  float tmpotherbuffer[32];
+  float tmpotherotherbuffer[32];
+  //  float out[BUFF_LEN];
 
-  doformantfilter(inbuffer, outbuffer, 32, 0);
+  //  doformantfilter(inbuffer, outbuffer, 32, 0);
 
 
   // BPFSC
@@ -471,12 +471,15 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
 
   // env without lowpass
   //  envelopefollower(inbuffer, outbuffer);
+
   //mdavocoder - working
-  /* int_to_floot(inbuffer,tmpbuffer);
-  intun_to_floot(buf16,tmpotherbuffer);
-  mdaVocoderprocess(unittt,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
-  floot_to_int(outbuffer,tmpotherotherbuffer);
-  */
+  int_to_floot(inbuffer,tmpbuffer,32);
+  intun_to_floot(buf16,tmpotherbuffer,32);
+  mdaVocoderprocess(mdavocod,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
+  floot_to_int(outbuffer,tmpotherotherbuffer,32);
+  //  floot_to_int(outbuffer,tmpotherbuffer,32);
+
+
     ///mdavocal (vocoder carrier gen???)
   
   /*
