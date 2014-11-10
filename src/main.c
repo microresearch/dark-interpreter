@@ -1233,12 +1233,9 @@ void main(void)
 	  case 15: // effects across also case 16:
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    howmanyeffectvill=whichvillager+1;
-	    // but if effect is running? or will just reset itself????
 	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
-	    village_effect[whichvillager].inpos=0;//TESTY!
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
-	    village_effect[whichvillager].modpos=0;//TESTY!
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // bits is 3=8 options
 	    village_effect[whichvillager].speed=spd;
@@ -1247,7 +1244,6 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    village_effect[whichvillager].outpos=0;//TESTY!
 	    village_effect[whichvillager].modifier=loggy[adc_buffer[FOURTH]];
 	    village_effect[whichvillager].step=spd;
 	    break;

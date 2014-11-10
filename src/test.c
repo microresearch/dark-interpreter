@@ -45,10 +45,60 @@ float intun_to_float(unsigned int inbuffer){
 void main(void)
 {
 
-  int i; float xx,xa,xb,xc; int xxx;
+  int i; //float xx,xa,xb,xc; int xxx;
 
-  xx=intun_to_float(65536);
-  printf ("intun %f\n",xx);
+  int16_t tmp;
+  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
+  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
+
+  while(1){
+    xx++;
+    if (xx%1000==0){
+    modwrap=(rand()%1000);
+    inwrap=(rand()%1000);
+    }
+  if (inwrap!=oldinwrap) inpos=0;
+  if (modwrap!=oldmodwrap) modpos=0;
+
+
+    if ((inpos+32)<=inwrap) tmpinlong=32;
+    else tmpinlong=inwrap-inpos; 
+    
+    if (tmpinlong==0) {
+      inpos=0;
+      // try again on size
+      if ((inpos+32)<=inwrap) tmpinlong=32;
+      else tmpinlong=inwrap-inpos;
+    }
+    // same for mod...
+    if ((modpos+32)<=modwrap) tmpmodlong=32;
+    else tmpmodlong=modwrap-modpos;
+    
+    if (tmpmodlong==0) {
+      modpos=0;
+      // try again on size
+      if ((modpos+32)<=modwrap) tmpmodlong=32;
+      else tmpmodlong=modwrap-modpos;
+    }
+    //    now copy with length as longest
+    if (tmpinlong>=tmpmodlong) longest=tmpinlong;
+    else longest=tmpmodlong;
+
+    //longest=32;tmpinlong=32;tmpmodlong=32;// TESTY!
+    printf("longest %d inlong %d modlong %d inpos %d modpos %d\n",longest,tmpinlong,tmpmodlong,inpos,modpos);
+
+    // and update vill_eff
+    modpos+=tmpmodlong;
+    inpos+=tmpinlong;
+
+    oldmodwrap=modwrap;
+    oldinwrap=inwrap;
+
+
+  }
+
+  //  xx=intun_to_float(65536);
+  //  printf ("intun %f\n",xx);
 
   /*
 
@@ -72,7 +122,7 @@ void main(void)
 */
 
   //  float bw[5]={0.1, 0.067307692307692, 0.048888888888889, 0.048979591836735, 0.047272727272727};
-  float bw[5]={0.11428571428571, 0.13333333333333, 0.041666666666667, 0.044859813084112, 0.040677966101695};
+  //  float bw[5]={0.11428571428571, 0.13333333333333, 0.041666666666667, 0.044859813084112, 0.040677966101695};
   /*  for (i=0;i<5;i++){
   xx=sqrtf(powf(2,bw[i]));
   xa=xx/(powf(2,bw[i])-1);
@@ -121,7 +171,7 @@ void main(void)
 
     }
 
-  //    u8 tmpinlong=inwrap-vill_eff->inpos; // test that works for u8
+  //    u8 tmpinlong=inwrap-inpos; // test that works for u8
 
   u8 tmpinlong,tmpmod=10; u16 inpos,inwrap; 
 

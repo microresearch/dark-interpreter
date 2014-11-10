@@ -357,15 +357,11 @@ void do_effect(villager_effect* vill_eff){
       u16  modifier;
    */
 
-  // in each switch/case - easier here
-  // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
-  // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
-  // still need speed and step somehow!! TODO!
-  vill_eff->whicheffect=0; // TESTY!
-  switch(vill_eff->whicheffect){
-  case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
-  default: // Testy!
     // so copy into inbuffer
+
+  if (vill_eff->inwrap!=vill_eff->oldinwrap) vill_eff->inpos=0;
+  if (vill_eff->modwrap!=vill_eff->oldmodwrap) vill_eff->modpos=0;
+
     if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
     
@@ -389,8 +385,14 @@ void do_effect(villager_effect* vill_eff){
     if (tmpinlong>=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
 
-    //longest=32;tmpinlong=32;tmpmodlong=32;// TESTY!
-
+  // in each switch/case - easier here
+  // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
+  // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
+  // still need speed and step somehow!! TODO!
+  vill_eff->whicheffect=0; // TESTY!
+  switch(vill_eff->whicheffect){
+  case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
+  default: // Testy!
     for (xx=0;xx<longest;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
       modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
@@ -403,30 +405,18 @@ void do_effect(villager_effect* vill_eff){
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
-      // and update vill_eff
-    vill_eff->modpos+=tmpmodlong;
-    vill_eff->inpos+=tmpinlong;
     break;
 
   case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
-    // TODO: port all changes from above
-    if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
-    else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
-    
-    if (tmpinlong==0) {
-      vill_eff->inpos=0;
-      // try again on size
-      if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
-      else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
-    }
 
     for (xx=0;xx<tmpinlong;xx++){
-      //      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->instart+xx)%32768]/32768.0f;//REDO!
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->instart+xx)%32768]/32768.0f;//REDO!
     }
     // do effect
     doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
     // copy outbuffer to audio and do float back
+
     for (xx=0;xx<longest;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
@@ -434,10 +424,6 @@ void do_effect(villager_effect* vill_eff){
     vill_eff->outpos++;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
-      // and update vill_eff
-    vill_eff->modpos+=tmpmodlong;
-    vill_eff->inpos+=tmpinlong;
-    vill_eff->outpos+=longest;
    break; 
  
   case 2: //FFT in PV from inbuffer into buf16
@@ -450,6 +436,11 @@ void do_effect(villager_effect* vill_eff){
       7--variable bandpass based on modifier
     */
   }
+      // and update vill_eff
+    vill_eff->modpos+=tmpmodlong;
+    vill_eff->inpos+=tmpinlong;
+    vill_eff->oldmodwrap=vill_eff->modwrap;
+    vill_eff->oldinwrap=vill_eff->inwrap;
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){

@@ -18,7 +18,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
-*///MON:*
+*///MON 10 NOV:*
 
 - test basics with mainmode in main.c - seems okay but crash or hang
   on first 10! was overload of interrupt so now back to 16k samples????
@@ -26,13 +26,18 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 need to rethink how filterin/out works as too complex comment for
 moment and test.. even now constrained to 16k
 
+new scheme: readin and filterin as in, out and filterout as simple
+model of single villager start, wrap and constrain (without mirror) as
+also overlap makes no sense there... also possibly inc. filterin into
+readin as option
+
 - HW tests/re-check - all okay DONE
 
 /////NEXT:
 
 - simple effects test and fillout 
 
-effects walker needs full testing!
+effects walker needs full testing! SANITY tested
 
 - both sets of mirrors:  TEST(how?) and then fillout rest of cases 
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
@@ -62,6 +67,11 @@ as not to init:
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+**** NOV 10
+
+- 16k samplerate as all audio interrupts take too long so need rethink all in notes above
+- basic effects template fixed and general bugfix throughout
+
 **** NOV 6
 
 - effects changes
@@ -99,8 +109,6 @@ biquad), const structure (would need pre-calc whole array and print)
 
 - speeds and step still to do in effects walker
 
-- test all effects with simple audio I/O (see below)/nearlyDONE
-
 - villager-villager effects walker - make a clearer format as also need
   process each effect in chunks (and to keep track of these - within
   each villager)
@@ -124,6 +132,10 @@ biquad), const structure (would need pre-calc whole array and print)
 - set up frequency tables/init all filters
 
 *** DONE
+**** 10 NOV
+
+- effects walker sanity checked/fixed
+- test all effects with simple audio I/O (see below)DONE
 
 **** 4 NOV
 

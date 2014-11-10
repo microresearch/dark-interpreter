@@ -23,6 +23,7 @@
       u8 whicheffect,speed,step;
       u16 instart,modstart,outstart;
       u16 inpos,modpos,outpos;// various counters
+      u16 oldinwrap,oldmodwrap;// various counters
       u16 inwrap,modwrap,outwrap;
       u16  modifier;
       //      u8 running;
