@@ -15,7 +15,7 @@
 #include "arm_math.h"
 #endif
 
-#define MAX_VILLAGERS 64 // was 128
+#define MAX_VILLAGERS 64 // was 64
 #define BUFF_LEN 128 // TEST! reduce to 16 
 #define AUDIO_BUFSZ 32768 // was 32768
 

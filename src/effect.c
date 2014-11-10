@@ -16,7 +16,7 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 extern u8 *datagenbuffer;
-extern int16_t *audio_buffer;
+extern int16_t audio_buffer[AUDIO_BUFSZ];
 extern arm_biquad_casd_df1_inst_f32 df[5][5];
 extern mdavocoder *mdavocod;
 extern float coeffs[5][5];
@@ -361,17 +361,18 @@ void do_effect(villager_effect* vill_eff){
   // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
   // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
   // still need speed and step somehow!! TODO!
-
+  vill_eff->whicheffect=0; // TESTY!
   switch(vill_eff->whicheffect){
   case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
+  default: // Testy!
     // so copy into inbuffer
     if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
     
     if (tmpinlong==0) {
-      vill_eff->inpos=vill_eff->instart;
+      vill_eff->inpos=0;
       // try again on size
-      if ((vill_eff->inpos+32)<vill_eff->inwrap) tmpinlong=32;
+      if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
       else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
     }
     // same for mod...
@@ -379,47 +380,49 @@ void do_effect(villager_effect* vill_eff){
     else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     
     if (tmpmodlong==0) {
-      vill_eff->modpos=vill_eff->modstart;
+      vill_eff->modpos=0;
       // try again on size
-      if ((vill_eff->modpos+32)<vill_eff->modwrap) tmpmodlong=32;
+      if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
       else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     }
     //    now copy with length as longest
     if (tmpinlong>=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
 
+    //longest=32;tmpinlong=32;tmpmodlong=32;// TESTY!
+
     for (xx=0;xx<longest;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpinlong))%32768];
-      modbuffer[xx]=audio_buffer[(vill_eff->instart+(xx%tmpmodlong))%32768];
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
     }
     // do effect
     doringcopy(inbuffer,modbuffer,outbuffer,longest);    /// EFFECT!
     // copy outbuffer to audio
     for (xx=0;xx<longest;xx++){
-      audio_buffer[vill_eff->outstart+vill_eff->outpos%32768]=outbuffer[xx];
+      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
       // and update vill_eff
     vill_eff->modpos+=tmpmodlong;
     vill_eff->inpos+=tmpinlong;
-    vill_eff->outpos+=longest;
     break;
 
   case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
+    // TODO: port all changes from above
     if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
     
     if (tmpinlong==0) {
-      vill_eff->inpos=vill_eff->instart;
+      vill_eff->inpos=0;
       // try again on size
-      if ((vill_eff->inpos+32)<vill_eff->inwrap) tmpinlong=32;
+      if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
       else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
     }
 
     for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+xx)%32768]/32768.0f;
+      //      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->instart+xx)%32768]/32768.0f;//REDO!
     }
     // do effect
     doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
@@ -427,7 +430,7 @@ void do_effect(villager_effect* vill_eff){
     for (xx=0;xx<longest;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-    audio_buffer[vill_eff->outstart+vill_eff->outpos%32768]=(int16_t)tmp;
+    audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
     vill_eff->outpos++;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
@@ -446,7 +449,6 @@ void do_effect(villager_effect* vill_eff){
       6--windower - diff windows based on modifier
       7--variable bandpass based on modifier
     */
-
   }
 }
 

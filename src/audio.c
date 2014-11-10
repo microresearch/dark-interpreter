@@ -675,7 +675,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  }
 
-
+	  /*
 #ifndef LACH
 	  // READFILTIN - effects are across LEFT and right
 
@@ -1105,7 +1105,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  }
 #endif
-
+	  */
 	// WRITE!
 
 	  for (xx=0;xx<sz/2;xx++){
@@ -1299,7 +1299,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      if (count<village_write[x].wrap && count>=0)
 	      {
 		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
-		  }
+	      }
 	      else
 		{
 		  village_write[x].running=0;
@@ -1329,11 +1329,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
       /////////////////////////////////////
 
+	  //TESTY!
+
+	  
 	  // process 40106, hdhgener maximer and lmer
 
 	  // 40106 always
 	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
-
+	  
 	  x=which40106villager%howmany40106vill;
 	  count40106+=village_40106[x].step;
 	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
@@ -1414,7 +1417,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    counthw=0;
 	    whichhwvillager++; //u8
 	    }
-	  
+	   
 #endif // for test effects
 #endif // for test eeg
 #endif // for straight

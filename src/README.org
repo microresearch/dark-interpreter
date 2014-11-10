@@ -1,4 +1,4 @@
-h, eternity with outstretched wings, that broodest over the secret
+Oh, eternity with outstretched wings, that broodest over the secret
 truths in whose roots lie the mysteries of man—his whence, his
 whither—have I searched thee, and struck a right key on thy dreadful
 organ!
@@ -20,20 +20,31 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 *///MON:*
 
-- swop and copy somehow confusing - bit clearer now! but needs be tested and filled out
-- test basics with mainmode in main.c
-- HW tests/re-check
+- test basics with mainmode in main.c - seems okay but crash or hang
+  on first 10! was overload of interrupt so now back to 16k samples????
+
+need to rethink how filterin/out works as too complex comment for
+moment and test.. even now constrained to 16k
+
+- HW tests/re-check - all okay DONE
+
+/////NEXT:
+
+- simple effects test and fillout 
+
+effects walker needs full testing!
+
 - both sets of mirrors:  TEST(how?) and then fillout rest of cases 
-- simple effects test and fillout
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
+- how we can speed up audio.c and villager overlap processing???
 
 *- finish effects: *
 
 make sure we init these in main!
 
 --doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!and inited
---one FFT in pv (now with 32 samples) - doesn't seem need to init????
---mdavocoder - how to swap channels and re-test THIS - inited
+--one FFT in pv (now with 32 samples) - doesn't seem need to init
+--mdavocoder - how to swap channels andDONE re-test THIS - inited
 
 as not to init:
 --convolve
@@ -43,7 +54,12 @@ as not to init:
 
 ////- effects cleaned up/init all effect structures:
 
-???redo formant filter as too many loops (can only do if use diff biquad), const structure (would need pre-calc whole array and print)
+*** Notes on tests MON 10 NOV:
+
+- filters will tend overwrite (so maybe re-do with digfilterflag=1) 
+
+- redo formant filter as too many loops (can only do if use diff
+biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
 **** NOV 6
