@@ -316,7 +316,7 @@ void main(void)
   float a0,a1,a2,b1,b2,norm,V,K;
   float *state[5][5];
 
-  for (xx=0;xx<5;xx++){// five formants
+  for (xx=0;xx<5;xx++){// five formants INIT
 
   for (x=0;x<5;x++){
     Fc=freq[xx][x];

@@ -4,17 +4,17 @@
 
 void mdaVocoder_init(mdavocoder* unit) 
 {
-  float param[8];
+  float param[7];
   
   param[0] = 0.33f;  //input select
-  param[1] = 0.1f;  //output dB
+  param[1] = 0.5f;  //output dB
   param[2] = 0.40f;  //hi unit->thru was 0.40
   param[3] = 0.40f;  //hi band was 0.40
   param[4] = 0.16f;  //envelope was 0.16
-  param[5] = 0.1f;  //filter q was 0.55
+  param[5] = 0.55f;  //filter q was 0.55
   param[6] = 0.6667f;//freq range was 0.6667
   
-  param[7] = 0.66f;  //num bands      was 0.66 
+  //  param[7] = 0.66f;  //num bands      was 0.66 
   
   const float tpofs = 6.2831853f/48000.0f;
   float rr, th, re;
@@ -25,16 +25,18 @@ void mdaVocoder_init(mdavocoder* unit)
       for (ii=0;ii<13;ii++){
 	unit->f[i][ii]=0.0f;
       }
+            unit->offset[i]=rand()%16;
+      //          unit->offset[i]=0;
       }
 
   unit->kval=0;
   unit->swap = 1; if(param[0]>0.5f) unit->swap = 0;
-  unit->gain = pow(10.0f, 2.0f * param[1] - 3.0f * param[5] - 2.0f);
-  unit->thru = pow(10.0f, 0.5f + 2.0f * param[1]);
+  unit->gain = powf(10.0f, 2.0f * param[1] - 3.0f * param[5] - 2.0f);
+  unit->thru = powf(10.0f, 0.5f + 2.0f * param[1]);
   unit->high =  param[3] * param[3] * param[3] * unit->thru;
   unit->thru *= param[2] * param[2] * param[2];
   
-  if(param[7]<0.5f) 
+  /*  if(param[7]<0.5f) 
   {
     unit->nbnd=8;
     re=0.003f;
@@ -47,7 +49,7 @@ void mdaVocoder_init(mdavocoder* unit)
     unit->f[7][2] = 190.0f;
   }
   else 
-  {
+  {*/
     unit->nbnd=16;
     re=0.0015f;
     unit->f[ 1][2] = 5000.0f; //+1000
@@ -65,7 +67,7 @@ void mdaVocoder_init(mdavocoder* unit)
     unit->f[13][2] =  350.0f; //+155
     unit->f[14][2] =  195.0f; //+100
     unit->f[15][2] =   95.0f;
-  }
+    //  }
 
   if(param[4]<0.05f) //freeze
   {
@@ -96,7 +98,7 @@ void mdaVocoder_init(mdavocoder* unit)
     unit->f[i][0] = (float)(2.0f * rr * cosf(th)); //a0
     unit->f[i][1] = (float)(-rr * rr);           //a1
                 //was .98
-    unit->f[i][2] *= 0.96f; //shift 2nd stage slightly to stop unit->high resonance peaks
+    unit->f[i][2] *= 0.90f; //shift 2nd stage slightly to stop unit->high resonance peaks
     th = acosf((2.0f * rr * cosf(tpofs * unit->f[i][2])) / (1.0f + rr * rr));
     unit->f[i][2] = (float)(2.0f * rr * cosf(th));
   }
@@ -139,7 +141,7 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 
     if(++k & 1) //this block runs at half sample rate
       {
-	//	oo = 0.0f;
+	oo = 0.0f;
       aa = a + unit->f[0][9] - unit->f[0][8] - unit->f[0][8];  //apply zeros here instead of in each reson
       unit->f[0][9] = unit->f[0][8];  unit->f[0][8] = a;
      
@@ -148,14 +150,17 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 
 	       for(i=1; i<nb; i++) //filter bank: 4th-order band pass
       {
-        tmp = unit->f[i][0] * unit->f[i][3] + unit->f[i][1] * unit->f[i][4] + bb;
+        tmp = unit->f[i][0] * unit->f[i][3] + unit->f[i][1] * unit->f[i][4] + bb; // carrier
         unit->f[i][4] = unit->f[i][3];
         unit->f[i][3] = tmp;
         tmp += unit->f[i][2] * unit->f[i][5] + unit->f[i][1] * unit->f[i][6];
         unit->f[i][6] = unit->f[i][5];
         unit->f[i][5] = tmp;
+      }
 
-        tmp = unit->f[i][0] * unit->f[i][7] + unit->f[i][1] * unit->f[i][8] + aa;
+	       for(i=1; i<nb; i++) //filter bank: 4th-order band pass
+      {
+        tmp = unit->f[i][0] * unit->f[i][7] + unit->f[i][1] * unit->f[i][8] + aa; // speech
         unit->f[i][8] = unit->f[i][7];
         unit->f[i][7] = tmp;
         tmp += unit->f[i][2] * unit->f[i][9] + unit->f[i][1] * unit->f[i][10];
@@ -163,10 +168,13 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
         unit->f[i][9] = tmp;
         
 	if(tmp<0.0f) tmp = -tmp;
-        unit->f[i][11] -= unit->f[i][12] * (unit->f[i][11] - tmp);
-        oo += unit->f[i][5] * unit->f[i][11];
+        unit->f[i][11] -= unit->f[i][12] * (unit->f[i][11] - tmp);  // envelope of speech
+	oo += unit->f[((i+unit->offset[i])%16)][5] * unit->f[i][11]; // f]i][5] is carrier f[i][11] is speech envelope
+
+	//       oo += unit->f[i][5] * unit->f[i][11]; // f[i][5] is carrier f[i][11] is speech envelope
+	// patch envelope x to carrier y (offset one or other but need precalc...)
       }
-  }
+      }
         o += oo * g; //effect of interpolating back up to Fs would be minimal (aliasing >16kHz)
 
     *++output = o;
@@ -174,11 +182,11 @@ void mdaVocoderprocess(mdavocoder* unit,float *input1, float *input2, float *out
 
   unit->kout = oo;  
   unit->kval = k & 1;
-  if(fabsf(unit->f[0][11])<1.0e-10) unit->f[0][11] = 0.0f; //catch HF envelope denormal
+  /*  if(fabsf(unit->f[0][11])<1.0e-10) unit->f[0][11] = 0.0f; //catch HF envelope denormal
 
       for(i=1;i<nb;i++) 
     if(fabsf(unit->f[i][3])<1.0e-10 || fabsf(unit->f[i][7])<1.0e-10) 
       for(k=3; k<12; k++) unit->f[i][k] = 0.0f; //catch reson & envelope denormals
     
-      if(fabs(o)>10.0f) mdaVocodersuspend(unit); //catch instability
+      if(fabs(o)>10.0f) mdaVocodersuspend(unit); //catch instability*/
 }

@@ -37,10 +37,18 @@ double hanning (int i, int nn)
   return ( 0.5 * (1.0 - cos (2.0*M_PI*(double)i/(double)(nn-1))) );
 }
 
+float intun_to_float(unsigned int inbuffer){
+    return ((float)(inbuffer)/32768.0f)-1.0f;
+}
+
+
 void main(void)
 {
 
   int i; float xx,xa,xb,xc; int xxx;
+
+  xx=intun_to_float(65536);
+  printf ("intun %f\n",xx);
 
   /*
 
@@ -65,12 +73,16 @@ void main(void)
 
   //  float bw[5]={0.1, 0.067307692307692, 0.048888888888889, 0.048979591836735, 0.047272727272727};
   float bw[5]={0.11428571428571, 0.13333333333333, 0.041666666666667, 0.044859813084112, 0.040677966101695};
-  for (i=0;i<5;i++){
+  /*  for (i=0;i<5;i++){
   xx=sqrtf(powf(2,bw[i]));
   xa=xx/(powf(2,bw[i])-1);
 
   printf ("%f,",xa);
-  }
+  }*/
+
+
+
+
   /*  for (i = 0; i < 32; i ++)
     {
       xx=hanning(i,32);

@@ -20,7 +20,6 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
 *///MON:*
 
-- redo formant filter as too many loops, const structures
 - swop and copy somehow confusing - bit clearer now! but needs be tested and filled out
 - test basics with mainmode in main.c
 - HW tests/re-check
@@ -33,7 +32,7 @@ WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 make sure we init these in main!
 
 --doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!and inited
---one FFT in pv (now with 32 samples) - doesn't seem need to init
+--one FFT in pv (now with 32 samples) - doesn't seem need to init????
 --mdavocoder - how to swap channels and re-test THIS - inited
 
 as not to init:
@@ -42,7 +41,9 @@ as not to init:
 --windower
 --variable bandpass
 
-////- effects cleaned up/init all effect structures
+////- effects cleaned up/init all effect structures:
+
+???redo formant filter as too many loops (can only do if use diff biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
 **** NOV 6
@@ -114,9 +115,10 @@ as not to init:
 
 ** Effects themselves
 
-1--doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany, u8 vowel) DONE!XXX
-2--one FFT in pv (now with 32 samples)
-3--mdavocoder - how to swap channels and re-test?
+1--doformantfilter(int16_t *inbuffer, int16_t *outbuffer, u8 howmany,
+u8 vowel) DONE!XXX 2--one FFT in pv (now with 32 samples)
+3--mdavocoder - how to swap channels and re-test - where to set offset
+(unit->offset[x] 16x16 of these)? question also of distortion - fixed
 
 as not to init:
 4--convolve
@@ -125,6 +127,10 @@ as not to init:
 7--variable bandpass
 
 *** DONE
+
+**** MON 10 NOV
+
+- channel swop in mdavocoder and zeroed oo accum to stop distortion
 
 **** THU 6 NOV
 
