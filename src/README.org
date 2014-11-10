@@ -14,7 +14,9 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - sketch roughly out whole thing then maybe return to effects and
   effect walker as maybe change model there???
 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect walker finally-close4NOV
+=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen
+walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect
+walker finally-close4NOV
 
 WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
@@ -59,7 +61,8 @@ as not to init:
 
 ////- effects cleaned up/init all effect structures:
 
-*** Notes on tests MON 10 NOV:
+*** Notes 
+**** MON 10 NOV:
 
 - filters will tend overwrite (so maybe re-do with digfilterflag=1) 
 
@@ -212,7 +215,7 @@ starting on PV_vocoder.c, use for in/out into buf16//from audio_buffer
 
 ** Left/Filter
 
-- left/filter channel: left into audio_buffe, out from villagers=audio DONE
+- left/filter channel: left into audio_buffer, out from villagers=audio DONE
 
 - port from RW (given above?)  but how we handle if we have no in from
   left/no filter action?? or is always activated in HW? unless we have
@@ -299,7 +302,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 ** Integration/tests/cleanups
 
-- ordering fo modes - first should be HW
+- ordering of modes - first should be HW
 - defines for HW versions
 - remove excess statics and variables.
 - any math speedups 
