@@ -81,14 +81,14 @@ const u16 SAMPLE_FREQUENCY = 48000;
 const float32_t Pi = 3.1415926535f;
 const float32_t PI_2 = 6.28318531f;
 
-u8 freq[3];
+u8 freqqq[3];
 u8 w[3];
 
 u16 runform(u8 step, u16 count, u16 start, u16 wrap){
 
-  freq[0]=(u8)buf16[0];
-  freq[1]=(u8)buf16[1];
-  freq[2]=(u8)buf16[2];
+  freqqq[0]=(u8)buf16[0];
+  freqqq[1]=(u8)buf16[1];
+  freqqq[2]=(u8)buf16[2];
   w[0]=(u8)buf16[3];
   w[1]=(u8)buf16[4];
   w[2]=(u8)buf16[5];
@@ -97,7 +97,7 @@ u16 runform(u8 step, u16 count, u16 start, u16 wrap){
   float32_t accum; float32_t x; 
 
   for (u8 f = 0; f < 3; f++ ) {
-  u8 ff = freq[f]; // the three freqs
+  u8 ff = freqqq[f]; // the three freqqs
 
   float32_t freqq = (float32_t)ff*(50.0f/SAMPLE_FREQUENCY);
 

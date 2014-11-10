@@ -2,7 +2,7 @@
 #include "arm_math.h"
 #include "stdlib.h"
 
-typedef struct { 
+typedef struct { //  bytes=3+9+(13*16*4)=12+832=844bytes!)
   u8 swap; //input channel swap
   float gain; //output level
   float thru, high; //hf thru
@@ -10,7 +10,7 @@ typedef struct {
   u8 kval; //downsample counter
   u8 nbnd; //number of bands
   float f[16][13]; //[0-8][0 1 2 | 0 1 2 3 | 0 1 2 3 | val rate]
-  float param[8];
+  //  float param[8];
 } mdavocoder;
 
 typedef struct {

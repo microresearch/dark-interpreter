@@ -4,15 +4,17 @@
 
 void mdaVocoder_init(mdavocoder* unit) 
 {
-  unit->param[0] = 0.33f;  //input select
-  unit->param[1] = 0.50f;  //output dB
-  unit->param[2] = 0.40f;  //hi unit->thru was 0.40
-  unit->param[3] = 0.40f;  //hi band was 0.40
-  unit->param[4] = 0.16f;  //envelope was 0.16
-  unit->param[5] = 0.75f;  //filter q was 0.55
-  unit->param[6] = 0.6667f;//freq range was 0.6667
+  float param[8];
   
-  unit->param[7] = 0.66f;  //num bands      was 0.66 
+  param[0] = 0.33f;  //input select
+  param[1] = 0.1f;  //output dB
+  param[2] = 0.40f;  //hi unit->thru was 0.40
+  param[3] = 0.40f;  //hi band was 0.40
+  param[4] = 0.16f;  //envelope was 0.16
+  param[5] = 0.1f;  //filter q was 0.55
+  param[6] = 0.6667f;//freq range was 0.6667
+  
+  param[7] = 0.66f;  //num bands      was 0.66 
   
   const float tpofs = 6.2831853f/48000.0f;
   float rr, th, re;
@@ -26,13 +28,13 @@ void mdaVocoder_init(mdavocoder* unit)
       }
 
   unit->kval=0;
-  unit->swap = 1; if(unit->param[0]>0.5f) unit->swap = 0;
-  unit->gain = pow(10.0f, 2.0f * unit->param[1] - 3.0f * unit->param[5] - 2.0f);
-  unit->thru = pow(10.0f, 0.5f + 2.0f * unit->param[1]);
-  unit->high =  unit->param[3] * unit->param[3] * unit->param[3] * unit->thru;
-  unit->thru *= unit->param[2] * unit->param[2] * unit->param[2];
+  unit->swap = 1; if(param[0]>0.5f) unit->swap = 0;
+  unit->gain = pow(10.0f, 2.0f * param[1] - 3.0f * param[5] - 2.0f);
+  unit->thru = pow(10.0f, 0.5f + 2.0f * param[1]);
+  unit->high =  param[3] * param[3] * param[3] * unit->thru;
+  unit->thru *= param[2] * param[2] * param[2];
   
-  if(unit->param[7]<0.5f) 
+  if(param[7]<0.5f) 
   {
     unit->nbnd=8;
     re=0.003f;
@@ -65,13 +67,13 @@ void mdaVocoder_init(mdavocoder* unit)
     unit->f[15][2] =   95.0f;
   }
 
-  if(unit->param[4]<0.05f) //freeze
+  if(param[4]<0.05f) //freeze
   {
     for(i=0;i<unit->nbnd;i++) unit->f[i][12]=0.0f;
   }
   else
   {
-    unit->f[0][12] = powf(10.0f, -1.7f - 2.7f * unit->param[4]); //envelope speed
+    unit->f[0][12] = powf(10.0f, -1.7f - 2.7f * param[4]); //envelope speed
     rr = 0.022f / (float)unit->nbnd; //minimum proportional to frequency to stop distortion0.022f/
 
     for(i=1;i<unit->nbnd;i++) 
@@ -82,8 +84,8 @@ void mdaVocoder_init(mdavocoder* unit)
     unit->f[0][12] = 0.5f * unit->f[0][12]; //only top band is at full rate
   }
 
-  rr = 1.0 - powf(10.0f, -1.0f - 1.2f * unit->param[5]);///
-  sh = (float)powf(2.0f, 3.0f * unit->param[6] - 1.0f); //filter bank range shift 
+  rr = 1.0 - powf(10.0f, -1.0f - 1.2f * param[5]);///
+  sh = (float)powf(2.0f, 3.0f * param[6] - 1.0f); //filter bank range shift 
   //  rr=1.0f;
   //  sh=1.0f;
 

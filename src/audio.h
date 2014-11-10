@@ -19,30 +19,67 @@
 #define BUFF_LEN 128 // TEST! reduce to 16 
 #define AUDIO_BUFSZ 32768 // was 32768
 
-/*    typedef struct {
-      u16 start;
-      u16 wrap;
-      u8 effect;
-      u8 speed_step; // TODO: how do as fractional?
-      u8 dir; // TODO: do as union or whatever for dir//flag for mirror
-    } villagerr;*/
-
-// test struct for multiple grains/villagers
+    typedef struct {
+      u8 whicheffect,speed,step;
+      u16 instart,modstart,outstart;
+      u16 inpos,modpos,outpos;// various counters
+      u16 inwrap,modwrap,outwrap;
+      u16  modifier;
+      //      u8 running;
+    } villager_effect;
 
     typedef struct {
-      u16 offset;
-      u16 start;
-      u16 wrap;
-      u16 counterr;
-      u16 samplepos;
-      u8 del;
+      u16 length;
+      u8 setting,inp;
+    } villager_hardware;
+
+    typedef struct {
+      u16 length;
+      u16 dataoffset;
+      u16 knoboffset;
+      int16_t samplepos;
       int16_t dirry;
-      u16 compress;
       u8 speed, step;
-      float effect,effectinv; // now as value of effect! TODO!
-      u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
-      u8 running;
+      u8 dir;
+    } villager_hardwarehaha;
+
+    typedef struct {
+      u16 length;
+      u16 dataoffset;
+      u16 knoboffset;
+      int16_t samplepos;
+      int16_t dirry;
+      u8 speed, step;
+      u8 dir;
+    } villager_datagenwalker;
+
+/// TODO: mirrors for above!
+
+typedef struct {
+  u16 kstart,kcompress,kwrap;
+  u16 mstart,mcompress,mwrap;
+  u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
+  u8 infected;
+  u8 fingered; // what is input here as modifier
+
+  u16 start,offset,wrap;
+  u16 counterr;
+  u16 samplepos;
+  u8 del;
+  int16_t dirry;
+  u16 compress;
+  u8 speed, step;
+  float effect,effectinv; // now as value of effect! TODO!
+  u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
+  u8 running;
     } villagerr;
+
+/*typedef struct {
+  u16 start,wrap,compress;
+  u8 mirrormod,mirrorspeed,mirrorstep; // how mirror effects mainline start/wrap and samplepos
+  u8 infectedstart,infectedwrap;
+  u8 fingered; // what is input here as modifier
+  } mirror;*/
 
     typedef struct {
       u16 start;
@@ -51,14 +88,14 @@
       u16 position;
       u8 del;
       int16_t dirry;
-      u8 speed, step, cpu; 
+      u8 speed, step; 
       u8 dir; // TODO: do as union or whatever for dir//flag for mirror
       u8 running;
       signed char m_stack_pos;
       u8 m_stack[16];
       u16 m_reg16bit1;
       u8 m_reg8bit1,m_reg8bit2;
-    } villager_generic;
+    } villager_generic;//TODO: and  mirror?
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);

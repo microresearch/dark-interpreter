@@ -3,6 +3,7 @@
 #include "arm_math.h"
 #include "stdlib.h"
 #include "stdint.h"
+#include "arm_const_structs.h"
 #endif
 
 #ifdef PCSIM
@@ -128,6 +129,7 @@ u16 runbrussel(u8 step, u16 count, u16 start, u16 wrap);
 u16 runspruce(u8 step, u16 count, u16 start, u16 wrap);
 u16 runoregon(u8 step, u16 count, u16 start, u16 wrap);
 u16 runfitz(u8 step, u16 count, u16 start, u16 wrap);
+u16 runnoise(u8 step, u16 count, u16 start, u16 wrap);
 
 void machine_runnn(u16 start,u16 end);
 
