@@ -18,8 +18,9 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
 
-*///THU/FRI:*
+*///MON:*
 
+- redo formant filter as too many loops, const structures
 - swop and copy somehow confusing - bit clearer now! but needs be tested and filled out
 - test basics with mainmode in main.c
 - HW tests/re-check
