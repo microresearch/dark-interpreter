@@ -57,29 +57,22 @@ void main(void)
     modwrap=(rand()%1000);
     inwrap=(rand()%1000);
     }
-  if (inwrap!=oldinwrap) inpos=0;
-  if (modwrap!=oldmodwrap) modpos=0;
 
+    if (inpos>=inwrap) {
+      inpos=0;
+    }
+
+    if (modpos>=modwrap) {
+      modpos=0;
+    }
 
     if ((inpos+32)<=inwrap) tmpinlong=32;
     else tmpinlong=inwrap-inpos; 
     
-    if (tmpinlong==0) {
-      inpos=0;
-      // try again on size
-      if ((inpos+32)<=inwrap) tmpinlong=32;
-      else tmpinlong=inwrap-inpos;
-    }
     // same for mod...
     if ((modpos+32)<=modwrap) tmpmodlong=32;
     else tmpmodlong=modwrap-modpos;
     
-    if (tmpmodlong==0) {
-      modpos=0;
-      // try again on size
-      if ((modpos+32)<=modwrap) tmpmodlong=32;
-      else tmpmodlong=modwrap-modpos;
-    }
     //    now copy with length as longest
     if (tmpinlong>=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
@@ -90,10 +83,6 @@ void main(void)
     // and update vill_eff
     modpos+=tmpmodlong;
     inpos+=tmpinlong;
-
-    oldmodwrap=modwrap;
-    oldinwrap=inwrap;
-
 
   }
 

@@ -357,30 +357,23 @@ void do_effect(villager_effect* vill_eff){
       u16  modifier;
    */
 
+    if (vill_eff->inpos>=vill_eff->inwrap) {
+      vill_eff->inpos=0;
+    }
+ 
+   if (vill_eff->modpos>=vill_eff->modwrap) {
+      vill_eff->modpos=0;
+    }
+ 
     // so copy into inbuffer
-
-  if (vill_eff->inwrap!=vill_eff->oldinwrap) vill_eff->inpos=0;
-  if (vill_eff->modwrap!=vill_eff->oldmodwrap) vill_eff->modpos=0;
 
     if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
     
-    if (tmpinlong==0) {
-      vill_eff->inpos=0;
-      // try again on size
-      if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
-      else tmpinlong=vill_eff->inwrap-vill_eff->inpos;
-    }
-    // same for mod...
+   // same for mod...
     if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
     else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     
-    if (tmpmodlong==0) {
-      vill_eff->modpos=0;
-      // try again on size
-      if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
-      else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
-    }
     //    now copy with length as longest
     if (tmpinlong>=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
@@ -439,8 +432,6 @@ void do_effect(villager_effect* vill_eff){
       // and update vill_eff
     vill_eff->modpos+=tmpmodlong;
     vill_eff->inpos+=tmpinlong;
-    vill_eff->oldmodwrap=vill_eff->modwrap;
-    vill_eff->oldinwrap=vill_eff->inwrap;
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
