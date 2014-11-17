@@ -11,27 +11,20 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
  
-- sketch roughly out whole thing then maybe return to effects and
-  effect walker as maybe change model there???
-
 =overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen
 walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect
 walker finally-close4NOV
 
-WED 5: OPEN FIRE: FINISH first sketch to be filled out also!
+so: TODO is effects walker, test datagen walker, mirrors/infections
+and fill out all
 
 *///MON 10 NOV:*
 
 - test basics with mainmode in main.c - seems okay but crash or hang
   on first 10! was overload of interrupt so now back to 16k samples????
 
-need to rethink how filterin/out works as too complex comment for
-moment and test.. even now constrained to 16k
-
-new scheme: readin and filterin as in, out and filterout as simple
-model of single villager start, wrap and constrain (without mirror) as
-also overlap makes no sense there... also possibly inc. filterin into
-readin as option
+need to rethink how filterin/out works as too complex - commented out for
+moment and test tho. even now constrained to 16k
 
 - HW tests/re-check - all okay DONE
 
@@ -43,7 +36,6 @@ effects walker needs full testing! SANITY tested
 
 - both sets of mirrors:  TEST(how?) and then fillout rest of cases 
 - extra modes in main.c: 20- fingers in the code 21- infection across (how?)
-- how we can speed up audio.c and villager overlap processing???
 
 *- finish effects: *
 
@@ -60,6 +52,22 @@ as not to init:
 --variable bandpass
 
 ////- effects cleaned up/init all effect structures:
+
+*** new speed scheme
+
+readin and filterin as is for in
+
+out and filterout as simple model of single villager start, wrap and
+constrain (without mirror) as also overlap makes no sense
+there... also possibly inc. filterin into readin as option//how????
+
+*or outs as set of consecutive villagers*
+
+or calculate villager samplepos outside audio loop but that makes no sense
+
+- how else we can speed up audio.c and villager overlap processing???
+
+also speedups in all - no division, no fmods!
 
 *** Notes 
 **** MON 10 NOV:

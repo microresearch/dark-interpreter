@@ -232,7 +232,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	//////////////////////////////////////////////////////////	
 
-	// READ!
+	// READ! and maybe inc filtin!
 
 	  for (xx=0;xx<sz/2;xx++){
 	    *ldst++=*(src++);
@@ -244,7 +244,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 	  lasttmp=0,lasttmp16=0;
 
-	  for (x=0;x<howmanyreadvill;x++){
+	  for (x=0;x<howmanyreadvill;x++){// speedup from here-no div/no fmod!
 	    tmpp=village_read[x].compress; if (tmpp==0) tmpp=1;
 
 	    if (delread==0) village_read[x].counterr+=dirryr;
@@ -1106,7 +1106,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 #endif
 	  */
-	// WRITE!
+	// WRITE! simplify to consecutive!!
 
 	  for (xx=0;xx<sz/2;xx++){
 	  mono_buffer[xx]=0;
