@@ -18,8 +18,14 @@ walker finally-close4NOV
 so: TODO is effects walker, test datagen walker, mirrors/infections
 and fill out all: again:::
 
-- readin/out reworked DONE NOV 18 and shift mirrormods to second knob of each
-- filtin/out handling and digfilter flag!
+- readin/out reworked DONE NOV 18
+
+what we mirror: readin/out, filtin/out and HWs???
+
+- filtin/out handling and digfilter flag! = where we do FILTIN???extra flag that tmp is LEFTIN???
+
+NOV18+ *also mirroroverlay* TODO!
+
 - effects filled in/test
 - mirrors filled in/test 
 
@@ -65,14 +71,10 @@ readin and filterin as is for in>>>???
 re-instate digfilter=1
 
 out and filterout as simple model of consecutive villager start, wrap and
-constrain (without mirror) as also overlap makes no sense
+constrain as also overlap makes no sense
 there... also possibly inc. filterin into readin as option//how????
 
 - how else we can speed up audio.c and villager overlap processing???
-
-also speedups in all - no division, no fmods!
-
-- clean up how we set things  now without these!!!
 
 *** Notes 
 **** MON 10 NOV:
@@ -86,7 +88,12 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 18
 
+- filtin is now just flag in readin overlay to be subhjected to mirroring
 - templated out rest of READIN code and READOUT/write finished but TO TEST before is used for filter in/out
+- adding mirrors into second knobset code in main
+- reinstated digfilterflag=1
+- mirrormods as case 17/was19 and in writes
+- new villagerw struct 
 
 **** NOV 17
 

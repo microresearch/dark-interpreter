@@ -59,13 +59,14 @@ typedef struct {
   u16 kstart,kcompress,kwrap;
   u16 mstart,mcompress,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
+  u8 moverlay,koverlay;
   u8 infected;
   u8 fingered; // what is input here as modifier
 
   u16 start,offset,wrap;
   u16 counterr;
   u16 samplepos;
-  u8 del;
+  u8 del,dirryr;
   int16_t dirry;
   u16 compress;
   u8 speed, step;
@@ -73,6 +74,21 @@ typedef struct {
   u8 dir,overlay; // TODO: do as union or whatever for dir//flag for mirror
   u8 running;
     } villagerr;
+
+typedef struct {
+  u16 kstart,kwrap;
+  u16 mstart,mwrap;
+  u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
+  u8 infected;
+  u8 fingered; // what is input here as modifier
+  u16 start,wrap;
+  u16 samplepos;
+  u8 del;
+  int16_t dirry;
+  u8 speed, step;
+  u8 dir; // TODO: do as union or whatever for dir//flag for mirror
+    } villagerw;
+
 
 /*typedef struct {
   u16 start,wrap,compress;
