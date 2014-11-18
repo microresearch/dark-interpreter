@@ -1,4 +1,925 @@
 
+	      case 4: // effect as & with fmod
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 5:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 6:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 7:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 8: // effect as + with fmod
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 9:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 10:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 11:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 12: // effect as + with fmod
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 13:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 14:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 15:
+		fsumd=(float)tmp16*village_read[x].effectinv;
+		fsum=(float)tmp*village_read[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+
+	      break;
+	      case 6:
+		break;
+		//////////////////////
+	      case 7:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32&=tmp32d;
+		tmp32d&=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32>lasttmp16) buf16[lp]=tmp32+32768;
+		if (tmp32d>lasttmp16) audio_buffer[lp]=tmp32d;
+		lasttmp=tmp32; lasttmp16=tmp32d;
+	      break;
+
+	      case 8: // effect as + 
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32d+=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32+32768;
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 9:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32d+=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]|=tmp32+32768;
+		audio_buffer[lp]|=tmp32d;
+	      break;
+	      case 10:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+
+		tmp32+=tmp32d;
+		tmp32d+=tmptmp32;
+		tmp32d=buf16[lp]+tmp32;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32+32768;// TODO: add here or before???
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 11:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32d+=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32>lasttmp16) buf16[lp]=tmp32+32768;
+		if (tmp32d>lasttmp16) audio_buffer[lp]=tmp32d;
+		lasttmp=tmp32; lasttmp16=tmp32d;
+	      break;
+
+	      case 12: // effect as * 
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32d*=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32+32768;
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 13:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32d*=tmptmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]|=tmp32+32768;
+		audio_buffer[lp]|=tmp32d;
+	      break;
+	      case 14:
+		fsumd=(float)tmp16*village_read[x].effect;
+		fsum=(float)tmp*village_read[x].effectinv;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmptmp32=fsum;
+
+		tmp32*=tmp32d;
+		tmp32d*=tmptmp32;
+		tmp32d=buf16[lp]*tmp32;
+		tmp32=audio_buffer[lp]*tmp32;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32+32768;// TODO: add here or before???
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 15:
+
+
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp16) buf16[lp]=tmp32+32768;
+		if (tmp32d>lasttmp16) audio_buffer[lp]=tmp32d;
+		lasttmp=tmp32; lasttmp16=tmp32d;
+	      break;
+
+
+	  lasttmp=0;
+	  for (x=0;x<howmanywritevill;x++){
+	  if (delwrite==0) village_write[x].counterr+=dirryw;
+
+	  tmpp=village_write[x].compress; if (tmpp==0) tmpp=1;
+
+	  if (village_write[x].counterr>=(32768/tmpp)) {
+	    village_write[x].counterr=0;
+	    village_write[x].running=1;
+	  }
+
+	    if ((village_write[x].offset/tmpp)<=village_write[x].counterr && village_write[x].running==1){
+
+	      lp=village_write[x].samplepos%32768;
+	      tmp16=buf16[lp]-32768;
+	      tmp=audio_buffer[lp];
+	      switch(village_write[x].overlay&15){
+	      case 0: // straight. no fmod
+		mono_buffer[xx]=tmp;
+		break;
+	      case 1:
+		mono_buffer[xx]|=tmp;
+	      break;
+	      case 2:
+		tmp32=mono_buffer[xx]+tmp;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+		break;
+	      case 3:
+		if (tmp>lasttmp) mono_buffer[xx]=tmp;
+		lasttmp=tmp;
+	      break;
+
+	      case 4: // effect as & with fmod
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+	      break;
+	      case 5:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]|=tmp32;
+	      break;
+	      case 6:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		tmp32=mono_buffer[xx]+tmp32;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+		break;
+	      case 7:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) mono_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 8: // effect as + with fmod
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+	      break;
+	      case 9:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]|=tmp32;
+	      break;
+	      case 10:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32=mono_buffer[xx]+tmp32;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+		break;
+	      case 11:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) mono_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 12: // effect as * with fmod
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+	      break;
+	      case 13:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]|=tmp32;
+	      break;
+	      case 14:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32=mono_buffer[xx]+tmp32;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		mono_buffer[xx]=tmp32;
+		break;
+	      case 15:
+		fsumd=(float)tmp16*village_write[x].effectinv;
+		fsum=(float)tmp*village_write[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_write[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) mono_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+	      ////////////////////////
+	      } // end of overlay switch
+	      //////
+	      if (++village_write[x].del>=village_write[x].step){
+	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
+	      if (count<village_write[x].wrap && count>=0)
+	      {
+		village_write[x].samplepos+=village_write[x].dirry;//)%32768;
+	      }
+	      else
+		{
+		  village_write[x].running=0;
+		if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
+		else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
+		else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
+
+		if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
+		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
+		}
+	    village_write[x].del=0;
+	    }
+	    }
+	  }
+}
+
+	  /*
+#ifndef LACH
+	  // READFILTIN - effects are across LEFT and right
+
+	  ldst=left_buffer;
+	  rdst=right_buffer;
+
+	  for (xx=0;xx<sz/2;xx++){
+
+	    tmp=*(ldst++); // left
+	    tmp16=*(rdst++); // right
+
+	  delfiltin++;
+	  if (delfiltin>=filtinspeed) {
+	    delfiltin=0;
+	      }
+	  lasttmp=0;
+	  for (x=0;x<howmanyfiltinvill;x++){
+
+	    tmpp=village_filtin[x].compress; if (tmpp==0) tmpp=1;
+
+	    if (delfiltin==0) village_filtin[x].counterr+=dirryf;
+	    if (village_filtin[x].counterr>=(32768/tmpp)) {
+	      village_filtin[x].counterr=0;
+	      village_filtin[x].running=1;
+	    }
+
+	    if ((village_filtin[x].offset/tmpp)<=village_filtin[x].counterr && village_filtin[x].running==1){
+
+	    lp=village_filtin[x].samplepos%32768;
+
+	    // switcher:
+	      switch(village_filtin[x].overlay&15){
+	      case 0: // straight. no fmod
+		audio_buffer[lp]=tmp;
+	      break;
+	      case 1:
+		audio_buffer[lp]|=tmp;
+	      break;
+	      case 2:
+		tmp32=audio_buffer[lp]+tmp;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 3:
+		if (tmp>lasttmp) audio_buffer[lp]=tmp;
+		lasttmp=tmp;
+	      break;
+	      case 4: // effect as & with fmod
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 5:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 6:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 7:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 8: // effect as + with fmod
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 9:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 10:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 11:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 12: // effect as + with fmod
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+	      break;
+	      case 13:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]|=tmp32;
+	      break;
+	      case 14:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32=audio_buffer[lp]+tmp32;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 15:
+		fsumd=(float)tmp16*village_filtin[x].effectinv;
+		fsum=(float)tmp*village_filtin[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtin[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) audio_buffer[lp]=tmp32;
+		lasttmp=tmp32;
+	      break;
+	      /////
+
+	    }// end of switcher
+
+	      if (++village_filtin[x].del>=village_filtin[x].step){
+	      countf=((village_filtin[x].samplepos-village_filtin[x].start)+village_filtin[x].dirry);
+	      if (countf<village_filtin[x].wrap && countf>0)
+	      {
+		village_filtin[x].samplepos+=village_filtin[x].dirry;//)%32768;
+		  }
+	      else
+		{
+		  village_filtin[x].running==0;
+		if (village_filtin[x].dir==2) village_filtin[x].dirry=newdirection[wormdir];
+		else if (village_filtin[x].dir==3) village_filtin[x].dirry=direction[adc_buffer[DOWN]&1]*village_filtin[x].speed;
+		else village_filtin[x].dirry=direction[village_filtin[x].dir]*village_filtin[x].speed;
+		if (village_filtin[x].dirry>0) village_filtin[x].samplepos=village_filtin[x].start;
+		  else village_filtin[x].samplepos=village_filtin[x].start+village_filtin[x].wrap;
+		}
+	    village_filtin[x].del=0;
+	      }
+	    }
+	  }
+	  }
+
+	  // WRITEFILTOUT - effects are across LEFT in and audio_buffer???
+	  // NOW AS: or buf16 and audio???
+
+	  //	  ldst=left_buffer;
+	  //	  rdst=right_buffer;
+
+	  for (xx=0;xx<sz/2;xx++){
+	    left_buffer[xx]=0;
+
+	  delfiltout++;
+	  if (delfiltout>=filtoutspeed) {
+	    delfiltout=0;
+	      }
+	  lasttmp=0;
+
+	  for (x=0;x<howmanyfiltoutvill;x++){
+
+	    tmpp=village_filtout[x].compress; if (tmpp==0) tmpp=1;
+
+	  if (delfiltout==0) village_filtout[x].counterr+=dirryff;
+	  if (village_filtout[x].counterr>=(32768/tmpp)) {
+	    village_filtout[x].counterr=0;
+	    village_filtout[x].running=1;
+	  }
+
+	    if ((village_filtout[x].offset/tmpp)<=village_filtout[x].counterr && village_filtout[x].running==1){
+
+	      lp=village_filtout[x].samplepos%32768;
+	      tmp16=buf16[lp]-32768;
+	      tmp=audio_buffer[lp];
+
+	      switch(village_filtout[x].overlay&15){
+	      case 0: // straight. no fmod
+		left_buffer[xx]=tmp;
+		break;
+	      case 1:
+		left_buffer[xx]|=tmp;
+	      break;
+	      case 2:
+		tmp32=left_buffer[xx]+tmp;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+		break;
+	      case 3:
+		if (tmp>lasttmp) left_buffer[xx]=tmp;
+		lasttmp=tmp;
+	      break;
+
+	      case 4: // effect as & with fmod
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+	      break;
+	      case 5:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]|=tmp32;
+	      break;
+	      case 6:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		tmp32=left_buffer[xx]+tmp32;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+		break;
+	      case 7:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32&=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) left_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 8: // effect as + with fmod
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+	      break;
+	      case 9:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]|=tmp32;
+	      break;
+	      case 10:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		tmp32=left_buffer[xx]+tmp32;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+		break;
+	      case 11:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32+=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) left_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+
+	      case 12: // effect as * with fmod
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+	      break;
+	      case 13:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]|=tmp32;
+	      break;
+	      case 14:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		tmp32=left_buffer[xx]+tmp32;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		left_buffer[xx]=tmp32;
+		break;
+	      case 15:
+		fsumd=(float)tmp16*village_filtout[x].effectinv;
+		fsum=(float)tmp*village_filtout[x].effect;
+		tmp32d=fsumd;
+		tmp32=fsum;
+		tmp32*=tmp32d;
+		if (village_filtout[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		if (tmp32>lasttmp) left_buffer[xx]=tmp32;
+		lasttmp=tmp32;
+	      break;
+	      ////////////////////////
+	      } // end of overlay switch
+	      //////
+	      if (++village_filtout[x].del>=village_filtout[x].step){
+	      countff=((village_filtout[x].samplepos-village_filtout[x].start)+village_filtout[x].dirry);
+	      if (countff<village_filtout[x].wrap && countff>=0)
+	      {
+		village_filtout[x].samplepos+=village_filtout[x].dirry;//)%32768;
+		  }
+	      else
+		{
+		  village_filtout[x].running=0;
+		if (village_filtout[x].dir==2) village_filtout[x].dirry=newdirection[wormdir];
+		if (village_filtout[x].dir==3) village_filtout[x].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[x].speed;
+		else village_filtout[x].dirry=direction[village_filtout[x].dir]*village_filtout[x].speed;
+
+		if (village_filtout[x].dirry>0) village_filtout[x].samplepos=village_filtout[x].start;
+		  else village_filtout[x].samplepos=village_filtout[x].start+village_filtout[x].wrap;
+		}
+	    village_filtout[x].del=0;
+	    }
+	    }
+	  }
+	  }
+#endif
+	  */
+
+
     //  float omega = (M_PI/2.0f - 0.01f)*(2000.0f/48000.0f) + 0.00001f; // Frequency
     /*  float omega = M_PI*(2000.0f/48000.0f); // Frequency
   float K = tanf(omega);

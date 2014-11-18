@@ -359,8 +359,8 @@ void main(void)
     village_read[xx].dirry=1;
     village_read[xx].samplepos=0;
     village_read[xx].offset=0;
-    village_read[xx].effect=1.0f;
-    village_read[xx].effectinv=0.0f;
+    //    village_read[xx].effect=1.0f;
+    //    village_read[xx].effectinv=0.0f;
     village_read[xx].overlay=0;
     village_read[xx].running=1;
 
@@ -381,8 +381,8 @@ void main(void)
     village_write[xx].dirry=1;
     village_write[xx].samplepos=0;
     village_write[xx].offset=0;
-    village_write[xx].effect=1.0f;
-    village_write[xx].effectinv=0.0f;
+    //    village_write[xx].effect=1.0f;
+    //    village_write[xx].effectinv=0.0f;
     village_write[xx].overlay=0;
     village_write[xx].running=1;
 
@@ -444,8 +444,8 @@ void main(void)
     village_filtin[xx].dirry=1;
     village_filtin[xx].samplepos=0;
     village_filtin[xx].offset=0;
-    village_filtin[xx].effect=1.0f;
-    village_filtin[xx].effectinv=0.0f;
+    //    village_filtin[xx].effect=1.0f;
+    //    village_filtin[xx].effectinov=0.0f;
     village_filtin[xx].overlay=0;
     village_filtin[xx].running=1;
 
@@ -466,8 +466,8 @@ void main(void)
     village_filtout[xx].dirry=1;
     village_filtout[xx].samplepos=0;
     village_filtout[xx].offset=0;
-    village_filtout[xx].effect=1.0f;
-    village_filtout[xx].effectinv=0.0f;
+    //    village_filtout[xx].effect=1.0f;
+    //    village_filtout[xx].effectinv=0.0f;
     village_filtout[xx].overlay=0;
 #endif
 
@@ -952,8 +952,8 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
 	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
-	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
-	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effect;
+	    //	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// no more??
+	    //	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effect;
 	    tmpp=(32768-(adc_buffer[FOURTH]<<3))+1;//
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    dirryw=(spd&240)>>4;
@@ -1012,9 +1012,9 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect as param
 	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>6; // 6 bits =64 top bit is datagen
-	    village_read[whichvillager].effect=(float)adc_buffer[THIRD]/4096.0f;//
-	    village_read[whichvillager].effectinv=1.0f-village_read[whichvillager].effect;
-	    village_read[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;
+	    //	    village_read[whichvillager].effect=(float)adc_buffer[THIRD]/4096.0f;//
+	    //	    village_read[whichvillager].effectinv=1.0f-village_read[whichvillager].effect;
+	    //	    village_read[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    dirryr=(spd&240)>>4;
 	    // no finger/dir?
@@ -1088,8 +1088,8 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
 	    village_filtin[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
-	    village_filtin[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
-	    village_filtin[whichvillager].effectinv=1.0f-village_filtin[whichvillager].effect;
+	    //	    village_filtin[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
+	    //	    village_filtin[whichvillager].effectinv=1.0f-village_filtin[whichvillager].effect;
 	    village_filtin[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;//
 	    filtinspeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    // no finger/dir?
@@ -1125,9 +1125,9 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
 	    village_filtout[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
-	    village_filtout[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
-	    village_filtout[whichvillager].effectinv=1.0f-village_filtout[whichvillager].effect;
-	    village_filtout[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;//
+	    //	    village_filtout[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// 
+	    //	    village_filtout[whichvillager].effectinv=1.0f-village_filtout[whichvillager].effect;
+	    //	    village_filtout[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;//
 	    filtoutspeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    // no finger/dir?
 	    dirryff=(spd&240)>>4;

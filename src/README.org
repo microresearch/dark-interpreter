@@ -18,6 +18,10 @@ walker finally-close4NOV
 so: TODO is effects walker, test datagen walker, mirrors/infections
 and fill out all
 
+- effects
+- mirrors
+- filtin/out handling and digfilter flag!
+
 *///MON 10 NOV:*
 
 - test basics with mainmode in main.c - seems okay but crash or hang
@@ -55,19 +59,19 @@ as not to init:
 
 *** new speed scheme
 
-readin and filterin as is for in
+readin and filterin as is for in>>>???
 
-out and filterout as simple model of single villager start, wrap and
+re-instate digfilter=1
+
+out and filterout as simple model of consecutive villager start, wrap and
 constrain (without mirror) as also overlap makes no sense
 there... also possibly inc. filterin into readin as option//how????
-
-*or outs as set of consecutive villagers*
-
-or calculate villager samplepos outside audio loop but that makes no sense
 
 - how else we can speed up audio.c and villager overlap processing???
 
 also speedups in all - no division, no fmods!
+
+- clean up how we set things  now without these!!!
 
 *** Notes 
 **** MON 10 NOV:
@@ -78,6 +82,10 @@ also speedups in all - no division, no fmods!
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+**** NOV 17
+
+- removed audio.c code
+
 **** NOV 10
 
 - 16k samplerate as all audio interrupts take too long so need rethink all in notes above
