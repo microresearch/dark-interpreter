@@ -147,10 +147,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 hdgener; 
   //  u8 whichvillager,step;
   float32_t fsum,fsumd;
-  int16_t tmp,tmp16;
+  int16_t tmp,tmp16,tmptmp,tmptmp16;
   static int16_t count=0,countf=0,countff=0,countr=0,count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
-  int32_t tmp32,tmp32d,tmptmp32;
-  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,readoverlay=0;
+  int32_t tmp32,tmp32d;
+  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,readoverlay=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
   extern u8 hardcompress;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,delfiltin=0,delfiltout=0;
@@ -253,7 +253,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    //	    tmpp=village_read[x].compress; if (tmpp==0) tmpp=1;
 
 	    if (delread==0) village_read[x].counterr+=dirryr;
-	    if (village_read[x].counterr>=village_read[x].compress) {
+	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ???
 	      village_read[x].counterr=0;
 	      village_read[x].running=1;
 	    }
@@ -295,38 +295,227 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp; lasttmp16=tmp16;
 	      break;
 
+	      // overlay(=,|,+,last)=4=2 bits - 16 bits
 	      case 4: // // overlay=all,effect=&
-		buf16[lp]&=tmp+32768;
-		audio_buffer[lp]&=tmp16;
+		tmp16&=tmp;
+		buf16[lp]=tmp16+32768;
+		audio_buffer[lp]=tmp16;
 	      break;
-	      case 5://
+	      case 5:// overlay or
+		tmp16&=tmp;
+		buf16[lp]|=tmp16+32768;
+		audio_buffer[lp]|=tmp16;
+		break;
+	      case 6: // overlay +
+		tmp16&=tmp;
+		tmp32d=buf16[lp]+tmp16;
+		tmp32=audio_buffer[lp]+tmp16;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32+32768;// TODO: add here or before???
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 7: // overlay last
+		tmp16&=tmp;
+		if (tmp16>lasttmp) {
+		  buf16[lp]=tmp16+32768;
+		  audio_buffer[lp]=tmp16;
+	      }
+		lasttmp=tmp16;
 		break;
 
+	      case 8: // // overlay=all,effect=+
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32d+32768;// TODO: add here or before???
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 9:// overlay or
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]|=tmp32d+32768;
+		audio_buffer[lp]|=tmp32d;
+		break;
+	      case 10: // overlay +
+		tmp32d=tmp+tmp16; 
+		tmp32=buf16[lp]+tmp32d;
+		tmp32d+=audio_buffer[lp];
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		buf16[lp]=tmp32+32768;
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 11: // overlay last
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32d>lasttmp) {
+		  buf16[lp]=tmp32d+32768;
+		audio_buffer[lp]=tmp32d;
+		}
+		lasttmp=tmp32d;
+		break;
+
+	      case 12: // // overlay=all,effect=*
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]=tmp32d+32768;// TODO: add here or before???
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 13:// overlay or
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		buf16[lp]|=tmp32d+32768;
+		audio_buffer[lp]|=tmp32d;
+		break;
+	      case 14: // overlay +
+		tmp32d=tmp*tmp16; 
+		tmp32=buf16[lp]+tmp32d;
+		tmp32d+=audio_buffer[lp];
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		}
+		buf16[lp]=tmp32+32768;
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 15: // overlay last
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32d>lasttmp) {
+		  buf16[lp]=tmp32d+32768;
+		audio_buffer[lp]=tmp32d;
+		}
+		lasttmp=tmp32d;
+		break;
 	      }// switch
 	      }
 	      else // straight UP
 		{
 	      tmp16=buf16[lp]-32768;
 	      switch(village_read[x].overlay&15){
-	      case 0: // straight. no fmod
+	      case 0: // overlay=all,effect=straight
 		audio_buffer[lp]=tmp;
 	      break;
-	      case 1:
+	      case 1://or
 		audio_buffer[lp]|=tmp;
 	      break;
-	      case 2:
-		tmp32=audio_buffer[lp]+tmp;
+	      case 2:///+
+		tmp32d=audio_buffer[lp]+tmp;
 		if (village_read[x].overlay&16) {
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		}
-		audio_buffer[lp]=tmp32;
+		audio_buffer[lp]=tmp32d;
 		break;
-	      case 3:
+	      case 3://last
 		if (tmp>lasttmp) audio_buffer[lp]=tmp;
 		lasttmp=tmp;
 	      break;
 	      /////
+	      // overlay(=,|,+,last)=4=2 bits - 16 bits
+	      case 4: // // overlay=all,effect=&
+		tmp16&=tmp;
+		audio_buffer[lp]=tmp16;
+	      break;
+	      case 5:// overlay or
+		tmp16&=tmp;
+		audio_buffer[lp]|=tmp16;
+		break;
+	      case 6: // overlay +
+		tmp16&=tmp;
+		tmp32=audio_buffer[lp]+tmp16;
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]=tmp32;
+		break;
+	      case 7: // overlay last
+		tmp16&=tmp;
+		if (tmp16>lasttmp) {
+		  audio_buffer[lp]=tmp16;
+	      }
+		lasttmp=tmp16;
+		break;
+	      case 8: // // overlay=all,effect=+
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 9:// overlay or
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]|=tmp32d;
+		break;
+	      case 10: // overlay +
+		tmp32d=tmp+tmp16+audio_buffer[lp];
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 11: // overlay last
+		tmp32d=tmp+tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32d>lasttmp) {
+		audio_buffer[lp]=tmp32d;
+		}
+		lasttmp=tmp32d;
+		break;
 
+	      case 12: // // overlay=all,effect=*
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]=tmp32d;
+	      break;
+	      case 13:// overlay or
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]|=tmp32d;
+		break;
+	      case 14: // overlay +
+		tmp32d=tmp*tmp16; 
+		tmp32d+=audio_buffer[lp];
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		audio_buffer[lp]=tmp32d;
+		break;
+	      case 15: // overlay last
+		tmp32d=tmp*tmp16; 
+		if (village_read[x].overlay&16) {
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		}
+		if (tmp32d>lasttmp) {
+		audio_buffer[lp]=tmp32d;
+		}
+		lasttmp=tmp32d;
+		break;
 	      } ///end last switch 
 		} //
 	    
@@ -351,15 +540,43 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  }
 
-	// WRITE! simplify to consecutive!!
+	// WRITE! simplify to consecutive!! DONE- to test!
+
+	  // but here we have no compress!
+
 
 	  for (xx=0;xx<sz/2;xx++){
 
-	  delwrite++;
-	  if (delwrite>=writespeed) {
-	    delwrite=0;
-	      }
-	  }
+	    lp=village_write[x].samplepos%32768;
+	    mono_buffer[xx]=audio_buffer[lp];
+
+	    delwrite++;
+	    if (delwrite>=writespeed) {
+	      delwrite=0;
+	    }
+
+	    x=whichwritevillager%howmanywritevill;
+	    if (delwrite==0) village_write[x].counterr+=dirryw;
+	  
+	    if (++village_write[x].del>=village_write[x].step){
+	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
+	      if (count<village_write[x].wrap && count>0)
+		{
+		  village_write[x].samplepos+=village_write[x].dirry;//)%32768;
+		}
+	      else
+		{
+		  //		village_write[x].running==0;
+		  if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
+		  else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
+		  else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
+		  if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
+		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
+		  whichwritevillager++; //u8 /// move on to next
+		}
+	      village_write[x].del=0;
+	    }
+	  }/// end of write!
 
 	  /////////////////////////
 	  // final combine

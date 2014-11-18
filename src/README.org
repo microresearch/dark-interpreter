@@ -16,11 +16,16 @@ walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect
 walker finally-close4NOV
 
 so: TODO is effects walker, test datagen walker, mirrors/infections
-and fill out all
+and fill out all: again:::
 
-- effects
-- mirrors
+- readin/out reworked DONE NOV 18
 - filtin/out handling and digfilter flag!
+- effects filled in/test
+- mirrors filled in/test
+
+handle? readin: in audio//left?/datagen/   ---buffer(overlap)
+
+except LACH maybe keep left always open and used in HW???? reduce options...
 
 *///MON 10 NOV:*
 
@@ -82,6 +87,11 @@ also speedups in all - no division, no fmods!
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+
+**** NOV 18
+
+- templated out rest of READIN code and READOUT/write finished but TO TEST before is used for filter in/out
+
 **** NOV 17
 
 - removed audio.c code

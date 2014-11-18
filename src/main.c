@@ -948,13 +948,13 @@ void main(void)
 	    }
 	    break;
 
-	  case 1: // WRITE overlays and compression
+	  case 1: // WRITE overlays and compression REDO as no overlays or COMPRESSION!
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
-	    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32
+	    //    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32 NO OVERLAY
 	    //	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// no more??
 	    //	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effect;
-	    tmpp=(32768-(adc_buffer[FOURTH]<<3))+1;//
+	    //	    tmpp=(32768-(adc_buffer[FOURTH]<<3))+1;//NO COMPRESS
 	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
 	    dirryw=(spd&240)>>4;
 	    // finger as mirrormod finger is---> UP.2 DOWN.3 LEFT.0. RIGHT.1b
@@ -965,18 +965,18 @@ void main(void)
 	    else village_write[whichvillager].mirrormod=0; // added or gets stuck!
 	    
 	    // deal with mirror here
-	    village_write[whichvillager].kcompress=tmpp;
+		    //	    village_write[whichvillager].kcompress=tmpp;
 
 	    if (village_write[whichvillager].mirrormod){
 	      switch(village_write[whichvillager].mirrormod){
 	      case 1: // straight datagen
-		village_write[whichvillager].compress=village_write[whichvillager].mcompress;
+		//	village_write[whichvillager].compress=village_write[whichvillager].mcompress;
 		break;
 		// as above to fill out! TODO!
 	      }
 	    }
 	    else {
-	      village_write[whichvillager].compress=tmpp;
+	      //	      village_write[whichvillager].compress=tmpp; 
 	    }
 	    break;
 
