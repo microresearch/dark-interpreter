@@ -542,37 +542,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// WRITE! simplify to consecutive!! DONE- to test!
 
-	  // but here we have no compress!
-
-
 	  for (xx=0;xx<sz/2;xx++){
 
 	    lp=village_write[x].samplepos%32768;
 	    mono_buffer[xx]=audio_buffer[lp];
-
-	    delwrite++;
-	    if (delwrite>=writespeed) {
-	      delwrite=0;
-	    }
-
-	    x=whichwritevillager%howmanywritevill;
-	    if (delwrite==0) village_write[x].counterr+=dirryw;
 	  
-	    if (++village_write[x].del>=village_write[x].step){
-	      count=((village_write[x].samplepos-village_write[x].start)+village_write[x].dirry);
-	      if (count<village_write[x].wrap && count>0)
+	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
+	      count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
+	      if (count<village_write[whichwritevillager].wrap && count>0)
 		{
-		  village_write[x].samplepos+=village_write[x].dirry;//)%32768;
+		  village_write[whichwritevillager].samplepos+=village_write[whichwritevillager].dirry;//)%32768;
 		}
 	      else
 		{
-		  //		village_write[x].running==0;
-		  if (village_write[x].dir==2) village_write[x].dirry=newdirection[wormdir];
-		  else if (village_write[x].dir==3) village_write[x].dirry=direction[adc_buffer[DOWN]&1]*village_write[x].speed;
-		  else village_write[x].dirry=direction[village_write[x].dir]*village_write[x].speed;
-		  if (village_write[x].dirry>0) village_write[x].samplepos=village_write[x].start;
-		  else village_write[x].samplepos=village_write[x].start+village_write[x].wrap;
-		  whichwritevillager++; //u8 /// move on to next
+		  //		village_write[whichwritevillager].running==0;
+		  if (village_write[whichwritevillager].dir==2) village_write[whichwritevillager].dirry=newdirection[wormdir];
+		  else if (village_write[whichwritevillager].dir==3) village_write[whichwritevillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
+		  else village_write[whichwritevillager].dirry=direction[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
+		  if (village_write[whichwritevillager].dirry>0) village_write[whichwritevillager].samplepos=village_write[whichwritevillager].start;
+		  else village_write[whichwritevillager].samplepos=village_write[whichwritevillager].start+village_write[whichwritevillager].wrap;
+		  whichwritevillager++; 
+		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		}
 	      village_write[x].del=0;
 	    }

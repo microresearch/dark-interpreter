@@ -949,35 +949,46 @@ void main(void)
 	    break;
 
 	  case 1: // WRITE overlays and compression REDO as no overlays or COMPRESSION!
-	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    // not much left apart from the attachment which could be done here ALL!!
+	    /// only thing is to try and match with READ which could be done!
+
+	    /*
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    village_write[whichx].fingered=xx; // TODO... other groups
+	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>6;
+	    village_write[whichx].mirrorspeed=(spd&15)+1; 
+	    */
+
+	    //	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect
 	    //    village_write[whichvillager].overlay=adc_buffer[SECOND]>>7;// 5 bits=32 NO OVERLAY
 	    //	    village_write[whichvillager].effect=(float)(adc_buffer[THIRD])/4096.0f;// no more??
 	    //	    village_write[whichvillager].effectinv=1.0f-village_write[whichvillager].effect;
 	    //	    tmpp=(32768-(adc_buffer[FOURTH]<<3))+1;//NO COMPRESS
-	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
-	    dirryw=(spd&240)>>4;
+	    //	    writespeed=spd&15; // check how many bits is spd? 8 as changed in main
+	    //	    dirryw=(spd&240)>>4;
 	    // finger as mirrormod finger is---> UP.2 DOWN.3 LEFT.0. RIGHT.1b
-	    	    if (xx==2 || xx==3){
+	    /*	    if (xx==2 || xx==3){
 	    village_write[whichvillager].mirrormod=1;
 	    village_write[whichvillager].fingered=xx;
 	    }
 	    else village_write[whichvillager].mirrormod=0; // added or gets stuck!
-	    
-	    // deal with mirror here
-		    //	    village_write[whichvillager].kcompress=tmpp;
+	    */
+	    // deal with mirror here - nothing to mirror as no compress here
+		    /*	    village_write[whichvillager].kcompress=tmpp;
+
 
 	    if (village_write[whichvillager].mirrormod){
 	      switch(village_write[whichvillager].mirrormod){
 	      case 1: // straight datagen
-		//	village_write[whichvillager].compress=village_write[whichvillager].mcompress;
+			village_write[whichvillager].compress=village_write[whichvillager].mcompress;
 		break;
 		// as above to fill out! TODO!
 	      }
 	    }
 	    else {
-	      //	      village_write[whichvillager].compress=tmpp; 
-	    }
+	      	      village_write[whichvillager].compress=tmpp; 
+		      }*/
 	    break;
 
 	    ///TODO: above as models for rest of walkers
@@ -1012,9 +1023,11 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    // overlap, effect as param
 	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>6; // 6 bits =64 top bit is datagen
+
+	    // THIRD????
 	    //	    village_read[whichvillager].effect=(float)adc_buffer[THIRD]/4096.0f;//
 	    //	    village_read[whichvillager].effectinv=1.0f-village_read[whichvillager].effect;
-	    //	    village_read[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;
+	    village_read[whichvillager].compress=(32768-(adc_buffer[FOURTH]<<3))+1;
 	    readspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    dirryr=(spd&240)>>4;
 	    // no finger/dir?

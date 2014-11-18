@@ -18,14 +18,10 @@ walker finally-close4NOV
 so: TODO is effects walker, test datagen walker, mirrors/infections
 and fill out all: again:::
 
-- readin/out reworked DONE NOV 18
+- readin/out reworked DONE NOV 18 and shift mirrormods to second knob of each
 - filtin/out handling and digfilter flag!
 - effects filled in/test
-- mirrors filled in/test
-
-handle? readin: in audio//left?/datagen/   ---buffer(overlap)
-
-except LACH maybe keep left always open and used in HW???? reduce options...
+- mirrors filled in/test 
 
 *///MON 10 NOV:*
 
