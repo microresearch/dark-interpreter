@@ -65,7 +65,6 @@ int16_t	*left_buffer, *right_buffer, *mono_buffer;
 
 void initaudio(void){
 left_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
-right_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 }
 
@@ -78,7 +77,7 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 #include "simulation.h"
 extern __IO uint16_t adc_buffer[10];
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
-int16_t	left_buffer[MONO_BUFSZ], right_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
+int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define float float32_t
 #endif
 
@@ -150,11 +149,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   int16_t tmp,tmpl,tmp16,tmptmp,tmptmp16;
   static int16_t count=0,countf=0,countff=0,countr=0,count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
   int32_t tmp32,tmp32d;
-  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,readoverlay=0;
+  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,whichfiltoutvillager=0,readoverlay=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
   extern u8 hardcompress;
   static u8 whichw=0,whichr=0,delread=0,delwrite=0,delfiltin=0,delfiltout=0;
-  extern u8 readspeed,writespeed,filtinspeed,filtoutspeed;
+  //  extern u8 readspeed,writespeed,filtinspeed,filtoutspeed;
   //  extern int16_t dirryw,dirryr,dirryf,dirryff;
 
   static u16 counter=0,counterr=0,counthw=0;
@@ -163,7 +162,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   //  u8 mainmode;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
-  extern villagerr village_filtin[MAX_VILLAGERS+1];
   extern villagerw village_filtout[MAX_VILLAGERS+1];
   extern villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
@@ -191,13 +189,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   //  howmanyreadvill=16; // TESTY!
 
 #ifdef TEST_STRAIGHT
-  audio_split_stereo(sz, src, left_buffer, right_buffer);
-  audio_comb_stereo(sz, dst, left_buffer, right_buffer);
+  audio_split_stereo(sz, src, left_buffer, mono_buffer);
+  audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
 
-	u16 *buf16 = (u16*) datagenbuffer;
-	int16_t *ldst=left_buffer;
-	int16_t *rdst=right_buffer;//TODO??
+  u16 *buf16 = (u16*) datagenbuffer;
 
 	/// HARDWARE at start
 
@@ -233,10 +229,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	// READ! 
 
 	  for (xx=0;xx<sz/2;xx++){
-	    //	    *ldst++=*(src++);
 	    tmpl=*(src++);
 	    tmp=*(src++); 
-	    //	    *rdst++=*(src++);
 	    lasttmp=0,lasttmp16=0;
 
 	  for (x=0;x<howmanyreadvill;x++){
@@ -479,7 +473,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// WRITE! simplified to consecutive!! DONE- to test!
 	  for (xx=0;xx<sz/2;xx++){
-
 	    lp=village_write[whichwritevillager].samplepos%32768;
 	    mono_buffer[xx]=audio_buffer[lp];
 	  
@@ -505,6 +498,34 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }/// end of write!
 
 	  // TODO: filtout as above!
+
+	  if (digfilterflag==1){
+
+	  for (xx=0;xx<sz/2;xx++){
+	    lp=village_filtout[whichfiltoutvillager].samplepos%32768;
+	    left_buffer[xx]=audio_buffer[lp];
+	  
+	    if (++village_filtout[whichfiltoutvillager].del>=village_filtout[whichfiltoutvillager].step){
+	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
+	      if (count<village_filtout[whichfiltoutvillager].wrap && count>0)
+		{
+		  village_filtout[whichfiltoutvillager].samplepos+=village_filtout[whichfiltoutvillager].dirry;//)%32768;
+		}
+	      else
+		{
+		  //		village_filtout[whichfiltoutvillager].running==0;
+		  if (village_filtout[whichfiltoutvillager].dir==2) village_filtout[whichfiltoutvillager].dirry=newdirection[wormdir];
+		  else if (village_filtout[whichfiltoutvillager].dir==3) village_filtout[whichfiltoutvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
+		  else village_filtout[whichfiltoutvillager].dirry=direction[village_filtout[whichfiltoutvillager].dir]*village_filtout[whichfiltoutvillager].speed;
+		  if (village_filtout[whichfiltoutvillager].dirry>0) village_filtout[whichfiltoutvillager].samplepos=village_filtout[whichfiltoutvillager].start;
+		  else village_filtout[whichfiltoutvillager].samplepos=village_filtout[whichfiltoutvillager].start+village_filtout[whichfiltoutvillager].wrap;
+		  whichfiltoutvillager++; 
+		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
+		}
+	      village_filtout[whichfiltoutvillager].del=0;
+	    }
+	  }/// end of FILTwrite!
+	  }
 
 	  /////////////////////////
 	  // final combine

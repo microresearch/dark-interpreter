@@ -10,24 +10,18 @@ organ!
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
- 
-=overlapsDONE/leftwalkersDONE/HW walkersTEST_TUE4NOV/(datagen
-walker)TEST = mirrors/infectionSTARTED 5NOV// effects and effect
-walker finally-close4NOV
 
-so: TODO is effects walker, test datagen walker, mirrors/infections
-and fill out all: again:::
+TODO is effects walker, test datagen walker(HOW?), mirrors/infections
+and fill out all templates and TEST ALL!
 
-- readin/out reworked DONE NOV 18
+what groups we mirror?: readin/out, filtout and HWs. and what parts of struct are mirrored? eg.  *also mirror overlay* in read
 
-what we mirror: readin/out, filtin/out and HWs???
-
-- filtin/out handling and digfilter flag! = where we do FILTIN???extra flag that tmp is LEFTIN???
-
-NOV18+ *also mirroroverlay* TODO!
+TODO 19NOV: re-test mdavocoder, fill out all effects
 
 - effects filled in/test
 - mirrors filled in/test 
+- test new readin/out and filtin/out
+- sampling speed?
 
 *///MON 10 NOV:*
 
@@ -64,7 +58,7 @@ as not to init:
 
 ////- effects cleaned up/init all effect structures:
 
-*** new speed scheme
+*** new speed schemeDONE
 
 readin and filterin as is for in>>>???
 
@@ -86,9 +80,13 @@ biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
 
+**** NOV 19
+
+- added filtout processing to audio.c
+
 **** NOV 18
 
-- filtin is now just flag in readin overlay to be subhjected to mirroring
+- filtin is now just flag in readin overlay to be subjected to mirroring
 - templated out rest of READIN code and READOUT/write finished but TO TEST before is used for filter in/out
 - adding mirrors into second knobset code in main
 - reinstated digfilterflag=1

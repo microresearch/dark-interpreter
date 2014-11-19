@@ -107,7 +107,7 @@ u16 stacker[STACK_SIZE*4]; // 64*4 MAX
 #define RIGHT 7
 #endif
 
-  const float freq[5][5] __attribute__ ((section (".flash"))) = {
+static const float freq[5][5] __attribute__ ((section (".flash"))) = {
       {600, 1040, 2250, 2450, 2750},
       {400, 1620, 2400, 2800, 3100},
       {250, 1750, 2600, 3050, 3340},
@@ -115,7 +115,7 @@ u16 stacker[STACK_SIZE*4]; // 64*4 MAX
       {350, 600, 2400, 2675, 2950}
   };
 
-  const float qqq[5][5] __attribute__ ((section (".flash"))) = {
+static const float qqq[5][5] __attribute__ ((section (".flash"))) = {
     {14.424072,21.432398,29.508234,29.453644,30.517193},
     {14.424072,29.213112,34.623474,33.661621,37.268467},
     {6.004305,28.050945,37.508934,36.667324,40.153900},
@@ -123,7 +123,7 @@ u16 stacker[STACK_SIZE*4]; // 64*4 MAX
 {12.620288,10.816360,34.623474,32.158768,35.465038}
   };
 
-  const float mull[5][5] __attribute__ ((section (".flash"))) = {
+static const float mull[5][5] __attribute__ ((section (".flash"))) = {
     {1, 0.44668359215096, 0.35481338923358, 0.35481338923358, 0.1},
     {1, 0.25118864315096, 0.35481338923358, 0.25118864315096, 0.12589254117942},
     {1, 0.031622776601684, 0.15848931924611, 0.079432823472428, 0.03981071705535},
@@ -259,7 +259,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=0,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltinvill=0, howmanyfiltoutvill=0,howmanyreadvill=1;
+u8 howmanydatagenwalkervill=1, howmanydatavill=0,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -908,7 +908,7 @@ void main(void)
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
 
-	    ///TODO: above as models for rest of walkers alhtough read is different
+	    ///TODO: above as models for rest of walkers alhtough read is different/MIRROR!
 
 	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -934,7 +934,7 @@ void main(void)
 	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
 	    }
 	    break;
-	    //// todo mirrors all below!
+
 	  case 2:
 	    // READ again - select villager
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
@@ -945,6 +945,7 @@ void main(void)
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>6;
 	    village_read[whichvillager].mirrorspeed=(spd&15)+1; 
 	    village_read[whichvillager].dirryr=(spd&240)>>4;
+	    // TODO mirror compression as above
 	    break;
 	    
 	  case 3: // DATAGEN villagers
@@ -1086,7 +1087,7 @@ void main(void)
 	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
 	    break;
 
-	  case 11: // effects across also case 16:
+	  case 11: // effects across also case 12:
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    howmanyeffectvill=whichvillager+1;
 	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
@@ -1210,14 +1211,16 @@ void main(void)
 		*/
 	    } // end of xx = action
 	    break; // case 18
-	  case 15: // mirror - now as doubled knob for each
-	    // 1-set which villager is mirrored - but depends on how many
+	  case 15: // mirror 
+	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    //grupx=adc_buffer[SECOND]>>9; 3 bit=8 groups?
+	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>6;
+
 	    // 2-which group also TODO! here is just WRITE!
 	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
 	    village_write[whichx].fingered=xx; // TODO... other groups
 	    // 3-set how mirror effects = mirrormod if 0 then nothing happens
-	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>6;
 	    // finger-speed and step for this
 	    village_write[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
@@ -1242,6 +1245,8 @@ void main(void)
 	      // but all are same fingered.TODO????
 	      switch(village_write[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
+
+		// TODO what is mirrored as nice to mirror overlay also
 	      case 0: // LEFT=finger
 		village_write[whichx].mstart=adc_buffer[LEFT]<<3;
 		village_write[whichx].mwrap=adc_buffer[LEFT]<<3;
@@ -1289,7 +1294,6 @@ void main(void)
 	  }	
 	}
        
-
 	////// all effects
 
 	// TESTY!

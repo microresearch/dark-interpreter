@@ -422,7 +422,7 @@ void do_effect(villager_effect* vill_eff){
   case 2: //FFT in PV from inbuffer into buf16
     break;
 
-    /*--3mdavocoder - how to swap channels based on modifier
+    /*--3mdavocoder - swap channels based on modifier
       4--convolve
       5--envelope follower
       6--windower - diff windows based on modifier
