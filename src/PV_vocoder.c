@@ -115,6 +115,40 @@ void pvvocprocess(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
   // do we need windows
 }
 
+void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
+  int16_t buffer[64]; // working buffer
+
+  /// try without overlap/window
+  //  memcpy(unit->buffer,inbuffer,512);
+  copy_to_fft_buffer(buffer, inbuffer);
+  //  apply_window_to_fft_buffer(inbuffer);
+  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,0,0);
+  // invert
+  //  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,1,0);
+  // copy 256 from fft buffer????
+  copy_from_fft_buffer(outbuffer,buffer);
+  //  memcpy(outbuffer,inbuffer,512);
+  // do we need windows
+}
+
+void dofftout(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
+  int16_t buffer[64]; // working buffer
+
+  /// try without overlap/window
+  //  memcpy(unit->buffer,inbuffer,512);
+  copy_to_fft_buffer(buffer, inbuffer);
+  //  apply_window_to_fft_buffer(inbuffer);
+  //  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,0,0);
+  // invert
+  arm_cfft_q15(&arm_cfft_sR_q15_len64, buffer,1,0);
+  // copy 256 from fft buffer????
+  copy_from_fft_buffer(outbuffer,buffer);
+  //  memcpy(outbuffer,inbuffer,512);
+  // do we need windows
+}
+
+
+
 /////NOTES
 
 /*arm_status arm_cfft_radix4_init_q15(

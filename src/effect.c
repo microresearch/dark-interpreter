@@ -15,7 +15,8 @@
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-extern u8 *datagenbuffer;
+extern int16_t* buf16;
+extern u8* datagenbuffer;
 extern int16_t audio_buffer[AUDIO_BUFSZ];
 extern arm_biquad_casd_df1_inst_f32 df[5][5];
 extern mdavocoder *mdavocod;
@@ -227,14 +228,40 @@ void BBandPass_process(BBandPass *unit, int inNumSamples,float* inbuffer, float*
 //max function above
 
 // watch amount of out
-void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
+/*void convolvee(float *convolve1, u16 n1, float *convolve2, u16 n2, float *out)
 {
   for (u16 n = 0; n < n1 + n2 - 1; n++){
       out[n]=0.0f;
       for (u16 k = 0; k < MAX(n1, n2); k++)
 	out[n] += (k < n1 ? convolve1[k] : 0) * (n - k < n2 ? convolve2[n - k] : 0);
   }
+  }*/
+
+
+void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+{
+    int i, j, k;
+
+    // start convolution from out[kernelSize-1] to out[dataSize-1] (last)
+    for(i = kernelSize-1; i < dataSize; ++i)
+    {
+        out[i] = 0.0f;                             // init to 0 before accumulate
+
+        for(j = i, k = 0; k < kernelSize; --j, ++k)
+            out[i] += in[j] * kernel[k];
+    }
+
+    // convolution from out[0] to out[kernelSize-2]
+    for(i = 0; i < kernelSize - 1; ++i)
+    {
+        out[i] = 0.0f;                             // init to 0 before sum
+
+        for(j = i, k = 0; j >= 0; --j, ++k)
+            out[i] += in[j] * kernel[k];
+    }
 }
+
+
 
 float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
   float f,fb,hp,bp,scale;
@@ -345,6 +372,7 @@ void do_effect(villager_effect* vill_eff){
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
 
+  // modifier is 8 bits
   // chunk in size 32
   // pos and wrap are fixed by select/knob in audio.c!
   // pos is NOT with start!
@@ -403,8 +431,8 @@ void do_effect(villager_effect* vill_eff){
   case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
 
-    for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->instart+xx)%32768]/32768.0f;//REDO!
+    for (xx=0;xx<longest;xx++){
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO!howso?
     }
     // do effect
     doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
@@ -420,13 +448,123 @@ void do_effect(villager_effect* vill_eff){
    break; 
  
   case 2: //FFT in PV from inbuffer into buf16
+    //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
+    // but must be 32 samples
+    for (xx=0;xx<32;xx++){
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+    }
+    dofftin(inbuffer,outbuffer);
+    // copy into buf16
+    for (xx=0;xx<longest;xx++){
+      buf16[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
     break;
 
-    /*--3mdavocoder - swap channels based on modifier
-      4--convolve
-      5--envelope follower
-      6--windower - diff windows based on modifier
-      7--variable bandpass based on modifier
+      case 3: // reverse FFT from values in buf16
+    for (xx=0;xx<32;xx++){
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+    }
+    dofftout(inbuffer,outbuffer);
+    // copy into buf16
+    for (xx=0;xx<longest;xx++){
+      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+    break;
+
+  case 4:
+    // how to calculate 16 x 4 bit=64 bits offsets based on 12 bit modifier
+    switch(vill_eff->modifier&7){ // 
+    case 0:// leave as is
+      break;
+    case 1:// zero it
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]=0;
+    }
+    break;
+    case 2:// is 1
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]=1;
+    }
+    break;
+    case 3:// is -1
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]=15;
+    }
+    break;
+    case 4:// inc it
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]++;
+    }
+    break;
+    case 5:// dec it
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]--;
+    }
+    break;
+    case 6: //????
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]=vill_eff->modifier>>4;
+    }
+    break;
+    case 7:// use buf16
+    for (xx=0;xx<16;xx++){
+      mdavocod->offset[xx]=datagenbuffer[xx]>>4;
+    }
+    break;
+    }
+    // to floats
+    for (xx=0;xx<longest;xx++){
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
+      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f)-1.0f;//REDO! why/how?
+    }
+
+    mdaVocoderprocess(mdavocod,finbuffer, fmodbuffer, foutbuffer,longest);
+
+    // copy outbuffer to audio and do float back
+
+    for (xx=0;xx<longest;xx++){
+    tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
+    tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+    audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
+    vill_eff->outpos++;
+    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+
+    break;
+
+  case 5: //5--convolve:
+    for (xx=0;xx<tmpinlong;xx++){
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
+    }
+
+    for (xx=0;xx<tmpmodlong;xx++){
+      fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f;//REDO! why/how?
+    }
+
+    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, tmpmodlong);
+    //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+    for (xx=0;xx<longest;xx++){
+    tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
+    tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+    audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
+    vill_eff->outpos++;
+    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+
+
+
+    break;
+    /*-
+      
+      6--envelope follower
+      7+--windower - diff windows....
+      8--variable bandpass based on modifier 
+
+      // ADD extra effects to make 16
     */
   }
       // and update vill_eff
@@ -435,7 +573,6 @@ void do_effect(villager_effect* vill_eff){
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
-  u16 *buf16 = (u16*) datagenbuffer;
   //  extern VocoderInstance* vocoder; u8 x;
   float xx,xxx;
   float tmpbuffer[32];

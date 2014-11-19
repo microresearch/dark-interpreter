@@ -41,6 +41,30 @@ float intun_to_float(unsigned int inbuffer){
     return ((float)(inbuffer)/32768.0f)-1.0f;
 }
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+{
+    int i, j, k;
+
+    // start convolution from out[kernelSize-1] to out[dataSize-1] (last)
+    for(i = kernelSize-1; i < dataSize; ++i)
+    {
+        out[i] = 0;                             // init to 0 before accumulate
+
+        for(j = i, k = 0; k < kernelSize; --j, ++k)
+            out[i] += in[j] * kernel[k];
+    }
+
+    // convolution from out[0] to out[kernelSize-2]
+    for(i = 0; i < kernelSize - 1; ++i)
+    {
+        out[i] = 0;                             // init to 0 before sum
+
+        for(j = i, k = 0; j >= 0; --j, ++k)
+            out[i] += in[j] * kernel[k];
+    }
+}
 
 void main(void)
 {
@@ -50,9 +74,40 @@ void main(void)
   int16_t tmp;
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
   u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
+  u16 n1=32,n2=32;
 
-  while(1){
-    xx++;
+    float k[5] = {3, 4, 5, 0, 0};
+    float out[5];
+    float in[2] = {2,1};
+
+    convolve1D(in, out, 5, k, 2);
+
+    printf("INPUT\n");
+    for(i=0; i < 5; ++i)
+    {
+        printf("%5.2f, ", in[i]);
+    }
+    printf("\n\n");
+
+    printf("KERNEL\n");
+    for(i=0; i < 2; ++i)
+    {
+        printf("%5.2f, ", k[i]);
+    }
+    printf("\n\n");
+
+    printf("OUTPUT\n");
+    for(i=0; i < 5; ++i)
+    {
+        printf("%5.2f, ", out[i]);
+    }
+    printf("\n");
+
+
+
+  //  while(1){
+
+    /*    xx++;
     if (xx%1000==0){
     modwrap=(rand()%1000);
     inwrap=(rand()%1000);
@@ -82,9 +137,9 @@ void main(void)
 
     // and update vill_eff
     modpos+=tmpmodlong;
-    inpos+=tmpinlong;
+    inpos+=tmpinlong;*/
 
-  }
+  //  }
 
   //  xx=intun_to_float(65536);
   //  printf ("intun %f\n",xx);

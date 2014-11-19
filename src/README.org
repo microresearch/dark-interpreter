@@ -82,6 +82,7 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 19
 
+- filling out effects: all to be tested esp. new convolution
 - added filtout processing to audio.c
 
 **** NOV 18
@@ -185,6 +186,10 @@ as not to init:
 7--variable bandpass
 
 *** DONE
+
+**** NOV 19
+
+- filling out effects: all to be tested esp. new convolution
 
 **** MON 10 NOV
 

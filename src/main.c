@@ -312,6 +312,9 @@ void main(void)
   mdavocod=(mdavocoder *)malloc(sizeof(mdavocoder));
   mdaVocoder_init(mdavocod);
 
+  buf16 = (u16*) datagenbuffer;
+
+
   float Fc,Fs=48000.0f,Q,peakGain;
   float a0,a1,a2,b1,b2,norm,V,K;
   float *state[5][5];
@@ -1094,14 +1097,14 @@ void main(void)
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
-	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // bits is 3=8 options
+	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>7; // 16 options
 	    village_effect[whichvillager].speed=spd;
 	    break;
 	  case 12: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    village_effect[whichvillager].modifier=loggy[adc_buffer[FOURTH]];
+	    village_effect[whichvillager].modifier=adc_buffer[FOURTH]>>4; // 8 bits
 	    village_effect[whichvillager].step=spd;
 	    break;
 	    // datagen walker????

@@ -76,6 +76,7 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 #include "hardware.h"
 #include "simulation.h"
 extern __IO uint16_t adc_buffer[10];
+extern int16_t* buf16;
 int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
 int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define float float32_t
@@ -87,7 +88,6 @@ extern signed char direction[2];
 extern u8 wormdir;
 extern u8 wormflag[10];
 extern u8 digfilterflag;
-extern u8 *datagenbuffer;
 
 int16_t *audio_ptr;
 
@@ -192,8 +192,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   audio_split_stereo(sz, src, left_buffer, mono_buffer);
   audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
-
-  u16 *buf16 = (u16*) datagenbuffer;
 
 	/// HARDWARE at start
 
