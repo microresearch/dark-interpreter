@@ -276,6 +276,18 @@ float bandpass(float sample,float q, float fc, float gain){ // from OWL code - s
   return bp*gain;
 }
 
+float dobandpass(float sample,float f,float fb){ // from OWL code - statevariable
+  float hp,bp,scale,q=0.9f;
+  static float buf0=0,buf1=0;
+
+  hp=sample-buf0;
+  bp = buf0 - buf1; 
+  buf0 = buf0 + f * (hp + fb * bp); 
+  buf1 = buf1 + f * (buf0 - buf1);
+  return bp;
+}
+
+
 void int_to_floot(int16_t* inbuffer, float* outbuffer, u16 howmany){
   for (int n = 0; n < howmany; n++) {
     outbuffer[n]=(float32_t)(inbuffer[n])/32768.0f;
@@ -311,6 +323,20 @@ void envelopefollower(int16_t* envbuffer, int16_t* inbuffer, int16_t* outbuffer)
    outbuffer[x]=(float)inbuffer[x]*envout;
 }
 } 
+
+void doenvelopefollower(int16_t* envbuffer, u8 envsize, int16_t* inbuffer, u8 insize, int16_t* outbuffer){ // stick to 32 samples=48k/32 ms???
+  // but env is dependent on that size
+
+  float envout = 0.0f; int16_t env=0;
+ for (int x=0;x<envsize;x++){
+   if (abs(env)<envbuffer[x]) env=envbuffer[x];
+}
+ envout=(float)env/65536.0;
+ for (int x=0;x<insize;x++){
+   outbuffer[x]=(float)inbuffer[x]*envout;
+}
+} 
+
  
 void doringcopy(int16_t *inbuffer,int16_t *modbuffer,int16_t* outbuffer,u8 longest){
   u8 xx;
@@ -367,7 +393,7 @@ void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){/
   }
 
 void do_effect(villager_effect* vill_eff){
-  int16_t tmp;
+  int16_t tmp;float tmpp,freq,freqc;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
@@ -544,9 +570,9 @@ void do_effect(villager_effect* vill_eff){
     for (xx=0;xx<tmpmodlong;xx++){
       fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f;//REDO! why/how?
     }
-
-    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, tmpmodlong);
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, tmpmodlong);// TODO: do we need to select longest for data?
+
     for (xx=0;xx<longest;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
@@ -554,18 +580,58 @@ void do_effect(villager_effect* vill_eff){
     vill_eff->outpos++;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
-
-
-
     break;
-    /*-
-      
-      6--envelope follower
-      7+--windower - diff windows....
-      8--variable bandpass based on modifier 
 
-      // ADD extra effects to make 16
-    */
+  case 6: //     6--envelope follower
+    for (xx=0;xx<longest;xx++){
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
+    }
+
+    doenvelopefollower(modbuffer, tmpmodlong, inbuffer, tmpinlong, outbuffer);
+
+    for (xx=0;xx<longest;xx++){
+      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+    break;
+
+  case 7://      7+--windower - diff windows// also 32 ???
+    for (xx=0;xx<longest;xx++){
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
+    }
+
+    hanningprocess(inbuffer, outbuffer, longest); 
+
+    for (xx=0;xx<longest;xx++){
+      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+    break;
+
+
+  case 8://      8--variable bandpass based on modifier 
+    freq = 2.0*M_PI*((float32_t)vill_eff->modifier/4096.0f);
+    freqc= 0.9f + 0.9f/(1.0f - freq);
+
+    for (xx=0;xx<tmpinlong;xx++){
+      tmpp=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
+      tmpp=dobandpass(tmpp,freq,freqc); // from OWL code - statevariable
+	// out here
+      tmp = (int32_t)(tmpp * 32768.0f);
+      tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
+      vill_eff->outpos++;
+      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+      }
+    break;
+
+      // ADD extra effects to make 16- calc extra windows, other effects worked on!
+    // eg follow envelope of buf16 = * float
+    // peak detect in buf16
   }
       // and update vill_eff
     vill_eff->modpos+=tmpmodlong;
