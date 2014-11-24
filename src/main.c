@@ -259,7 +259,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;// TESTY on effects and data...
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;// TESTY on effects and data...
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -300,7 +300,7 @@ void main(void)
 {
   // formerly in audio.c
   u8 whichvillager;
-  u16 tmpw,tmps,tmpp;
+  u16 tmpp;
 
   // order that all inits and audio_init called seems to be important
   u16 x,addr,count;
@@ -367,7 +367,8 @@ void main(void)
     village_read[xx].running=1;
 
     village_write[xx].del=0;
-    village_write[xx].mirrormod=0;
+    village_write[xx].mirrormod=0;//TESTY!
+    village_write[xx].fingered=0;//TESTY!
     village_write[xx].mirrordel=0;
     village_write[xx].infected=0;
     village_write[xx].samplepos=0;
@@ -375,6 +376,8 @@ void main(void)
     village_write[xx].step=1;
     village_write[xx].start=100;
     village_write[xx].wrap=200; // TODO test
+    village_write[xx].kstart=100;
+    village_write[xx].kwrap=200; // TODO test
     village_write[xx].mstart=0;
     village_write[xx].mwrap=32767; // TODO test
     village_write[xx].dir=1;
@@ -859,7 +862,7 @@ void main(void)
 	  //	  mainmode=mainmode%10;
 	  //	  mainmode=15;
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
-	  mainmode=12;
+	  mainmode=15;
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
 	  switch(mainmode){
@@ -867,13 +870,17 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
-	      tmps=loggy[adc_buffer[SECOND]];
+	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+	      // else just wait till mirrors
 	    }
 	    if (adc_buffer[THIRD]>10){
-	      tmpw=loggy[adc_buffer[THIRD]]; 
+	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+	      // else just wait till mirrors
 	    }
 	    ///
-	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>8;// 4 bits=16 options
+	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
 	    ///
 	    village_write[whichvillager].dir=xx;
 	    village_write[whichvillager].speed=(spd&15)+1; 
@@ -883,32 +890,7 @@ void main(void)
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
 
 	    // deal with mirror here:
-		village_write[whichvillager].kstart=tmps;
-		village_write[whichvillager].kwrap=tmpw;
-	    
-	    if (village_write[whichvillager].mirrormod){
-	      switch(village_write[whichvillager].mirrormod){
-	      case 1: // straight datagen
-		village_write[whichvillager].start=village_write[whichvillager].mstart;
-		village_write[whichvillager].wrap=village_write[whichvillager].mwrap;
-		break;
-	      case 2: // addition with wrap
-		village_write[whichvillager].start=(tmps+village_write[whichvillager].mstart)%32768;
-		village_write[whichvillager].wrap=(tmpw+village_write[whichvillager].mwrap)%32768;
-		break;
-	      case 3: // addition up to 32768
-		tmpp=32768-tmps;
-		village_write[whichvillager].start=tmps+(village_write[whichvillager].mstart%tmpp);
-		tmpp=32768-tmpw;
-		village_write[whichvillager].wrap=tmpw+(village_write[whichvillager].mwrap%tmpp);
-		break;
-		// TODO: other cases: subtraction, and, or, modulus
-	      }
-	    }
-	      else {
-		village_write[whichvillager].start=tmps;
-		village_write[whichvillager].wrap=tmpw;
-	      }
+	     
 	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
@@ -947,7 +929,7 @@ void main(void)
 	    village_read[whichvillager].compress=(32768-(adc_buffer[THIRD]<<3))+1;
 	    // mirroring inserted
 	    village_read[whichvillager].fingered=xx;
-	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>6;
+	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
 	    village_read[whichvillager].mirrorspeed=(spd&15)+1; 
 	    village_read[whichvillager].dirryr=(spd&240)>>4;
 	    // TODO mirror compression as above
@@ -994,26 +976,31 @@ void main(void)
 
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanyfiltoutvill=whichvillager+1;
+
 	    if (adc_buffer[SECOND]>10){
-	      tmps=loggy[adc_buffer[SECOND]];
+	      village_filtout[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	      if (!village_filtout[whichvillager].mirrormod) village_filtout[whichvillager].start=village_filtout[whichvillager].kstart;
+	      // else just wait till mirrors
 	    }
 	    if (adc_buffer[THIRD]>10){
-	      tmpw=loggy[adc_buffer[THIRD]]; 
+	      village_filtout[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
+	      if (!village_filtout[whichvillager].mirrormod) village_filtout[whichvillager].wrap=village_filtout[whichvillager].kwrap;
+	      // else just wait till mirrors
 	    }
+
+
 	    ///
-	    village_filtout[whichvillager].mirrormod=adc_buffer[FOURTH]>>8;// 4 bits=16 options
+	    village_filtout[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// 3 bits=8 options
 	    ///
+
 	    village_filtout[whichvillager].dir=xx;
 	    village_filtout[whichvillager].speed=(spd&15)+1; 
 	    village_filtout[whichvillager].step=(spd&240)>>4;
+
 	    if (village_filtout[whichvillager].dir==2) village_filtout[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_filtout[whichvillager].dir==3) village_filtout[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichvillager].speed;
 	    else village_filtout[whichvillager].dirry=direction[village_filtout[whichvillager].dir]*village_filtout[whichvillager].speed;
 
-
-	    /// DO MIRROR ERE!!! TODO!!
-	    village_filtout[whichvillager].start=tmps;
-	    village_filtout[whichvillager].wrap=tmpw;
 
 	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
@@ -1136,7 +1123,6 @@ void main(void)
 	    village_effect[whichvillager].step=spd;
 	    break;
 	  case 13:	    // datagen walker????
-
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanydatagenwalkervill=whichvillager+1;
 	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 
@@ -1246,7 +1232,7 @@ void main(void)
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    //grupx=adc_buffer[SECOND]>>9; 3 bit=8 groups?
-	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>6;
+	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
 
 	    // 2-which group also TODO! here is just WRITE!
 	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
@@ -1262,22 +1248,22 @@ void main(void)
 	}// Xx!=5
 
 	// all MIRRORS! TODO- here is just village_write!
-	// mirrormod for effects we need vill_eff->modifier??
+	// mirrormod for effects we need vill_eff->modifier - at present we don't have mirror for effects
+	// TODO what is mirrored as nice to mirror overlay also but only in READ CASE!
 	u16 tmpp;
 
-	// TESTY! commented oot!
+	//TODO: READ, FILTOUT, mirror effects and hardwares?
 
 	for (whichx=0;whichx<howmanywritevill;whichx++){
 	  if (village_write[whichx].mirrormod){
 	    // speed wrapper
-	    if (++village_write[whichx].mirrordel>=village_write[whichx].speed){
+	    if (++village_write[whichx].mirrordel>=village_write[whichx].mirrorspeed){
 	      village_write[whichx].mirrordel=0;
 	    // then do mirrormod and fingered on start,wrap and compress
 	      // but all are same fingered.TODO????
 	      switch(village_write[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
 
-		// TODO what is mirrored as nice to mirror overlay also
 	      case 0: // LEFT=finger
 		village_write[whichx].mstart=adc_buffer[LEFT]<<3;
 		village_write[whichx].mwrap=adc_buffer[LEFT]<<3;
@@ -1303,7 +1289,6 @@ void main(void)
 
 	      switch(village_write[whichx].mirrormod){
 	      case 1: // straight datagen
-	      default: // testy!
 		village_write[whichx].start=village_write[whichx].mstart;
 		village_write[whichx].wrap=village_write[whichx].mwrap;
 		break;
@@ -1319,8 +1304,27 @@ void main(void)
 		if (tmpp==0) tmpp=1;
 		village_write[whichx].wrap=village_write[whichx].kwrap+(village_write[whichx].mwrap%tmpp);
 		break;
-		// TODO: other cases: subtraction, and, or, modulus
-	      }
+	      case 4: // 4subtraction
+		village_write[whichx].start=(village_write[whichx].kstart-village_write[whichx].mstart)%32768;
+		village_write[whichx].wrap=(village_write[whichx].kwrap-village_write[whichx].mwrap)%32768;
+		break;
+	      case 5: // 5 and
+		village_write[whichx].start=(village_write[whichx].kstart&village_write[whichx].mstart);
+		village_write[whichx].wrap=(village_write[whichx].kwrap&village_write[whichx].mwrap);
+		break;
+	      case 6: // 6or
+		village_write[whichx].start=(village_write[whichx].kstart|village_write[whichx].mstart);
+		village_write[whichx].wrap=(village_write[whichx].kwrap|village_write[whichx].mwrap);
+		break;
+	      case 7: // 7mod
+		tmpp=village_write[whichx].kstart;
+		if (tmpp==0) tmpp=1;
+		village_write[whichx].start=village_write[whichx].mstart%tmpp;
+		tmpp=village_write[whichx].kwrap;
+		if (tmpp==0) tmpp=1;
+		village_write[whichx].wrap=village_write[whichx].mwrap%tmpp;
+		break;
+      }
 	    }
 	  }	
 	}

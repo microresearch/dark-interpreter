@@ -9,28 +9,48 @@ organ!
 
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
-** ideas
+** ideas for next release
 
-- for future/next release a general settings/mirror walker who walks through villagers and settings
+- a general settings/mirror walker who walks through villagers and settings
+- simplify all hw as datagenwalkers
+- further new datagens+incorporate villagers/klatt/paf/VOSIM
+- some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
 
 ** General TODO: 
 
 TODO is effects walker, test datagen walker(HOW?), mirrors/infections
 and fill out all templates and TEST ALL!
 
-what groups we mirror?: readin/out, filtout and HWs. and what parts of struct are mirrored? eg.  *also to mirror overlay* in read
+what groups we mirror?: readin, filtout, effect,datagenwalker and
+HW and what parts of struct are mirrored? eg.  overlay in read, modifier in effects
 
 - test basics of new readin/out and filtin/outDONE
 
 - effects filled inDONE/test-FFT crashesFIXED-DONE
-- how to test datagen walker? (should hw also be all nextdatagen or stick with walkers)
-////
-- mirrormods tested and filled in
-- extra fingers/modes and fill out rest of TODOs
-- fill in extra/new effects and test
-- sampling speed and final TODO/tweaks.
+- how to test datagen walker? (should hw also be all nextdatagen or stick with walkers?)DONE
 
-*///MON 10 NOV:*
+- mirrormods testedDONE ===> filled in for all cases
+- fill in extra/new effects and test
+
+TUE 25:
+- extra fingers/modes and fill out rest of TODOs
+
+WED 26:
+- sampling speed and final tests, TODO and tweaks
+
+*** new speed schemeDONE
+
+readin and filterin as is for in>>>???
+
+re-instate digfilter=1
+
+out and filterout as simple model of consecutive villager start, wrap and
+constrain as also overlap makes no sense
+there... also possibly inc. filterin into readin as option//how????
+
+- how else we can speed up audio.c and villager overlap processing???
+
+*** Notes 
 
 - test basics with mainmode in main.c - seems okay but crash or hang
   on first 10! was overload of interrupt so now back to 16k samples????
@@ -65,19 +85,7 @@ as not to init:
 
 ////- effects cleaned up/init all effect structures:
 
-*** new speed schemeDONE
 
-readin and filterin as is for in>>>???
-
-re-instate digfilter=1
-
-out and filterout as simple model of consecutive villager start, wrap and
-constrain as also overlap makes no sense
-there... also possibly inc. filterin into readin as option//how????
-
-- how else we can speed up audio.c and villager overlap processing???
-
-*** Notes 
 **** MON 10 NOV:
 
 - filters will tend overwrite (so maybe re-do with digfilterflag=1) 
@@ -90,6 +98,8 @@ biquad), const structure (would need pre-calc whole array and print)
 **** NOV 24
 
 - minor fixes mostly to inits as run through all EFFECTS/TESTED!
+- tested datagenwalker
+- small fixes, expanding mirrors
 
 **** NOV 19
 
@@ -339,11 +349,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 - started on mirror structure
 
-** New datagens - for next phase!
 
-- further new datagens+incorporate villagers/klatt/paf/VOSIM
-
-- some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
 
 *** DONE
 

@@ -473,12 +473,11 @@ void do_effect(villager_effect* vill_eff){
     }
 
    break; 
-   /// TODO all ++ 
   case 2: //FFT in PV from inbuffer into buf16
     //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
     // but must be 32 samples
     for (xx=0;xx<32;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
     }
     dofftin(inbuffer,outbuffer);
     // copy into buf16
@@ -491,7 +490,7 @@ void do_effect(villager_effect* vill_eff){
 
       case 3: // reverse FFT from values in buf16
     for (xx=0;xx<32;xx++){
-      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)%32768];
     }
     dofftout(inbuffer,outbuffer);
     // copy into buf16
@@ -545,8 +544,8 @@ void do_effect(villager_effect* vill_eff){
     }
     // to floats
     for (xx=0;xx<longest;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
-      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f)-1.0f;//REDO! why/how?
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768]/32768.0f;//REDO! why/how?
+      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)%32768]/32768.0f)-1.0f;//REDO! why/how?
     }
 
     mdaVocoderprocess(mdavocod,finbuffer, fmodbuffer, foutbuffer,longest);
@@ -565,11 +564,11 @@ void do_effect(villager_effect* vill_eff){
 
   case 5: //5--convolve:
     for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
+      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768]/32768.0f;//REDO! why/how?
     }
 
     for (xx=0;xx<tmpmodlong;xx++){
-      fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f;//REDO! why/how?
+      fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768]/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
     convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, vill_eff->modifier&15);// TODO: do we need to select longest for data?
@@ -585,8 +584,8 @@ void do_effect(villager_effect* vill_eff){
 
   case 6: //     6--envelope follower
     for (xx=0;xx<longest;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
-      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
+      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
     }
 
     doenvelopefollower(modbuffer, tmpmodlong, inbuffer, tmpinlong, outbuffer);
@@ -600,7 +599,7 @@ void do_effect(villager_effect* vill_eff){
 
   case 7://      7+--windower - diff windows// also 32 ???
     for (xx=0;xx<tmpinlong;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
       //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
     }
 
@@ -619,7 +618,7 @@ void do_effect(villager_effect* vill_eff){
     freqc= 0.9f + 0.9f/(1.0f - freq);
 
     for (xx=0;xx<tmpinlong;xx++){
-      tmpp=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO! why/how?
+      tmpp=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768]/32768.0f;//REDO! why/how?
       tmpp=dobandpass(tmpp,freq,freqc); // from OWL code - statevariable
 	// out here
       tmp = (int32_t)(tmpp * 32768.0f);
