@@ -9,19 +9,22 @@ organ!
 
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
+** ideas
+
+- for future/next release a general settings/mirror walker who walks through villagers and settings
+
 ** General TODO: 
 
 TODO is effects walker, test datagen walker(HOW?), mirrors/infections
 and fill out all templates and TEST ALL!
 
-what groups we mirror?: readin/out, filtout and HWs. and what parts of struct are mirrored? eg.  *also mirror overlay* in read
+what groups we mirror?: readin/out, filtout and HWs. and what parts of struct are mirrored? eg.  *also to mirror overlay* in read
 
-TODO 19NOV: re-test mdavocoder, fill out all effects
-
-- effects filled in/test
-- mirrors filled in/test 
 - test new readin/out and filtin/out
-- sampling speed?
+- effects filled inDONE/test
+
+- mirrors filled in/test 
+- sampling speed and final TODO/tweaks.
 
 *///MON 10 NOV:*
 
@@ -82,7 +85,7 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 19
 
-- filling out effects: all to be tested esp. new convolution
+- filling out effects: all to be tested esp. new convolution, new bandpass, new env, vocoder tweaks
 - added filtout processing to audio.c
 
 **** NOV 18
@@ -92,7 +95,7 @@ biquad), const structure (would need pre-calc whole array and print)
 - adding mirrors into second knobset code in main
 - reinstated digfilterflag=1
 - mirrormods as case 17/was19 and in writes
-- new villagerw struct 
+- new villagerw struct will need to be mirrored bit by bit
 
 **** NOV 17
 
@@ -189,7 +192,7 @@ as not to init:
 
 **** NOV 19
 
-- filling out effects: all to be tested esp. new convolution
+- filling out effects: all to be tested esp. new convolution, new bandpass, new env, vocoder tweaks
 
 **** MON 10 NOV
 

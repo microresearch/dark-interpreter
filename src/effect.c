@@ -571,7 +571,7 @@ void do_effect(villager_effect* vill_eff){
       fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768]/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
-    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, tmpmodlong);// TODO: do we need to select longest for data?
+    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, vill_eff->modifier&15);// TODO: do we need to select longest for data?
 
     for (xx=0;xx<longest;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
@@ -614,7 +614,7 @@ void do_effect(villager_effect* vill_eff){
 
 
   case 8://      8--variable bandpass based on modifier 
-    freq = 2.0*M_PI*((float32_t)vill_eff->modifier/4096.0f);
+    freq = 2.0*M_PI*((float32_t)vill_eff->modifier/255.0f); // mod is now 8 bits
     freqc= 0.9f + 0.9f/(1.0f - freq);
 
     for (xx=0;xx<tmpinlong;xx++){
@@ -629,9 +629,11 @@ void do_effect(villager_effect* vill_eff){
       }
     break;
 
-      // ADD extra effects to make 16- calc extra windows, other effects worked on!
+    //9.10.11.12.13.14.15=7
+    // ADD extra effects to make 16- calc extra windows, other effects worked on!
     // eg follow envelope of buf16 = * float
     // peak detect in buf16
+    // former effects: mdavocal,
   }
       // and update vill_eff
     vill_eff->modpos+=tmpmodlong;
