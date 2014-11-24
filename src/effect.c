@@ -641,9 +641,6 @@ void do_effect(villager_effect* vill_eff){
 
 
   }
-      // and update vill_eff
-  //    vill_eff->modpos+=tmpmodlong; TODO All above ++
-   //    vill_eff->inpos+=tmpinlong;
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){

@@ -22,16 +22,30 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 - effects filled inDONE/test-FFT crashesFIXED-DONE
 - how to test datagen walker? (should hw also be all nextdatagen or stick with walkers?)DONE
-- mirrormods testedDONE ===> filled in for all casesDONE
-
-- finish swap case 14 as all infects/fingers in the code
+- mirrormods testedDONE ===> filled in for all casesDONE-to TEST!
 
 TUE 25:
+- nearly all HW as all nextdatagens and lose walkers???
+- maybe do away with global datagen runnings and that mode and run all as are?
+- finish case 15 mirrors
+- finish swap case 14 as all infects/fingers in the code
 - fill out rest of TODOs
 - fill in extra/new effects and test
 
 WED/THU/FRI 26:
-- sampling speed and final tests, TODO and tweaks
+- sampling speed and final tests, TODO and tweaks/speedups/sanity checks 
+= ifdefs for LACH
+
+= round up size of structs,inlining,less local vars in function, pass
+  less than 4 parameters, locals in innermost scope, unroll, accessing
+  of full words(32 bytes) not bytes, sanify loops
+
+-mstructure-size-boundary=n The sizes of all structures and unions are
+    rounded up to a multiple of the number of bits set by this
+    option. Permissible values are 8, 32 and 64. The default value
+    varies for different toolchains. For the COFF targeted toolchain
+    the default value is 8. A value of 64 is only allowed if the
+    underlying ABI supports it.
 
 *** new speed schemeDONE
 

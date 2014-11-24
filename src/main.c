@@ -305,7 +305,7 @@ void main(void)
   // order that all inits and audio_init called seems to be important
   u16 x,addr,count;
   //  u8 exestack[MAX_EXE_STACK];
-  u8 xx; // TESTY!
+  u8 xx;
 
   // effects init
 
@@ -608,7 +608,7 @@ void main(void)
   }
 #else
 
-  /// HERE!
+  /// HERE starts!
 
   // run through datagen villagers
 
@@ -636,7 +636,7 @@ void main(void)
         if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
 	  if (++village_datagen[x].del>=village_datagen[x].step){
 
-	    village_datagen[x].CPU=2; // CRASH TESTY!
+	    //	    village_datagen[x].CPU=2; // CRASH TESTY!
     switch(village_datagen[x].CPU){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
@@ -850,9 +850,7 @@ void main(void)
 
   xx=fingerdir(&spd);
 
-	xx=fingerdir(&spd);
-
-	if (xx!=5){
+  if (xx!=5){
 	  // which mode are we in?
 	  mainmode=adc_buffer[FIFTH]>>7; // 5 bits=32
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
@@ -980,7 +978,7 @@ void main(void)
 	    if (dirryd>0) counterd=databegin;
 	      else counterd=dataend+databegin;
 
-	  case 5:// FILTOUT
+	  case 5:// FILTOUT // and if there is no filtout//LACH also?
 
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanyfiltoutvill=whichvillager+1;
@@ -1010,6 +1008,9 @@ void main(void)
 	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
 	    break;
+
+	    /// 5/6/7/8/9/10 are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options (better as 8)
+	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 
 
 	  case 6: // HW walker - what we need for this walker? TEST case now NOV 3!
 	    // max is say 16 walkers???
@@ -1155,7 +1156,6 @@ void main(void)
 
   extern villagerr village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
-  extern villagerr village_filtin[MAX_VILLAGERS+1];
   extern villagerr village_filtout[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
 
@@ -1165,15 +1165,18 @@ void main(void)
   extern villager_hardwarehaha village_lm[17];
   extern villager_hardwarehaha village_maxim[17];
 
-   */
++ effects: 
+, datagenwalkers:
 
+   */
+	    /////////////////////////////////////
 	  case 14: // swop and copy // or fingers in the code /// or infection
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    ranger=adc_buffer[THIRD]>>6; // 64
 	    // and FOURTH knob??? as mirror modulator
 	    //	    action=xx;
-	    switch(xx){ 
+	    switch(xx){ // 0,1,2,3= 4 actions
 	    case 0:
 	      switch(ranger){
 	      case 0:
@@ -1230,21 +1233,23 @@ void main(void)
 		village_read[whichy]=tmpvillage;
 		break;
 
-	    case 2:// constrain %
+	    case 2:// infect
 		village_read[whichx]%=(village_write[whichy]+1);
 
-		case 3:unknown????
+		case 3: fingers in!
 
 		*/
 	    } // end of xx = action
 	    break; // case 14now
+	    //////////////////
 	  case 15: // mirror 
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    //grupx=adc_buffer[SECOND]>>9; 3 bit=8 groups?
+	    // groups are: write.read.filtout.effect. (in case of effect restrict whichx to 16)
+
 	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
 
-	    // 2-which group also TODO! here is just WRITE!
 	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
 	    village_write[whichx].fingered=xx; // TODO... other groups
 	    // 3-set how mirror effects = mirrormod if 0 then nothing happens
@@ -1332,6 +1337,7 @@ void main(void)
 	  }	
 	} // end of this mirror
 
+	if (digfilterflag){
 	for (whichx=0;whichx<howmanyfiltoutvill;whichx++){//FILTOUT mirror
 	  if (village_filtout[whichx].mirrormod){
 	    // speed wrapper
@@ -1404,6 +1410,7 @@ void main(void)
       }
 	    }
 	  }	
+	}
 	} // end of this mirror
 
 	for (whichx=0;whichx<howmanyreadvill;whichx++){//READ mirror ---> kcompress and koverlay also
@@ -1513,6 +1520,9 @@ void main(void)
 	} // end of this mirror
 
 	for (whichx=0;whichx<howmanyeffectvill;whichx++){//EFFECT mirror
+
+	  do_effect(&village_effect[whichx]); // do effects HERE!
+
 	  if (village_effect[whichx].mirrormod){
 	    // speed wrapper
 	    if (++village_effect[whichx].mirrordel>=village_effect[whichx].mirrorspeed){
@@ -1569,15 +1579,6 @@ void main(void)
 	    }
 	  }	
 	} // end of this mirror
-
-       
-	////// all effects
-
-	  for (x=0;x<howmanyeffectvill;x++){
-	    do_effect(&village_effect[x]);
-	  }
-	
-	  /// end effects/ALLLL!!!!
 
 #ifdef PCSIM
       // randomise adc_buffer
