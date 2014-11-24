@@ -259,7 +259,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=0,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -315,7 +315,7 @@ void main(void)
   buf16 = (u16*) datagenbuffer;
 
 
-  float Fc,Fs=48000.0f,Q,peakGain;
+  float Fc,Fs=16000.0f,Q,peakGain;
   float a0,a1,a2,b1,b2,norm,V,K;
   float *state[5][5];
 
@@ -347,7 +347,7 @@ void main(void)
 
     village_read[xx].counterr=0;
     village_read[xx].del=0;
-    village_read[xx].compress=1;
+    village_read[xx].compress=32767;
     village_read[xx].mirrormod=0;
     village_read[xx].mirrordel=0;
     village_read[xx].infected=0;
@@ -355,11 +355,12 @@ void main(void)
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=0;
-    village_read[xx].wrap=128; // TODO test
+    village_read[xx].wrap=32767; // TODO test
     village_read[xx].mstart=0;
-    village_read[xx].mwrap=128; // TODO test
+    village_read[xx].mwrap=32767; // TODO test
     village_read[xx].dir=1;
     village_read[xx].dirry=1;
+    village_read[xx].dirryr=1;
     village_read[xx].samplepos=0;
     village_read[xx].offset=0;
     village_read[xx].overlay=0;
@@ -373,9 +374,9 @@ void main(void)
     village_write[xx].speed=1;
     village_write[xx].step=1;
     village_write[xx].start=0;
-    village_write[xx].wrap=128; // TODO test
+    village_write[xx].wrap=32767; // TODO test
     village_write[xx].mstart=0;
-    village_write[xx].mwrap=128; // TODO test
+    village_write[xx].mwrap=32767; // TODO test
     village_write[xx].dir=1;
     village_write[xx].dirry=1;
     village_write[xx].samplepos=0;
@@ -393,7 +394,7 @@ void main(void)
     // datagen
     village_datagen[xx].start = 0;
     village_datagen[xx].CPU = 0;
-    village_datagen[xx].wrap=100;
+    village_datagen[xx].wrap=32767;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
@@ -412,9 +413,9 @@ void main(void)
     village_effect[xx].instart=0;
     village_effect[xx].inwrap=128;
     village_effect[xx].outstart=0;
-    village_effect[xx].outwrap=128;
+    village_effect[xx].outwrap=32767;
     village_effect[xx].modstart=0;
-    village_effect[xx].modwrap=128;
+    village_effect[xx].modwrap=32767;
     village_effect[xx].modifier=0;
     village_effect[xx].whicheffect=0;
     village_effect[xx].step=1;
@@ -445,7 +446,7 @@ void main(void)
   for (xx=0;xx<17;xx++){
     village_hardware[xx].length=16;
     village_hardware[xx].inp=0;
-    village_hardware[xx].setting=0;
+    village_hardware[xx].setting=0; // testy for filterout
 
     village_40106[xx].length=16;
     village_40106[xx].dataoffset=0;
@@ -487,10 +488,10 @@ void main(void)
 
   // any other inits/variables????
 
-    village_read[0].wrap=32767; // TODO test
-    village_write[0].wrap=32767; // TODO test
+  //    village_read[0].wrap=32767; // TODO test
+  //    village_write[0].wrap=32767; // TODO test
     //    village_filtin[0].wrap=32767; // TODO test
-    village_filtout[0].wrap=32767; // TODO test
+  //    village_filtout[0].wrap=32767; // TODO test
 
 
   // think is all set
@@ -534,6 +535,7 @@ void main(void)
     I2S_Block_PlayRec((uint32_t)&tx_buffer, (uint32_t)&rx_buffer, BUFF_LEN);
 
 #ifndef LACH
+    digfilterflag=0;
     dohardwareswitch(0,0,0);
 #endif
 #endif // for ifndef PCSIM
@@ -631,7 +633,7 @@ void main(void)
         if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
 	  if (++village_datagen[x].del>=village_datagen[x].step){
 
-	    //village_datagen[x].cpu=11; // CRASH TESTY!
+	    village_datagen[x].CPU=2; // CRASH TESTY!
     switch(village_datagen[x].CPU){      
     case 0:
       village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
@@ -857,7 +859,7 @@ void main(void)
 	  //	  mainmode=mainmode%10;
 	  //	  mainmode=15;
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
-
+	  mainmode=11;
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
 	  switch(mainmode){
@@ -871,7 +873,7 @@ void main(void)
 	      tmpw=loggy[adc_buffer[THIRD]]; 
 	    }
 	    ///
-	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>6;//added NOV18
+	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>8;// 4 bits=16 options
 	    ///
 	    village_write[whichvillager].dir=xx;
 	    village_write[whichvillager].speed=(spd&15)+1; 
@@ -988,7 +990,33 @@ void main(void)
 	      else counterd=dataend+databegin;
 
 	  case 5:// FILTOUT
-	    /// copy from WRITE above case 0
+	    /// copy from WRITE above case 0 // DONE but left out mirror so far!
+
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    howmanyfiltoutvill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
+	      tmps=loggy[adc_buffer[SECOND]];
+	    }
+	    if (adc_buffer[THIRD]>10){
+	      tmpw=loggy[adc_buffer[THIRD]]; 
+	    }
+	    ///
+	    village_filtout[whichvillager].mirrormod=adc_buffer[FOURTH]>>8;// 4 bits=16 options
+	    ///
+	    village_filtout[whichvillager].dir=xx;
+	    village_filtout[whichvillager].speed=(spd&15)+1; 
+	    village_filtout[whichvillager].step=(spd&240)>>4;
+	    if (village_filtout[whichvillager].dir==2) village_filtout[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_filtout[whichvillager].dir==3) village_filtout[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichvillager].speed;
+	    else village_filtout[whichvillager].dirry=direction[village_filtout[whichvillager].dir]*village_filtout[whichvillager].speed;
+
+
+	    /// DO MIRROR ERE!!! TODO!!
+	    village_filtout[whichvillager].start=tmps;
+	    village_filtout[whichvillager].wrap=tmpw;
+
+	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
+	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
 	    break;
 
 	  case 6: // HW walker - what we need for this walker? TEST case now NOV 3!

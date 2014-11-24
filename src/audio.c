@@ -139,7 +139,7 @@ extern u8 howmanywritevill,howmanyfiltinvill,howmanyfiltoutvill,howmanyreadvill;
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int lasttmp=0,lasttmp16=0;
+  int32_t lasttmp=0,lasttmp16=0;
   //  u16 lp,tmpw,tmps,tmpp;
   u16 lp;
   u8 x,xx,spd;
@@ -231,9 +231,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmp=*(src++); 
 	    lasttmp=0,lasttmp16=0;
 
-	  for (x=0;x<howmanyreadvill;x++){
-
-	    if (digfilterflag==1 && village_read[x].overlay&16) tmp=tmpl;
+	    for (x=0;x<howmanyreadvill;x++){
+	      //	      village_read[x].overlay|=16; //TESTY!
+	    if (digfilterflag && village_read[x].overlay&16) tmp=tmpl;
 
 	    village_read[x].counterr+=village_read[x].dirryr;
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
@@ -242,11 +242,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
 
-	    lp=village_read[x].samplepos%32768;
+	      lp=village_read[x].samplepos%32768;
 	    tmp16=buf16[lp]-32768;
 	      if (village_read[x].overlay&32){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
-
 	      switch(village_read[x].overlay&15){
 	      case 0: // overlay=all,effect=straight
 		buf16[lp]=tmp+32768;
@@ -468,14 +467,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	  }
 	  }
-
 	// WRITE! simplified to consecutive!! DONE- to test!
 	  for (xx=0;xx<sz/2;xx++){
 	    lp=village_write[whichwritevillager].samplepos%32768;
 	    mono_buffer[xx]=audio_buffer[lp];
-	  
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
-	      count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
+	      village_write[whichwritevillager].del=0;
+
+	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
 	      if (count<village_write[whichwritevillager].wrap && count>0)
 		{
 		  village_write[whichwritevillager].samplepos+=village_write[whichwritevillager].dirry;//)%32768;
@@ -491,19 +490,19 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichwritevillager++; 
 		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		}
-	      village_write[whichwritevillager].del=0;
-	    }
-	  }/// end of write!
+		}
+	    }/// end of write!
 
 	  // TODO: filtout as above!
 
-	  if (digfilterflag==1){
+	  if (digfilterflag){
 
 	  for (xx=0;xx<sz/2;xx++){
 	    lp=village_filtout[whichfiltoutvillager].samplepos%32768;
 	    left_buffer[xx]=audio_buffer[lp];
 	  
 	    if (++village_filtout[whichfiltoutvillager].del>=village_filtout[whichfiltoutvillager].step){
+	      village_filtout[whichfiltoutvillager].del=0;
 	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
 	      if (count<village_filtout[whichfiltoutvillager].wrap && count>0)
 		{
@@ -520,7 +519,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichfiltoutvillager++; 
 		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 		}
-	      village_filtout[whichfiltoutvillager].del=0;
 	    }
 	  }/// end of FILTwrite!
 	  }

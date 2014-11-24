@@ -20,10 +20,10 @@ and fill out all templates and TEST ALL!
 
 what groups we mirror?: readin/out, filtout and HWs. and what parts of struct are mirrored? eg.  *also to mirror overlay* in read
 
-- test new readin/out and filtin/out
-- effects filled inDONE/test
+- test basics of new readin/out and filtin/outDONE
 
-- mirrors filled in/test 
+- effects filled inDONE/test-FFT crashes and need test further...
+- mirrormods tested and filled in
 - sampling speed and final TODO/tweaks.
 
 *///MON 10 NOV:*
@@ -470,6 +470,10 @@ e 530 1840 2480
 i 390 1990 2550
 lee 270 2290 3010
 
+** latest recordings
+
+- 962.wav tho maybe lost towards end and cut begin
+- 963/964/simple vocals
 
 * ////////////////////////
 

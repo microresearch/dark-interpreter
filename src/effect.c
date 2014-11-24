@@ -436,7 +436,7 @@ void do_effect(villager_effect* vill_eff){
   // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
   // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
   // still need speed and step somehow!! TODO!
-  vill_eff->whicheffect=0; // TESTY!
+    vill_eff->whicheffect=2; // TESTY!
   switch(vill_eff->whicheffect){
   case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
   default: // Testy!
@@ -479,7 +479,7 @@ void do_effect(villager_effect* vill_eff){
     for (xx=0;xx<32;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
     }
-    dofftin(inbuffer,outbuffer);
+        dofftin(inbuffer,outbuffer);
     // copy into buf16
     for (xx=0;xx<longest;xx++){
       buf16[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
