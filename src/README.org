@@ -22,8 +22,12 @@ what groups we mirror?: readin/out, filtout and HWs. and what parts of struct ar
 
 - test basics of new readin/out and filtin/outDONE
 
-- effects filled inDONE/test-FFT crashes and need test further...
+- effects filled inDONE/test-FFT crashesFIXED-DONE
+- how to test datagen walker? (should hw also be all nextdatagen or stick with walkers)
+////
 - mirrormods tested and filled in
+- extra fingers/modes and fill out rest of TODOs
+- fill in extra/new effects and test
 - sampling speed and final TODO/tweaks.
 
 *///MON 10 NOV:*
@@ -83,6 +87,10 @@ biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
 
+**** NOV 24
+
+- minor fixes mostly to inits as run through all EFFECTS/TESTED!
+
 **** NOV 19
 
 - filling out effects: all to be tested esp. new convolution, new bandpass, new env, vocoder tweaks
@@ -141,7 +149,7 @@ biquad), const structure (would need pre-calc whole array and print)
 
 ** Effects and effects walker
 
-- speeds and step still to do in effects walker
+- TODOspeeds and step still to do in effects walker
 
 - villager-villager effects walker - make a clearer format as also need
   process each effect in chunks (and to keep track of these - within
@@ -189,6 +197,10 @@ as not to init:
 7--variable bandpass
 
 *** DONE
+
+**** NOV 24
+
+- testing effects, fixed formantf
 
 **** NOV 19
 

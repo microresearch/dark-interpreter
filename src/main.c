@@ -259,7 +259,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;// TESTY on effects and data...
 
 u16 counterd=0, databegin=0,dataend=32767;
 u8 deldata=0,dataspeed=1;
@@ -373,8 +373,8 @@ void main(void)
     village_write[xx].samplepos=0;
     village_write[xx].speed=1;
     village_write[xx].step=1;
-    village_write[xx].start=0;
-    village_write[xx].wrap=32767; // TODO test
+    village_write[xx].start=100;
+    village_write[xx].wrap=200; // TODO test
     village_write[xx].mstart=0;
     village_write[xx].mwrap=32767; // TODO test
     village_write[xx].dir=1;
@@ -411,9 +411,9 @@ void main(void)
     village_effect[xx].modpos=0;
     village_effect[xx].outpos=0;
     village_effect[xx].instart=0;
-    village_effect[xx].inwrap=128;
-    village_effect[xx].outstart=0;
-    village_effect[xx].outwrap=32767;
+    village_effect[xx].inwrap=32767;
+    village_effect[xx].outstart=100;
+    village_effect[xx].outwrap=200;//TESTY!
     village_effect[xx].modstart=0;
     village_effect[xx].modwrap=32767;
     village_effect[xx].modifier=0;
@@ -859,7 +859,7 @@ void main(void)
 	  //	  mainmode=mainmode%10;
 	  //	  mainmode=15;
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
-	  mainmode=11;
+	  mainmode=12;
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
 	  switch(mainmode){
@@ -1135,8 +1135,8 @@ void main(void)
 	    village_effect[whichvillager].modifier=adc_buffer[FOURTH]>>4; // 8 bits
 	    village_effect[whichvillager].step=spd;
 	    break;
-	    // datagen walker????
-	  case 13:
+	  case 13:	    // datagen walker????
+
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanydatagenwalkervill=whichvillager+1;
 	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 

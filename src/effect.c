@@ -302,7 +302,7 @@ void intun_to_floot(u16* inbuffer, float* outbuffer,u16 howmany){
 
 
 void floot_to_int(int16_t* outbuffer, float* inbuffer,u16 howmany){
-  int16_t tmp;
+  int32_t tmp;
 
   for (int n = 0; n < howmany; n++) {
     tmp = inbuffer[n] * 32768.0f;
@@ -375,25 +375,25 @@ void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){/
   float tmpbuffer[BUFF_LEN/4];
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
-  memset(tmpotherotherbuffer,0,32*4); 
+  memset(tmpotherotherbuffer,0,howmany*4); 
   vowel=vowel%5;  
   //  int_to_floot(inbuffer,tmpbuffer,howmany);///or do conv when we sort out buffers
-  arm_biquad_cascade_df1_f32(&df[vowel][0],tmpbuffer,tmpotherbuffer,32); 
+  arm_biquad_cascade_df1_f32(&df[vowel][0],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
-  arm_biquad_cascade_df1_f32(&df[vowel][1],tmpbuffer,tmpotherbuffer,32); 
+  arm_biquad_cascade_df1_f32(&df[vowel][1],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
-  arm_biquad_cascade_df1_f32(&df[vowel][2],tmpbuffer,tmpotherbuffer,32); 
+  arm_biquad_cascade_df1_f32(&df[vowel][2],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
-  arm_biquad_cascade_df1_f32(&df[vowel][3],tmpbuffer,tmpotherbuffer,32); 
+  arm_biquad_cascade_df1_f32(&df[vowel][3],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
-  arm_biquad_cascade_df1_f32(&df[vowel][4],tmpbuffer,tmpotherbuffer,32); 
+  arm_biquad_cascade_df1_f32(&df[vowel][4],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
   //  floot_to_int(outbuffer,tmpotherotherbuffer,howmany);
-  memcpy(outbuffer,tmpotherotherbuffer,howmany);//dest,src,howmany
+  memcpy(outbuffer,tmpotherotherbuffer,howmany*4);//dest,src,howmany//4bytes
   }
 
 void do_effect(villager_effect* vill_eff){
-  int16_t tmp;float tmpp,freq,freqc;
+  int32_t tmp;float tmpp,freq,freqc;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
@@ -436,13 +436,13 @@ void do_effect(villager_effect* vill_eff){
   // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
   // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
   // still need speed and step somehow!! TODO!
-    vill_eff->whicheffect=2; // TESTY!
+    //    vill_eff->whicheffect=8; // TESTY!
   switch(vill_eff->whicheffect){
   case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
   default: // Testy!
     for (xx=0;xx<longest;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
-      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
+      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
+      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
     }
     // do effect
     doringcopy(inbuffer,modbuffer,outbuffer,longest);    /// EFFECT!
@@ -457,31 +457,32 @@ void do_effect(villager_effect* vill_eff){
   case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
 
-    for (xx=0;xx<longest;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768]/32768.0f;//REDO!howso?
+    for (xx=0;xx<tmpinlong;xx++){
+      finbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768])/32768.0f;//REDO!howso?
     }
     // do effect
     doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
     // copy outbuffer to audio and do float back
 
-    for (xx=0;xx<longest;xx++){
-    tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
+    for (xx=0;xx<tmpinlong;xx++){
+    tmp = foutbuffer[xx] * 32768.0f;
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
     vill_eff->outpos++;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
+
    break; 
- 
+   /// TODO all ++ 
   case 2: //FFT in PV from inbuffer into buf16
     //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
     // but must be 32 samples
     for (xx=0;xx<32;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
     }
-        dofftin(inbuffer,outbuffer);
+    dofftin(inbuffer,outbuffer);
     // copy into buf16
-    for (xx=0;xx<longest;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
       buf16[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
@@ -494,7 +495,7 @@ void do_effect(villager_effect* vill_eff){
     }
     dofftout(inbuffer,outbuffer);
     // copy into buf16
-    for (xx=0;xx<longest;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
@@ -598,14 +599,14 @@ void do_effect(villager_effect* vill_eff){
     break;
 
   case 7://      7+--windower - diff windows// also 32 ???
-    for (xx=0;xx<longest;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos+xx)%32768];
       //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
     }
 
-    hanningprocess(inbuffer, outbuffer, longest); 
+    hanningprocess(inbuffer, outbuffer, tmpinlong); 
 
-    for (xx=0;xx<longest;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
       vill_eff->outpos++;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
@@ -634,21 +635,29 @@ void do_effect(villager_effect* vill_eff){
     // eg follow envelope of buf16 = * float
     // peak detect in buf16
     // former effects: mdavocal,
+    // magnitude
+
+    // Process the data through the Complex Magnitude Module for  calculating the magnitude at each bin
+    //  arm_cmplx_mag_f32(testInput_f32_10khz, testOutput, fftSize);
+
+
   }
       // and update vill_eff
-    vill_eff->modpos+=tmpmodlong;
-    vill_eff->inpos+=tmpinlong;
+  //    vill_eff->modpos+=tmpmodlong; TODO All above ++
+   //    vill_eff->inpos+=tmpinlong;
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   //  extern VocoderInstance* vocoder; u8 x;
-  float xx,xxx;
-  float tmpbuffer[32];
-  float tmpotherbuffer[32];
-  float tmpotherotherbuffer[32];
+  //  float xx,xxx;
+  float finbuffer[32],foutbuffer[32];
+  //  float tmpotherbuffer[32];
+  //  float tmpotherotherbuffer[32];
   //  float out[BUFF_LEN];
-
-  //  doformantfilter(inbuffer, outbuffer, 32, 0);
+      int_to_floot(inbuffer,finbuffer,32);
+  //      doformantfilter(inbuffer, outbuffer, 32, 0);
+      doformantfilterf(finbuffer, foutbuffer, 32, 0);
+        floot_to_int(outbuffer,foutbuffer,32);
 
 
   // BPFSC
@@ -662,10 +671,10 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   //  envelopefollower(inbuffer, outbuffer);
 
   //mdavocoder - working
-  int_to_floot(inbuffer,tmpbuffer,32);
+  /*    int_to_floot(inbuffer,tmpbuffer,32);
   intun_to_floot(buf16,tmpotherbuffer,32);
   mdaVocoderprocess(mdavocod,tmpbuffer, tmpotherbuffer, tmpotherotherbuffer,32);
-  floot_to_int(outbuffer,tmpotherotherbuffer,32);
+  floot_to_int(outbuffer,tmpotherotherbuffer,32);*/
   //  floot_to_int(outbuffer,tmpotherbuffer,32);
 
 
