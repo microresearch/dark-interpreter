@@ -18,24 +18,19 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-TODO is effects walker, test datagen walker(HOW?), mirrors/infections
-and fill out all templates and TEST ALL!
-
-what groups we mirror?: readin, filtout, effect,datagenwalker and
-HW and what parts of struct are mirrored? eg.  overlay in read, modifier in effects
-
 - test basics of new readin/out and filtin/outDONE
 
 - effects filled inDONE/test-FFT crashesFIXED-DONE
 - how to test datagen walker? (should hw also be all nextdatagen or stick with walkers?)DONE
+- mirrormods testedDONE ===> filled in for all casesDONE
 
-- mirrormods testedDONE ===> filled in for all cases
-- fill in extra/new effects and test
+- finish swap case 14 as all infects/fingers in the code
 
 TUE 25:
-- extra fingers/modes and fill out rest of TODOs
+- fill out rest of TODOs
+- fill in extra/new effects and test
 
-WED 26:
+WED/THU/FRI 26:
 - sampling speed and final tests, TODO and tweaks
 
 *** new speed schemeDONE
@@ -100,6 +95,7 @@ biquad), const structure (would need pre-calc whole array and print)
 - minor fixes mostly to inits as run through all EFFECTS/TESTED!
 - tested datagenwalker
 - small fixes, expanding mirrors
+- filled in mirrors TEST!
 
 **** NOV 19
 
@@ -342,6 +338,10 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 *** DONE
 
+**** NOV 24
+
+- filled in all mirrors. TODO TEST!
+
 **** NOV 5
 - started on real mirrors and structures
 
@@ -351,7 +351,6 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 
 
-*** DONE
 
 ** Integration/tests/cleanups
 
