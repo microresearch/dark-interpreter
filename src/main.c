@@ -261,8 +261,8 @@ villager_hardwarehaha village_maxim[17];
 
 u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;// TESTY on effects and data...
 
-u16 counterd=0, databegin=0,dataend=32767;
-u8 deldata=0,dataspeed=1;
+//u16 counterd=0, databegin=0,dataend=32767;
+//u8 deldata=0,dataspeed=1;
 int16_t dirryd=1;
 u8 inp=0;
 
@@ -402,8 +402,8 @@ void main(void)
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
-    village_datagen[xx].dir=1;
-    village_datagen[xx].running=1;
+    //    village_datagen[xx].dir=1;
+    //    village_datagen[xx].running=1;
     village_datagen[xx].m_stack_pos=0;
     village_datagen[xx].m_reg16bit1=0;
     village_datagen[xx].m_reg8bit1=0;
@@ -612,7 +612,7 @@ void main(void)
 
   // run through datagen villagers
 
-  if (++deldata>=dataspeed) {
+  /*  if (++deldata>=dataspeed) {
     counterd+=dirryd;
     deldata=0;
   }
@@ -629,11 +629,11 @@ void main(void)
     for (u8 x=0;x<howmanydatavill;x++){
       village_datagen[x].running=1;
 	  }	    
-	  }
+	  }*/
 
   for (x=0;x<howmanydatavill;x++){
     // speed for each
-        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
+    //        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
 	  if (++village_datagen[x].del>=village_datagen[x].step){
 
 	    //	    village_datagen[x].CPU=2; // CRASH TESTY!
@@ -835,13 +835,13 @@ void main(void)
     } // end of switch
 
     if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {
-      village_datagen[x].running=0;
+      //      village_datagen[x].running=0;
       // reset
       village_datagen[x].position=village_datagen[x].start;
     }
     village_datagen[x].del=0;
 	  }
-    } // if running
+	  //    } // if running
   } // end of x/run thru all villagers
 
   ///// end of DATAGEN villagers!
@@ -852,7 +852,7 @@ void main(void)
 
   if (xx!=5){
 	  // which mode are we in?
-	  mainmode=adc_buffer[FIFTH]>>7; // 5 bits=32
+	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
@@ -959,27 +959,27 @@ void main(void)
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 
 	    // and if is running already?
-	    if (village_datagen[whichvillager].running==0){
-	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
-	    }
+	    //	    if (village_datagen[whichvillager].running==0){
+	    //	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
+	    //	    }
 	    break;
 
-	  case 4: // DATAGEN compression??? - not to redo? knob question?TODO/// lose this?
-	    // if redo would just be ONE setting!
-	    //	    writeoverlay=adc_buffer[FIRST]>>9; // 8 possibles 
+	    /*	  case 4: // DATAGEN compression??? - not to redo? knob question?TODO/// lose this?
 	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    //	    writeoffset=loggy[adc_buffer[FOURTH]];
 	    dataspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
 	    if (xx==0) dirryd=-(((spd&240)>>4)+1);
 	    else if (xx==1) dirryd=((spd&240)>>4)+1;
 	    else if (xx==2) dirryd=newdirection[wormdir];
 	    else dirryd=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
 	    if (dirryd>0) counterd=databegin;
-	      else counterd=dataend+databegin;
+	    else counterd=dataend+databegin;*/
+
+	    /// 5/6/7/8/9/10 are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options (better as 8)
+	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 
+	    /// lose read 2nd=8 or 10 options
 
 	  case 5:// FILTOUT // and if there is no filtout//LACH also?
-
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanyfiltoutvill=whichvillager+1;
 
@@ -1008,9 +1008,6 @@ void main(void)
 	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
 	    break;
-
-	    /// 5/6/7/8/9/10 are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options (better as 8)
-	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 
 
 	  case 6: // HW walker - what we need for this walker? TEST case now NOV 3!
 	    // max is say 16 walkers???
@@ -1194,7 +1191,7 @@ void main(void)
 		village_write[whichx].wrap=village_datagen[whichy].wrap;
 		village_write[whichx].samplepos=village_datagen[whichy].position;
 		village_write[whichx].dirry=village_datagen[whichy].dirry;
-		village_write[whichx].dir=village_datagen[whichy].dir;
+		//		village_write[whichx].dir=village_datagen[whichy].dir;
 		village_write[whichx].step=village_datagen[whichy].step;
 		village_write[whichx].speed=village_datagen[whichy].speed;
 		break;
@@ -1261,7 +1258,7 @@ void main(void)
 
 	///////////////////////////////
 
-	// all MIRRORS! 
+	// process all MIRRORS! 
 
 	for (whichx=0;whichx<howmanywritevill;whichx++){// WRITE mirror
 	  if (village_write[whichx].mirrormod){

@@ -107,8 +107,8 @@ typedef struct {
       u8 del;
       int16_t dirry;
       u8 speed, step; 
-      u8 dir; // TODO: do as union or whatever for dir//flag for mirror
-      u8 running;
+      //      u8 dir; // TODO: do as union or whatever for dir//flag for mirror
+      //      u8 running;
       signed char m_stack_pos;
       u8 m_stack[16];
       u16 m_reg16bit1;

@@ -9,8 +9,9 @@ organ!
 
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
-** ideas for next release
+** ideas for next release/this release maybe?
 
+- sans modes or 8 modes//that there are no modes=a village//HW as one mode with fingers only?
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
@@ -21,16 +22,17 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - test basics of new readin/out and filtin/outDONE
 
 - effects filled inDONE/test-FFT crashesFIXED-DONE
-- how to test datagen walker? (should hw also be all nextdatagen or stick with walkers?)DONE
+- how to test datagen walker?DONE (should hw also be all nextdatagen or stick with walkers?)
 - mirrormods testedDONE ===> filled in for all casesDONE-to TEST!
+- maybe do away with global datagen runnings and that mode and run all as are?DONE
 
 TUE 25:
-- nearly all HW as all nextdatagens and lose walkers???
-- maybe do away with global datagen runnings and that mode and run all as are?
+- all HW except main one as all nextdatagens and lose walkers???
 - finish case 15 mirrors
 - finish swap case 14 as all infects/fingers in the code
 - fill out rest of TODOs
 - fill in extra/new effects and test
+- re-order modes
 
 WED/THU/FRI 26:
 - sampling speed and final tests, TODO and tweaks/speedups/sanity checks 
@@ -110,6 +112,7 @@ biquad), const structure (would need pre-calc whole array and print)
 - tested datagenwalker
 - small fixes, expanding mirrors
 - filled in mirrors TEST!
+- removed case 4 datagen so just runs- maybe do away with global datagen runnings and that mode and run all as are?DONE
 
 **** NOV 19
 
