@@ -28,13 +28,15 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 TUE 25:
 - all HW except main one as all nextdatagens and lose walkers???
-- finish case 15 mirrors
+- finish case 15 mirrorsDONE
+
 - finish swap case 14 as all infects/fingers in the code
 - fill out rest of TODOs
 - fill in extra/new effects and test
 - re-order modes
 
 WED/THU/FRI 26:
+- re-test each section datagen//r/w/filt//effects//mirrors/hw
 - sampling speed and final tests, TODO and tweaks/speedups/sanity checks 
 = ifdefs for LACH
 
@@ -105,6 +107,11 @@ as not to init:
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+
+**** NOV 25
+
+- testing and finished mirror - to test in FULL
+- fixed %0 bug as howmnayfiltvill was zero
 
 **** NOV 24
 
@@ -355,18 +362,20 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 *** DONE
 
+**** NOV 25
+
+- mirrors extended so not all same finger or knob!
+
 **** NOV 24
 
 - filled in all mirrors. TODO TEST!
-
+  
 **** NOV 5
 - started on real mirrors and structures
 
 **** NOV 4
 
 - started on mirror structure
-
-
 
 
 ** Integration/tests/cleanups
@@ -506,6 +515,11 @@ lee 270 2290 3010
 
 ** latest recordings
 
+*** NOV 25
+
+- 966/967/970//973//975//976//977
+
+*** NOV 24
 - 962.wav tho maybe lost towards end and cut begin
 - 963/964/simple vocals
 

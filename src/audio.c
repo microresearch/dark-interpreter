@@ -539,7 +539,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  // 40106 always
 	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
-	  
+	  	  
 	  x=which40106villager%howmany40106vill;
 	  count40106+=village_40106[x].step;
 	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
@@ -607,7 +607,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    whichlmvillager++; //u8
 	  }
 	  }
-
+	  
 	  // process village_hardware[whichhwvillager%howmany]	  
 	  // max length is 4096 =2.7 seconds
 

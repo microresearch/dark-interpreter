@@ -259,7 +259,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=0,howmanyreadvill=1;// TESTY on effects and data...
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...
 
 //u16 counterd=0, databegin=0,dataend=32767;
 //u8 deldata=0,dataspeed=1;
@@ -299,7 +299,7 @@ u16 nextdatagen(void){
 void main(void)
 {
   // formerly in audio.c
-  u8 whichvillager;
+  u8 whichvillager,grupx;
   u16 tmpp,mstart,mwrap,moverlay,mcompress,mmodifier;
 
   // order that all inits and audio_init called seems to be important
@@ -527,7 +527,7 @@ void main(void)
 
   // maintain order
   Audio_Init();
-  Codec_Init(16000); // TODO: variable on startup/... TESTY was 48000
+  Codec_Init(32000); // TODO: variable on startup/... TESTY was 48000
   delay();
 
 #ifndef LACH
@@ -856,6 +856,7 @@ void main(void)
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
+	  mainmode=6; // TESTY!
 
 	  switch(mainmode){
 	  case 0:// WRITE
@@ -1019,6 +1020,7 @@ void main(void)
 	    hardcompress=(adc_buffer[FOURTH]>>5)+1; // 7 bits
 	    village_hardware[whichvillager].inp=xx;// = right=358,up=feedback,down=float,left=jack
 	    // or overlap/bitwise? but then how handle floating?
+	    // TODO: HW speed???
 	    break;
 
 	  case 7: // 40106 walker as sequential but offset as free period???
@@ -1123,7 +1125,7 @@ void main(void)
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 
-	    xx=adc_buffer[FOURTH]>>4;
+	    xx=adc_buffer[FOURTH]>>4;// 8 bits
 	    village_effect[whichvillager].kmodifier=xx;
 	    if (!village_read[whichvillager].mirrormod) village_effect[whichvillager].modifier=xx; // 8 bits
 
@@ -1166,8 +1168,10 @@ void main(void)
 , datagenwalkers:
 
    */
+
+	    ///
 	    /////////////////////////////////////
-	  case 14: // swop and copy // or fingers in the code /// or infection
+	    /*	  case 14: // swop and copy // or fingers in the code /// or infection
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    ranger=adc_buffer[THIRD]>>6; // 64
@@ -1220,38 +1224,51 @@ void main(void)
 
 	      } // end of ranger
 	      break;
-	    case 1: // next actionsssTODO!
-	      break;
-		/* example actions
-		
+	    //case 1: // next actionsssTODO!
+	      //break;
+ 		
 		// swop
-		tmpvillage=village_write[whichx];
-		village_write[whichx]=village_read[whichy];
-		village_read[whichy]=tmpvillage;
-		break;
+		//tmpvillage=village_write[whichx];
+//		village_write[whichx]=village_read[whichy];
+//		village_read[whichy]=tmpvillage;
+//		break;
 
-	    case 2:// infect
-		village_read[whichx]%=(village_write[whichy]+1);
+//	    case 2:// infect
+//		village_read[whichx]%=(village_write[whichy]+1);
 
-		case 3: fingers in!
+//		case 3: fingers in!
 
-		*/
 	    } // end of xx = action
-	    break; // case 14now
+	  break; // case 14now
+	  */
 	    //////////////////
 	  case 15: // mirror 
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
-	    //grupx=adc_buffer[SECOND]>>9; 3 bit=8 groups?
+	    grupx=adc_buffer[SECOND]>>10;// 2 bit=4 groups?
 	    // groups are: write.read.filtout.effect. (in case of effect restrict whichx to 16)
-
+	    switch(grupx){
+	    case 0:
 	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-
-	    // finger-set what to mirror-> datagen/eeg/finger/knob_as_4 = fingered...
 	    village_write[whichx].fingered=xx; // TODO... other groups
-	    // 3-set how mirror effects = mirrormod if 0 then nothing happens
-	    // finger-speed and step for this
 	    village_write[whichx].mirrorspeed=(spd&15)+1; 
+	    break;
+	    case 1:
+	    village_read[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
+	    village_read[whichx].fingered=xx; // TODO... other groups
+	    village_read[whichx].mirrorspeed=(spd&15)+1; 
+	    break;
+	    case 2:
+	    village_filtout[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
+	    village_filtout[whichx].fingered=xx; // TODO... other groups
+	    village_filtout[whichx].mirrorspeed=(spd&15)+1; 
+	    break;
+	    case 3:
+	    village_effect[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
+	    village_effect[whichx].fingered=xx; // TODO... other groups
+	    village_effect[whichx].mirrorspeed=(spd&15)+1; 
+	    break;
+	    }
 	    break;
 	  } // end of mainmodes 
 	}// Xx!=5// no fingers
@@ -1271,10 +1288,10 @@ void main(void)
 
 	      case 0: // LEFT=finger
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
+		mwrap=adc_buffer[RIGHT]<<3;
 		break;
-	      case 1: //RIGHT= knob 
-		mstart=adc_buffer[FOURTH]<<3;
+	      case 1: //RIGHT= knobZ 
+		mstart=adc_buffer[THIRD]<<3;
 		mwrap=adc_buffer[FOURTH]<<3;
 		break;
 	      case 2: // UP=datagen
@@ -1287,7 +1304,7 @@ void main(void)
 		mwrap=adc_buffer[9]<<3;
 #else
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
+		mwrap=adc_buffer[RIGHT]<<3;
 #endif
 		break;
 	      }
@@ -1346,10 +1363,10 @@ void main(void)
 
 	      case 0: // LEFT=finger
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
+		mwrap=adc_buffer[RIGHT]<<3;
 		break;
 	      case 1: //RIGHT= knob 
-		mstart=adc_buffer[FOURTH]<<3;
+		mstart=adc_buffer[THIRD]<<3;
 		mwrap=adc_buffer[FOURTH]<<3;
 		break;
 	      case 2: // UP=datagen
@@ -1362,7 +1379,7 @@ void main(void)
 		mwrap=adc_buffer[9]<<3;
 #else
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
+		mwrap=adc_buffer[RIGHT]<<3;
 #endif
 		break;
 	      }
@@ -1421,14 +1438,14 @@ void main(void)
 
 	      case 0: // LEFT=finger
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
-		mcompress=adc_buffer[LEFT]<<3;
-		moverlay=adc_buffer[LEFT]>>6;
+		mwrap=adc_buffer[RIGHT]<<3;
+		mcompress=adc_buffer[UP]<<3;
+		moverlay=adc_buffer[DOWN]>>6;
 		break;
 	      case 1: //RIGHT= knob 
-		mstart=adc_buffer[FOURTH]<<3;
-		mwrap=adc_buffer[FOURTH]<<3;
-		mcompress=adc_buffer[FOURTH]<<3;
+		mstart=adc_buffer[FIRST]<<3;
+		mwrap=adc_buffer[SECOND]<<3;
+		mcompress=adc_buffer[THIRD]<<3;
 		moverlay=adc_buffer[FOURTH]>>6;
 		break;
 	      case 2: // UP=datagen
@@ -1445,9 +1462,9 @@ void main(void)
 		moverlay=adc_buffer[9]>>6;
 #else
 		mstart=adc_buffer[LEFT]<<3;
-		mwrap=adc_buffer[LEFT]<<3;
-		mcompress=adc_buffer[LEFT]<<3;
-		moverlay=adc_buffer[LEFT]>>6;
+		mwrap=adc_buffer[RIGHT]<<3;
+		mcompress=adc_buffer[UP]<<3;
+		moverlay=adc_buffer[DOWN]>>6;
 #endif
 		break;
 	      }
