@@ -24,21 +24,22 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 - effects filled inDONE/test-FFT crashesFIXED-DONE
 - how to test datagen walker?DONE (should hw also be all nextdatagen or stick with walkers?)
-- mirrormods testedDONE ===> filled in for all casesDONE-to TEST!
+- mirrormods testedDONE ===> filled in for all casesDONE-to TEST
 - maybe do away with global datagen runnings and that mode and run all as are?DONE
 
-WED 25/26:
+WED 26:
 
+- *re-order modes// new idea of modes with first as selecting interface*
 - finish swap case 14 as all infects/fingers in the code
-- fill out rest of TODOs:
-- re-order modes// new idea of modes with first as selecting interface
+- list and complete rest of TODOs:
 - decide on: all HW except main one as all nextdatagens and lose walkers???
 
-THU/FRI 26:
-- re-test each section datagen//r/w/filt//effects//mirrors//hwTESTED
-- sampling speed and final tests, TODO and tweaks/speedups/sanity checks 
-= ifdefs for LACH
+THU/FRI 26/27 and next week:
+- re-test each section datagen//r/w/filt//effectsSANITYTEST//mirrors//hwTESTED
+- sampling speed and final tests, TODO and tweaks/sanity checks 
+- ifdefs for LACH
 
+- speedups:
 = round up size of structs, inlining, less local vars in function, pass
   less than 4 parameters, locals in innermost scope, unroll, accessing
   of full words(32 bytes) not bytes, sanify loops, less vars in any function/re-using

@@ -303,9 +303,12 @@ void main(void)
   u16 tmpp,mstart,mwrap,moverlay,mcompress,mmodifier;
 
   // order that all inits and audio_init called seems to be important
-  u16 x,addr,count;
+  u16 x,addr;
+#ifdef TEST_EFFECTS
+  u16 count;
+#endif
   //  u8 exestack[MAX_EXE_STACK];
-  u8 xx;
+  u8 xx,xxx;
 
   // effects init
 
@@ -610,27 +613,6 @@ void main(void)
 
   /// HERE starts!
 
-  // run through datagen villagers
-
-  /*  if (++deldata>=dataspeed) {
-    counterd+=dirryd;
-    deldata=0;
-  }
-
-  if ((counterd-databegin)>dataend) {
-    counterd=databegin;
-    for (u8 x=0;x<howmanydatavill;x++){
-      village_datagen[x].running=1;
-    }
-  }	    
-
-  if (counterd<databegin) {
-    counterd=dataend+databegin;
-    for (u8 x=0;x<howmanydatavill;x++){
-      village_datagen[x].running=1;
-	  }	    
-	  }*/
-
   for (x=0;x<howmanydatavill;x++){
     // speed for each
     //        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
@@ -846,13 +828,21 @@ void main(void)
 
   ///// end of DATAGEN villagers!
 
-  u8 mainmode,ranger,whichx,whichy,spd;
+  u8 mainmode,overmode,ranger,whichx,whichy,spd;
 
   xx=fingerdir(&spd);
+  xxx=adc_buffer[FIFTH]>>8; // 4 bits=16
+  overmode=xxx;
 
+  // TODO:set according to overmode and fingers compressions/maxvillagers/speeds and interface
+  // 4 knobs///4 fingers
+  // simplest=navigate by fingers or fingers in code
+  // complex=16 modes as we have
+  // how could work????
+ 
   if (xx!=5){
 	  // which mode are we in?
-	  mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
+    mainmode=xxx;
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
@@ -862,7 +852,8 @@ void main(void)
 
 #ifndef LACH
 	  switch(mainmode){
-	  case 0:// WRITE
+    // no case 0 as is overmode
+	  case 1:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
 
@@ -892,7 +883,7 @@ void main(void)
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
 
-	  case 1:// READ
+	  case 2:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
@@ -925,7 +916,7 @@ void main(void)
 	    }
 	    break;
 
-	  case 2: // READ 2nd
+	  case 3: // READ 2nd
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    village_read[whichvillager].fingered=xx;
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
@@ -946,7 +937,7 @@ void main(void)
 	    }
 	    break;
 	    
-	  case 3: // DATAGEN villagers
+	  case 4: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -967,17 +958,6 @@ void main(void)
 	    //	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
 	    //	    }
 	    break;
-
-	    /*	  case 4: // DATAGEN compression??? - not to redo? knob question?TODO/// lose this?
-	    databegin=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    dataend=loggy[adc_buffer[THIRD]]; //as logarithmic
-	    dataspeed=spd&15; // check how many bits is spd? 8 as changed in main.c 
-	    if (xx==0) dirryd=-(((spd&240)>>4)+1);
-	    else if (xx==1) dirryd=((spd&240)>>4)+1;
-	    else if (xx==2) dirryd=newdirection[wormdir];
-	    else dirryd=direction[adc_buffer[DOWN]&1]*(((spd&240)>>4)+1);
-	    if (dirryd>0) counterd=databegin;
-	    else counterd=dataend+databegin;*/
 
 	    /// 5/6/7/8/9/10 are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options (better as 8)
 	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 

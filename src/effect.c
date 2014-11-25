@@ -393,7 +393,8 @@ void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){/
   }
 
 void do_effect(villager_effect* vill_eff){
-  int32_t tmp;float tmpp,freq,freqc;
+  int32_t tmp;float tmpp; 
+  float freq,freqc;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
