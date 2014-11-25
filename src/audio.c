@@ -233,8 +233,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    for (x=0;x<howmanyreadvill;x++){
 	      //	      village_read[x].overlay|=16; //TESTY!
+#ifndef LACH
 	    if (digfilterflag && village_read[x].overlay&16) tmp=tmpl;
-
+#endif
 	    village_read[x].counterr+=village_read[x].dirryr;
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
 	      village_read[x].counterr=0;
@@ -494,7 +495,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }/// end of write!
 
 	  // TODO: filtout as above!
-
+#ifndef LACH
 	  if (digfilterflag){
 
 	  for (xx=0;xx<sz/2;xx++){
@@ -521,8 +522,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 	    }
 	  }/// end of FILTwrite!
-	  }
-
+}
+#endif
 	  /////////////////////////
 	  // final combine
 

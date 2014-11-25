@@ -11,6 +11,7 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** ideas for next release/this release maybe?
 
+- *somehow to define complexity in that first mode! last mode as always HW*
 - sans modes or 8 modes//that there are no modes=a village//HW as one mode with fingers only?
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
@@ -26,23 +27,21 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 - mirrormods testedDONE ===> filled in for all casesDONE-to TEST!
 - maybe do away with global datagen runnings and that mode and run all as are?DONE
 
-TUE 25:
-- all HW except main one as all nextdatagens and lose walkers???
-- finish case 15 mirrorsDONE
+WED 25/26:
 
 - finish swap case 14 as all infects/fingers in the code
-- fill out rest of TODOs
-- fill in extra/new effects and test
-- re-order modes
+- fill out rest of TODOs:
+- re-order modes// new idea of modes with first as selecting interface
+- decide on: all HW except main one as all nextdatagens and lose walkers???
 
-WED/THU/FRI 26:
-- re-test each section datagen//r/w/filt//effects//mirrors/hw
+THU/FRI 26:
+- re-test each section datagen//r/w/filt//effects//mirrors//hwTESTED
 - sampling speed and final tests, TODO and tweaks/speedups/sanity checks 
 = ifdefs for LACH
 
-= round up size of structs,inlining,less local vars in function, pass
+= round up size of structs, inlining, less local vars in function, pass
   less than 4 parameters, locals in innermost scope, unroll, accessing
-  of full words(32 bytes) not bytes, sanify loops
+  of full words(32 bytes) not bytes, sanify loops, less vars in any function/re-using
 
 -mstructure-size-boundary=n The sizes of all structures and unions are
     rounded up to a multiple of the number of bits set by this
@@ -110,8 +109,9 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 25
 
-- testing and finished mirror - to test in FULL
+- testing and finished mirror case 15 - to test in FULL
 - fixed %0 bug as howmnayfiltvill was zero
+- test.c for effects walkerDONE
 
 **** NOV 24
 
@@ -227,7 +227,10 @@ as not to init:
 7--variable bandpass
 
 *** DONE
+**** NOV 25
 
+- longest is now shortest
+- 8 effects now
 **** NOV 24
 
 - testing effects, fixed formantf
@@ -365,6 +368,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 **** NOV 25
 
 - mirrors extended so not all same finger or knob!
+- testing and finished mirror case 15 - to test in FULL
 
 **** NOV 24
 
@@ -377,13 +381,12 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 - started on mirror structure
 
-
 ** Integration/tests/cleanups
 
-- ordering of modes - first should be HW
-- defines for HW versions
+- ordering of modes - last should be HW
+- fill in defines for HW versions
 - remove excess statics and variables.
-- any math speedups 
+- any speedups/math - see above 
 - clean up structs/memory
 - check EVERYTHING again and again!
 

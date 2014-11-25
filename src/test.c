@@ -32,6 +32,12 @@ blackman (int i, int nn)
 	  + 0.08 * cos (4.0*M_PI*(double)i/(double)(nn-1)) );
 }
 
+double
+hamming (int i, int nn)
+{
+  return ( 0.54 - 0.46 * cos (2.0*M_PI*(double)i/(double)(nn-1)) );
+}
+
 double hanning (int i, int nn)
 {
   return ( 0.5 * (1.0 - cos (2.0*M_PI*(double)i/(double)(nn-1))) );
@@ -69,13 +75,14 @@ void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSi
 void main(void)
 {
 
-  int i; //float xx,xa,xb,xc; int xxx;
+  int i; float xx,xa,xb,xc; int xxx;
 
   int16_t tmp;
-  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
-  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
-  u16 n1=32,n2=32;
+  //  //  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
+  //  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
+  //  u16 n1=32,n2=32;
 
+  /*
     float k[5] = {3, 4, 5, 0, 0};
     float out[5];
     float in[2] = {2,1};
@@ -102,22 +109,20 @@ void main(void)
         printf("%5.2f, ", out[i]);
     }
     printf("\n");
+  */
 
 
+  /*    while(1){
 
-  //  while(1){
-
-    /*    xx++;
-    if (xx%1000==0){
-    modwrap=(rand()%1000);
-    inwrap=(rand()%1000);
-    }
+      //        xx++;
 
     if (inpos>=inwrap) {
+    inwrap=(rand()%100);
       inpos=0;
     }
 
     if (modpos>=modwrap) {
+    modwrap=(rand()%100);
       modpos=0;
     }
 
@@ -129,17 +134,22 @@ void main(void)
     else tmpmodlong=modwrap-modpos;
     
     //    now copy with length as longest
-    if (tmpinlong>=tmpmodlong) longest=tmpinlong;
+    if (tmpinlong<=tmpmodlong) longest=tmpinlong;
     else longest=tmpmodlong;
 
+    for (x=0;x<longest;x++){
+      inpos++;
+      //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
+    printf("shortest %d inlong %d modlong %d inpos %d modpos %d\n inwrap %d\n",longest,tmpinlong,tmpmodlong,inpos,modpos,inwrap);
+    }
+
     //longest=32;tmpinlong=32;tmpmodlong=32;// TESTY!
-    printf("longest %d inlong %d modlong %d inpos %d modpos %d\n",longest,tmpinlong,tmpmodlong,inpos,modpos);
 
     // and update vill_eff
-    modpos+=tmpmodlong;
-    inpos+=tmpinlong;*/
+    //    modpos+=tmpmodlong;
+    //    inpos+=tmpinlong;
 
-  //  }
+    }*/
 
   //  xx=intun_to_float(65536);
   //  printf ("intun %f\n",xx);
@@ -174,12 +184,16 @@ void main(void)
   printf ("%f,",xa);
   }*/
 
+  float freq;int mod=200;
+
+  freq = 2.0*M_PI*((float)(mod/255.0f)); // mod is now 8 bits
+  mod=freq*(float)mod;
+  printf("freq*mod: %d\n",mod);
 
 
-
-  /*  for (i = 0; i < 32; i ++)
+  /*    for (i = 0; i < 32; i ++)
     {
-      xx=hanning(i,32);
+      xx=hamming(i,32);
       xxx=xx*32768.0f;
       printf("%d,",xxx);
       }*/

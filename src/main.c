@@ -856,8 +856,11 @@ void main(void)
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
-	  mainmode=6; // TESTY!
+	  //	  mainmode=6; // TESTY!
 
+	  // TODO: first mode as defining interface and complexity using fingers/knobs(villagers)
+
+#ifndef LACH
 	  switch(mainmode){
 	  case 0:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
@@ -1117,7 +1120,7 @@ void main(void)
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
-	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>7; // 16 options
+	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=spd;
 	    break;
 	  case 12: // effects outstart,outwrap
@@ -1264,14 +1267,18 @@ void main(void)
 	    village_filtout[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
 	    case 3:
-	    village_effect[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-	    village_effect[whichx].fingered=xx; // TODO... other groups
-	    village_effect[whichx].mirrorspeed=(spd&15)+1; 
+	    village_effect[whichx&15].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
+	    village_effect[whichx&15].fingered=xx; // TODO... other groups
+	    village_effect[whichx&15].mirrorspeed=(spd&15)+1; 
 	    break;
 	    }
 	    break;
 	  } // end of mainmodes 
 	}// Xx!=5// no fingers
+
+#else // LACH modes!
+
+#endif
 
 	///////////////////////////////
 
@@ -1351,6 +1358,7 @@ void main(void)
 	  }	
 	} // end of this mirror
 
+#ifndef LACH
 	if (digfilterflag){
 	for (whichx=0;whichx<howmanyfiltoutvill;whichx++){//FILTOUT mirror
 	  if (village_filtout[whichx].mirrormod){
@@ -1426,6 +1434,7 @@ void main(void)
 	  }	
 	}
 	} // end of this mirror
+#endif
 
 	for (whichx=0;whichx<howmanyreadvill;whichx++){//READ mirror ---> kcompress and koverlay also
 	  if (village_read[whichx].mirrormod){

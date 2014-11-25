@@ -429,7 +429,7 @@ void do_effect(villager_effect* vill_eff){
     else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
     
     //    now copy with length as longest
-    if (tmpinlong>=tmpmodlong) longest=tmpinlong;
+    if (tmpinlong<=tmpmodlong) longest=tmpinlong;// NOW lONGEST is really shortest which is as should be
     else longest=tmpmodlong;
 
   // in each switch/case - easier here
@@ -438,23 +438,7 @@ void do_effect(villager_effect* vill_eff){
   // still need speed and step somehow!! TODO!
     //    vill_eff->whicheffect=8; // TESTY!
   switch(vill_eff->whicheffect){
-  case 0: // prototype sans float and same sizes doringcopy of modbuffer to outbuffer!
-  default: // Testy!
-    for (xx=0;xx<longest;xx++){
-      inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
-      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
-    }
-    // do effect
-    doringcopy(inbuffer,modbuffer,outbuffer,longest);    /// EFFECT!
-    // copy outbuffer to audio
-    for (xx=0;xx<longest;xx++){
-      audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
-      vill_eff->outpos++;
-      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
-    }
-    break;
-
-  case 1: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
+  case 0: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
 
     for (xx=0;xx<tmpinlong;xx++){
@@ -473,7 +457,7 @@ void do_effect(villager_effect* vill_eff){
     }
 
    break; 
-  case 2: //FFT in PV from inbuffer into buf16
+  case 1: //FFT in PV from inbuffer into buf16
     //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
     // but must be 32 samples
     for (xx=0;xx<32;xx++){
@@ -488,7 +472,7 @@ void do_effect(villager_effect* vill_eff){
     }
     break;
 
-      case 3: // reverse FFT from values in buf16
+  case 2: // reverse FFT from values in buf16
     for (xx=0;xx<32;xx++){
       inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)%32768];
     }
@@ -501,7 +485,7 @@ void do_effect(villager_effect* vill_eff){
     }
     break;
 
-  case 4:
+  case 3:
     // how to calculate 16 x 4 bit=64 bits offsets based on 12 bit modifier
     switch(vill_eff->modifier&7){ // 
     case 0:// leave as is
@@ -562,18 +546,19 @@ void do_effect(villager_effect* vill_eff){
 
     break;
 
-  case 5: //5--convolve:
+  case 4: //5--convolve:
     for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768]/32768.0f;//REDO! why/how?
+      finbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768])/32768.0f;//REDO! why/how?
     }
 
-    for (xx=0;xx<tmpmodlong;xx++){
-      fmodbuffer[xx]=(float32_t)audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768]/32768.0f;//REDO! why/how?
+    x=vill_eff->modifier&15;
+    for (xx=0;xx<x;xx++){
+      fmodbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768])/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
-    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, vill_eff->modifier&15);// TODO: do we need to select longest for data?
+    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, x);// TODO: do we need to select longest for data?
 
-    for (xx=0;xx<longest;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
@@ -582,7 +567,7 @@ void do_effect(villager_effect* vill_eff){
     }
     break;
 
-  case 6: //     6--envelope follower
+  case 5: //     6--envelope follower
     for (xx=0;xx<longest;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
       modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
@@ -597,13 +582,24 @@ void do_effect(villager_effect* vill_eff){
     }
     break;
 
-  case 7://      7+--windower - diff windows// also 32 ???
+  case 6://      7+--windower - diff windows// also 32 ???
     for (xx=0;xx<tmpinlong;xx++){
       inbuffer[xx]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768];
       //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)%32768];
     }
 
-    hanningprocess(inbuffer, outbuffer, tmpinlong); 
+    switch(vill_eff->modifier&3){
+    case 0:
+    default:
+      hanningprocess(inbuffer, outbuffer, tmpinlong); 
+      break;
+    case 1:
+      hammingprocess(inbuffer, outbuffer, tmpinlong); 
+      break;
+    case 2:
+      blackmanprocess(inbuffer, outbuffer, tmpinlong); 
+      break;
+    }
 
     for (xx=0;xx<tmpinlong;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
@@ -612,13 +608,12 @@ void do_effect(villager_effect* vill_eff){
     }
     break;
 
-
-  case 8://      8--variable bandpass based on modifier 
-    freq = 2.0*M_PI*((float32_t)vill_eff->modifier/255.0f); // mod is now 8 bits
+  case 7://      8--variable bandpass based on modifier 
+    freq = 2.0*M_PI*((float32_t)(vill_eff->modifier)/255.0f); // mod is now 8 bits
     freqc= 0.9f + 0.9f/(1.0f - freq);
 
     for (xx=0;xx<tmpinlong;xx++){
-      tmpp=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768]/32768.0f;//REDO! why/how?
+      tmpp=(float32_t)(audio_buffer[(vill_eff->instart+vill_eff->inpos++)%32768])/32768.0f;//REDO! why/how?
       tmpp=dobandpass(tmpp,freq,freqc); // from OWL code - statevariable
 	// out here
       tmp = (int32_t)(tmpp * 32768.0f);
@@ -628,18 +623,6 @@ void do_effect(villager_effect* vill_eff){
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
       }
     break;
-
-    //9.10.11.12.13.14.15=7
-    // ADD extra effects to make 16- calc extra windows, other effects worked on!
-    // eg follow envelope of buf16 = * float
-    // peak detect in buf16
-    // former effects: mdavocal,
-    // magnitude
-
-    // Process the data through the Complex Magnitude Module for  calculating the magnitude at each bin
-    //  arm_cmplx_mag_f32(testInput_f32_10khz, testOutput, fftSize);
-
-
   }
 }
 
