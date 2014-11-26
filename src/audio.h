@@ -25,7 +25,7 @@
       u16 inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
       u8 mirrormod,mirrordel,mirrorspeed; 
-      u8 infected;
+      //      u8 infected;
       u8 fingered; // what is input here as modifier
       u16  modifier,kmodifier;
     } villager_effect;
@@ -62,7 +62,7 @@ typedef struct {
   //  u16 mstart,mcompress,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
   u8 moverlay,koverlay;
-  u8 infected;
+  //  u8 infected;
   u8 fingered; // what is input here as modifier
 
   u16 start,offset,wrap;
@@ -81,7 +81,7 @@ typedef struct {
   u16 kstart,kwrap;
   //  u16 mstart,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
-  u8 infected;
+  //  u8 infected;
   u8 fingered; // what is input here as modifier
   u16 start,wrap;
   u16 samplepos;

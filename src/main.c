@@ -240,17 +240,8 @@ u8 fingerdirupdown(void){
 
 villagerw village_write[MAX_VILLAGERS+1];
 villagerr village_read[MAX_VILLAGERS+1];
-//villagerr village_filtin[MAX_VILLAGERS+1];
 villagerw village_filtout[MAX_VILLAGERS+1];
-
-villager_effect village_effect[17];
-
-//mirror mvillage_write[MAX_VILLAGERS+1];
-//mirror mvillage_read[MAX_VILLAGERS+1];
-//mirror mvillage_filtin[MAX_VILLAGERS+1];
-//mirror mvillage_filtout[MAX_VILLAGERS+1];
-
-
+villager_effect village_effect[MAX_VILLAGERS+1];
 villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
 villager_generic village_datagen[MAX_VILLAGERS+1];
 villager_hardware village_hardware[17];
@@ -263,8 +254,8 @@ u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywrit
 
 //u16 counterd=0, databegin=0,dataend=32767;
 //u8 deldata=0,dataspeed=1;
-int16_t dirryd=1;
-u8 inp=0;
+//int16_t dirryd=1;
+//u8 inp=0;
 
 // effects tests
 
@@ -353,7 +344,7 @@ void main(void)
     village_read[xx].compress=32767;
     village_read[xx].mirrormod=0;
     village_read[xx].mirrordel=0;
-    village_read[xx].infected=0;
+    //    village_read[xx].infected=0;
     village_read[xx].samplepos=0;
     village_read[xx].speed=1;
     village_read[xx].step=1;
@@ -373,7 +364,7 @@ void main(void)
     village_write[xx].mirrormod=0;//TESTY!
     village_write[xx].fingered=0;//TESTY!
     village_write[xx].mirrordel=0;
-    village_write[xx].infected=0;
+    //    village_write[xx].infected=0;
     village_write[xx].samplepos=0;
     village_write[xx].speed=1;
     village_write[xx].step=1;
@@ -432,7 +423,7 @@ void main(void)
     village_filtout[xx].del=0;
     village_filtout[xx].mirrormod=0;
     village_filtout[xx].mirrordel=0;
-    village_filtout[xx].infected=0;
+    //    village_filtout[xx].infected=0;
     village_filtout[xx].samplepos=0;
     village_filtout[xx].speed=1;
     village_filtout[xx].step=1;
@@ -639,7 +630,7 @@ void main(void)
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
-    mainmode=3; // TESTY!
+    mainmode=13; // TESTY!
 
 
 
@@ -886,7 +877,7 @@ void main(void)
 	    break;
 
 	  case 10: // effects across also case 12:
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
+	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
 	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
@@ -929,94 +920,69 @@ void main(void)
 
   /* do mirror and infections between:
 
-  extern villagerr village_write[MAX_VILLAGERS+1];
+  extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
-  extern villagerr village_filtout[MAX_VILLAGERS+1];
+  extern villagerw village_filtout[MAX_VILLAGERS+1];
   extern villager_generic village_datagen[MAX_VILLAGERS+1];
 
-  extern villager_hardware village_hardware[17];
-  extern villager_hardwarehaha village_40106[17];
-  extern villager_hardwarehaha village_hdgener[17];
-  extern villager_hardwarehaha village_lm[17];
-  extern villager_hardwarehaha village_maxim[17];
++ effects[16]: in/out/mod
 
-+ effects: 
-, datagenwalkers:
+do start/wrap/pos
 
    */
 
+	    u16 *starts[64][8];
+	    u16 *wraps[64][8];
+	    u16 *posses[64][8];
+
+	    for (xx=0;xx<64;xx++){
+	      starts[x][0]=&village_write[x].start;
+	      wraps[x][0]=&village_write[x].wrap;
+	      posses[x][0]=&village_write[x].samplepos;
+
+	      starts[x][1]=&village_read[x].start;
+	      wraps[x][1]=&village_read[x].wrap;
+	      posses[x][1]=&village_read[x].samplepos;
+
+	      starts[x][2]=&village_filtout[x].start;
+	      wraps[x][2]=&village_filtout[x].wrap;
+	      posses[x][2]=&village_filtout[x].samplepos;
+
+	      starts[x][3]=&village_datagen[x].start;
+	      wraps[x][3]=&village_datagen[x].wrap;
+	      posses[x][3]=&village_datagen[x].position;
+
+	      starts[x][4]=&village_datagenwalker[x].dataoffset;
+	      wraps[x][4]=&village_datagenwalker[x].length;
+	      posses[x][4]=&village_datagenwalker[x].samplepos;
+
+	      starts[x][5]=&village_effect[x].instart;
+	      wraps[x][5]=&village_effect[x].inwrap;
+	      posses[x][5]=&village_effect[x].inpos;
+
+	      starts[x][6]=&village_effect[x].modstart;
+	      wraps[x][6]=&village_effect[x].modwrap;
+	      posses[x][6]=&village_effect[x].modpos;
+
+	      starts[x][7]=&village_effect[x].outstart;
+	      wraps[x][7]=&village_effect[x].outwrap;
+	      posses[x][7]=&village_effect[x].outpos;
+	    }
+
 	    ///
 	    /////////////////////////////////////
-	    /*	  case 13: // swop and copy // or fingers in the code /// or infection
+	  case 13: // swop and copy // or fingers in the code /// or infection
+
+
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    ranger=adc_buffer[THIRD]>>6; // 64
-	    // and FOURTH knob??? as mirror modulator
 	    //	    action=xx;
 	    switch(xx){ // 0,1,2,3= 4 actions
-	    case 0:
-	      switch(ranger){
-	      case 0:
-		village_write[whichx]=village_write[whichy]; // restrict here or???
-		break;
-	      case 1:
-		//		village_write[whichx]=village_read[whichy];// TODOcopy as now different
-		break;
-	      case 2:
-		village_write[whichx]=village_filtout[whichy];
-		break;
-	      case 3:
-		// copy appropriate datagen settings
-		village_write[whichx].start=village_datagen[whichy].start;
-		village_write[whichx].wrap=village_datagen[whichy].wrap;
-		village_write[whichx].samplepos=village_datagen[whichy].position;
-		village_write[whichx].dirry=village_datagen[whichy].dirry;
-		//		village_write[whichx].dir=village_datagen[whichy].dir;
-		village_write[whichx].step=village_datagen[whichy].step;
-		village_write[whichx].speed=village_datagen[whichy].speed;
-		break;
-	      case 4:
-		// datagen walker 
-		village_write[whichx].start=village_datagenwalker[whichy].dataoffset;
-		village_write[whichx].wrap=village_datagenwalker[whichy].length;
-		village_write[whichx].samplepos=village_datagenwalker[whichy].samplepos;
-		village_write[whichx].dirry=village_datagenwalker[whichy].dirry;
-		village_write[whichx].dir=village_datagenwalker[whichy].dir;
-		village_write[whichx].step=village_datagenwalker[whichy].step;
-		village_write[whichx].speed=village_datagenwalker[whichy].speed;
-		break;
-	      case 5://TODO REDO!
-		// with its mirror
-		//		village_write[whichx].start=village_write[whichy].mstart;
-		//		village_write[whichx].wrap=village_write[whichy].mwrap;
-		break;
-	      case 6:
-		/// copy outmod for effects! outstart, outwrap
-		village_write[whichx].start=village_effect[whichx].outstart;
-		village_write[whichx].wrap=village_effect[whichx].outwrap;
-		village_write[whichx].samplepos=village_effect[whichx].outpos;
-		break;
-		/// TODO: mult all above by village_read,village_datagen,village_datagenwalker,village mirrors,outmod=8*8=64
-
-	      } // end of ranger
-	      break;
-	    //case 1: // next actionsssTODO!
-	      //break;
- 		
-		// swop
-		//tmpvillage=village_write[whichx];
-//		village_write[whichx]=village_read[whichy];
-//		village_read[whichy]=tmpvillage;
-//		break;
-
-//	    case 2:// infect
-//		village_read[whichx]%=(village_write[whichy]+1);
-
-//		case 3: fingers in!
-
+	      //  case 0:
 	    } // end of xx = action
 	  break; // case 14now
-	  */
+	  
 	    //////////////////
 	  case 14: // mirror 
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??

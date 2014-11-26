@@ -1,3 +1,64 @@
+	      switch(ranger){
+	      case 0:
+		village_write[whichx]=village_write[whichy]; // restrict here or???
+		break;
+	      case 1:
+		//		village_write[whichx]=village_read[whichy];// TODOcopy as now different
+		break;
+	      case 2:
+		//	village_write[whichx]=village_filtout[whichy];
+		break;
+	      case 3:
+		// copy appropriate datagen settings
+		village_write[whichx].start=village_datagen[whichy].start;
+		village_write[whichx].wrap=village_datagen[whichy].wrap;
+		village_write[whichx].samplepos=village_datagen[whichy].position;
+		village_write[whichx].dirry=village_datagen[whichy].dirry;
+		//		village_write[whichx].dir=village_datagen[whichy].dir;
+		village_write[whichx].step=village_datagen[whichy].step;
+		village_write[whichx].speed=village_datagen[whichy].speed;
+		break;
+	      case 4:
+		// datagen walker 
+		village_write[whichx].start=village_datagenwalker[whichy].dataoffset;
+		village_write[whichx].wrap=village_datagenwalker[whichy].length;
+		village_write[whichx].samplepos=village_datagenwalker[whichy].samplepos;
+		village_write[whichx].dirry=village_datagenwalker[whichy].dirry;
+		village_write[whichx].dir=village_datagenwalker[whichy].dir;
+		village_write[whichx].step=village_datagenwalker[whichy].step;
+		village_write[whichx].speed=village_datagenwalker[whichy].speed;
+		break;
+	      case 5://TODO REDO!
+		// with its mirror
+		village_write[whichx].start=village_write[whichy].mstart;
+		village_write[whichx].wrap=village_write[whichy].mwrap;
+		break;
+	      case 6:
+		/// copy outmod for effects! outstart, outwrap
+		village_write[whichx].start=village_effect[whichx].outstart;
+		village_write[whichx].wrap=village_effect[whichx].outwrap;
+		village_write[whichx].samplepos=village_effect[whichx].outpos;
+		break;
+		/// TODO: mult all above by village_read,village_datagen,village_datagenwalker,village mirrors,outmod=8*8=64
+
+	      } // end of ranger
+	      break;
+	    //case 1: // next actionsssTODO!
+	      //break;
+ 		
+		// swop
+		//tmpvillage=village_write[whichx];
+//		village_write[whichx]=village_read[whichy];
+//		village_read[whichy]=tmpvillage;
+//		break;
+
+//	    case 2:// infect
+//		village_read[whichx]%=(village_write[whichy]+1);
+
+//		case 3: fingers in!
+
+////
+
 
 	      case 0: // overlay=all,effect=straight
 		buf16[lp]=tmp+32768;

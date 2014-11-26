@@ -158,23 +158,23 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
   static u16 counter=0,counterr=0,counthw=0;
   //  static u16 readbegin=0,readend=32767,readoffset=32768,writebegin=0,writeend=32767,writeoffset=32768, readstartoffset=0,writestartoffset=0;
-  extern u8 howmanydatavill, howmanyeffectvill,howmanydatagenwalkervill;;
+  //  extern u8 howmanydatavill, howmanyeffectvill,howmanydatagenwalkervill;;
   //  u8 mainmode;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   extern villagerw village_filtout[MAX_VILLAGERS+1];
-  extern villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
-  extern villager_generic village_datagen[MAX_VILLAGERS+1];
-  extern villager_effect village_effect[17];
+  //  extern villager_datagenwalker village_datagenwalker[MAX_VILLAGERS+1];
+  //  extern villager_generic village_datagen[MAX_VILLAGERS+1];
+  //  extern villager_effect village_effect[17];
   extern villager_hardware village_hardware[17];
   extern villager_hardwarehaha village_40106[17];
   extern villager_hardwarehaha village_hdgener[17];
   extern villager_hardwarehaha village_lm[17];
   extern villager_hardwarehaha village_maxim[17];
 
-  extern u16 databegin,dataend,counterd;
-  extern u8 dataspeed;  
-  extern int16_t dirryd;
+  //  extern u16 databegin,dataend,counterd;
+  //  extern u8 dataspeed;  
+  //  extern int16_t dirryd;
   //  static u16 samplepos=0; // TESTY!
 
 #ifdef TEST_EFFECTS

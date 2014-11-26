@@ -23,8 +23,6 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 26:
 
-- re-test each section: *datagenTEST//datagenwalkerSANITY//r/w/filt//effectsSANITYTEST//mirrors//hwTESTED*
-
 - finish swap case 13 as all infects/14-fingers in the code
 - list and complete rest of TODOs eg. speed and step for effects
 - re-order modes---first/last mode as always HW
@@ -46,7 +44,8 @@ THU/FRI 26/27 and next week:
     underlying ABI supports it.
 
 
-- re-test all sections again
+- re-test all sections again: - re-test each section:
+  datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 
 *** new speed schemeDONE
 
@@ -108,6 +107,8 @@ biquad), const structure (would need pre-calc whole array and print)
 **** NOV 26
 
 - speedups for datagen, also in audio.c and main.c replaced %32768 with &32767
+- tested all sections and mirrors OK and sanity checked.
+- 64 effects to ease mirroring (also was bug in init 64 efects anyways)
 
 **** NOV 25
 
