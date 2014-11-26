@@ -144,10 +144,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 x,xx,spd;
   u8 hdgener; 
   float32_t fsum,fsumd;
-  register int32_t tmp,tmpl,tmp16;
+  register int32_t tmp,tmpl,tmp16,tmp32,tmp32d;
   int16_t tmptmp,tmptmp16,count; 
   static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
-  int32_t tmp32,tmp32d;
+  
   static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,whichfiltoutvillager=0,readoverlay=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
   extern u8 hardcompress;

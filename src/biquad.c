@@ -1,4 +1,5 @@
 #include "biquad.h"
+#include "audio.h"
 #include "simulation.h"
 
 /* Computes a BiQuad filter on a sample */

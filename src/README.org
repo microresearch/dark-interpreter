@@ -111,14 +111,15 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 26
 
+- started on ifdefs for LACH should be DONE
 - some speedups such as int32 and registers in audio.c - maybe struct for reads should also be int32 then we have pointer question across all???
 - speedups for datagen, also in audio.c and main.c replaced %32768 with &32767
 - tested all sections and mirrors OK and sanity checked.
 - now 64 effects to ease mirroring (also was bug in init 64 efects anyways)
 - finished swap case 13 as all infects/14-fingers in the code TO TEST!DONE
 - HW speed added (to TEST!)
-- speed and step in efects (to TEST!)
-- re-ordered modes---first mode as HW
+- speed and step in effects (to TEST!)
+- re-ordered modes---last modes as HW
 
 **** NOV 25
 
@@ -192,8 +193,6 @@ biquad), const structure (would need pre-calc whole array and print)
 
 ** Effects and effects walker
 
-- TODOspeeds and step still to do in effects walker
-
 - villager-villager effects walker - make a clearer format as also need
   process each effect in chunks (and to keep track of these - within
   each villager)
@@ -217,6 +216,10 @@ biquad), const structure (would need pre-calc whole array and print)
 - set up frequency tables/init all filters
 
 *** DONE
+**** 26 NOV
+
+- TODOspeeds and step still to do in effects walker
+
 **** 10 NOV
 
 - effects walker sanity checked/fixed
@@ -396,7 +399,7 @@ parameters->datagen/eeg/knob/fingers,fingers in code
 
 ** Integration/tests/cleanups
 
-- ordering of modes - last should be HW
+- ordering of modes - last should be HW DONE
 - fill in defines for HW versions
 - remove excess statics and variables.
 - any speedups/math - see above 

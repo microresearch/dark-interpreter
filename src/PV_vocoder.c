@@ -3,6 +3,7 @@
 //from teensy: analyze_fft256 see also data_windows there
 //also maybe faster filters there and using routines from dspinst.h
 
+#include "audio.h"
 #include "simulation.h"
 #include "PV_vocoder.h"
 

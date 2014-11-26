@@ -3,6 +3,7 @@
 #include <sys/times.h>
 #include <sys/unistd.h>
 #include "stm32f4xx.h"
+#include "audio.h"
 #include "simulation.h"
 #include "vocode.h"
 
