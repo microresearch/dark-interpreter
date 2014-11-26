@@ -118,25 +118,25 @@ typedef struct {
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);
 
-u16 xxrunleakystack(villager_generic *villager);
-u16 xxrunbiota(villager_generic *villager);
-u16 xxrun1(villager_generic *villager);
-u16 xxrunworm(villager_generic *villager);
-u16 xxrunstack(villager_generic *villager);
-u16 xxrunbefunge(villager_generic *villager);
-u16 xxrunlang(villager_generic *villager);
-u16 xxrunbf(villager_generic *villager);
-u16 xxrunturm(villager_generic *villager);
-u16 xxrunca(villager_generic *villager);
-u16 xxrunant(villager_generic *villager);
-u16 xxrunca2(villager_generic *villager);
-u16 xxrunhodge(villager_generic *villager);
-u16 xxrunworm2(villager_generic *villager);
-u16 xxrunleaky(villager_generic *villager);
-u16 xxrunconvy(villager_generic *villager);
-u16 xxrunplague(villager_generic *villager);
-u16 xxrunmicro(villager_generic *villager);
-u16 xxruncw(villager_generic *villager);
-u16 xxrunmasque(villager_generic *villager);
+void xxrunleakystack(villager_generic *villager);
+void xxrunbiota(villager_generic *villager);
+void xxrun1(villager_generic *villager);
+void xxrunworm(villager_generic *villager);
+void xxrunstack(villager_generic *villager);
+void xxrunbefunge(villager_generic *villager);
+void xxrunlang(villager_generic *villager);
+void xxrunbf(villager_generic *villager);
+void xxrunturm(villager_generic *villager);
+void xxrunca(villager_generic *villager);
+void xxrunant(villager_generic *villager);
+void xxrunca2(villager_generic *villager);
+void xxrunhodge(villager_generic *villager);
+void xxrunworm2(villager_generic *villager);
+void xxrunleaky(villager_generic *villager);
+void xxrunconvy(villager_generic *villager);
+void xxrunplague(villager_generic *villager);
+void xxrunmicro(villager_generic *villager);
+void xxruncw(villager_generic *villager);
+void xxrunmasque(villager_generic *villager);
 #endif
 

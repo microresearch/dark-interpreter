@@ -11,8 +11,9 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** ideas for next release/this release maybe?
 
-- *somehow to define complexity in that first mode! last mode as always HW*
+- *somehow to define complexity/interface in that first mode!*
 - sans modes or 8 modes//that there are no modes=a village//HW as one mode with fingers only?
+
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
@@ -20,24 +21,17 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-- test basics of new readin/out and filtin/outDONE
-
-- effects filled inDONE/test-FFT crashesFIXED-DONE
-- how to test datagen walker?DONE (should hw also be all nextdatagen or stick with walkers?)
-- mirrormods testedDONE ===> filled in for all casesDONE-to TEST
-- maybe do away with global datagen runnings and that mode and run all as are?DONE
-
 WED 26:
 
-- *re-order modes// new idea of modes with first as selecting interface*
-- finish swap case 14 as all infects/fingers in the code
-- list and complete rest of TODOs:
-- decide on: all HW except main one as all nextdatagens and lose walkers???
+- re-test each section: *datagenTEST//datagenwalkerSANITY//r/w/filt//effectsSANITYTEST//mirrors//hwTESTED*
+
+- finish swap case 13 as all infects/14-fingers in the code
+- list and complete rest of TODOs eg. speed and step for effects
+- re-order modes---first/last mode as always HW
 
 THU/FRI 26/27 and next week:
-- re-test each section datagen//r/w/filt//effectsSANITYTEST//mirrors//hwTESTED
 - sampling speed and final tests, TODO and tweaks/sanity checks 
-- ifdefs for LACH
+- ifdefs for LACH and test LACH/SUSP (to build)
 
 - speedups:
 = round up size of structs, inlining, less local vars in function, pass
@@ -50,6 +44,9 @@ THU/FRI 26/27 and next week:
     varies for different toolchains. For the COFF targeted toolchain
     the default value is 8. A value of 64 is only allowed if the
     underlying ABI supports it.
+
+
+- re-test all sections again
 
 *** new speed schemeDONE
 
@@ -107,6 +104,10 @@ as not to init:
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+
+**** NOV 26
+
+- speedups for datagen, also in audio.c and main.c replaced %32768 with &32767
 
 **** NOV 25
 

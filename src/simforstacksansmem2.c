@@ -51,6 +51,7 @@ uint16_t adc_buffer[10];
 int16_t* audio_buffer;
 */
 #else
+#include "audio.h"
 #include "simulation.h"
 #include <malloc.h>
 #include <math.h>
@@ -68,13 +69,6 @@ extern u16 *buf16;
 
 //////////////////////////////////////////////////////////
 
-u16 runnone(uint8_t howmuch, u16* buffer, u16 count, u16 start, u16 wrap){
-  for (u8 s = 0; s < howmuch; s++ ) {
-      count++;
-  }
-  return count;
-}
-
 // formantz
 
 const u16 SAMPLE_FREQUENCY = 48000;
@@ -84,7 +78,11 @@ const float32_t PI_2 = 6.28318531f;
 u8 freqqq[3];
 u8 w[3];
 
-u16 runform(u8 step, u16 count, u16 start, u16 wrap){
+void runform(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
 
   freqqq[0]=(u8)buf16[0];
   freqqq[1]=(u8)buf16[1];
@@ -126,14 +124,19 @@ u16 runform(u8 step, u16 count, u16 start, u16 wrap){
       //      
     }
   }
-  return count;
+  vill->position=count;
   }
 
 //////////////////////////////////////////////////////////
 
 // convolve
 
-u16 runconv(u8 step, u16 count, u16 start, u16 wrap){
+void runconv(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u16 y,tmp;
   float32_t tmppp;
   float32_t c0=(float32_t)buf16[0]/16384.0;
@@ -155,14 +158,19 @@ u16 runconv(u8 step, u16 count, u16 start, u16 wrap){
     //    //    printf("%c",buf16[start+count]%255);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // sine
 
-u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
+void runsine(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 static u8 cc=0;
 
   //  for (i=0; i<howmuch; i++) {
@@ -174,15 +182,20 @@ static u8 cc=0;
 #endif
     cc++;
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runnoise(u8 step, u16 count, u16 start, u16 wrap){// TSTY!
+void runnoise(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+// TSTY!
   static u16 xx;
     count+=step;
     //    
     buf16[count%32768]=xx++; 
-  return count;
+  vill->position=count;
 }
 
 
@@ -202,7 +215,12 @@ extern signed char direction[2];
 #endif
 
 
-u16 runchunk(u8 step, u16 count, u16 start, u16 wrap){
+void runchunk(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 static u16 othercount;
   u16 otherstart=buf16[0]>>1;
   u16 otherwrap=buf16[1]>>1;
@@ -224,10 +242,15 @@ static u16 othercount;
     //    //    printf("%c",buf16[(count+start)%32768]);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runderefchunk(u8 step, u16 count, u16 start, u16 wrap){
+void runderefchunk(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 static u16 othercount;
   u16 otherstart=buf16[0]>>1;
   u16 otherwrap=buf16[1]>>1;
@@ -248,10 +271,15 @@ static u16 othercount;
     //    //    printf("%c",buf16[(count+start)%32768]);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runwalkerchunk(u8 step, u16 count, u16 start, u16 wrap){
+void runwalkerchunk(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 static u16 othercount;
   static u16 otherstart=0;
   static u16 otherwrap=32768;
@@ -276,10 +304,15 @@ static u16 othercount;
     //    //    printf("x: %d\n",othercount);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runswapchunk(u8 step, u16 count, u16 start, u16 wrap){
+void runswapchunk(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 static u16 othercount;
   static u16 otherstart=0;
   static u16 otherwrap=32768;
@@ -305,14 +338,19 @@ static u16 othercount;
     //    //    //           printf("%c",buf16[(count+start)%32768]);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // generic arithmetik datagens
 
-u16 runinc(u8 step, u16 count, u16 start, u16 wrap){
+void runinc(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u16 cop=buf16[0]; 
 
   //  for (i=0; i<howmuch; i++) {
@@ -324,10 +362,15 @@ u16 runinc(u8 step, u16 count, u16 start, u16 wrap){
 #endif
     //  }
 buf16[0]=cop;
-return count;
+  vill->position=count;
 }
 
-u16 rundec(u8 step, u16 count, u16 start, u16 wrap){
+void rundec(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   u16 cop=buf16[0]; 
   //  for (i=0; i<howmuch; i++) {
@@ -338,10 +381,15 @@ u16 rundec(u8 step, u16 count, u16 start, u16 wrap){
 #endif
     //  }
 buf16[0]=cop;
-return count;
+  vill->position=count;
 }
 
-u16 runleft(u8 step, u16 count, u16 start, u16 wrap){
+void runleft(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   //  for (i=0; i<howmuch; i++) {
     count+=step;
@@ -352,10 +400,15 @@ u16 runleft(u8 step, u16 count, u16 start, u16 wrap){
     //printf("%c", buf16[count%32768]);
 #endif
     //  }
-return count;
+  vill->position=count;
 }
 
-u16 runright(u8 step, u16 count, u16 start, u16 wrap){
+void runright(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   //  for (i=0; i<howmuch; i++) {
     count+=step;
@@ -366,10 +419,15 @@ u16 runright(u8 step, u16 count, u16 start, u16 wrap){
     //printf("%c", buf16[count%32768]);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runswap(u8 step, u16 count, u16 start, u16 wrap){
+void runswap(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 u16 temp;
   
     count+=step;
@@ -382,83 +440,128 @@ u16 temp;
     //printf("%c", buf16[count%32768]);
 #endif
     //  }
-  return count;
+  vill->position=count;
 }
 
-u16 runnextinc(u8 step, u16 count, u16 start, u16 wrap){
+void runnextinc(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   
     count+=step; 
     if (count>=(wrap-1)) count=0;
     buf16[count%32768]=buf16[(count+1+start)%32768]+1;
-  return count;
+  vill->position=count;
 }
 
-u16 runnextdec(u8 step, u16 count, u16 start, u16 wrap){
+void runnextdec(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   
     count+=step;
     //    if (count>=32766) count=0;
     if (count>=(wrap-1)) count=0;
     buf16[count%32768]=buf16[(count+1+start)%32768]-1;
-  return count;
+  vill->position=count;
 }
 
-u16 runnextmult(u8 step, u16 count, u16 start, u16 wrap){
+void runnextmult(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   
     count+=step;
     if (count>=(wrap-1)) count=0;
     buf16[count%32768]*=buf16[(count+1+start)%32768];
-  return count;
+  vill->position=count;
 }
 
-u16 runnextdiv(u8 step, u16 count, u16 start, u16 wrap){
+void runnextdiv(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   
     count+=step;
     if (count>=(wrap-1)) count=0;
     if ((buf16[(count+1+start)%32768])>0)   buf16[count%32768]/=buf16[(count+1+start)%32768];
-  return count;
+  vill->position=count;
 }
 
-u16 runcopy(u8 step, u16 count, u16 start, u16 wrap){
+void runcopy(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   
     count+=step; 
     //    if (count>=32766) count=0;
     if (count>=(wrap-1)) count=0;
     buf16[(count+1+start)%32768]=buf16[count%32768];
-  return count;
+  vill->position=count;
 }
 
-u16 runzero(u8 step, u16 count, u16 start, u16 wrap){
+void runzero(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 i;
   
     count+=step;
 
     buf16[count%32768]=0;
-  return count;
+  vill->position=count;
 }
 
-u16 runfull(u8 step, u16 count, u16 start, u16 wrap){
+void runfull(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
     count+=step;
 
     buf16[count%32768]=65535;
-  return count;
+  vill->position=count;
 }
 
-u16 runrand(u8 step, u16 count, u16 start, u16 wrap){
+void runrand(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   u8 *workingbuffeur=(u8 *)buf16;
   //  for (i=0; i<howmuch*2; i++) {
     count+=step;
     workingbuffeur[count%32768]=randi()%255;
     count+=step;
     workingbuffeur[count%32768]=randi()%255;
-  return count;
+  vill->position=count;
 }
 
-u16 runknob(u8 step, u16 count, u16 start, u16 wrap){
+void runknob(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   //  u8 *workingbuffeur=(u8 *)buffer;
   
     count+=step;
@@ -473,13 +576,18 @@ u16 runknob(u8 step, u16 count, u16 start, u16 wrap){
         buf16[count%32768]=adc_buffer[3]<<4; // 16 bits
 #endif
 
-  return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 // swap datagen 16 bits to and from audio buffer
 
-u16 runswapaudio(u8 step, u16 count, u16 start, u16 wrap){
+void runswapaudio(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 u16 temp;
   
     count+=step;
@@ -487,13 +595,18 @@ u16 temp;
 	temp=(uint16_t)audio_buffer[count%32768];
 	audio_buffer[count%32768]=(int16_t)buf16[count%32768];
 	buf16[count%32768]=temp;
-  return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 // OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
 
-u16 runORaudio(u8 step, u16 count, u16 start, u16 wrap){
+void runORaudio(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 u16 temp;
       
     count+=step;
@@ -526,7 +639,7 @@ u16 temp;
     break;
     }
     //}
-  return count;
+  vill->position=count;
 }
 
 
@@ -613,7 +726,12 @@ void Runge_Kutta(void)
 
 
 
-u16 runsimplesir(u8 step, u16 count, u16 start, u16 wrap){
+void runsimplesir(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
     beta=(float32_t)buf16[0]/65536.0f;
     gamm=(float32_t)buf16[1]/65536.0f;
@@ -629,7 +747,7 @@ u16 runsimplesir(u8 step, u16 count, u16 start, u16 wrap){
 
 	Runge_Kutta();//  t+=step;
 	buf16[count%32768]=(u16)((float)II*1000000000.0f);
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -738,7 +856,12 @@ void seir_Runge_Kutta(void)
 }
 
 
-u16 runseir(u8 step, u16 count, u16 start, u16 wrap){
+void runseir(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   u8 i;
   beta=(float32_t)buf16[0]/65536.0f;
@@ -751,7 +874,7 @@ u16 runseir(u8 step, u16 count, u16 start, u16 wrap){
 
     seir_Runge_Kutta();//  t+=step;
     buf16[count%32768]=S*65536.0f;
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -840,7 +963,12 @@ void sicr_Runge_Kutta(void)
   return;
 }
 
-u16 runsicr(u8 step, u16 count, u16 start, u16 wrap){
+void runsicr(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   u8 i;
 
@@ -857,7 +985,7 @@ step=0.01/((beta+gamm+mu+Gamm)*S0);
 
     sicr_Runge_Kutta();//  t+=step;
     buf16[count%32768]=(u16)(S*1000000.0f);
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -895,7 +1023,12 @@ void ifsinit(u16 *buf16){
   }
   }
 
-u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
+void runifs(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   float32_t randiom_num;
   u8 i; 
@@ -929,7 +1062,7 @@ u16 runifs(u8 step, u16 count, u16 start, u16 wrap){
     p1.x=0.5;
     p1.y=0.5;*/
   }
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -938,7 +1071,12 @@ return count;
 
 //float32_t h,a,b,c;
 
-u16 runrossler(u8 step, u16 count, u16 start, u16 wrap){
+void runrossler(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   float32_t lx1,ly1,lz1;
   float32_t h,a,b,c;
   u8 i;
@@ -977,7 +1115,7 @@ u16 runrossler(u8 step, u16 count, u16 start, u16 wrap){
 
       //  }
 
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -986,7 +1124,12 @@ return count;
 
 // 2nd rossler from: MCLDChaosUGens.cpp
 
-u16 runsecondrossler(u8 step, u16 count, u16 start, u16 wrap){
+void runsecondrossler(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   u8 i;
   float32_t h,a,b,c;
@@ -1062,7 +1205,7 @@ u16 runsecondrossler(u8 step, u16 count, u16 start, u16 wrap){
 
 		buf16[count%32768]=(u16)((xnm1+dx)*1024.0f);
 
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -1071,7 +1214,12 @@ return count;
 
 #define FACT 32768.0f
 
-u16 runbrussel(u8 step, u16 count, u16 start, u16 wrap){
+void runbrussel(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
   float32_t delta,muuu,muplusone,gammar;    
   float32_t dx, dy; 
   u8 i;
@@ -1094,14 +1242,19 @@ u16 runbrussel(u8 step, u16 count, u16 start, u16 wrap){
 	
 
 	buf16[count%32768]=y*32768;
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // spruceworm
 
-u16 runspruce(u8 step, u16 count, u16 start, u16 wrap){
+void runspruce(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   float32_t k1,k2,alpha,betaa,muuu,rho,delta;
   float32_t dx, dy; 
@@ -1135,7 +1288,7 @@ u16 runspruce(u8 step, u16 count, u16 start, u16 wrap){
 #ifdef PCSIM
 	//	printf("%c",buf16[count%32768]);
 #endif
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
@@ -1143,7 +1296,12 @@ return count;
 // OREGONATOR
 
 
-u16 runoregon(u8 step, u16 count, u16 start, u16 wrap){
+void runoregon(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
 
   float32_t delta,epsilonn,qq,muu;
   float32_t dx, dy, dz; 
@@ -1175,14 +1333,18 @@ u16 runoregon(u8 step, u16 count, u16 start, u16 wrap){
 	//	printf("%c",buf16[count%32768]);
 #endif
 
-return count;
+  vill->position=count;
 }
 
 //////////////////////////////////////////////////////////
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local float32_ts?
 
-u16 runfitz(u8 step, u16 count, u16 start, u16 wrap){
+void runfitz(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
 
   /* SETTINGS */
 
@@ -1218,7 +1380,7 @@ u16 runfitz(u8 step, u16 count, u16 start, u16 wrap){
 #endif
 
        //  }
-  return count;
+  vill->position=count;
   }
 
 #ifdef PCSIM

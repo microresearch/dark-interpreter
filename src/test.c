@@ -77,7 +77,7 @@ void main(void)
 
   int i; float xx,xa,xb,xc; int xxx;
 
-  int16_t tmp;
+  //  int16_t tmp;
   //  //  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
   //  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
   //  u16 n1=32,n2=32;
@@ -186,9 +186,33 @@ void main(void)
 
   float freq;int mod=200;
 
-  freq = 2.0*M_PI*((float)(mod/255.0f)); // mod is now 8 bits
-  mod=freq*(float)mod;
-  printf("freq*mod: %d\n",mod);
+  //  freq = 2.0*M_PI*((float)(mod/255.0f)); // mod is now 8 bits
+  //  mod=freq*(float)mod;
+  //  printf("freq*mod: %d\n",mod);
+
+  u8 whichdatagenwalkervillager=0,step=10;
+  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp,tmp;
+  int dirry=-1;
+
+  while(1){
+    //  x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+  countdatagenwalker+=step;
+  tmp=knoboffset; // as is =32768 for datagenwalker
+  //  if (tmp==32768) tmp=32767;  // as knoboffset never gets so high!
+  tmpp=tmp+(128)%(32768-tmp);
+  //  tmp=buf16[(dataoffset+samplepos)%32768];
+
+  samplepos+=dirry;
+  if (samplepos>=length) samplepos=0;
+  else if (samplepos<0) samplepos=length;
+
+  if (countdatagenwalker>=length){
+    countdatagenwalker=0;
+    whichdatagenwalkervillager++; //u8
+  }
+
+  printf("which %d samplepos %d tmpp %d\n",whichdatagenwalkervillager,samplepos,tmpp);
+  }
 
 
   /*    for (i = 0; i < 32; i ++)

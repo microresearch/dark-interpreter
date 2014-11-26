@@ -19,6 +19,7 @@ extern int16_t *audio_buffer;
 //u16 stackery[48];
 #else
 #include "CA.h"
+#include "audio.h"
 #include "simulation.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
@@ -31,17 +32,25 @@ extern u8 *datagenbuffer;
 
 //////////////////////////////////////////
 
-u16 runnoney(u8 step, u16 x){
+void runnoney(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
   x+=step;
   datagenbuffer[x]=0;
-  return x;
+  vill->position=x;
 }
 
 //////////////////////////////////////////
 
 // hodge from microbd simplified with circular buffer and init
 
-u16 runhodge(u8 step, u16 x,u16 start,u16 wrap){
+void runhodge(villager_generic* vill){
+  
+  u8 step=vill->step;
+  u16 x=vill->position;
+  u16 wrap=vill->wrap;
+  //  u16 x=vill->position;
+
 
   u8 sum=0, numill=0, numinf=0;
   uint16_t y;
@@ -101,7 +110,8 @@ u16 runhodge(u8 step, u16 x,u16 start,u16 wrap){
 #ifdef PCSIM  
   //printf("%c",datagenbuffer[y]);
 #endif
-  return x;
+  vill->position=x;
+
 }
 
 //////////////////////////////////////////
@@ -109,7 +119,9 @@ u16 runhodge(u8 step, u16 x,u16 start,u16 wrap){
 // hodge from hodgenet is pretty much same... but few
 // differences... so here they are expressed (also could be faster this way)
 
-u16 runhodgenet(u8 step, u16 x){
+void runhodgenet(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u8 sum=0, numill=0, numinf=0; u16 place;
   uint16_t y;
@@ -170,14 +182,17 @@ u16 runhodgenet(u8 step, u16 x){
 #ifdef PCSIM  
   //  printf("%c",datagenbuffer[x]);
 #endif
-  return x;
+  vill->position=x;
+
 }
 
 //////////////////////////////////////////
 
 //life - 2d CA - these all now use CA struct
 
-u16 runlife(u8 step, u16 x){
+void runlife(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u8 sum=0;
   uint16_t y; u8 i;
@@ -223,12 +238,15 @@ u16 runlife(u8 step, u16 x){
 
   //  //  printf("%c",datagenbuffer[x]);
   x+=step;
-  return x;
+  vill->position=x;
+
 }
 
 //////////////////////////////////////////
 
-u16 runkrum(u8 step, u16 x){
+void runkrum(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u16 y,place;
   u8 n=datagenbuffer[0];
@@ -256,14 +274,17 @@ u16 runkrum(u8 step, u16 x){
 #ifdef PCSIM  
   //     printf("%c",datagenbuffer[x]);
 #endif
-  return x;
+  vill->position=x;
+
 }
 
 //////////////////////////////////////////
 
 //one dimensional - working line by line through buffer
 
-u16 runcel(u8 step, u16 x){
+void runcel(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u8 state;u16 y;
 
@@ -288,7 +309,8 @@ u16 runcel(u8 step, u16 x){
 #ifdef PCSIM  
       //      printf("%c",datagenbuffer[y]);
 #endif
-  return x;
+  vill->position=x;
+
 }
 
 ///////////////
@@ -319,7 +341,9 @@ void inittable(u8 r, u8 k, int rule){
 
 // 1d with rules
 
-u16 runcel1d(u8 step, u16 x){
+void runcel1d(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u8 sum; int16_t z; u16 zz;
   u16 y;
@@ -349,7 +373,9 @@ u16 runcel1d(u8 step, u16 x){
 
 //forest fire
 
-u16 runfire(u8 step, u16 x){
+void runfire(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
 
   u8 sum=0;
   uint16_t y;
@@ -399,7 +425,8 @@ u16 runfire(u8 step, u16 x){
 #endif
 
     x+=step;
-    return x;
+    vill->position=x;
+
 }
 
 //////////////////////////////////////////
@@ -437,7 +464,9 @@ u8 headcount(u8 *datagenbuffer,u16 place){
   else return 0;
 }
 
-u16 runwire(u8 step, u16 x){
+void runwire(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
   uint16_t y; 
 
     y=x+32768;
@@ -453,7 +482,8 @@ u16 runwire(u8 step, u16 x){
 #endif
 
     x+=step;
-  return x;
+  vill->position=x;
+
 }
 
 //////////////////////////////////////////
@@ -482,7 +512,9 @@ infect prob, spontaneous infect prob, recovery prob, re-infection prob]
 
 */
 
-u16 runSIR(u8 step, u16 x){
+void runSIR(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
   uint16_t y,yy; 
 
   u8 probD=datagenbuffer[0]/32;
@@ -531,7 +563,8 @@ u16 runSIR(u8 step, u16 x){
 #endif
 
     x+=step;
-  return x;
+  vill->position=x;
+
 
   }
 
@@ -550,7 +583,9 @@ infection radius???, max population=15
 
 u16 biotadir[8]={65279,65280,1,257,256,254,65534,65278};
 
-u16 runSIR16(u8 step, u16 x){
+void runSIR16(villager_generic* vill){
+  u8 step=vill->step;
+  u16 x=vill->position;
   u8 ii; u16 y,dest,yy;
   u8 totalhost,totaldest,which,sirhost,sirdest,futuretotal,futurerecovered,futuresuscept,futureinfected,infected,suscept;
 
@@ -660,7 +695,8 @@ u16 runSIR16(u8 step, u16 x){
     //        printf("%c",datagenbuffer[x]);
 #endif
 
-    return x;
+    vill->position=x;
+
 }
 
 //////////////////////////////////////////

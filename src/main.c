@@ -282,8 +282,8 @@ u16 nextdatagen(void){
   countdatagenwalker+=village_datagenwalker[x].step;
   tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
   //  if (tmp==32768) tmp=32767;  // as knoboffset never gets so high!
-  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768])%(32768-tmp);
-  //  tmp=buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)%32768];
+  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)&32767])%(32768-tmp);
+  //  tmp=buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)&32767];
 
   village_datagenwalker[x].samplepos+=village_datagenwalker[x].dirry;
   if (village_datagenwalker[x].samplepos>=village_datagenwalker[x].length) village_datagenwalker[x].samplepos=0;
@@ -308,7 +308,7 @@ void main(void)
   u16 count;
 #endif
   //  u8 exestack[MAX_EXE_STACK];
-  u8 xx,xxx;
+  u8 xx;
 
   // effects init
 
@@ -377,8 +377,8 @@ void main(void)
     village_write[xx].samplepos=0;
     village_write[xx].speed=1;
     village_write[xx].step=1;
-    village_write[xx].start=100;
-    village_write[xx].wrap=200; // TODO test
+    village_write[xx].start=0;
+    village_write[xx].wrap=32767; // TODO test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; // TODO test
     //    village_write[xx].mstart=0;
@@ -588,6 +588,7 @@ void main(void)
   sicrinit(buf16);// LEAVE IN!
   ifsinit(buf16);// LEAVE IN!
 
+  void (*ddd[64])(villager_generic *vill)={runnoney, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runswapaudio, runORaudio, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque,machine_runnn};
 
   while(1)
     {
@@ -600,7 +601,6 @@ void main(void)
       //runsine
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
          count=runnoise(1,count,0,32767);
-
 #else
 
 #ifdef TEST_EEG
@@ -616,244 +616,36 @@ void main(void)
   for (x=0;x<howmanydatavill;x++){
     // speed for each
     //        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
-	  if (++village_datagen[x].del>=village_datagen[x].step){
-
-	    //	    village_datagen[x].CPU=2; // CRASH TESTY!
-    switch(village_datagen[x].CPU){      
-    case 0:
-      village_datagen[x].position=runnoney(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 1:
-      village_datagen[x].position=runkrum(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 2:
-      village_datagen[x].position=runhodge(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 3:
-      village_datagen[x].position=runhodgenet(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 4:
-      village_datagen[x].position=runlife(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 5:
-      village_datagen[x].position=runcel(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 6:
-      village_datagen[x].position=runcel1d(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 7:
-      village_datagen[x].position=runfire(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 8:
-      village_datagen[x].position=runwire(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 9:
-      village_datagen[x].position=runSIR(village_datagen[x].speed,village_datagen[x].position);
-      break;
-    case 10:
-      village_datagen[x].position=runSIR16(village_datagen[x].speed,village_datagen[x].position);
-      break;
-      /// add in sims
-    case 11:
-      village_datagen[x].position=runform(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 12:
-      village_datagen[x].position=runconv(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 13:
-      village_datagen[x].position=runsine(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 14:
-      village_datagen[x].position=runconv(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 15:
-      village_datagen[x].position=runchunk(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 16:
-      village_datagen[x].position=runderefchunk(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 17:
-      village_datagen[x].position=runwalkerchunk(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 18:
-      village_datagen[x].position=runswapchunk(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 19:
-      village_datagen[x].position=runinc(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 20:
-      village_datagen[x].position=rundec(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 21:
-      village_datagen[x].position=runleft(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 22:
-      village_datagen[x].position=runright(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 23:
-      village_datagen[x].position=runswap(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 24:
-      village_datagen[x].position=runnextinc(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 25:
-      village_datagen[x].position=runnextdec(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 26:
-      village_datagen[x].position=runnextmult(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 27:
-      village_datagen[x].position=runnextdiv(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 28:
-      village_datagen[x].position=runcopy(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 29:
-      village_datagen[x].position=runzero(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 30:
-      village_datagen[x].position=runfull(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 31:
-      village_datagen[x].position=runrand(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 32:
-      village_datagen[x].position=runknob(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 33:
-      village_datagen[x].position=runswapaudio(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 34:
-      village_datagen[x].position=runORaudio(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 35:
-      village_datagen[x].position=runsimplesir(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 36:
-      village_datagen[x].position=runseir(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 37:
-      village_datagen[x].position=runsicr(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 38:
-      village_datagen[x].position=runifs(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 39:
-      village_datagen[x].position=runrossler(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 40:
-      village_datagen[x].position=runsecondrossler(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 41:
-      village_datagen[x].position=runbrussel(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 42:
-      village_datagen[x].position=runspruce(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 43:
-      village_datagen[x].position=runoregon(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 44:
-      village_datagen[x].position=runfitz(village_datagen[x].speed,village_datagen[x].position,village_datagen[x].start,village_datagen[x].wrap);
-      break;
-    case 45:
-      machine_runnn(village_datagen[x].start,village_datagen[x].wrap); 
-      village_datagen[x].position+=village_datagen[x].speed;
-      break;
-     case 46:
-      village_datagen[x].position=xxrunleakystack(&village_datagen[x]);
-      break;
-     case 47:
-      village_datagen[x].position=xxrunbiota(&village_datagen[x]);
-      break;
-     case 48:
-      village_datagen[x].position=xxrun1(&village_datagen[x]);
-      break;
-     case 49:
-      village_datagen[x].position=xxrunworm(&village_datagen[x]);
-      break;
-     case 50:
-      village_datagen[x].position=xxrunstack(&village_datagen[x]);
-      break;
-     case 51:
-      village_datagen[x].position=xxrunbefunge(&village_datagen[x]);
-      break;
-     case 52:
-      village_datagen[x].position=xxrunlang(&village_datagen[x]);
-      break;
-     case 53:
-      village_datagen[x].position=xxrunbf(&village_datagen[x]);
-      break;
-     case 54:
-      village_datagen[x].position=xxrunturm(&village_datagen[x]);
-      break;
-     case 55:
-      village_datagen[x].position=xxrunca(&village_datagen[x]);
-      break;
-     case 56:
-      village_datagen[x].position=xxrunhodge(&village_datagen[x]);
-      break;
-     case 57:
-      village_datagen[x].position=xxrunworm2(&village_datagen[x]);
-      break;
-     case 58:
-      village_datagen[x].position=xxrunleaky(&village_datagen[x]);
-      break;
-     case 59:
-      village_datagen[x].position=xxrunconvy(&village_datagen[x]);
-      break;
-     case 60:
-      village_datagen[x].position=xxrunplague(&village_datagen[x]);
-      break;
-     case 61:
-      village_datagen[x].position=xxrunmicro(&village_datagen[x]);
-      break;
-     case 62:
-      village_datagen[x].position=xxruncw(&village_datagen[x]);
-      break;
-     case 63:
-      village_datagen[x].position=xxrunmasque(&village_datagen[x]);
-      break;
-    } // end of switch
+    if (++village_datagen[x].del>=village_datagen[x].step){
+      village_datagen[x].del=0;
+            (*ddd[village_datagen[x].CPU])(&village_datagen[x]);
 
     if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {
-      //      village_datagen[x].running=0;
-      // reset
       village_datagen[x].position=village_datagen[x].start;
     }
-    village_datagen[x].del=0;
 	  }
 	  //    } // if running
   } // end of x/run thru all villagers
 
   ///// end of DATAGEN villagers!
 
-  u8 mainmode,overmode,ranger,whichx,whichy,spd;
+  u8 mainmode,ranger,whichx,whichy,spd;
 
   xx=fingerdir(&spd);
-  xxx=adc_buffer[FIFTH]>>8; // 4 bits=16
-  overmode=xxx;
-
-  // TODO:set according to overmode and fingers compressions/maxvillagers/speeds and interface
-  // 4 knobs///4 fingers
-  // simplest=navigate by fingers or fingers in code
-  // complex=16 modes as we have
-  // how could work????
  
   if (xx!=5){
 	  // which mode are we in?
-    mainmode=xxx;
+    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
-	  //	  mainmode=6; // TESTY!
+    mainmode=3; // TESTY!
 
-	  // TODO: first mode as defining interface and complexity using fingers/knobs(villagers)
+
 
 #ifndef LACH
 	  switch(mainmode){
-    // no case 0 as is overmode
-	  case 1:// WRITE
+	  case 0:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
 
@@ -883,7 +675,7 @@ void main(void)
 	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
 
-	  case 2:// READ
+	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
@@ -916,7 +708,7 @@ void main(void)
 	    }
 	    break;
 
-	  case 3: // READ 2nd
+	  case 2: // READ 2nd
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    village_read[whichvillager].fingered=xx;
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
@@ -937,7 +729,7 @@ void main(void)
 	    }
 	    break;
 	    
-	  case 4: // DATAGEN villagers
+	  case 3: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
 	    if (adc_buffer[SECOND]>10){
@@ -963,7 +755,7 @@ void main(void)
 	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 
 	    /// lose read 2nd=8 or 10 options
 
-	  case 5:// FILTOUT // and if there is no filtout//LACH also?
+	  case 4:// FILTOUT // and if there is no filtout//LACH also?
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanyfiltoutvill=whichvillager+1;
 
@@ -993,7 +785,7 @@ void main(void)
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
 	    break;
 
-	  case 6: // HW walker - what we need for this walker? TEST case now NOV 3!
+	  case 5: // HW walker - what we need for this walker? TEST case now NOV 3!
 	    // max is say 16 walkers???
 	    // sequential = 1-which,2-speed=same as length, 3-HW set(32 options), 4=compress all=overall speed, finger-input/step?
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
@@ -1006,7 +798,7 @@ void main(void)
 	    // TODO: HW speed???
 	    break;
 
-	  case 7: // 40106 walker as sequential but offset as free period???
+	  case 6: // 40106 walker as sequential but offset as free period???
 	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
 	    // but start and wrap for datagen
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
@@ -1027,7 +819,7 @@ void main(void)
 	    else village_40106[whichvillager].samplepos=village_40106[whichvillager].length;
 	    break;
 
-	  case 8: // lm walker as sequential but offset as free period???
+	  case 7: // lm walker as sequential but offset as free period???
 	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
 	    // but start and wrap for datagen
 
@@ -1049,7 +841,7 @@ void main(void)
 	    else village_lm[whichvillager].samplepos=village_lm[whichvillager].length;
 	    break;
 
-	  case 9: // maxim walker as sequential but offset as free period???
+	  case 8: // maxim walker as sequential but offset as free period???
 	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
 	    // but start and wrap for datagen
 
@@ -1071,7 +863,7 @@ void main(void)
 	    else village_maxim[whichvillager].samplepos=village_maxim[whichvillager].length;
 	    break;
 
-	  case 10: // hdgener walker as sequential but offset as free period???
+	  case 9: // hdgener walker as sequential but offset as free period???
 	    // 1-which,2-length, 3-offset=do nothing, 4-knob offset, finger=dir/speed/step thru datagen as others
 	    // but start and wrap for datagen
 
@@ -1093,7 +885,7 @@ void main(void)
 	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
 	    break;
 
-	  case 11: // effects across also case 12:
+	  case 10: // effects across also case 12:
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    howmanyeffectvill=whichvillager+1;
 	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
@@ -1103,7 +895,8 @@ void main(void)
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=spd;
 	    break;
-	  case 12: // effects outstart,outwrap
+
+	  case 11: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -1114,8 +907,8 @@ void main(void)
 
 	    village_effect[whichvillager].step=spd;
 	    break;
-	    ////////////////////////////////////////////
-	  case 13:	    // datagen walker????
+
+	  case 12:	    // datagen walker????
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanydatagenwalkervill=whichvillager+1;
 	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 
@@ -1154,7 +947,7 @@ void main(void)
 
 	    ///
 	    /////////////////////////////////////
-	    /*	  case 14: // swop and copy // or fingers in the code /// or infection
+	    /*	  case 13: // swop and copy // or fingers in the code /// or infection
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    ranger=adc_buffer[THIRD]>>6; // 64
@@ -1225,7 +1018,7 @@ void main(void)
 	  break; // case 14now
 	  */
 	    //////////////////
-	  case 15: // mirror 
+	  case 14: // mirror 
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
 	    grupx=adc_buffer[SECOND]>>10;// 2 bit=4 groups?
@@ -1302,8 +1095,8 @@ void main(void)
 		village_write[whichx].wrap=mwrap;
 		break;
 	      case 2: // addition with wrap
-		village_write[whichx].start=(village_write[whichx].kstart+mstart)%32768;
-		village_write[whichx].wrap=(village_write[whichx].kwrap+mwrap)%32768;
+		village_write[whichx].start=(village_write[whichx].kstart+mstart)&32767;
+		village_write[whichx].wrap=(village_write[whichx].kwrap+mwrap)&32767;
 		break;
 	      case 3: // addition up to 32768
 		tmpp=32768-village_write[whichx].kstart;
@@ -1314,8 +1107,8 @@ void main(void)
 		village_write[whichx].wrap=village_write[whichx].kwrap+(mwrap%tmpp);
 		break;
 	      case 4: // 4subtraction
-		village_write[whichx].start=(village_write[whichx].kstart-mstart)%32768;
-		village_write[whichx].wrap=(village_write[whichx].kwrap-mwrap)%32768;
+		village_write[whichx].start=(village_write[whichx].kstart-mstart)&32767;
+		village_write[whichx].wrap=(village_write[whichx].kwrap-mwrap)&32767;
 		break;
 	      case 5: // 5 and
 		village_write[whichx].start=(village_write[whichx].kstart&mstart);
@@ -1378,8 +1171,8 @@ void main(void)
 		village_filtout[whichx].wrap=mwrap;
 		break;
 	      case 2: // addition with wrap
-		village_filtout[whichx].start=(village_filtout[whichx].kstart+mstart)%32768;
-		village_filtout[whichx].wrap=(village_filtout[whichx].kwrap+mwrap)%32768;
+		village_filtout[whichx].start=(village_filtout[whichx].kstart+mstart)&32767;
+		village_filtout[whichx].wrap=(village_filtout[whichx].kwrap+mwrap)&32767;
 		break;
 	      case 3: // addition up to 32768
 		tmpp=32768-village_filtout[whichx].kstart;
@@ -1390,8 +1183,8 @@ void main(void)
 		village_filtout[whichx].wrap=village_filtout[whichx].kwrap+(mwrap%tmpp);
 		break;
 	      case 4: // 4subtraction
-		village_filtout[whichx].start=(village_filtout[whichx].kstart-mstart)%32768;
-		village_filtout[whichx].wrap=(village_filtout[whichx].kwrap-mwrap)%32768;
+		village_filtout[whichx].start=(village_filtout[whichx].kstart-mstart)&32767;
+		village_filtout[whichx].wrap=(village_filtout[whichx].kwrap-mwrap)&32767;
 		break;
 	      case 5: // 5 and
 		village_filtout[whichx].start=(village_filtout[whichx].kstart&mstart);
@@ -1466,10 +1259,10 @@ void main(void)
 		village_read[whichx].compress=mcompress;
 		break;
 	      case 2: // addition with wrap
-		village_read[whichx].start=(village_read[whichx].kstart+mstart)%32768;
-		village_read[whichx].wrap=(village_read[whichx].kwrap+mwrap)%32768;
-		village_read[whichx].overlay=(village_read[whichx].koverlay+moverlay)%32768;
-		village_read[whichx].compress=(village_read[whichx].kcompress+mcompress)%32768;
+		village_read[whichx].start=(village_read[whichx].kstart+mstart)&32767;
+		village_read[whichx].wrap=(village_read[whichx].kwrap+mwrap)&32767;
+		village_read[whichx].overlay=(village_read[whichx].koverlay+moverlay)&32767;
+		village_read[whichx].compress=(village_read[whichx].kcompress+mcompress)&32767;
 		break;
 	      case 3: // addition up to 32768
 		tmpp=32768-village_read[whichx].kstart;
@@ -1486,10 +1279,10 @@ void main(void)
 		village_read[whichx].overlay=village_read[whichx].koverlay+(moverlay%tmpp);
 		break;
 	      case 4: // 4subtraction
-		village_read[whichx].start=(village_read[whichx].kstart-mstart)%32768;
-		village_read[whichx].wrap=(village_read[whichx].kwrap-mwrap)%32768;
-		village_read[whichx].overlay=(village_read[whichx].koverlay-moverlay)%32768;
-		village_read[whichx].compress=(village_read[whichx].kcompress-mcompress)%32768;
+		village_read[whichx].start=(village_read[whichx].kstart-mstart)&32767;
+		village_read[whichx].wrap=(village_read[whichx].kwrap-mwrap)&32767;
+		village_read[whichx].overlay=(village_read[whichx].koverlay-moverlay)&32767;
+		village_read[whichx].compress=(village_read[whichx].kcompress-mcompress)&32767;
 		break;
 	      case 5: // 5 and
 		village_read[whichx].start=(village_read[whichx].kstart&mstart);
@@ -1557,7 +1350,7 @@ void main(void)
 		village_effect[whichx].modifier=mmodifier;
 		break;
 	      case 2: // addition with wrap
-		village_effect[whichx].modifier=(village_effect[whichx].kmodifier+mmodifier)%32768;
+		village_effect[whichx].modifier=(village_effect[whichx].kmodifier+mmodifier)&32767;
 		break;
 	      case 3: // addition up to 32768
 		tmpp=32768-village_effect[whichx].kmodifier;
@@ -1565,7 +1358,7 @@ void main(void)
 		village_effect[whichx].modifier=village_effect[whichx].kmodifier+(mmodifier%tmpp);
 		break;
 	      case 4: // 4subtraction
-		village_effect[whichx].modifier=(village_effect[whichx].kmodifier-mmodifier)%32768;
+		village_effect[whichx].modifier=(village_effect[whichx].kmodifier-mmodifier)&32767;
 		break;
 	      case 5: // 5 and
 		village_effect[whichx].modifier=(village_effect[whichx].kmodifier&mmodifier);
