@@ -151,7 +151,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,whichfiltoutvillager=0,readoverlay=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
   extern u8 hardcompress;
-
+  u16 overlay;
   static u16 counter=0,counterr=0,counthw=0;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
@@ -225,7 +225,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    //	    howmanyreadvill=0;
 	    //	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
-	    	    	    for( x=howmanyreadvill; x--; ){
+	    for( x=howmanyreadvill; x--; ){
+	      overlay=village_read[x].overlay;
 
 	    village_read[x].counterr+=village_read[x].dirryr;
 
@@ -238,10 +239,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      lp=village_read[x].samplepos&32767;
 	      tmp16=buf16[lp]-32768;
 
-	      //	    village_read[x].overlay=32; // TESTY for datagens!
-	      if (village_read[x].overlay&32){ // datagen business readin! - top bit=32
+	      //	    overlay=32; // TESTY for datagens!
+	      if (overlay&32){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
-	      switch(village_read[x].overlay&15){
+	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
 		buf16[lp]=tmp+32768; 
 		audio_buffer[lp]=tmp16;
@@ -354,7 +355,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 	      else // straight UP
 		{
-	      switch(village_read[x].overlay&15){
+	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
 		audio_buffer[lp]=tmp;
 	      break;
