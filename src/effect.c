@@ -433,11 +433,9 @@ void do_effect(villager_effect* vill_eff){
     if (tmpinlong<=tmpmodlong) longest=tmpinlong;// NOW lONGEST is really shortest which is as should be
     else longest=tmpmodlong;
 
-  // in each switch/case - easier here
-  // copy into inbuffer, modbuffer and do float if needed (what cases not) and do effect...
-  // copy from outbuffer into audio_buffer or buf16 with float if needed and update any vill...
-  // still need speed and step somehow!! TODO!
-    //    vill_eff->whicheffect=8; // TESTY!
+    if (++vill_eff->del>=vill_eff->speed){
+      vill_eff->del=0;
+
   switch(vill_eff->whicheffect){
   case 0: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
     // just in->out as float 
@@ -453,7 +451,7 @@ void do_effect(villager_effect* vill_eff){
     tmp = foutbuffer[xx] * 32768.0f;
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
-    vill_eff->outpos++;
+    vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
 
@@ -468,7 +466,7 @@ void do_effect(villager_effect* vill_eff){
     // copy into buf16
     for (xx=0;xx<tmpinlong;xx++){
       buf16[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
-      vill_eff->outpos++;
+      vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
     break;
@@ -481,7 +479,7 @@ void do_effect(villager_effect* vill_eff){
     // copy into buf16
     for (xx=0;xx<tmpinlong;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
-      vill_eff->outpos++;
+      vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
     break;
@@ -541,7 +539,7 @@ void do_effect(villager_effect* vill_eff){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
-    vill_eff->outpos++;
+    vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
 
@@ -557,13 +555,13 @@ void do_effect(villager_effect* vill_eff){
       fmodbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768])/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
-    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, x);// TODO: do we need to select longest for data?
+    convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, x);
 
     for (xx=0;xx<tmpinlong;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
     audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
-    vill_eff->outpos++;
+    vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
     break;
@@ -578,7 +576,7 @@ void do_effect(villager_effect* vill_eff){
 
     for (xx=0;xx<longest;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
-      vill_eff->outpos++;
+      vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
     break;
@@ -604,7 +602,7 @@ void do_effect(villager_effect* vill_eff){
 
     for (xx=0;xx<tmpinlong;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=outbuffer[xx];
-      vill_eff->outpos++;
+      vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
     break;
@@ -620,11 +618,12 @@ void do_effect(villager_effect* vill_eff){
       tmp = (int32_t)(tmpp * 32768.0f);
       tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)%32768]=(int16_t)tmp;
-      vill_eff->outpos++;
+      vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
       }
     break;
   }
+}
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){

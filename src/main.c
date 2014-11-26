@@ -350,9 +350,9 @@ void main(void)
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=0;
-    village_read[xx].wrap=32767; // TODO test
+    village_read[xx].wrap=32767; // test
     //    village_read[xx].mstart=0;
-    //    village_read[xx].mwrap=32767; // TODO test
+    //    village_read[xx].mwrap=32767; // test
     village_read[xx].dir=1;
     village_read[xx].dirry=1;
     village_read[xx].dirryr=1;
@@ -370,11 +370,11 @@ void main(void)
     village_write[xx].speed=1;
     village_write[xx].step=1;
     village_write[xx].start=0;
-    village_write[xx].wrap=32767; // TODO test
+    village_write[xx].wrap=32767; //  test
     village_write[xx].kstart=100;
-    village_write[xx].kwrap=200; // TODO test
+    village_write[xx].kwrap=200; //  test
     //    village_write[xx].mstart=0;
-    //    village_write[xx].mwrap=32767; // TODO test
+    //    village_write[xx].mwrap=32767; // test
     village_write[xx].dir=1;
     village_write[xx].dirry=1;
     village_write[xx].samplepos=0;
@@ -429,9 +429,9 @@ void main(void)
     village_filtout[xx].speed=1;
     village_filtout[xx].step=1;
     village_filtout[xx].start=0;
-    village_filtout[xx].wrap=100; // TODO test
+    village_filtout[xx].wrap=100; //  test
     //    village_filtout[xx].mstart=0;
-    //    village_filtout[xx].mwrap=100; // TODO test
+    //    village_filtout[xx].mwrap=100; // test
     village_filtout[xx].dir=1;
     village_filtout[xx].dirry=1;
     village_filtout[xx].samplepos=0;
@@ -444,7 +444,9 @@ void main(void)
   for (xx=0;xx<17;xx++){
     village_hardware[xx].length=16;
     village_hardware[xx].inp=0;
-    village_hardware[xx].setting=0; // testy for filterout
+    village_hardware[xx].setting=0; 
+    village_hardware[xx].del=0; 
+    village_hardware[xx].speed=0; 
 
     village_40106[xx].length=16;
     village_40106[xx].dataoffset=0;
@@ -486,10 +488,10 @@ void main(void)
 
   // any other inits/variables????
 
-  //    village_read[0].wrap=32767; // TODO test
-  //    village_write[0].wrap=32767; // TODO test
-    //    village_filtin[0].wrap=32767; // TODO test
-  //    village_filtout[0].wrap=32767; // TODO test
+  //    village_read[0].wrap=32767; //  test
+  //    village_write[0].wrap=32767; //  test
+    //    village_filtin[0].wrap=32767; //  test
+  //    village_filtout[0].wrap=32767; //  test
 
 
   // think is all set
@@ -587,37 +589,37 @@ void main(void)
 	    u16 *posses[64][8];
 
 	    for (xx=0;xx<64;xx++){
-	      starts[x][0]=&village_write[x].start;
-	      wraps[x][0]=&village_write[x].wrap;
-	      posses[x][0]=&village_write[x].samplepos;
+	      starts[xx][0]=&village_write[xx].start;
+	      wraps[xx][0]=&village_write[xx].wrap;
+	      posses[xx][0]=&village_write[xx].samplepos;
 
-	      starts[x][1]=&village_read[x].start;
-	      wraps[x][1]=&village_read[x].wrap;
-	      posses[x][1]=&village_read[x].samplepos;
+	      starts[xx][1]=&village_read[xx].start;
+	      wraps[xx][1]=&village_read[xx].wrap;
+	      posses[xx][1]=&village_read[xx].samplepos;
 
-	      starts[x][2]=&village_filtout[x].start;
-	      wraps[x][2]=&village_filtout[x].wrap;
-	      posses[x][2]=&village_filtout[x].samplepos;
+	      starts[xx][2]=&village_filtout[xx].start;
+	      wraps[xx][2]=&village_filtout[xx].wrap;
+	      posses[xx][2]=&village_filtout[xx].samplepos;
 
-	      starts[x][3]=&village_datagen[x].start;
-	      wraps[x][3]=&village_datagen[x].wrap;
-	      posses[x][3]=&village_datagen[x].position;
+	      starts[xx][3]=&village_datagen[xx].start;
+	      wraps[xx][3]=&village_datagen[xx].wrap;
+	      posses[xx][3]=&village_datagen[xx].position;
 
-	      starts[x][4]=&village_datagenwalker[x].dataoffset;
-	      wraps[x][4]=&village_datagenwalker[x].length;
-	      posses[x][4]=&village_datagenwalker[x].samplepos;
+	      starts[xx][4]=&village_datagenwalker[xx].dataoffset;
+	      wraps[xx][4]=&village_datagenwalker[xx].length;
+	      posses[xx][4]=&village_datagenwalker[xx].samplepos;
 
-	      starts[x][5]=&village_effect[x].instart;
-	      wraps[x][5]=&village_effect[x].inwrap;
-	      posses[x][5]=&village_effect[x].inpos;
+	      starts[xx][5]=&village_effect[xx].instart;
+	      wraps[xx][5]=&village_effect[xx].inwrap;
+	      posses[xx][5]=&village_effect[xx].inpos;
 
-	      starts[x][6]=&village_effect[x].modstart;
-	      wraps[x][6]=&village_effect[x].modwrap;
-	      posses[x][6]=&village_effect[x].modpos;
+	      starts[xx][6]=&village_effect[xx].modstart;
+	      wraps[xx][6]=&village_effect[xx].modwrap;
+	      posses[xx][6]=&village_effect[xx].modpos;
 
-	      starts[x][7]=&village_effect[x].outstart;
-	      wraps[x][7]=&village_effect[x].outwrap;
-	      posses[x][7]=&village_effect[x].outpos;
+	      starts[xx][7]=&village_effect[xx].outstart;
+	      wraps[xx][7]=&village_effect[xx].outwrap;
+	      posses[xx][7]=&village_effect[xx].outpos;
 	    }
 
   while(1)
@@ -669,40 +671,22 @@ void main(void)
 	  //1-9 in read/write and filts/// 10-14 is HW // 15-16 effects // 17 datagenwalker 18 swops
 	  // TODO _ ordering of modes at end!eg. hardware as first...
 	  // group as main walkers, followed by compression series...
-    mainmode=13; // TESTY!
+    mainmode=1; // TESTY!
 
-
+    ///TODO for LACH: 4/5/6/7/8/9/ are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options
+    /// also remove filtout refs for LACH below
 
 #ifndef LACH
 	  switch(mainmode){
-	  case 0:// WRITE
-	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
-	    howmanywritevill=whichvillager+1;
-
-	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
-	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=(spd&15)+1; 
-	    village_write[whichvillager].step=(spd&240)>>4;
-
-	    if (adc_buffer[SECOND]>10){
-	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
-	      // else just wait till mirrors
-	    }
-	    if (adc_buffer[THIRD]>10){
-	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
-	      // else just wait till mirrors
-	    }
-	    ///
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-
-	    // deal with mirror here:
-	     
-	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
+	  case 0: // HW walker 
+	    // sequential = 1-which,2-speed=same as length, 3-HW set(32 options), 4=compress all=overall speed, finger-input/step?
+	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    howmanyhardvill=whichvillager+1;
+	    village_hardware[whichvillager].length=adc_buffer[SECOND];
+	    village_hardware[whichvillager].setting=adc_buffer[THIRD]>>7; // 5 bits=32
+	    hardcompress=(adc_buffer[FOURTH]>>5)+1; // 7 bits
+	    village_hardware[whichvillager].inp=xx;// = right=358,up=feedback,down=float,left=jack
+	    village_hardware[whichvillager].speed=(spd&15)+1;
 	    break;
 
 	  case 1:// READ
@@ -758,32 +742,33 @@ void main(void)
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	    }
 	    break;
-	    
-	  case 3: // DATAGEN villagers
+
+	  case 3:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
-	    howmanydatavill=whichvillager+1;
+	    howmanywritevill=whichvillager+1;
+
+	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
+	    village_write[whichvillager].dir=xx;
+	    village_write[whichvillager].speed=(spd&15)+1; 
+	    village_write[whichvillager].step=(spd&240)>>4;
+
 	    if (adc_buffer[SECOND]>10){
-	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+	      // else just wait till mirrors
 	    }
 	    if (adc_buffer[THIRD]>10){
-	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+	      // else just wait till mirrors
 	    }
-	    if (adc_buffer[FOURTH]>10){
-	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
-	    }
-	    //	    village_datagen[whichvillager].dir=xx;
-	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
-	    village_datagen[whichvillager].step=(spd&240)>>4;
-
-	    // and if is running already?
-	    //	    if (village_datagen[whichvillager].running==0){
-	    //	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
-	    //	    }
+	    ///
+	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
+	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
+	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
+	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
-
-	    /// 5/6/7/8/9/10 are HW so not in LACH - ifdef whole SWITCH TODO! so we lose 6=10 options (better as 8)
-	    ////if no HW walkers we would lose 4=12 options if they were nextdatagens... MAYBE? // lose case 4 =9 or 11 options with filterout 
-	    /// lose read 2nd=8 or 10 options
 
 	  case 4:// FILTOUT // and if there is no filtout//LACH also?
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
@@ -815,17 +800,26 @@ void main(void)
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;
 	    break;
 
-	  case 5: // HW walker - what we need for this walker? TEST case now NOV 3!
-	    // max is say 16 walkers???
-	    // sequential = 1-which,2-speed=same as length, 3-HW set(32 options), 4=compress all=overall speed, finger-input/step?
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
-	    howmanyhardvill=whichvillager+1;
-	    village_hardware[whichvillager].length=adc_buffer[SECOND];
-	    village_hardware[whichvillager].setting=adc_buffer[THIRD]>>7; // 5 bits=32
-	    hardcompress=(adc_buffer[FOURTH]>>5)+1; // 7 bits
-	    village_hardware[whichvillager].inp=xx;// = right=358,up=feedback,down=float,left=jack
-	    // or overlap/bitwise? but then how handle floating?
-	    // TODO: HW speed???
+	  case 5: // DATAGEN villagers
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    howmanydatavill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
+	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    }
+	    if (adc_buffer[THIRD]>10){
+	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
+	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
+	    }
+	    //	    village_datagen[whichvillager].dir=xx;
+	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
+	    village_datagen[whichvillager].step=(spd&240)>>4;
+
+	    // and if is running already?
+	    //	    if (village_datagen[whichvillager].running==0){
+	    //	      village_datagen[whichvillager].position=village_datagen[whichvillager].start;
+	    //	    }
 	    break;
 
 	  case 6: // 40106 walker as sequential but offset as free period???
@@ -915,7 +909,7 @@ void main(void)
 	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
 	    break;
 
-	  case 10: // effects across also case 12:
+	  case 10: // effects across also case 11:
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
 	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
@@ -923,7 +917,7 @@ void main(void)
 	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
-	    village_effect[whichvillager].speed=spd;
+	    village_effect[whichvillager].speed=(spd&15)+1; 
 	    break;
 
 	  case 11: // effects outstart,outwrap
@@ -934,8 +928,7 @@ void main(void)
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
 	    village_effect[whichvillager].kmodifier=xx;
 	    if (!village_read[whichvillager].mirrormod) village_effect[whichvillager].modifier=xx; // 8 bits
-
-	    village_effect[whichvillager].step=spd;
+	    village_effect[whichvillager].step=(spd&15)+1; 
 	    break;
 
 	  case 12:	    // datagen walker????
@@ -968,7 +961,7 @@ void main(void)
 	      *wraps[whichx][(ranger>>3)&7]=*wraps[whichy][ranger&7];
 	      *posses[whichx][(ranger>>3)&7]=*posses[whichy][ranger&7];
 	      break;
-	    case 1: // swop TODO
+	    case 1: // swop 
 	      tmps=*starts[whichx][(ranger>>3)&7];
 	      tmpw=*wraps[whichx][(ranger>>3)&7];
 	      tmpp=*posses[whichx][(ranger>>3)&7];
@@ -979,58 +972,60 @@ void main(void)
 	      *wraps[whichy][ranger&7]=tmpw;
 	      *posses[whichy][ranger&7]=tmpp;
 	      break;
-	    case 2: // invert wrap and start TODO
+	    case 2: // invert wrap and start
 	      *starts[whichx][(ranger>>3)&7]=*wraps[whichy][ranger&7];
 	      *wraps[whichx][(ranger>>3)&7]=*starts[whichy][ranger&7];
 	      *posses[whichx][(ranger>>3)&7]=*posses[whichy][ranger&7];
 	      break;
-	    case 3: // from 32768? TODO
+	    case 3: // from 32768?
 	      *starts[whichx][(ranger>>3)&7]=(32678-*wraps[whichy][ranger&7])&32767;
 	      *wraps[whichx][(ranger>>3)&7]=(32678-*starts[whichy][ranger&7])&32767;
 	      *posses[whichx][(ranger>>3)&7]=(32678-*posses[whichy][ranger&7])&32767;
 	      break;
-	    } // end of xx = action
-	  break; 
+	      } // end of xx = action
+	    break; 
 	  
 	  case 14:// fingers in the code //datagen swops//infection//dumps
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
-	    tmp=adc_buffer[SECOND]>>9; // 8 actions
+	    whichy=adc_buffer[SECOND]>>9; // 8 xx - which group
+	    tmp=adc_buffer[THIRD]>>9; // 8 actions
 
 	    switch(tmp){ // x actions
 	    case 0: // fingers in the code
 	      // navigate through starts,wraps and posses
 	      posx+=(spd>>4);
 	      posx=posx%64;
-	      if (xx==1) *starts[posx][xx]=adc_buffer[RIGHT]<<3;
-	      else if (xx==3) *wraps[posx][xx]=adc_buffer[LEFT]<<3;
-	      else *posses[posx][xx]=adc_buffer[DOWN]<<3;
+	      if (xx==1) *starts[posx][whichy]=adc_buffer[RIGHT]<<3;
+	      else if (xx==3) *wraps[posx][whichy]=adc_buffer[LEFT]<<3;
+	      else *posses[posx][whichy]=adc_buffer[DOWN]<<3;
 	      break;
 	    case 1:// dump to buf16
-		buf16[posy]=*starts[whichx][xx]<<1;
+		buf16[posy]=*starts[whichx][whichy]<<1;
 		posy++;
+		posy=posy&32767;
 	      break; 
 	    case 2:// dump to buf16
-		buf16[posy]=*wraps[whichx][xx]<<1;
+		buf16[posy]=*wraps[whichx][whichy]<<1;
 		posy++;
 		posy=posy&32767;
 	      break; 
 	    case 3:// dump to buf16
-		buf16[posy]=*posses[whichx][xx]<<1;
+		buf16[posy]=*posses[whichx][whichy]<<1;
 		posy++;
 		posy=posy&32767;
 		break; 
 	    case 4:// dump back from buf16
-		*starts[whichx][xx]=buf16[posy]>>1;
+		*starts[whichx][whichy]=buf16[posy]>>1;
 		posy++;
 		posy=posy&32767;
 	      break; 
 	    case 5:// dump back from buf16
-		*wraps[whichx][xx]=buf16[posy]>>1;
+		*wraps[whichx][whichy]=buf16[posy]>>1;
 		posy++;
 		posy=posy&32767;
 	      break; 
 	    case 6:// dump back from buf16
-		*posses[whichx][xx]=buf16[posy]>>1;
+		*posses[whichx][whichy]=buf16[posy]>>1;
 		posy++;
 		posy=posy&32767;
 	      break; 
@@ -1058,27 +1053,27 @@ void main(void)
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
 	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
 	    grupx=adc_buffer[SECOND]>>10;// 2 bit=4 groups?
-	    // groups are: write.read.filtout.effect. (in case of effect restrict whichx to 16)
+	    // groups are: write.read.filtout.effect.
 	    switch(grupx){
 	    case 0:
 	    village_write[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-	    village_write[whichx].fingered=xx; // TODO... other groups
+	    village_write[whichx].fingered=xx; // 
 	    village_write[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
 	    case 1:
 	    village_read[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-	    village_read[whichx].fingered=xx; // TODO... other groups
+	    village_read[whichx].fingered=xx; // 
 	    village_read[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
 	    case 2:
 	    village_filtout[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-	    village_filtout[whichx].fingered=xx; // TODO... other groups
+	    village_filtout[whichx].fingered=xx; //
 	    village_filtout[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
 	    case 3:
-	    village_effect[whichx&15].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
-	    village_effect[whichx&15].fingered=xx; // TODO... other groups
-	    village_effect[whichx&15].mirrorspeed=(spd&15)+1; 
+	    village_effect[whichx].mirrormod=adc_buffer[THIRD]>>9;// 3 bits
+	    village_effect[whichx].fingered=xx; //
+	    village_effect[whichx].mirrorspeed=(spd&15)+1; 
 	    break;
 	    }
 	    break;
@@ -1098,7 +1093,6 @@ void main(void)
 	    // speed wrapper
 	    if (++village_write[whichx].mirrordel>=village_write[whichx].mirrorspeed){
 	      village_write[whichx].mirrordel=0;
-	      // but all are same fingered.TODO????
 	      switch(village_write[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
 
@@ -1174,7 +1168,6 @@ void main(void)
 	    // speed wrapper
 	    if (++village_filtout[whichx].mirrordel>=village_filtout[whichx].mirrorspeed){
 	      village_filtout[whichx].mirrordel=0;
-	      // but all are same fingered.TODO????
 	      switch(village_filtout[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
 
@@ -1250,7 +1243,6 @@ void main(void)
 	    // speed wrapper
 	    if (++village_read[whichx].mirrordel>=village_read[whichx].mirrorspeed){
 	      village_read[whichx].mirrordel=0;
-	      // but all are same fingered.TODO????
 	      switch(village_read[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
 
@@ -1359,7 +1351,6 @@ void main(void)
 	    // speed wrapper
 	    if (++village_effect[whichx].mirrordel>=village_effect[whichx].mirrorspeed){
 	      village_effect[whichx].mirrordel=0;
-	      // but all are same fingered.TODO????
 	      switch(village_effect[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
 

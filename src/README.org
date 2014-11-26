@@ -11,30 +11,34 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** ideas for next release/this release maybe?
 
-- *somehow to define complexity/interface in that first mode!*
+- somehow to define complexity/interface in that first mode!
 - sans modes or 8 modes//that there are no modes=a village//HW as one mode with fingers only?
-
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
 - some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
+- bitwise hardware
 
 ** General TODO: 
 
 WED 26:
 
-- finish swap case 13 as all infects/14-fingers in the code
-- list and complete rest of TODOs eg. speed and step for effects
-- re-order modes---first/last mode as always HW
+- started on speedups from below
 
-THU/FRI 26/27 and next week:
+THU 26 and next week:
+
+- TEST! from WED
 - sampling speed and final tests, TODO and tweaks/sanity checks 
 - ifdefs for LACH and test LACH/SUSP (to build)
 
-- speedups:
+- speedups in main.c loops, effect.c code and audio.c (mostly)
 = round up size of structs, inlining, less local vars in function, pass
   less than 4 parameters, locals in innermost scope, unroll, accessing
   of full words(32 bytes) not bytes, sanify loops, less vars in any function/re-using
+
+registers, it is beneficial to copy those global variables into local
+variables so that they can be assigned to registers, 32 bit
+values/int32_t instead of u8/u16??? (memory?), loop-- backwards
 
 -mstructure-size-boundary=n The sizes of all structures and unions are
     rounded up to a multiple of the number of bits set by this
@@ -43,6 +47,7 @@ THU/FRI 26/27 and next week:
     the default value is 8. A value of 64 is only allowed if the
     underlying ABI supports it.
 
+key is audio interrupt!- maybe re-test with int32 in that case
 
 - re-test all sections again: - re-test each section:
   datagen//datagenwalker//r/w/filt//effects//mirrors//hw
@@ -106,9 +111,14 @@ biquad), const structure (would need pre-calc whole array and print)
 
 **** NOV 26
 
+- some speedups such as int32 and registers in audio.c - maybe struct for reads should also be int32 then we have pointer question across all???
 - speedups for datagen, also in audio.c and main.c replaced %32768 with &32767
 - tested all sections and mirrors OK and sanity checked.
-- 64 effects to ease mirroring (also was bug in init 64 efects anyways)
+- now 64 effects to ease mirroring (also was bug in init 64 efects anyways)
+- finished swap case 13 as all infects/14-fingers in the code TO TEST!DONE
+- HW speed added (to TEST!)
+- speed and step in efects (to TEST!)
+- re-ordered modes---first mode as HW
 
 **** NOV 25
 

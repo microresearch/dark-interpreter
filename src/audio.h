@@ -24,7 +24,7 @@
       u16 instart,modstart,outstart;
       u16 inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
-      u8 mirrormod,mirrordel,mirrorspeed; 
+      u8 mirrormod,mirrordel,mirrorspeed,del; 
       //      u8 infected;
       u8 fingered; // what is input here as modifier
       u16  modifier,kmodifier;
@@ -32,7 +32,7 @@
 
     typedef struct {
       u16 length;
-      u8 setting,inp;
+      u8 setting,inp,del,speed;
     } villager_hardware;
 
     typedef struct {
@@ -41,7 +41,7 @@
       u16 knoboffset;
       int16_t samplepos;
       int16_t dirry;
-      u8 speed, step;
+      u8 speed, step,del;
       u8 dir;
     } villager_hardwarehaha;
 
