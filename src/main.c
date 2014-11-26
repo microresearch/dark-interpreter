@@ -291,7 +291,7 @@ void main(void)
 {
   // formerly in audio.c
   u8 whichvillager,grupx;
-  u16 tmpp,mstart,mwrap,moverlay,mcompress,mmodifier;
+  u16 tmpp,tmps,tmpw,mstart,mwrap,moverlay,mcompress,mmodifier,posx=0,posy=0;
 
   // order that all inits and audio_init called seems to be important
   u16 x,addr;
@@ -299,7 +299,7 @@ void main(void)
   u16 count;
 #endif
   //  u8 exestack[MAX_EXE_STACK];
-  u8 xx;
+  u8 xx,tmp;
 
   // effects init
 
@@ -309,7 +309,8 @@ void main(void)
   buf16 = (u16*) datagenbuffer;
 
 
-  float Fc,Fs=16000.0f,Q,peakGain;
+  float Fc,Q,peakGain;
+  const float Fs=16000.0f;
   float a0,a1,a2,b1,b2,norm,V,K;
   float *state[5][5];
 
@@ -580,6 +581,44 @@ void main(void)
   ifsinit(buf16);// LEAVE IN!
 
   void (*ddd[64])(villager_generic *vill)={runnoney, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runswapaudio, runORaudio, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque,machine_runnn};
+
+	    u16 *starts[64][8];
+	    u16 *wraps[64][8];
+	    u16 *posses[64][8];
+
+	    for (xx=0;xx<64;xx++){
+	      starts[x][0]=&village_write[x].start;
+	      wraps[x][0]=&village_write[x].wrap;
+	      posses[x][0]=&village_write[x].samplepos;
+
+	      starts[x][1]=&village_read[x].start;
+	      wraps[x][1]=&village_read[x].wrap;
+	      posses[x][1]=&village_read[x].samplepos;
+
+	      starts[x][2]=&village_filtout[x].start;
+	      wraps[x][2]=&village_filtout[x].wrap;
+	      posses[x][2]=&village_filtout[x].samplepos;
+
+	      starts[x][3]=&village_datagen[x].start;
+	      wraps[x][3]=&village_datagen[x].wrap;
+	      posses[x][3]=&village_datagen[x].position;
+
+	      starts[x][4]=&village_datagenwalker[x].dataoffset;
+	      wraps[x][4]=&village_datagenwalker[x].length;
+	      posses[x][4]=&village_datagenwalker[x].samplepos;
+
+	      starts[x][5]=&village_effect[x].instart;
+	      wraps[x][5]=&village_effect[x].inwrap;
+	      posses[x][5]=&village_effect[x].inpos;
+
+	      starts[x][6]=&village_effect[x].modstart;
+	      wraps[x][6]=&village_effect[x].modwrap;
+	      posses[x][6]=&village_effect[x].modpos;
+
+	      starts[x][7]=&village_effect[x].outstart;
+	      wraps[x][7]=&village_effect[x].outwrap;
+	      posses[x][7]=&village_effect[x].outpos;
+	    }
 
   while(1)
     {
@@ -918,75 +957,106 @@ void main(void)
 	    else village_datagenwalker[whichvillager].samplepos=village_datagenwalker[whichvillager].length;
 	    break;
 
-  /* do mirror and infections between:
-
-  extern villagerw village_write[MAX_VILLAGERS+1];
-  extern villagerr village_read[MAX_VILLAGERS+1];
-  extern villagerw village_filtout[MAX_VILLAGERS+1];
-  extern villager_generic village_datagen[MAX_VILLAGERS+1];
-
-+ effects[16]: in/out/mod
-
-do start/wrap/pos
-
-   */
-
-	    u16 *starts[64][8];
-	    u16 *wraps[64][8];
-	    u16 *posses[64][8];
-
-	    for (xx=0;xx<64;xx++){
-	      starts[x][0]=&village_write[x].start;
-	      wraps[x][0]=&village_write[x].wrap;
-	      posses[x][0]=&village_write[x].samplepos;
-
-	      starts[x][1]=&village_read[x].start;
-	      wraps[x][1]=&village_read[x].wrap;
-	      posses[x][1]=&village_read[x].samplepos;
-
-	      starts[x][2]=&village_filtout[x].start;
-	      wraps[x][2]=&village_filtout[x].wrap;
-	      posses[x][2]=&village_filtout[x].samplepos;
-
-	      starts[x][3]=&village_datagen[x].start;
-	      wraps[x][3]=&village_datagen[x].wrap;
-	      posses[x][3]=&village_datagen[x].position;
-
-	      starts[x][4]=&village_datagenwalker[x].dataoffset;
-	      wraps[x][4]=&village_datagenwalker[x].length;
-	      posses[x][4]=&village_datagenwalker[x].samplepos;
-
-	      starts[x][5]=&village_effect[x].instart;
-	      wraps[x][5]=&village_effect[x].inwrap;
-	      posses[x][5]=&village_effect[x].inpos;
-
-	      starts[x][6]=&village_effect[x].modstart;
-	      wraps[x][6]=&village_effect[x].modwrap;
-	      posses[x][6]=&village_effect[x].modpos;
-
-	      starts[x][7]=&village_effect[x].outstart;
-	      wraps[x][7]=&village_effect[x].outwrap;
-	      posses[x][7]=&village_effect[x].outpos;
-	    }
-
-	    ///
-	    /////////////////////////////////////
-	  case 13: // swop and copy // or fingers in the code /// or infection
-
-
-	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
-	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	  case 13: // swop and copy 
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
+	    whichy=adc_buffer[SECOND]>>6; // 6 bits=64 
 	    ranger=adc_buffer[THIRD]>>6; // 64
 	    //	    action=xx;
 	    switch(xx){ // 0,1,2,3= 4 actions
-	      //  case 0:
+	    case 0: // straight assign
+	      *starts[whichx][(ranger>>3)&7]=*starts[whichy][ranger&7];
+	      *wraps[whichx][(ranger>>3)&7]=*wraps[whichy][ranger&7];
+	      *posses[whichx][(ranger>>3)&7]=*posses[whichy][ranger&7];
+	      break;
+	    case 1: // swop TODO
+	      tmps=*starts[whichx][(ranger>>3)&7];
+	      tmpw=*wraps[whichx][(ranger>>3)&7];
+	      tmpp=*posses[whichx][(ranger>>3)&7];
+	      *starts[whichx][(ranger>>3)&7]=*starts[whichy][ranger&7];
+	      *wraps[whichx][(ranger>>3)&7]=*wraps[whichy][ranger&7];
+	      *posses[whichx][(ranger>>3)&7]=*posses[whichy][ranger&7];
+	      *starts[whichy][ranger&7]=tmps;
+	      *wraps[whichy][ranger&7]=tmpw;
+	      *posses[whichy][ranger&7]=tmpp;
+	      break;
+	    case 2: // invert wrap and start TODO
+	      *starts[whichx][(ranger>>3)&7]=*wraps[whichy][ranger&7];
+	      *wraps[whichx][(ranger>>3)&7]=*starts[whichy][ranger&7];
+	      *posses[whichx][(ranger>>3)&7]=*posses[whichy][ranger&7];
+	      break;
+	    case 3: // from 32768? TODO
+	      *starts[whichx][(ranger>>3)&7]=(32678-*wraps[whichy][ranger&7])&32767;
+	      *wraps[whichx][(ranger>>3)&7]=(32678-*starts[whichy][ranger&7])&32767;
+	      *posses[whichx][(ranger>>3)&7]=(32678-*posses[whichy][ranger&7])&32767;
+	      break;
 	    } // end of xx = action
-	  break; // case 14now
+	  break; 
 	  
+	  case 14:// fingers in the code //datagen swops//infection//dumps
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
+	    tmp=adc_buffer[SECOND]>>9; // 8 actions
+
+	    switch(tmp){ // x actions
+	    case 0: // fingers in the code
+	      // navigate through starts,wraps and posses
+	      posx+=(spd>>4);
+	      posx=posx%64;
+	      if (xx==1) *starts[posx][xx]=adc_buffer[RIGHT]<<3;
+	      else if (xx==3) *wraps[posx][xx]=adc_buffer[LEFT]<<3;
+	      else *posses[posx][xx]=adc_buffer[DOWN]<<3;
+	      break;
+	    case 1:// dump to buf16
+		buf16[posy]=*starts[whichx][xx]<<1;
+		posy++;
+	      break; 
+	    case 2:// dump to buf16
+		buf16[posy]=*wraps[whichx][xx]<<1;
+		posy++;
+		posy=posy&32767;
+	      break; 
+	    case 3:// dump to buf16
+		buf16[posy]=*posses[whichx][xx]<<1;
+		posy++;
+		posy=posy&32767;
+		break; 
+	    case 4:// dump back from buf16
+		*starts[whichx][xx]=buf16[posy]>>1;
+		posy++;
+		posy=posy&32767;
+	      break; 
+	    case 5:// dump back from buf16
+		*wraps[whichx][xx]=buf16[posy]>>1;
+		posy++;
+		posy=posy&32767;
+	      break; 
+	    case 6:// dump back from buf16
+		*posses[whichx][xx]=buf16[posy]>>1;
+		posy++;
+		posy=posy&32767;
+	      break; 
+	    case 7: ///fingers in all speeds...
+	      village_write[whichx].mirrorspeed=(spd&15)+1; 
+	      village_write[whichx].speed=(spd&15)+1; 
+
+	      village_read[whichx].mirrorspeed=(spd&15)+1; 
+	      village_read[whichx].speed=(spd&15)+1; 
+
+	      village_filtout[whichx].mirrorspeed=(spd&15)+1; 
+	      village_filtout[whichx].speed=(spd&15)+1; 
+
+	      village_effect[whichx].mirrorspeed=(spd&15)+1; 
+	      village_effect[whichx].speed=(spd&15)+1; 
+
+	      village_datagen[whichx].speed=(spd&15)+1; 
+	      village_datagenwalker[whichx].speed=(spd&15)+1; 	      
+	    break;
+	    }
+	    break;
+
 	    //////////////////
-	  case 14: // mirror 
+	  case 15: // mirror 
 	    // 1-set which villager is mirrored - but depends on how many SET SECOND! FOURTH as??
-	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 //TODO? restricted as to how many we have below?
+	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
 	    grupx=adc_buffer[SECOND]>>10;// 2 bit=4 groups?
 	    // groups are: write.read.filtout.effect. (in case of effect restrict whichx to 16)
 	    switch(grupx){

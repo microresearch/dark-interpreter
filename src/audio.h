@@ -64,7 +64,6 @@ typedef struct {
   u8 moverlay,koverlay;
   //  u8 infected;
   u8 fingered; // what is input here as modifier
-
   u16 start,offset,wrap;
   u16 counterr;
   u16 samplepos;

@@ -57,7 +57,7 @@
 
 //		case 3: fingers in!
 
-////
+
 
 
 	      case 0: // overlay=all,effect=straight
