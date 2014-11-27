@@ -21,14 +21,14 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-WED 26/THU27:
+THU27:
 
 - started on speedups from below - most used as effect.c and audio.c (checking audio now for speedups)
 - *re-instate howmany in datagens upto 32 so is not just one - but pos wrap needs be in each one or not all???* but where we can set this howmany???
 
 CA/pureleak/CPU/sim
 
-and also <0 experience???
+and also does pos go/should go less than zero!?
 
 THU 26 and next week:
 
