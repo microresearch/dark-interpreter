@@ -9,10 +9,12 @@ organ!
 
 From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
-** ideas for next release/this release maybe?
+** ideas for next release
 
-- somehow to define complexity/interface in that first mode!
-- sans modes or 8 modes//that there are no modes=a village//HW as one mode with fingers only?
+- somehow to define complexity/interface in that first mode!=sans
+  modes or 8 modes//that there are no modes=a village//HW as one mode
+  with fingers only?
+
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
@@ -21,14 +23,19 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-THU 27 and next week:
+next week:
 
-- TESTS! of all code from WED
-- sampling speed and final tests, TODO and tweaks/sanity checks 
+web pages//price drop//announce and advertise//ebay/etsy/
 
-- ifdefs for LACH and test LACH/SUSP (to build)
+- full test and recordings DONE but need now to test each mode individually!
 
-- speedups in main.c loops, effect.c code and audio.c (mostly)
+- sanity checks:
+
+sanity: audio, effects, sim, ca, leak, cpu, main
+
+- ifdefs for LACH-DONE and test LACH/SUSP (to build)
+
+- any speedups in main.c loops, effect.c code and audio.c (mostly)
 
 = round up size of structs, inlining, less local vars in function, pass
   less than 4 parameters, locals in innermost scope, unroll, accessing
@@ -111,7 +118,9 @@ biquad), const structure (would need pre-calc whole array and print)
 
 - howmany for datagens is xx
 - howmany and wrap test in pureleak2,CA, CPU and sim - TO TEST 
-- speedups for modulus in all datagens
+- speedups for modulus in all datagens, speedups in main read audio.c loop!
+- removing redundant variables, start to test sanity
+- speedups to all walkers in audio.c TO TEST
 
 **** NOV 26
 
@@ -542,7 +551,7 @@ lee 270 2290 3010
 
 *** NOV 25
 
-- 966/967/970//973//975//976//977
+- 973***//975//976//977
 
 *** NOV 24
 - 962.wav tho maybe lost towards end and cut begin

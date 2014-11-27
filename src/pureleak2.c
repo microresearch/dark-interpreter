@@ -84,8 +84,8 @@ void thread_createee(u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset)
   }
 
 
-u16 machine_peekkk(uint16_t addr,u16 start,u16 end);
-u8 machine_p88kkk(uint16_t addr,u16 start,u16 end);
+inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end);
+inline u8 machine_p88kkk(uint16_t addr,u16 start,u16 end);
 void machine_pokeee(uint16_t addr, u8 data,u16 start,u16 end);
 void thread_runnn(u8 threadcount, u16 start,u16 end);
 

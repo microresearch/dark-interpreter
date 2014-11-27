@@ -300,11 +300,10 @@ void main(void)
   u8 howlook[4]={1,4,8,32};
 
   // order that all inits and audio_init called seems to be important
-  u16 x,addr;
+  u16 x;
 #ifdef TEST_EFFECTS
   u16 count;
 #endif
-  //  u8 exestack[MAX_EXE_STACK];
   u8 xx,tmp;
 
   // effects init
@@ -314,11 +313,10 @@ void main(void)
 
   buf16 = (u16*) datagenbuffer;
 
-
   float Fc,Q,peakGain;
 
 #ifndef LACH
-  const float Fs=32000.0f;// TODO
+  const float Fs=48000.0f;// TODO
 #else
   const float Fs=48000.0f;
 #endif
@@ -669,13 +667,7 @@ void main(void)
     if (++village_datagen[x].del>=village_datagen[x].speed){
       village_datagen[x].del=0;
       (*ddd[village_datagen[x].CPU])(&village_datagen[x]);
-
-      //          if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {// TODO in each oneDOINg->
-      //            village_datagen[x].position=village_datagen[x].start;
-	    // and less than zero tho is u16???
-      //          }
 	  }
-	  //    } // if running
   } // end of x/run thru all villagers
 
   ///// end of DATAGEN villagers!

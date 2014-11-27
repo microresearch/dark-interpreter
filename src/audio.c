@@ -138,11 +138,12 @@ extern u8 howmanywritevill,howmanyfiltinvill,howmanyfiltoutvill,howmanyreadvill;
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   int32_t lasttmp=0,lasttmp16=0;
-  register int32_t lp;
+  register int32_t lp,samplepos;
+  register int32_t tmp,tmpl,tmp16,tmp32d;
   u8 x,xx;
   u16 overlay;
-  register int32_t tmp,tmpl,tmp16,tmp32,tmp32d;
-  int16_t tmptmp,tmptmp16,count; 
+  //  int16_t tmptmp,tmptmp16;
+  samplepos; 
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
@@ -169,15 +170,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u16 samplepos=0;
 #endif
 
-  //  howmanywritevill=64; // TESTY!
-  //  howmanyreadvill=16; // TESTY!
-
 #ifdef TEST_STRAIGHT
   audio_split_stereo(sz, src, left_buffer, mono_buffer);
   audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
-
-	/// HARDWARE at start
 
 #ifdef TEST_EEG
 	// write buf16 into mono
@@ -197,13 +193,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	test_effect(audio_buffer, effect_buffer);
 
-	// write to mono_buffer
 	for (x=0;x<sz/2;x++){
 	  	  mono_buffer[x]=effect_buffer[x];//-32768;
-	  //	  mono_buffer[x]=audio_buffer[x];//-32768;
-	  //	  countr++; if (countr==32) countr=0;
 	  }
-	// out!
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
 	//////////////////////////////////////////////////////////	
@@ -252,10 +244,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      break;
 	      case 2:///+
 		tmp32d=buf16[lp]+tmp;
-		tmp32=audio_buffer[lp]+tmp16;
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		tmp16+=audio_buffer[lp];
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32+32768;// 
+		buf16[lp]=tmp16+32768;// 
 		audio_buffer[lp]=tmp32d;
 		break;
 	      case 3://last
@@ -263,6 +255,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		if (tmp16>lasttmp16) audio_buffer[lp]=tmp16;
 		lasttmp=tmp; lasttmp16=tmp16;
 	      break;
+
 	      case 4: // // overlay=all,effect=&
 		tmp16&=tmp;
 		buf16[lp]=tmp16+32768;
@@ -275,11 +268,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 	      case 6: // overlay +
 		tmp16&=tmp;
+		tmp16+=audio_buffer[lp];
 		tmp32d=buf16[lp]+tmp16;
-		tmp32=audio_buffer[lp]+tmp16;
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32+32768;// 
+		buf16[lp]=tmp16+32768;// 
 		audio_buffer[lp]=tmp32d;
 		break;
 	      case 7: // overlay last
@@ -290,6 +283,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 		lasttmp=tmp16;
 		break;
+
 	      case 8: // // overlay=all,effect=+
 		tmp32d=tmp+tmp16; 
 		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
@@ -304,11 +298,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 	      case 10: // overlay +
 		tmp32d=tmp+tmp16; 
-		tmp32=buf16[lp]+tmp32d;
+		tmp16=buf16[lp]+tmp32d;
 		tmp32d+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-		buf16[lp]=tmp32+32768;
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		buf16[lp]=tmp16+32768;
 		audio_buffer[lp]=tmp32d;
 		break;
 	      case 11: // overlay last
@@ -320,6 +314,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 		lasttmp=tmp32d;
 		break;
+
 	      case 12: // // overlay=all,effect=*
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
@@ -334,11 +329,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 	      case 14: // overlay +
 		tmp32d=tmp*tmp16; 
-		tmp32=buf16[lp]+tmp32d;
+		tmp16=buf16[lp]+tmp32d;
 		tmp32d+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-		buf16[lp]=tmp32+32768;
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		buf16[lp]=tmp16+32768;
 		audio_buffer[lp]=tmp32d;
 		break;
 	      case 15: // overlay last
@@ -380,10 +375,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 	      case 6: // overlay +
 		tmp16&=tmp;
-		tmp32=audio_buffer[lp]+tmp16;
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32) : [src] "r" (tmp32));
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]=tmp32;
+		tmp16+=audio_buffer[lp];
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		  //		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		audio_buffer[lp]=tmp16;
 		break;
 	      case 7: // overlay last
 		tmp16&=tmp;
@@ -393,57 +388,67 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp16;
 		break;
 	      case 8: // // overlay=all,effect=+
-		tmp32d=tmp+tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]=tmp32d;
+		tmp16+=tmp; 
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]=tmp16;
 	      break;
 	      case 9:// overlay or
-		tmp32d=tmp+tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]|=tmp32d;
+		tmp16+=tmp; 
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]|=tmp16;
 		break;
 	      case 10: // overlay +
-		tmp32d=tmp+tmp16+audio_buffer[lp];
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]=tmp32d;
+		tmp16+=tmp+audio_buffer[lp];
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]=tmp16;
 		break;
 	      case 11: // overlay last
-		tmp32d=tmp+tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		if (tmp32d>lasttmp) {
-		audio_buffer[lp]=tmp32d;
+		tmp16=tmp;
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		if (tmp16>lasttmp) {
+		audio_buffer[lp]=tmp16;
 		}
-		lasttmp=tmp32d;
+		lasttmp=tmp16;
 		break;
 	      case 12: // // overlay=all,effect=*
-		tmp32d=tmp*tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]=tmp32d;
+		tmp16*=tmp; 
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]=tmp16;
 	      break;
 	      case 13:// overlay or
-		tmp32d=tmp*tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]|=tmp32d;
+		tmp16*=tmp; 
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]|=tmp16;
 		break;
 	      case 14: // overlay +
-		tmp32d=tmp*tmp16; 
-		tmp32d+=audio_buffer[lp];
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		audio_buffer[lp]=tmp32d;
+		tmp16*=tmp; 
+		tmp16+=audio_buffer[lp];
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		audio_buffer[lp]=tmp16;
 		break;
 	      case 15: // overlay last
-		tmp32d=tmp*tmp16; 
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		if (tmp32d>lasttmp) {
-		audio_buffer[lp]=tmp32d;
+		tmp16*=tmp; 
+		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
+		if (tmp16>lasttmp) {
+		audio_buffer[lp]=tmp16;
 		}
-		lasttmp=tmp32d;
+		lasttmp=tmp16;
 		break;
 	      } ///end last switch 
 		} //
-	      ////
 	      if (++village_read[x].del>=village_read[x].step){
-	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
+		////try this// TESTY!
+		samplepos=village_read[x].samplepos+village_read[x].dirry;//)&32767;
+		if (samplepos>village_read[x].start+village_read[x].wrap || samplepos<village_read[x].start){
+		  village_read[x].running==0;
+		if (village_read[x].dir==2) village_read[x].dirry=newdir[wormdir];
+		else if (village_read[x].dir==3) village_read[x].dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
+		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
+		if (village_read[x].dirry>0) samplepos=village_read[x].start;
+		  else samplepos=village_read[x].start+village_read[x].wrap;
+		}
+		samplepos=village_read[x].samplepos;
+		/*	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
 	      {
 		village_read[x].samplepos+=village_read[x].dirry;//)&32767;
@@ -456,7 +461,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
 		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
 		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
-		}
+		  }*/
 	    village_read[x].del=0;
 	      }
 	    }
@@ -469,7 +474,20 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
 	      village_write[whichwritevillager].del=0;
 
-	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
+		////try this// TESTY!
+		samplepos=village_write[x].samplepos+village_write[x].dirry;//)&32767;
+		if (samplepos>village_write[x].start+village_write[x].wrap || samplepos<village_write[x].start){
+		if (village_write[x].dir==2) village_write[x].dirry=newdir[wormdir];
+		else if (village_write[x].dir==3) village_write[x].dirry=dir[adc_buffer[DOWN]&1]*village_write[x].speed;
+		else village_write[x].dirry=dir[village_write[x].dir]*village_write[x].speed;
+		if (village_write[x].dirry>0) samplepos=village_write[x].start;
+		  else samplepos=village_write[x].start+village_write[x].wrap;
+		  whichwritevillager++; 
+		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
+		}
+		samplepos=village_write[x].samplepos;
+
+	      /*	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
 	      if (count<village_write[whichwritevillager].wrap && count>0)
 		{
 		  village_write[whichwritevillager].samplepos+=village_write[whichwritevillager].dirry;//)&32767;
@@ -484,7 +502,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else village_write[whichwritevillager].samplepos=village_write[whichwritevillager].start+village_write[whichwritevillager].wrap;
 		  whichwritevillager++; 
 		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
-		}
+		  }*/
+
 		}
 	    }/// end of write!
 
@@ -497,7 +516,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  
 	    if (++village_filtout[whichfiltoutvillager].del>=village_filtout[whichfiltoutvillager].step){
 	      village_filtout[whichfiltoutvillager].del=0;
-	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
+
+		////try this// TESTY!
+		samplepos=village_filtout[x].samplepos+village_filtout[x].dirry;//)&32767;
+		if (samplepos>village_filtout[x].start+village_filtout[x].wrap || samplepos<village_filtout[x].start){
+		if (village_filtout[x].dir==2) village_filtout[x].dirry=newdir[wormdir];
+		else if (village_filtout[x].dir==3) village_filtout[x].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[x].speed;
+		else village_filtout[x].dirry=dir[village_filtout[x].dir]*village_filtout[x].speed;
+		if (village_filtout[x].dirry>0) samplepos=village_filtout[x].start;
+		  else samplepos=village_filtout[x].start+village_filtout[x].wrap;
+		  whichfiltoutvillager++; 
+		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
+		}
+		samplepos=village_filtout[x].samplepos;
+
+
+	      /*	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
 	      if (count<village_filtout[whichfiltoutvillager].wrap && count>0)
 		{
 		  village_filtout[whichfiltoutvillager].samplepos+=village_filtout[whichfiltoutvillager].dirry;//)&32767;
@@ -512,7 +546,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else village_filtout[whichfiltoutvillager].samplepos=village_filtout[whichfiltoutvillager].start+village_filtout[whichfiltoutvillager].wrap;
 		  whichfiltoutvillager++; 
 		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
-		}
+		  }*/
 	    }
 	  }/// end of FILTwrite!
 }

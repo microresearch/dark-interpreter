@@ -126,7 +126,6 @@ void Formlet_init(Formlet* unit, float frequency){
   unit->m_y12 = y12;
 }
 
-
 void Formlet_process(Formlet *unit, int inNumSamples, float* inbuffer, float* outbuffer){
 
   float y00;
