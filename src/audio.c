@@ -82,11 +82,9 @@ int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define float float32_t
 #endif
 
-extern int16_t newdirection[8];//={-256,-255,1,255,256,254,-1,-257};
-
-extern signed char direction[2];
+int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
+signed char dir[2]={-1,1};
 extern u8 wormdir;
-extern u8 wormflag[10];
 extern u8 digfilterflag;
 
 int16_t *audio_ptr;
@@ -121,7 +119,7 @@ void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
 	}
 }
 
-void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
+inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *rsrc)
 {
 	while(sz)
 	{
@@ -141,26 +139,27 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
   int32_t lasttmp=0,lasttmp16=0;
   register int32_t lp;
-  u8 x,xx,spd;
-  u8 hdgener; 
-  float32_t fsum,fsumd;
+  u8 x,xx;
+  u16 overlay;
   register int32_t tmp,tmpl,tmp16,tmp32,tmp32d;
   int16_t tmptmp,tmptmp16,count; 
-  static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;//countr and as static is testy!
-  
-  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichwritevillager=0,whichfiltoutvillager=0,readoverlay=0;
-  extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
-  extern u8 hardcompress;
-  u16 overlay;
-  static u16 counter=0,counterr=0,counthw=0;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
+  static u8 whichwritevillager=0;
+#ifndef LACH
+  u8 hdgener; 
+  static u16 counthw=0;
+  static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;
+  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichfiltoutvillager=0;
+  extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
+  extern u8 hardcompress;
   extern villagerw village_filtout[MAX_VILLAGERS+1];
   extern villager_hardware village_hardware[17];
   extern villager_hardwarehaha village_40106[17];
   extern villager_hardwarehaha village_hdgener[17];
   extern villager_hardwarehaha village_lm[17];
   extern villager_hardwarehaha village_maxim[17];
+#endif
 
 #ifdef TEST_EFFECTS
   static int16_t effect_buffer[32]; //was 32 TESTY
@@ -215,7 +214,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifndef LACH
 	    tmpl=*(src++);
 #else
-	    src++:
+	    src++;
 #endif
 	    tmp=*(src++); 
 
@@ -452,9 +451,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      else
 		{
 		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdirection[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=direction[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=direction[village_read[x].dir]*village_read[x].speed;
+		if (village_read[x].dir==2) village_read[x].dirry=newdir[wormdir];
+		else if (village_read[x].dir==3) village_read[x].dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
+		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
 		if (village_read[x].dirry>0) village_read[x].samplepos=village_read[x].start;
 		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
 		}
@@ -478,9 +477,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      else
 		{
 		  //		village_write[whichwritevillager].running==0;
-		  if (village_write[whichwritevillager].dir==2) village_write[whichwritevillager].dirry=newdirection[wormdir];
-		  else if (village_write[whichwritevillager].dir==3) village_write[whichwritevillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
-		  else village_write[whichwritevillager].dirry=direction[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
+		  if (village_write[whichwritevillager].dir==2) village_write[whichwritevillager].dirry=newdir[wormdir];
+		  else if (village_write[whichwritevillager].dir==3) village_write[whichwritevillager].dirry=dir[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
+		  else village_write[whichwritevillager].dirry=dir[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
 		  if (village_write[whichwritevillager].dirry>0) village_write[whichwritevillager].samplepos=village_write[whichwritevillager].start;
 		  else village_write[whichwritevillager].samplepos=village_write[whichwritevillager].start+village_write[whichwritevillager].wrap;
 		  whichwritevillager++; 
@@ -506,9 +505,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      else
 		{
 		  //		village_filtout[whichfiltoutvillager].running==0;
-		  if (village_filtout[whichfiltoutvillager].dir==2) village_filtout[whichfiltoutvillager].dirry=newdirection[wormdir];
-		  else if (village_filtout[whichfiltoutvillager].dir==3) village_filtout[whichfiltoutvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
-		  else village_filtout[whichfiltoutvillager].dirry=direction[village_filtout[whichfiltoutvillager].dir]*village_filtout[whichfiltoutvillager].speed;
+		  if (village_filtout[whichfiltoutvillager].dir==2) village_filtout[whichfiltoutvillager].dirry=newdir[wormdir];
+		  else if (village_filtout[whichfiltoutvillager].dir==3) village_filtout[whichfiltoutvillager].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
+		  else village_filtout[whichfiltoutvillager].dirry=dir[village_filtout[whichfiltoutvillager].dir]*village_filtout[whichfiltoutvillager].speed;
 		  if (village_filtout[whichfiltoutvillager].dirry>0) village_filtout[whichfiltoutvillager].samplepos=village_filtout[whichfiltoutvillager].start;
 		  else village_filtout[whichfiltoutvillager].samplepos=village_filtout[whichfiltoutvillager].start+village_filtout[whichfiltoutvillager].wrap;
 		  whichfiltoutvillager++; 
@@ -534,7 +533,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  // 40106 always
 	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
-
+#ifndef LACH
 	  	  
 	  x=which40106villager%howmany40106vill;
 
@@ -638,6 +637,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 	    }
 	   
+#endif // LACH
 #endif // for test effects
 #endif // for test eeg
 #endif // for straight

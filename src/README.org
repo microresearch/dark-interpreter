@@ -23,15 +23,17 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 WED 26:
 
-- started on speedups from below
+- started on speedups from below - most used as effect.c and audio.c (checking audio now for speedups)
+- *re-instate howmany in datagens upto 32 so is not just one!*
 
 THU 26 and next week:
 
-- TEST! from WED
+- TESTS! from WED
 - sampling speed and final tests, TODO and tweaks/sanity checks 
 - ifdefs for LACH and test LACH/SUSP (to build)
 
 - speedups in main.c loops, effect.c code and audio.c (mostly)
+
 = round up size of structs, inlining, less local vars in function, pass
   less than 4 parameters, locals in innermost scope, unroll, accessing
   of full words(32 bytes) not bytes, sanify loops, less vars in any function/re-using
@@ -120,6 +122,7 @@ biquad), const structure (would need pre-calc whole array and print)
 - HW speed added (to TEST!)
 - speed and step in effects (to TEST!)
 - re-ordered modes---last modes as HW
+- removed reset of running position in all modes TEST
 
 **** NOV 25
 

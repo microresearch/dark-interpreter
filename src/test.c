@@ -77,6 +77,12 @@ void main(void)
 
   int i; float xx,xa,xb,xc; int xxx;
 
+  for (i=0;i<255;i++){
+    xx=(float)i*0.039f;
+    xxx=xx;
+    printf("%d,",xxx);
+  }
+
   //  int16_t tmp;
   //  //  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
   //  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
@@ -194,7 +200,7 @@ void main(void)
   u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp,tmp;
   int dirry=-1;
 
-  while(1){
+  /*  while(1){
     //  x=whichdatagenwalkervillager%howmanydatagenwalkervill;
   countdatagenwalker+=step;
   tmp=knoboffset; // as is =32768 for datagenwalker
@@ -212,7 +218,7 @@ void main(void)
   }
 
   printf("which %d samplepos %d tmpp %d\n",whichdatagenwalkervillager,samplepos,tmpp);
-  }
+  }*/
 
 
   /*    for (i = 0; i < 32; i ++)
