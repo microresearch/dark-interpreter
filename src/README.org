@@ -21,10 +21,14 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-WED 26:
+WED 26/THU27:
 
 - started on speedups from below - most used as effect.c and audio.c (checking audio now for speedups)
-- *re-instate howmany in datagens upto 32 so is not just one!*
+- *re-instate howmany in datagens upto 32 so is not just one - but pos wrap needs be in each one or not all???* but where we can set this howmany???
+
+CA/pureleak/CPU/sim
+
+and also <0 experience???
 
 THU 26 and next week:
 
@@ -114,6 +118,7 @@ biquad), const structure (would need pre-calc whole array and print)
 **** NOV 26
 
 - started on ifdefs for LACH should be DONE
+- datagen step/speed mixup fixed
 - some speedups such as int32 and registers in audio.c - maybe struct for reads should also be int32 then we have pointer question across all???
 - speedups for datagen, also in audio.c and main.c replaced %32768 with &32767
 - tested all sections and mirrors OK and sanity checked.

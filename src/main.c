@@ -664,15 +664,14 @@ void main(void)
   /// HERE starts!
 
   for (x=0;x<howmanydatavill;x++){
-    // speed for each
-    //        if ((village_datagen[x].start)<=counterd && village_datagen[x].running==1){// in town
-    if (++village_datagen[x].del>=village_datagen[x].step){
+    if (++village_datagen[x].del>=village_datagen[x].speed){
       village_datagen[x].del=0;
-            (*ddd[village_datagen[x].CPU])(&village_datagen[x]);
+      (*ddd[village_datagen[x].CPU])(&village_datagen[x]);
 
-    if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {
-      village_datagen[x].position=village_datagen[x].start;
-    }
+          if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {// TODO in each one
+            village_datagen[x].position=village_datagen[x].start;
+	    // and less than zero tho is u16???
+          }
 	  }
 	  //    } // if running
   } // end of x/run thru all villagers
@@ -727,7 +726,6 @@ void main(void)
 	    village_read[whichvillager].mirrorspeed=(spd&15)+1; 
 	    village_read[whichvillager].dirryr=(spd&240)>>4;
 
-	    //	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>6; // 6 bits =64 top bit is datagen
 	    xx=adc_buffer[SECOND]>>6;
 	    if (xx){///???
 	      village_read[whichvillager].koverlay=xx;
@@ -783,6 +781,7 @@ void main(void)
 	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
 	    }
 	    //	    village_datagen[whichvillager].dir=xx;
+	    // TODO: xx is left to set howmany to re-instate???
 	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 	    break;
@@ -1091,7 +1090,7 @@ void main(void)
 
 #else // LACH modes!
 
-	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 12 bits to 8]; // to get to 0-9
+	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 12 bits to 8----> to get to 0-9
 
 	  switch(mainmode){
 	  case 0:// READ
