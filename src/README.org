@@ -21,14 +21,11 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 
 ** General TODO: 
 
-THU27:
-
-- started on speedups from below - most used as effect.c and audio.c (checking audio now for speedups)
-
 THU 27 and next week:
 
 - TESTS! of all code from WED
 - sampling speed and final tests, TODO and tweaks/sanity checks 
+
 - ifdefs for LACH and test LACH/SUSP (to build)
 
 - speedups in main.c loops, effect.c code and audio.c (mostly)
