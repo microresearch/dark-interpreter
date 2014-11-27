@@ -92,12 +92,14 @@ void thread_runnn(u8 threadcount, u16 start,u16 end);
 void machine_runnn(villager_generic* vill){
   u16 start=vill->start;
   u16 end=vill->wrap;
-  u8 x=vill->position;
+  u8 x=vill->position; u8 xx;
+  for (xx=0;xx<vill->howmany;xx++){ 
   if (datagenbuffer[start]==0) datagenbuffer[start]=128;
   if (x>datagenbuffer[start]) x=0;
-  //  for (x=0;x<datagenbuffer[0];x+=2){ 
   thread_runnn(x,start,end);
-  x+=vill->speed;
+  x+=(vill->speed*2);
+  if (x>start+end) x=start;  
+    }
   vill->position=x;
 }
 

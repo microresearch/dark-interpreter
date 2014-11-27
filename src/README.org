@@ -24,15 +24,10 @@ From 28 OCT 2014+: to avoid repetition of notes (TODO: note DONE with DATEstamp)
 THU27:
 
 - started on speedups from below - most used as effect.c and audio.c (checking audio now for speedups)
-- *re-instate howmany in datagens upto 32 so is not just one - but pos wrap needs be in each one or not all???* but where we can set this howmany???
 
-CA/pureleak/CPU/sim
+THU 27 and next week:
 
-and also does pos go/should go less than zero!?
-
-THU 26 and next week:
-
-- TESTS! from WED
+- TESTS! of all code from WED
 - sampling speed and final tests, TODO and tweaks/sanity checks 
 - ifdefs for LACH and test LACH/SUSP (to build)
 
@@ -114,6 +109,12 @@ as not to init:
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+
+**** NOV 27
+
+- howmany for datagens is xx
+- howmany and wrap test in pureleak2,CA, CPU and sim - TO TEST 
+- speedups for modulus in all datagens
 
 **** NOV 26
 

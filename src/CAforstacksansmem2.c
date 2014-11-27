@@ -35,8 +35,13 @@ extern u8 *datagenbuffer;
 void runnoney(villager_generic* vill){
   u8 step=vill->step;
   u16 x=vill->position;
-  x+=step;
+  for (u8 xx=0;xx<vill->howmany;xx++){
+    x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
+
+  if (x>vill->start+vill->wrap) x=vill->start;
   datagenbuffer[x]=0;
+}
   vill->position=x;
 }
 
@@ -52,13 +57,15 @@ void runhodge(villager_generic* vill){
   //  u16 x=vill->position;
 
 
-  u8 sum=0, numill=0, numinf=0;
+  u8 sum, numill, numinf;
   uint16_t y;
   u8 k1=datagenbuffer[1];
   u8 k2=datagenbuffer[2];
   if (k1==0) k1=1;
   if (k2==0) k2=1;
 
+  for (u8 xx=0;xx<vill->howmany;xx++){
+    sum=0; numill=0; numinf=0;
     y=x-datagenbuffer[4]-1;
     sum+=datagenbuffer[y];
     if (datagenbuffer[y]==(datagenbuffer[0]-1)) numill++; else if (datagenbuffer[y]>0) numinf++;
@@ -106,7 +113,10 @@ void runhodge(villager_generic* vill){
   if(datagenbuffer[y] > datagenbuffer[0] - 1)
     datagenbuffer[y] = datagenbuffer[0] - 1;
 
-  x+=step;
+    x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
+
+  }
 #ifdef PCSIM  
   //printf("%c",datagenbuffer[y]);
 #endif
@@ -123,13 +133,15 @@ void runhodgenet(villager_generic* vill){
   u8 step=vill->step;
   u16 x=vill->position;
 
-  u8 sum=0, numill=0, numinf=0; u16 place;
+  u8 sum, numill, numinf; u16 place;
   uint16_t y;
   u8 k1=datagenbuffer[1];
   u8 k2=datagenbuffer[2];
   if (k1==0) k1=1;
   if (k2==0) k2=1;
 
+  for (u8 xx=0;xx<vill->howmany;xx++){
+    sum=0; numill=0; numinf=0;
     place=x-datagenbuffer[4]-1;
   if (datagenbuffer[place]==datagenbuffer[0]) numill++; if (datagenbuffer[place]>0) numinf++;  
   sum+=datagenbuffer[place];
@@ -177,8 +189,10 @@ void runhodgenet(villager_generic* vill){
   if(datagenbuffer[y] > datagenbuffer[0])
     datagenbuffer[y] = datagenbuffer[0];
 
-  x+=step;
+    x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
 
+  }
 #ifdef PCSIM  
   //  printf("%c",datagenbuffer[x]);
 #endif
@@ -194,8 +208,11 @@ void runlife(villager_generic* vill){
   u8 step=vill->step;
   u16 x=vill->position;
 
-  u8 sum=0;
+  u8 sum;
   uint16_t y; u8 i;
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
+    sum=0;
 
     y=x-datagenbuffer[4]-1;
     sum+=datagenbuffer[y]&1;
@@ -237,9 +254,11 @@ void runlife(villager_generic* vill){
 #endif
 
   //  //  printf("%c",datagenbuffer[x]);
-  x+=step;
-  vill->position=x;
+    x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
 
+  }
+  vill->position=x;
 }
 
 //////////////////////////////////////////
@@ -252,6 +271,8 @@ void runkrum(villager_generic* vill){
   u8 n=datagenbuffer[0];
   if (n==0) n=1;
   //  n=4;
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
     y=x+32768;
 
     // for each neighbour if neighbour=(src+1) mod n
@@ -269,8 +290,10 @@ void runkrum(villager_generic* vill){
   place+=datagenbuffer[4]-1;
   if (datagenbuffer[place]==(datagenbuffer[x]+1)%n) datagenbuffer[y]=datagenbuffer[place];
 
-  x+=step;
+    x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
 
+  }
 #ifdef PCSIM  
   //     printf("%c",datagenbuffer[x]);
 #endif
@@ -288,14 +311,17 @@ void runcel(villager_generic* vill){
 
   u8 state;u16 y;
 
+  for (u8 xx=0;xx<vill->howmany;xx++){
     state = 0;
-    x+=step;
-  if (datagenbuffer[(x +1+ (datagenbuffer[0]))%65536]>128)
+      x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
+
+  if (datagenbuffer[(x +1+ (datagenbuffer[0]))&65535]>128)
       state |= 0x4;
-  if (datagenbuffer[(x+datagenbuffer[0])%65536]>128)
+  if (datagenbuffer[(x+datagenbuffer[0])&65535]>128)
       state |= 0x2;
   y=x-1;
-  if (datagenbuffer[(y + datagenbuffer[0])%65536]>128)
+  if (datagenbuffer[(y + datagenbuffer[0])&65535]>128)
       state |= 0x1;
 
     y=(x+(datagenbuffer[0]*2))%65536;// next row but one!
@@ -306,6 +332,7 @@ void runcel(villager_generic* vill){
       else{
 	datagenbuffer[y] = 255;
       } 
+  }
 #ifdef PCSIM  
       //      printf("%c",datagenbuffer[y]);
 #endif
@@ -348,7 +375,7 @@ void runcel1d(villager_generic* vill){
   u8 sum; int16_t z; u16 zz;
   u16 y;
 
-
+  for (u8 xx=0;xx<vill->howmany;xx++){
     sum=0;
     
     // sum of datagenbuffer in radius - not looping!
@@ -366,7 +393,8 @@ void runcel1d(villager_generic* vill){
     //	printf("%c",datagenbuffer[y]);
 #endif
   x=x+step;
- return x;
+  }
+ vill->position= x;
 }
 
 //////////////////////////////////////////
@@ -377,10 +405,13 @@ void runfire(villager_generic* vill){
   u8 step=vill->step;
   u16 x=vill->position;
 
-  u8 sum=0;
+  u8 sum;
   uint16_t y;
   u8 probB=datagenbuffer[0]/32;
   u8 probI=datagenbuffer[1]/10;
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
+    sum=0;
   datagenbuffer[4]=datagenbuffer[2];
 
     y=x-datagenbuffer[4]-1;
@@ -424,7 +455,10 @@ void runfire(villager_generic* vill){
     //      printf("%c",datagenbuffer[x]);
 #endif
 
-    x+=step;
+      x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
+
+  }
     vill->position=x;
 
 }
@@ -469,6 +503,7 @@ void runwire(villager_generic* vill){
   u16 x=vill->position;
   uint16_t y; 
 
+  for (u8 xx=0;xx<vill->howmany;xx++){
     y=x+32768;
 
     if (datagenbuffer[x]==0) datagenbuffer[y]=0; //blank
@@ -481,9 +516,11 @@ void runwire(villager_generic* vill){
     //       printf("%c",datagenbuffer[x]);
 #endif
 
-    x+=step;
-  vill->position=x;
+      x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
 
+  }
+  vill->position=x;
 }
 
 //////////////////////////////////////////
@@ -519,6 +556,9 @@ void runSIR(villager_generic* vill){
 
   u8 probD=datagenbuffer[0]/32;
   u8 probI=datagenbuffer[1]/10;
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
+
   datagenbuffer[4]=datagenbuffer[2];
 
     y=x+32768;
@@ -562,10 +602,10 @@ void runSIR(villager_generic* vill){
     //       printf("%c",datagenbuffer[x]);
 #endif
 
-    x+=step;
+      x+=step;
+  if (x>vill->start+vill->wrap) x=vill->start;
+  }
   vill->position=x;
-
-
   }
 
 //////////////////////////////////////////
@@ -594,6 +634,8 @@ void runSIR16(villager_generic* vill){
   u8 probC=datagenbuffer[2];
   u8 probV=datagenbuffer[3];
 
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
     // select random cell, for each of ind, select neighbour and move
     // it there based on probability and neighbour not full
 #ifdef PCSIM
@@ -602,6 +644,7 @@ void runSIR16(villager_generic* vill){
     y=randi()<<4;
 #endif
     // choose random neighbour
+
     dest=y+biotadir[randi()%8];
     // 16 bits: top/lower top/lower total/S/I/R
     totaldest=datagenbuffer[dest]>>4;
@@ -690,11 +733,12 @@ void runSIR16(villager_generic* vill){
     yy=y+1;
     datagenbuffer[yy]=(futureinfected<<4)+futurerecovered;
     x+=step*2;
+  if (x>vill->start+vill->wrap) x=vill->start;
 
 #ifdef PCSIM  
     //        printf("%c",datagenbuffer[x]);
 #endif
-
+  }
     vill->position=x;
 
 }

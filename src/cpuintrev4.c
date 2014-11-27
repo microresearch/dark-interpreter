@@ -116,8 +116,7 @@ u8 antrulee(u8 dir,u8 inst, u8 rule){
 void xxrun1(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
   u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
-  //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
       switch(instr%5){
       case 0:
 	//  if ((cells[(IP+1)]>0 && cells[(IP+1)]<128)) cells[IP]++;
@@ -145,10 +144,11 @@ void xxrun1(villager_generic *villager){ // proto->filled
 	pos+=villager->speed;
 	break;
       case 4:
-	machine_poke(pos,randi()%255);
+	machine_poke(pos,randi()&255);
 	//	pos+=villager->speed;
 	break;
       }
+  }
       villager->position=pos;
 }
 
@@ -157,9 +157,10 @@ void xxrunworm(villager_generic *villager){ // proto->filled
 
   u8 instr;//=datagenbuffer[pos];
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 flag;// float other=0.0f;
   //  pos+=villager->speed;
-      wormdir=randi()%8;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+      wormdir=randi()&7;
       villager->m_reg16bit1=biotadir[wormdir];
       pos+=villager->m_reg16bit1;
       if (pos>villager->wrap) pos=villager->start;
@@ -205,16 +206,19 @@ void xxrunworm(villager_generic *villager){ // proto->filled
       case 12:
 	machine_poke(pos+villager->m_reg16bit1,adc_buffer[thread_pop(villager)%10]);      	break;
       }
+  }
 villager->position=pos;
 }
 
 void xxrunstack(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr,flag;
+
   //  pos+=villager->speed;
-      switch(instr%16){
+  for (u8 xx=0;xx<villager->howmany;xx++){
+    instr=datagenbuffer[pos];
+      switch(instr&15){
       case 0:
 	flag=thread_pop(villager);
 	machine_poke(thread_pop(villager),flag);
@@ -292,16 +296,19 @@ void xxrunstack(villager_generic *villager){ // proto->filled
 	pos+=villager->speed;
 	break;
       }
+  }
 villager->position=pos;
 }
 
 void xxrunbefunge(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr,flag;
+
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos];
       switch(instr%31){
       case 0:
       case 1:
@@ -356,7 +363,7 @@ void xxrunbefunge(villager_generic *villager){ // proto->filled
 	villager->m_reg8bit2=4;
 	break;
       case 21:
-	villager->m_reg8bit2=(randi()%4)*2;
+	villager->m_reg8bit2=(randi()&3)*2;
 	break;
       case 22:
 	if (thread_pop(villager)==0)	villager->m_reg8bit2=2;
@@ -381,7 +388,7 @@ void xxrunbefunge(villager_generic *villager){ // proto->filled
 	thread_pop(villager);
 	break;
       case 27:
-	pos+=biotadir[villager->m_reg8bit2%8];
+	pos+=biotadir[villager->m_reg8bit2&7];
 	break;
       case 28:
 	machine_poke((thread_pop(villager))*(thread_pop(villager)),thread_pop(villager));
@@ -393,18 +400,21 @@ void xxrunbefunge(villager_generic *villager){ // proto->filled
 	machine_poke((thread_pop(villager))*(thread_pop(villager)),adc_buffer[thread_pop(villager)%10]);      
 	break;
       }
-      wormdir=villager->m_reg8bit2%8;
+      wormdir=villager->m_reg8bit2&7;
       pos+=biotadir[wormdir];
+  }
 villager->position=pos;
 }
 
 void xxrunlang(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr;
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-  u8 flag,temp,other=0;// float other=0.0f;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       switch(instr%14)
 	{
 	case 0:
@@ -430,40 +440,46 @@ void xxrunlang(villager_generic *villager){ // proto->filled
 	  machine_poke(pos,instr^thread_pop(villager));
 	  break;
 	}
-      wormdir=villager->m_reg8bit2%8;
+      wormdir=villager->m_reg8bit2&7;
       pos+=biotadir[wormdir];
+  }
 villager->position=pos;
 }
 
 void xxrunturm(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr,flag;
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
   u8 deltastate[16] = {1, 4, 2, 7, 3, 13, 4, 7, 8, 9, 3, 12,
 			6, 11, 5, 13};
-  u8 flag,temp,other=0;// float other=0.0f;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos];
       machine_poke(pos,instr+villager->m_reg8bit1);
       //delta = dmove[(instr - villager->reg8bit1) & 0xf];
       flag=instr - villager->m_reg8bit1;
       //tm->dir = (tm->dir + delta) & 3;
       villager->m_reg8bit2=(villager->m_reg8bit2+flag)&8;
       //do move and wrap
-      wormdir=(villager->m_reg8bit2)%8;
+      wormdir=(villager->m_reg8bit2)&7;
       pos+=biotadir[wormdir];
       // finally
-      villager->m_reg8bit1 += deltastate[instr%16];
+      villager->m_reg8bit1 += deltastate[instr&15];
       //      printf("%c",pos);
+}
 villager->position=pos;
 }
 
 void xxrunca(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr,other,flag;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       other=(machine_p88k(pos-1)&1)+(machine_p88k(pos+1)&1)+(machine_p88k(pos-32)&1)+(machine_p88k(pos+32)&1)+(machine_p88k(pos-31)&1)+(machine_p88k(pos-33)&1)+(machine_p88k(pos+31)&1)+(machine_p88k(pos+33)&1);
 
     if ((instr&1)==1 && other<2) flag=0;
@@ -473,27 +489,34 @@ void xxrunca(villager_generic *villager){ // proto->filled
 
     machine_poke(pos+128,flag);
       pos+=villager->speed; 
+  }
 villager->position=pos;
 }
 
 void xxrunant(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr; 
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-  u8 flag,temp,other=0;// float other=0.0f;
-  machine_poke(pos,instr+biotadir[villager->m_reg8bit1%8]);
-  villager->m_reg8bit1=antrulee(villager->m_reg8bit1,instr%8,machine_p88k(0));//last is rule
-  pos+=biotadir[villager->m_reg8bit1%8];
+
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos];
+  machine_poke(pos,instr+biotadir[villager->m_reg8bit1&7]);
+  villager->m_reg8bit1=antrulee(villager->m_reg8bit1,instr&7,machine_p88k(0));//last is rule
+  pos+=biotadir[villager->m_reg8bit1&7];
+  }
   villager->position=pos;
 }
 
 void xxrunca2(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag=0;//,temp,other=0;// float other=0.0f;
+  u8 instr;
+  u8 flag;//,temp,other=0;// float other=0.0f;
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+    instr=datagenbuffer[pos];
+    flag=0;
       if (machine_p88k(pos+1)>128)	flag |= 0x4;
       if (instr>128) flag |= 0x2;
       if (machine_p88k(pos-1)>128)	flag |= 0x1;
@@ -501,26 +524,28 @@ void xxrunca2(villager_generic *villager){ // proto->filled
       if ((machine_p88k(0) >> flag) & 1)	machine_poke(pos+128,instr+129);
       else machine_poke(pos+128,instr-129); // or we stay with 255 and 0 as poked
       pos+=villager->speed; 
+  }
 villager->position=pos;
 }
 
 void xxrunhodge(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
-
-  u8 instr=datagenbuffer[pos];
+  u8 instr,flag,other,temp;
   u16 y;
-  u8 flag=0,temp,other=0;// float other=0.0f;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos]; flag=0; other=0;
       temp=machine_p88k(pos)+machine_p88k(pos-1)+machine_p88k(pos+1)+machine_p88k(pos-256)+machine_p88k(pos+256)+machine_p88k(pos-255)+machine_p88k(pos-257)+machine_p88k(pos+255)+machine_p88k(pos+257);
 
-      if (machine_p88k(pos-1)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-1)>0) other+=1.0;
-      if (machine_p88k(pos+1)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+1)>0) other+=1.0;
-      if (machine_p88k(pos-256)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-256)>0) other+=1.0;
-      if (machine_p88k(pos+256)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+256)>0) other+=1.0;
-      if (machine_p88k(pos-255)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-255)>0) other+=1.0;
-      if (machine_p88k(pos-257)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-257)>0) other+=1.0;
-      if (machine_p88k(pos+255)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+255)>0) other+=1.0;
-      if (machine_p88k(pos+257)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+257)>0) other+=1.0;
+      if (machine_p88k(pos-1)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-1)>0) other+=1;
+      if (machine_p88k(pos+1)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+1)>0) other+=1;
+      if (machine_p88k(pos-256)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-256)>0) other+=1;
+      if (machine_p88k(pos+256)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+256)>0) other+=1;
+      if (machine_p88k(pos-255)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-255)>0) other+=1;
+      if (machine_p88k(pos-257)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos-257)>0) other+=1;
+      if (machine_p88k(pos+255)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+255)>0) other+=1;
+      if (machine_p88k(pos+257)==machine_p88k(0)-1) flag++; else if (machine_p88k(pos+257)>0) other+=1;
 
       y=pos+32768;
       if (y<4) y=4;
@@ -545,6 +570,7 @@ void xxrunhodge(villager_generic *villager){ // proto->filled
   if(machine_p88k(pos) > machine_p88k(0)-1)
     machine_poke(y,machine_p88k(0)-1);
   pos+=villager->speed; 
+  }
 villager->position=pos;
 }
 
@@ -552,171 +578,184 @@ void xxrunworm2(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
   u16 y;
-  u8 instr=datagenbuffer[pos];
+  u8 instr;
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-  u8 flag,temp,other=0;// float other=0.0f;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       switch(instr%15)
 	{
 	case 0:
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 1:
 	  //inc
 	  machine_poke(pos,instr+1);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 2:
 	  machine_poke(pos,instr-1);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 3:
 	  pos=villager->start+machine_p88k(pos);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 4:
-	  machine_poke(pos,randi()%255);
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,randi()&255);
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 5:
-	  machine_poke(pos,machine_p88k(pos+biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,machine_p88k(pos+biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 6:
-	  machine_poke(pos,machine_p88k(pos+biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,machine_p88k(pos+biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 7:
-	  machine_poke(pos,machine_p88k(pos-biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,machine_p88k(pos-biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 8:
-	  machine_poke(pos,machine_p88k(pos<<biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,machine_p88k(pos<<biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 9:
-	  machine_poke(pos,machine_p88k(pos>>biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  machine_poke(pos,machine_p88k(pos>>biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 10:
-	  if (machine_p88k(pos+(biotadir[randi()%8]*2))==0){
-	    y=biotadir[randi()%8];
+	  if (machine_p88k(pos+(biotadir[randi()&7]*2))==0){
+	    y=biotadir[randi()&7];
 	    pos+=y;
 	  }
-	  else {  y=biotadir[randi()%8];
+	  else {  y=biotadir[randi()&7];
 	  pos+=y;
 	  }
 	  break;
 	case 11:
-	  machine_poke((pos-biotadir[randi()%8]),instr);
-	  machine_poke((pos+biotadir[randi()%8]),instr);
-	  y=biotadir[randi()%8];
+	  machine_poke((pos-biotadir[randi()&7]),instr);
+	  machine_poke((pos+biotadir[randi()&7]),instr);
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 12:
-	  thread_push(villager, machine_p88k(pos+biotadir[randi()%8]));
-	  y=biotadir[randi()%8];
+	  thread_push(villager, machine_p88k(pos+biotadir[randi()&7]));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
 	case 13:
-	  machine_poke((pos+=biotadir[randi()%8]),thread_pop(villager));
-	  y=biotadir[randi()%8];
+	  machine_poke((pos+=biotadir[randi()&7]),thread_pop(villager));
+	  y=biotadir[randi()&7];
 	  pos+=y;
 	  break;
       case 14:
-	machine_poke((pos+=biotadir[randi()%8]),adc_buffer[thread_pop(villager)%10]);      
+	machine_poke((pos+=biotadir[randi()&7]),adc_buffer[thread_pop(villager)%10]);      
 	break;
 	}
+  }
 villager->position=pos;
 }
 
 void xxrunleaky(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos];
       if (thread_stack_count(villager,16)) machine_poke(pos,thread_pop(villager));
       else thread_push(villager,machine_p88k(pos));
       pos+=villager->speed;
+  }
 villager->position=pos;
 }
 
 void xxrunconvy(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr,temp;
   u16 y;
-  u8 flag,temp,other=0;// float other=0.0f;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       temp=(machine_p88k(pos-1)*machine_p88k(0))+(machine_p88k(pos)*machine_p88k(1))+(machine_p88k(pos+1)*machine_p88k(2));
       y=pos+32768;
       //      if (y<3) y=3;
       machine_poke(y,temp);
       pos+=villager->speed; 
+  }
 villager->position=pos;
 }
 
 void xxrunplague(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr;
+
   u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       switch(instr%5){
       case 0:
 	machine_poke(pos,255);
 	machine_poke(pos+1,255);
 	//	pos+=2;
-	pos+=biotadir[villager->m_reg8bit2%8];
-
+	pos+=biotadir[villager->m_reg8bit2&7];
 	break;
       case 1:
 	if (machine_p88k(pos)<128){
 	  machine_poke(pos-1,machine_p88k(pos));
 	  machine_poke(pos+1,machine_p88k(pos));
 	}
-	pos+=biotadir[villager->m_reg8bit2%8];
+	pos+=biotadir[villager->m_reg8bit2&7];
 	break;
       case 2:
 	machine_poke(pos-1,0);
 	machine_poke(pos+1,0);
-	pos+=biotadir[villager->m_reg8bit2%8];
+	pos+=biotadir[villager->m_reg8bit2&7];
 	break;
       case 3:
 	if ((machine_p88k(pos)%0x03)==1) villager->m_reg8bit2+=4;
 	else villager->m_reg8bit2*=machine_p88k(pos)>>4;
-	pos+=biotadir[villager->m_reg8bit2%8];
+	pos+=biotadir[villager->m_reg8bit2&7];
 	break;
       case 4:
 	machine_poke(pos+1,adc_buffer[(villager->m_reg8bit1>>8)%10]);
-	pos+=biotadir[villager->m_reg8bit2%8];
+	pos+=biotadir[villager->m_reg8bit2&7];
 	  break;
       }
 
       if (machine_p88k(pos)==255) villager->m_reg8bit2+=4;
-      	wormdir=villager->m_reg8bit2%8;
+      	wormdir=villager->m_reg8bit2&7;
 	//      printf("%c",pos);
+  }
 villager->position=pos;
 }
 
 void xxrunmicro(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+  instr=datagenbuffer[pos];
       switch(instr%15){
       case 0:
 	villager->m_reg16bit1+=2;
@@ -780,15 +819,18 @@ void xxrunmicro(villager_generic *villager){ // proto->filled
 	pos+=villager->speed;
 	break;
       }
+  }
 villager->position=pos;
 }
 
 void xxruncw(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
+  u8 instr;
+
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       switch(instr%30){
       case 0:
 	// MOV # to direct.
@@ -936,24 +978,26 @@ void xxruncw(villager_generic *villager){ // proto->filled
 	break;
       case 28:
 	// input to direct.
-	machine_poke(pos+machine_p88k(pos+2),randi()%255);
+	machine_poke(pos+machine_p88k(pos+2),randi()&255);
 	pos+=3;
 	break;
       case 29:
 	// to indirect.
-	machine_poke(machine_peek(machine_peek(pos+2)),randi()%255);
+	machine_poke(machine_peek(machine_peek(pos+2)),randi()&255);
 	pos+=3;
 	break;
       }
+  }
 villager->position=pos;
 }
 
 void xxrunmasque(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
+  u8 instr,temp,flag;
 
-  u8 instr=datagenbuffer[pos];
-  u8 flag,temp,other=0;// float other=0.0f;
   //  pos+=villager->speed;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       switch(instr%7){
       case 0:
 	if (villager->m_reg8bit2==12){
@@ -966,7 +1010,7 @@ void xxrunmasque(villager_generic *villager){ // proto->filled
       case 1:
 	if (villager->m_reg8bit2==13){
 	  villager->m_reg16bit1++;
-	  machine_poke(villager->m_reg16bit1,audio_buffer[pos%32768]); //READ IN
+	  machine_poke(villager->m_reg16bit1,audio_buffer[pos&32767]); //READ IN
 	  pos+=villager->speed;
 	}
 	else pos+=villager->speed;
@@ -994,7 +1038,7 @@ void xxrunmasque(villager_generic *villager){ // proto->filled
 	  pos+=villager->speed;
 	  break;
 	case 5:
-	  flag=randi()%4;
+	  flag=randi()&3;
 	  if (flag==0) 	  villager->m_reg8bit2++;
 	  if (flag==1) 	  villager->m_reg8bit2--;
 	  if (flag==2) 	  villager->m_reg8bit2+=16;
@@ -1006,15 +1050,17 @@ void xxrunmasque(villager_generic *villager){ // proto->filled
 	  pos+=villager->speed;
 	  break;
       }
+  }
 villager->position=pos;
 }
 
 void xxrunbf(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr;
   //  pos+=villager->speed;
-
+  for (u8 xx=0;xx<villager->howmany;xx++){
+    instr=datagenbuffer[pos];
       switch(instr%7)
 	{
 	case 0:
@@ -1037,13 +1083,13 @@ void xxrunbf(villager_generic *villager){ // proto->filled
 	case 4:
 	  villager->m_reg8bit2+=2;
 	  if (villager->m_reg8bit2>=14) villager->m_reg8bit2=0;
-	  villager->m_stack[villager->m_reg8bit2%STACK_SIZEE]= pos>>8;
-	  villager->m_stack[(villager->m_reg8bit2+1)%STACK_SIZEE]= pos&255;
+	  villager->m_stack[villager->m_reg8bit2&15]= pos>>8;
+	  villager->m_stack[(villager->m_reg8bit2+1)&15]= pos&255;
 	  pos+=villager->speed;
 	  break;
 	case 5:
 	  if (villager->m_reg8bit2>=14) villager->m_reg8bit2=0;
-	  if (machine_p88k(villager->m_reg16bit1)!=0) pos=((villager->m_stack[villager->m_reg8bit2%STACK_SIZEE])<<8)+((villager->m_stack[(villager->m_reg8bit2+1)%STACK_SIZEE]));
+	  if (machine_p88k(villager->m_reg16bit1)!=0) pos=((villager->m_stack[villager->m_reg8bit2&15])<<8)+((villager->m_stack[(villager->m_reg8bit2+1)&15]));
 	  villager->m_reg8bit2-=2;
 	  if (villager->m_reg8bit2==0) villager->m_reg8bit2=14;
 	  break;
@@ -1053,6 +1099,7 @@ void xxrunbf(villager_generic *villager){ // proto->filled
 	  pos+=villager->speed;
 	  break;
 	}
+  }
 villager->position=pos;
 }
 
@@ -1060,22 +1107,24 @@ void xxrunbiota(villager_generic *villager){ // proto->filled
   u16 pos=villager->position;
 
   //  pos+=villager->speed;
-  u8 flag,temp,other=0;// float other=0.0f;
-  u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
-  u8 instr=datagenbuffer[pos];
 
+  u16 biotadir[8]={65279,65280,1,257,256,255,65534,65278};
+  u8 instr,flag,temp;
+
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
       flag=0;
       //      printf("instr %d ",instr);
-      switch(instr%8)
+      switch(instr&7)
 	{
 	case 0:
 	  //s -- straight: move DC in the current direction. Fail if that cell is empty.
-	  villager->m_reg16bit1+=biotadir[villager->m_reg8bit1%8];
+	  villager->m_reg16bit1+=biotadir[villager->m_reg8bit1&7];
 	  if (machine_p88k(villager->m_reg16bit1)==0) flag=1;
 	  break;
 	case 1:
 	  //* b -- backup: move DC opposite the current direction. Fail if that cell is empty.
-	  villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+4)%8];
+	  villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+4)&7];
 	  if (machine_p88k(villager->m_reg16bit1)==0) flag=1;
 	  break;
 	case 2:
@@ -1088,29 +1137,29 @@ void xxrunbiota(villager_generic *villager){ // proto->filled
 	  break;
 	case 4:
 	  //    * g -- go to a non-empty character ahead (tries to move DC straight ahead, then right and left 45 degrees, then 90, then 135, then back).
-	  temp=villager->m_reg8bit1%8;
+	  temp=villager->m_reg8bit1&7;
 	  villager->m_reg16bit1+=biotadir[temp];
 	  if (machine_p88k(villager->m_reg16bit1)==0) {
 	    villager->m_reg16bit1-=biotadir[temp]; // go back
-	    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+1)%8]; // right 45
+	    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+1)&7]; // right 45
 	    if (machine_p88k(villager->m_reg16bit1)==0) {
-	      villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1+1)%8]; // go back
-	      villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-1)%8]; // left 45
+	      villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1+1)&7]; // go back
+	      villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-1)&7]; // left 45
 	      if (machine_p88k(villager->m_reg16bit1)==0) {
-		villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-1)%8]; // go back
-		villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+2)%8]; // right 90
+		villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-1)&7]; // go back
+		villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+2)&7]; // right 90
 		if (machine_p88k(villager->m_reg16bit1)==0) {
-		  villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1+2)%8]; // go back
-		  villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-2)%8]; // left 90
+		  villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1+2)&7]; // go back
+		  villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-2)&7]; // left 90
 		  if (machine_p88k(villager->m_reg16bit1)==0) {
-		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-2)%8]; // go back
-		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+3)%8]; // right 135
+		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-2)&7]; // go back
+		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+3)&7]; // right 135
 		    if (machine_p88k(villager->m_reg16bit1)==0) {
-		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-3)%8]; // go back
-		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-3)%8]; // left 135
+		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-3)&7]; // go back
+		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1-3)&7]; // left 135
 		    if (machine_p88k(villager->m_reg16bit1)==0) {
-		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-3)%8]; // go back
-		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+4)%8]; // back
+		    villager->m_reg16bit1-=biotadir[(villager->m_reg8bit1-3)&7]; // go back
+		    villager->m_reg16bit1+=biotadir[(villager->m_reg8bit1+4)&7]; // back
 		  }
 		  }
 		  }
@@ -1128,8 +1177,8 @@ void xxrunbiota(villager_generic *villager){ // proto->filled
 	  //    * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
 	  // left is -2
 
-	  if (machine_p88k(villager->m_reg16bit1)==0 || (machine_p88k(villager->m_reg16bit1+(villager->m_reg16bit1+((villager->m_reg8bit1-4)%8))))!=0) flag=1;
-	  else machine_poke(villager->m_reg16bit1+(villager->m_reg16bit1+((villager->m_reg8bit1-4)%8)),machine_p88k(villager->m_reg16bit1));
+	  if (machine_p88k(villager->m_reg16bit1)==0 || (machine_p88k(villager->m_reg16bit1+(villager->m_reg16bit1+((villager->m_reg8bit1-4)&7))))!=0) flag=1;
+	  else machine_poke(villager->m_reg16bit1+(villager->m_reg16bit1+((villager->m_reg8bit1-4)&7)),machine_p88k(villager->m_reg16bit1));
 	  break;
 	case 7:
 	  //    * . -- no-op, a non-empty do nothing. 
@@ -1138,18 +1187,22 @@ void xxrunbiota(villager_generic *villager){ // proto->filled
 
       // - pos turns (where?) when it finds an empty location or a failing instruction
       // m_reg8bit3 is direction
-      wormdir=villager->m_reg8bit2%8;
+      wormdir=villager->m_reg8bit2&7;
       if (machine_p88k(pos)==0 || flag==1){
 	villager->m_reg8bit2-=1;
       }
       else pos+=biotadir[wormdir];
+  }
 villager->position=pos;
 }
 
 void xxrunleakystack(villager_generic *villager){
   u16 pos=villager->position;
 
-  u8 instr=datagenbuffer[pos];
+  u8 instr;
+  for (u8 xx=0;xx<villager->howmany;xx++){
+instr=datagenbuffer[pos];
+
   pos+=villager->speed;
       switch(instr%25)
 	{
@@ -1171,8 +1224,8 @@ void xxrunleakystack(villager_generic *villager){
     case OR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)|thread_pop(villager)); break;
     case XOR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)^thread_pop(villager)); break;
     case NOT: if (thread_stack_count(villager,1)) thread_push(villager,~thread_pop(villager)); break;
-    case ROR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)>>(machine_p88k(pos++)%8)); break;
-    case ROL: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)<<(machine_p88k(pos++)%8)); break;
+    case ROR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)>>(machine_p88k(pos++)&7)); break;
+    case ROL: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)<<(machine_p88k(pos++)&7)); break;
     case PIP: 
     {
         u16 d=machine_peek(pos++); 
@@ -1195,6 +1248,7 @@ void xxrunleakystack(villager_generic *villager){
 
     default : break;
 	}
+  }
 villager->position=pos;
 }
 

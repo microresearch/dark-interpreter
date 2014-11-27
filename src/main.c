@@ -255,7 +255,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...
+u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
 
 //u16 counterd=0, databegin=0,dataend=32767;
 //u8 deldata=0,dataspeed=1;
@@ -297,6 +297,7 @@ void main(void)
   // formerly in audio.c
   u8 whichvillager,grupx;
   u16 tmpp,tmps,tmpw,mstart,mwrap,moverlay,mcompress,mmodifier,posx=0,posy=0;
+  u8 howlook[4]={1,4,8,32};
 
   // order that all inits and audio_init called seems to be important
   u16 x,addr;
@@ -402,12 +403,13 @@ void main(void)
     
     // datagen
     village_datagen[xx].start = 0;
-    village_datagen[xx].CPU = 0;
+    village_datagen[xx].CPU = 63;// testy
     village_datagen[xx].wrap=32767;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
+    village_datagen[xx].howmany=32;// testy!
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
     village_datagen[xx].m_stack_pos=0;
@@ -583,7 +585,7 @@ void main(void)
   // fill datagenbuffer???
 
   for (x=0;x<32768;x++){
-    buf16[x]=rand()%65536; // was RANDI OCT
+    buf16[x]=rand()&65535; // was RANDI OCT
     delayxx();
   }
   
@@ -668,10 +670,10 @@ void main(void)
       village_datagen[x].del=0;
       (*ddd[village_datagen[x].CPU])(&village_datagen[x]);
 
-          if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {// TODO in each one
-            village_datagen[x].position=village_datagen[x].start;
+      //          if (village_datagen[x].position>(village_datagen[x].start+village_datagen[x].wrap)) {// TODO in each oneDOINg->
+      //            village_datagen[x].position=village_datagen[x].start;
 	    // and less than zero tho is u16???
-          }
+      //          }
 	  }
 	  //    } // if running
   } // end of x/run thru all villagers
@@ -684,7 +686,7 @@ void main(void)
 	  // which mode are we in?
 #ifndef LACH
     mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-
+    //    mainmode=0;
 	  switch(mainmode){
 	  case 0:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -782,6 +784,7 @@ void main(void)
 	    }
 	    //	    village_datagen[whichvillager].dir=xx;
 	    // TODO: xx is left to set howmany to re-instate???
+	    village_datagen[whichvillager].howmany=howlook[xx]; // 0->4
 	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 	    break;
@@ -870,7 +873,7 @@ void main(void)
 	    case 0: // fingers in the code
 	      // navigate through starts,wraps and posses
 	      posx+=(spd>>4);
-	      posx=posx%64;
+	      posx=posx&63;
 	      if (xx==1) *starts[posx][whichy]=adc_buffer[RIGHT]<<3;
 	      else if (xx==3) *wraps[posx][whichy]=adc_buffer[LEFT]<<3;
 	      else *posses[posx][whichy]=adc_buffer[DOWN]<<3;
@@ -1279,7 +1282,7 @@ void main(void)
 	    case 0: // fingers in the code
 	      // navigate through starts,wraps and posses
 	      posx+=(spd>>4);
-	      posx=posx%64;
+	      posx=posx&63;
 	      if (xx==1) *starts[posx][whichy]=adc_buffer[RIGHT]<<3;
 	      else if (xx==3) *wraps[posx][whichy]=adc_buffer[LEFT]<<3;
 	      else *posses[posx][whichy]=adc_buffer[DOWN]<<3;

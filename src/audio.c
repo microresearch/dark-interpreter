@@ -238,12 +238,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      lp=village_read[x].samplepos&32767;
 	      tmp16=buf16[lp]-32768;
 
-	      //	    overlay=32; // TESTY for datagens!
+	      //	      overlay=32; // TESTY for datagens!
 	      if (overlay&32){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
-		buf16[lp]=tmp+32768; 
+		buf16[lp]=tmp+32768; // TESTY commented out for datagens
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 1://or
