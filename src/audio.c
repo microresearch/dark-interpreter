@@ -143,7 +143,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u8 x,xx;
   u16 overlay;
   //  int16_t tmptmp,tmptmp16;
-  samplepos; 
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
@@ -225,9 +224,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_read[x].counterr=0;
 	      village_read[x].running=1;
 	    }
-	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
 
-	      lp=village_read[x].samplepos&32767;
+	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
+	      samplepos=village_write[x].samplepos;
+	      lp=samplepos&32767;
 	      tmp16=buf16[lp]-32768;
 
 	      //	      overlay=32; // TESTY for datagens!
@@ -436,9 +436,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 	      } ///end last switch 
 		} //
+
 	      if (++village_read[x].del>=village_read[x].step){
 		////try this// TESTY!
-		samplepos=village_read[x].samplepos+village_read[x].dirry;//)&32767;
+		samplepos+=village_read[x].dirry;//)&32767;
 		if (samplepos>village_read[x].start+village_read[x].wrap || samplepos<village_read[x].start){
 		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdir[wormdir];
@@ -447,7 +448,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		if (village_read[x].dirry>0) samplepos=village_read[x].start;
 		  else samplepos=village_read[x].start+village_read[x].wrap;
 		}
-		samplepos=village_read[x].samplepos;
 		/*	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
 	      {
@@ -463,19 +463,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
 		  }*/
 	    village_read[x].del=0;
+	    village_read[x].samplepos=samplepos;// only need update here
 	      }
-	    }
-	  }
-	  }
+	    }//running
+	    } // howmanyreadvill
+	  }//sz
+
 	// WRITE! simplified to consecutive!! DONE- to test!
 	  for (xx=0;xx<sz/2;xx++){
-	    lp=village_write[whichwritevillager].samplepos&32767;
+	    samplepos=village_write[x].samplepos;//)&32767;
+	    lp=samplepos&32767;
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
 	      village_write[whichwritevillager].del=0;
 
 		////try this// TESTY!
-		samplepos=village_write[x].samplepos+village_write[x].dirry;//)&32767;
+		samplepos+=village_write[x].dirry;//)&32767;
 		if (samplepos>village_write[x].start+village_write[x].wrap || samplepos<village_write[x].start){
 		if (village_write[x].dir==2) village_write[x].dirry=newdir[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=dir[adc_buffer[DOWN]&1]*village_write[x].speed;
@@ -485,7 +488,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichwritevillager++; 
 		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		}
-		samplepos=village_write[x].samplepos;
+		village_write[x].samplepos=samplepos;
 
 	      /*	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
 	      if (count<village_write[whichwritevillager].wrap && count>0)
@@ -504,21 +507,22 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		  }*/
 
-		}
-	    }/// end of write!
+	    }
+	  }/// end of write!
 
 #ifndef LACH
 	  if (digfilterflag){
 
 	  for (xx=0;xx<sz/2;xx++){
-	    lp=village_filtout[whichfiltoutvillager].samplepos&32767;
+	    samplepos=village_filtout[x].samplepos;
+	    lp=samplepos&32767;
 	    left_buffer[xx]=audio_buffer[lp];
 	  
 	    if (++village_filtout[whichfiltoutvillager].del>=village_filtout[whichfiltoutvillager].step){
 	      village_filtout[whichfiltoutvillager].del=0;
 
 		////try this// TESTY!
-		samplepos=village_filtout[x].samplepos+village_filtout[x].dirry;//)&32767;
+		samplepos+=village_filtout[x].dirry;//)&32767;
 		if (samplepos>village_filtout[x].start+village_filtout[x].wrap || samplepos<village_filtout[x].start){
 		if (village_filtout[x].dir==2) village_filtout[x].dirry=newdir[wormdir];
 		else if (village_filtout[x].dir==3) village_filtout[x].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[x].speed;
@@ -528,7 +532,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichfiltoutvillager++; 
 		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 		}
-		samplepos=village_filtout[x].samplepos;
+		village_filtout[x].samplepos=samplepos;
 
 
 	      /*	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
@@ -676,4 +680,4 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif // for test eeg
 #endif // for straight
 
-}
+	  }
