@@ -27,11 +27,11 @@ next week:
 
 web pages//price drop//announce and advertise//ebay/etsy/
 
-- test new audio walkers
-- full test and recordings DONE but need now to test each mode individually!
+- redo some of mode 8
+- test new audio walkers//test each case/mode in main
 - sanity checks:
 
-sanity: audio, effects, sim, ca, leak, cpu, main
+sanity: audioRESTEST new scheme, effects, sim, ca, leak, cpu, main
 
 - ifdefs for LACH-DONE and test LACH/SUSP (to build)
 

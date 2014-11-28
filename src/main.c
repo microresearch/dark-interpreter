@@ -849,8 +849,8 @@ void main(void)
 	      *posses[whichx][(ranger>>3)]=*posses[whichy][ranger&7];
 	      break;
 	    case 3: // from 32768?
-	      *starts[whichx][(ranger>>3)]=(32678-*wraps[whichy][ranger&7])&32767;
-	      *wraps[whichx][(ranger>>3)]=(32678-*starts[whichy][ranger&7])&32767;
+	      *starts[whichx][(ranger>>3)]=(32678-*starts[whichy][ranger&7])&32767;
+	      *wraps[whichx][(ranger>>3)]=(32678-*wraps[whichy][ranger&7])&32767;
 	      *posses[whichx][(ranger>>3)]=(32678-*posses[whichy][ranger&7])&32767;
 	      break;
 	      } // end of xx = action
@@ -870,6 +870,8 @@ void main(void)
 	      else if (xx==3) *wraps[posx][whichy]=adc_buffer[LEFT]<<3;
 	      else *posses[posx][whichy]=adc_buffer[DOWN]<<3;
 	      break;
+
+	      /// TODO: redo as will just copy same to post++???
 	    case 1:// dump to buf16
 		buf16[posy]=*starts[whichx][whichy]<<1;
 		posy++;
