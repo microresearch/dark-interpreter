@@ -27,13 +27,30 @@ next week:
 
 web pages//price drop//announce and advertise//ebay/etsy/
 
+- test new audio walkers
 - full test and recordings DONE but need now to test each mode individually!
-
 - sanity checks:
 
 sanity: audio, effects, sim, ca, leak, cpu, main
 
 - ifdefs for LACH-DONE and test LACH/SUSP (to build)
+
+- re-test all sections again: - re-test each section:
+  datagen//datagenwalker//r/w/filt//effects//mirrors//hw
+
+*** new speed schemeDONE
+
+readin and filterin as is for in>>>???
+
+re-instate digfilter=1
+
+out and filterout as simple model of consecutive villager start, wrap and
+constrain as also overlap makes no sense
+there... also possibly inc. filterin into readin as option//how????
+
+- how else we can speed up audio.c and villager overlap processing???
+
+*** Notes 
 
 - any speedups in main.c loops, effect.c code and audio.c (mostly)
 
@@ -54,22 +71,6 @@ values/int32_t instead of u8/u16??? (memory?), loop-- backwards
 
 key is audio interrupt!- maybe re-test with int32 in that case
 
-- re-test all sections again: - re-test each section:
-  datagen//datagenwalker//r/w/filt//effects//mirrors//hw
-
-*** new speed schemeDONE
-
-readin and filterin as is for in>>>???
-
-re-instate digfilter=1
-
-out and filterout as simple model of consecutive villager start, wrap and
-constrain as also overlap makes no sense
-there... also possibly inc. filterin into readin as option//how????
-
-- how else we can speed up audio.c and villager overlap processing???
-
-*** Notes 
 
 - test basics with mainmode in main.c - seems okay but crash or hang
   on first 10! was overload of interrupt so now back to 16k samples????
