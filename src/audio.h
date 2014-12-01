@@ -66,7 +66,7 @@ typedef struct {
   u8 fingered; // what is input here as modifier
   u16 start,offset,wrap;
   u16 counterr;
-  u16 samplepos;
+  int16_t samplepos;
   u8 del,dirryr;
   int16_t dirry;
   u16 compress;

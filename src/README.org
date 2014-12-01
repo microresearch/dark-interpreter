@@ -25,17 +25,18 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 next week:
 
-web pages//price drop//announce and advertise//ebay/etsy/
-
 - test new audio walkers//test each mode in main esp. mode 8
+
 - sanity checks:
 
-sanity: audioLARGEWRITE/FILTbugfixed, effects, sim, ca, leak, cpu, main-all modes sanity
+sanity: audioLARGEWRITE/FILTbugfixed-changes, effects, sim, ca, leak, cpu, main-all modes sanity
 
 - ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
 
-- re-test all sections again: - re-test each section:
+- re-test full and all sections again: - re-test each section:
   datagen//datagenwalker//r/w/filt//effects//mirrors//hw
+
+- web pages//price drop=130/210/260//announce and advertise//ebay/etsy
 
 *** new speed schemeDONE
 
