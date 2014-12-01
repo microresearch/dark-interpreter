@@ -857,21 +857,21 @@ void main(void)
 	    break; 
 	  
 	  case 8:// fingers in the code //datagen swops//infection//dumps
-	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
-	    whichy=adc_buffer[SECOND]>>9; // 8 xx - which group
-	    tmp=adc_buffer[THIRD]>>9; // 8 actions
+	    //	    whichx=adc_buffer[FIRST]>>6; // 6 bits=64 
+	    //	    whichy=adc_buffer[SECOND]>>9; // 8 xx - which group
+	    tmp=adc_buffer[FIRST]>>9; // 8 actions
+	    posx+=(spd>>4);
+	    posx=posx&511;
+	    whichx=posx>>3;
+	    whichy=posx&7;
 
 	    switch(tmp){ // x actions
 	    case 0: // fingers in the code
 	      // navigate through starts,wraps and posses
-	      posx+=(spd>>4);
-	      posx=posx&63;
-	      if (xx==1) *starts[posx][whichy]=adc_buffer[RIGHT]<<3;
-	      else if (xx==3) *wraps[posx][whichy]=adc_buffer[LEFT]<<3;
-	      else *posses[posx][whichy]=adc_buffer[DOWN]<<3;
+	      if (xx==1) *starts[whichx][whichy]=adc_buffer[RIGHT]<<3;
+	      else if (xx==3) *wraps[whichx][whichy]=adc_buffer[LEFT]<<3;
+	      else *posses[whichx][whichy]=adc_buffer[DOWN]<<3;
 	      break;
-
-	      /// TODO: redo as will just copy same to post++???
 	    case 1:// dump to buf16
 		buf16[posy]=*starts[whichx][whichy]<<1;
 		posy++;
@@ -902,7 +902,8 @@ void main(void)
 		posy++;
 		posy=posy&32767;
 	      break; 
-	    case 7: ///fingers in all speeds...
+	      ///////////////////
+	    case 7: ///fingers in speeds...
 	      village_write[whichx].mirrorspeed=(spd&15)+1; 
 	      village_write[whichx].speed=(spd&15)+1; 
 

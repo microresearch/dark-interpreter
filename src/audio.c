@@ -61,7 +61,7 @@ int16_t *audio_buffer;
 #define  uint32_t int
 typedef int int32_t;
 #define float32_t float
-int16_t	*left_buffer, *right_buffer, *mono_buffer;
+int16_t	*left_buffer, *mono_buffer;
 
 void initaudio(void){
 left_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
@@ -69,6 +69,7 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 }
 
 #else
+
 #include "audio.h"
 #include "CPUint.h"
 #include "effect.h"
@@ -86,9 +87,6 @@ int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
 signed char dir[2]={-1,1};
 extern u8 wormdir;
 extern u8 digfilterflag;
-
-int16_t *audio_ptr;
-
 extern const u16 SAMPLE_FREQUENCY;
 extern const float Pi;
 extern const float PI_2;
@@ -96,15 +94,13 @@ extern const float PI_2;
 void Audio_Init(void)
 {
 	uint32_t i;
+	int16_t *audio_ptr;
 	
 	/* clear the buffer */
 	audio_ptr = audio_buffer;
 	i = AUDIO_BUFSZ;
 	while(i-- > 0)
 		*audio_ptr++ = 0;
-	
-	/* init the pointer */
-	audio_ptr = audio_buffer;
 }
 
 void audio_split_stereo(int16_t sz, int16_t *src, int16_t *ldst, int16_t *rdst)
@@ -130,10 +126,7 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 	}
 }
 
-
-u8 fingerdir(u8 *speedmod);
-
-extern u8 howmanywritevill,howmanyfiltinvill,howmanyfiltoutvill,howmanyreadvill;
+extern u8 howmanywritevill,howmanyfiltoutvill,howmanyreadvill;
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
@@ -204,13 +197,11 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  for (xx=0;xx<sz/2;xx++){
 #ifndef LACH
 	    tmpl=*(src++);
+	    tmp=*(src++); 
+	    if (digfilterflag && village_read[x].overlay&16) tmp=tmpl;
 #else
 	    src++;
-#endif
 	    tmp=*(src++); 
-
-#ifndef LACH
-	    if (digfilterflag && village_read[x].overlay&16) tmp=tmpl;
 #endif
 
 	    //	    howmanyreadvill=0;
@@ -283,7 +274,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      }
 		lasttmp=tmp16;
 		break;
-
 	      case 8: // // overlay=all,effect=+
 		tmp32d=tmp+tmp16; 
 		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
@@ -440,7 +430,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      if (++village_read[x].del>=village_read[x].step){
 		////try this// TESTY!
 		samplepos+=village_read[x].dirry;//)&32767;
-		if (samplepos>village_read[x].start+village_read[x].wrap || samplepos<village_read[x].start){
+		if (samplepos>=village_read[x].start+village_read[x].wrap || samplepos<=village_read[x].start){
 		  village_read[x].running==0;
 		if (village_read[x].dir==2) village_read[x].dirry=newdir[wormdir];
 		else if (village_read[x].dir==3) village_read[x].dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
@@ -471,7 +461,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	// WRITE! simplified to consecutive!! DONE- to test!
 	  for (xx=0;xx<sz/2;xx++){
-	    samplepos=village_write[x].samplepos;//)&32767;
+	    samplepos=village_write[whichwritevillager].samplepos;//)&32767;
 	    lp=samplepos&32767;
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
@@ -479,7 +469,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 		////try this// TESTY!
 		samplepos+=village_write[x].dirry;//)&32767;
-		if (samplepos>village_write[x].start+village_write[x].wrap || samplepos<village_write[x].start){
+		if (samplepos>=village_write[x].start+village_write[x].wrap || samplepos<=village_write[x].start){
 		if (village_write[x].dir==2) village_write[x].dirry=newdir[wormdir];
 		else if (village_write[x].dir==3) village_write[x].dirry=dir[adc_buffer[DOWN]&1]*village_write[x].speed;
 		else village_write[x].dirry=dir[village_write[x].dir]*village_write[x].speed;
@@ -514,7 +504,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  if (digfilterflag){
 
 	  for (xx=0;xx<sz/2;xx++){
-	    samplepos=village_filtout[x].samplepos;
+	    samplepos=village_filtout[whichfiltoutvillager].samplepos;
 	    lp=samplepos&32767;
 	    left_buffer[xx]=audio_buffer[lp];
 	  
@@ -523,7 +513,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 		////try this// TESTY!
 		samplepos+=village_filtout[x].dirry;//)&32767;
-		if (samplepos>village_filtout[x].start+village_filtout[x].wrap || samplepos<village_filtout[x].start){
+		if (samplepos>=village_filtout[x].start+village_filtout[x].wrap || samplepos<=village_filtout[x].start){
 		if (village_filtout[x].dir==2) village_filtout[x].dirry=newdir[wormdir];
 		else if (village_filtout[x].dir==3) village_filtout[x].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[x].speed;
 		else village_filtout[x].dirry=dir[village_filtout[x].dir]*village_filtout[x].speed;

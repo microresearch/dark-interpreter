@@ -76,13 +76,13 @@ void main(void)
 {
 
   int i; float xx,xa,xb,xc; int xxx;
-
+  /*
   for (i=0;i<255;i++){
     xx=(float)i*0.039f;
     xxx=xx;
     printf("%d,",xxx);
   }
-
+  */
   //  int16_t tmp;
   //  //  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
   //  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
@@ -197,8 +197,20 @@ void main(void)
   //  printf("freq*mod: %d\n",mod);
 
   u8 whichdatagenwalkervillager=0,step=10;
-  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp,tmp;
+  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp,tmp, start=0, wrap=400;
   int dirry=-1;
+
+    while(1){
+  samplepos+=dirry;//)&32767;
+  printf("samplepos %d\n",samplepos);
+  if (samplepos>=start+wrap || samplepos<=start){
+    //    running==0;
+    dirry=-1;
+    if (dirry>0) samplepos=start;
+    else samplepos=start+wrap;
+		}
+    }
+
 
   /*  while(1){
     //  x=whichdatagenwalkervillager%howmanydatagenwalkervill;

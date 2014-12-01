@@ -1,12 +1,12 @@
 * parts list
 
-DATE: 1st SEPT. order:potis, diodes, 7400
+// to be updated!!!
 
 ** PCBs:
 
-Top: 1 bare + 20x PCB
+Top: 1 bare + x PCB
 
-Lower: 1 bare + 20x PCB
+Lower: 1 bare + x PCB
 
 ** Resistors
 
@@ -39,12 +39,12 @@ Lower: 1 bare + 20x PCB
 ** Active
 
 TOP:
-AD620ARZ x1 -topSEGOR - have 5 (ordered 5 more)=10
-OPA337UAG4  x3 -top (mouser) have 4 ordered more->
+AD620ARZ x1 -topSEGOR - have 6
+OPA337UAG4  x3 -top (mouser) have 22
 
 LEDx1 have11ordered30=30+
 
-DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have8 or so???
+DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have200odd
 
 HCT40106x1 (have hcf)-works-have27
 CD74HCT4053M96x1 have28
@@ -53,25 +53,25 @@ LM13700MX/NOPB x1(mouser/reichelt) have21
 LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
 LM1117-5Vx1  DT-5(mouser) have12+
 LM358x1 (reichelt) bulk
-MAX7400CSAx1 (mouser/reichelt) have4 ORDER
-STM32F405RGT6 x1 (mouser) have6+ordered
-8 MHz XTAL (SMD HC49=)x1 (reichelt) have12
-WM8731 audio codec have3+ordered
+MAX7400CSAx1 (mouser/reichelt) have10orso
+STM32F405RGT6 x1 (mouser) have4
+8 MHz XTAL (SMD HC49=)x1 (reichelt) have9
+WM8731 audio codec have2
 
 ** other
 
-POTIS: RK09K1130A5R XXXORDER
+POTIS: RK09K1130A5R XXX
 inductorx1: 81-BLM18BD252SN1D (mouser) have118
 JACKSx2 (Banzai) XXX
 switchx1 (ebay supplier) XXX
 2.1mm DC socketx1 (SEGOR) -have25
-battery holder 9vx1 534-1294 (mouser) have28
+battery holder 9vx1 534-1294 (mouser) have
 
 TOP:
 
-connectorx2 (REICHELT: BL 2X25G8 2,54) x22 -18
-connectorx1 (REICHELT: SL 2X25G 2,54) x10
-(offsets DA 20mm have72-60, screws-need shorter6mm=SZK M3X6-200, bolts?have36=SK-E M3-100)M3-REICHELT
+connectorx2 (REICHELT: BL 2X25G8 2,54) x17
+connectorx1 (REICHELT: SL 2X25G 2,54) x6
+(offsets DA 20mm have44, screws-need shorter6mm=SZK M3X6-200, bolts?have36=SK-E M3-100)M3-REICHELTcheckORDER
 
 .................
 
