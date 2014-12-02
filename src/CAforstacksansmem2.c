@@ -39,7 +39,6 @@ void runnoney(villager_generic* vill){
     x+=step;
   if (x>vill->start+vill->wrap) x=vill->start;
 
-  if (x>vill->start+vill->wrap) x=vill->start;
   datagenbuffer[x]=0;
 }
   vill->position=x;
@@ -393,6 +392,7 @@ void runcel1d(villager_generic* vill){
     //	printf("%c",datagenbuffer[y]);
 #endif
   x=x+step;
+  if (x>vill->start+vill->wrap) x=vill->start;
   }
  vill->position= x;
 }

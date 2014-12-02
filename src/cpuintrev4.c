@@ -148,6 +148,7 @@ void xxrun1(villager_generic *villager){ // proto->filled
 	//	pos+=villager->speed;
 	break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
       villager->position=pos;
 }
@@ -163,7 +164,7 @@ void xxrunworm(villager_generic *villager){ // proto->filled
       wormdir=randi()&7;
       villager->m_reg16bit1=biotadir[wormdir];
       pos+=villager->m_reg16bit1;
-      if (pos>villager->wrap) pos=villager->start;
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
       instr=machine_p88k(pos);
       switch(instr%13){
       case 0:
@@ -296,6 +297,7 @@ void xxrunstack(villager_generic *villager){ // proto->filled
 	pos+=villager->speed;
 	break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -402,6 +404,7 @@ void xxrunbefunge(villager_generic *villager){ // proto->filled
       }
       wormdir=villager->m_reg8bit2&7;
       pos+=biotadir[wormdir];
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -442,6 +445,7 @@ instr=datagenbuffer[pos];
 	}
       wormdir=villager->m_reg8bit2&7;
       pos+=biotadir[wormdir];
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -465,6 +469,7 @@ void xxrunturm(villager_generic *villager){ // proto->filled
       //do move and wrap
       wormdir=(villager->m_reg8bit2)&7;
       pos+=biotadir[wormdir];
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
       // finally
       villager->m_reg8bit1 += deltastate[instr&15];
       //      printf("%c",pos);
@@ -488,7 +493,9 @@ instr=datagenbuffer[pos];
     else flag=instr;
 
     machine_poke(pos+128,flag);
-      pos+=villager->speed; 
+    pos+=villager->speed; 
+    if (pos>(villager->start+villager->wrap)) pos=villager->start;
+
   }
 villager->position=pos;
 }
@@ -504,6 +511,7 @@ void xxrunant(villager_generic *villager){ // proto->filled
   machine_poke(pos,instr+biotadir[villager->m_reg8bit1&7]);
   villager->m_reg8bit1=antrulee(villager->m_reg8bit1,instr&7,machine_p88k(0));//last is rule
   pos+=biotadir[villager->m_reg8bit1&7];
+  if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
   villager->position=pos;
 }
@@ -524,6 +532,7 @@ void xxrunca2(villager_generic *villager){ // proto->filled
       if ((machine_p88k(0) >> flag) & 1)	machine_poke(pos+128,instr+129);
       else machine_poke(pos+128,instr-129); // or we stay with 255 and 0 as poked
       pos+=villager->speed; 
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -570,6 +579,7 @@ void xxrunhodge(villager_generic *villager){ // proto->filled
   if(machine_p88k(pos) > machine_p88k(0)-1)
     machine_poke(y,machine_p88k(0)-1);
   pos+=villager->speed; 
+  if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -665,6 +675,7 @@ instr=datagenbuffer[pos];
 	machine_poke((pos+=biotadir[randi()&7]),adc_buffer[thread_pop(villager)%10]);      
 	break;
 	}
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -680,6 +691,7 @@ void xxrunleaky(villager_generic *villager){ // proto->filled
       if (thread_stack_count(villager,16)) machine_poke(pos,thread_pop(villager));
       else thread_push(villager,machine_p88k(pos));
       pos+=villager->speed;
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -698,6 +710,7 @@ instr=datagenbuffer[pos];
       //      if (y<3) y=3;
       machine_poke(y,temp);
       pos+=villager->speed; 
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -740,6 +753,7 @@ instr=datagenbuffer[pos];
 	pos+=biotadir[villager->m_reg8bit2&7];
 	  break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
 
       if (machine_p88k(pos)==255) villager->m_reg8bit2+=4;
       	wormdir=villager->m_reg8bit2&7;
@@ -819,6 +833,7 @@ void xxrunmicro(villager_generic *villager){ // proto->filled
 	pos+=villager->speed;
 	break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -987,6 +1002,7 @@ instr=datagenbuffer[pos];
 	pos+=3;
 	break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -1050,6 +1066,7 @@ instr=datagenbuffer[pos];
 	  pos+=villager->speed;
 	  break;
       }
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -1099,6 +1116,7 @@ void xxrunbf(villager_generic *villager){ // proto->filled
 	  pos+=villager->speed;
 	  break;
 	}
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -1192,6 +1210,7 @@ instr=datagenbuffer[pos];
 	villager->m_reg8bit2-=1;
       }
       else pos+=biotadir[wormdir];
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }
@@ -1248,6 +1267,7 @@ instr=datagenbuffer[pos];
 
     default : break;
 	}
+      if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
 villager->position=pos;
 }

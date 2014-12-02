@@ -17,8 +17,8 @@ typedef unsigned char u8;
       u16 length;
       u16 dataoffset;
       u16 knoboffset;
-      int16_t samplepos;
-      int16_t dirry;
+      int samplepos;
+      int dirry;
       u8 speed, step;
       u8 dir;
     } villager_hardwarehaha;
@@ -72,18 +72,67 @@ void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSi
     }
 }
 
+void doenvelopefollower(int* envbuffer, u8 envsize, int* inbuffer, u8 insize, int* outbuffer){ // stick to 32 samples=48k/32 ms???
+  // but env is dependent on that size
+  static u8 xx=0;
+  float envout; static int env=0;
+  /* for (int x=0;x<envsize;x++){
+   if (abs(env)<envbuffer[x]) env=envbuffer[x];
+   }*/
+ for (int x=0;x<insize;x++){
+   xx++;
+   if (xx%envsize) env=0;
+   if (abs(env)<envbuffer[x]) env=envbuffer[x];
+   envout=(float)env/32768.0;
+   outbuffer[x]=(float)inbuffer[x]*envout;
+}
+} 
+
 void main(void)
 {
 
-  int i; float xx,xa,xb,xc; int xxx;
-  /*
+  //  int i; float xx,xa,xb,xc; int xxx;
+  int i,xx,tmp;
+  int inbuffer[255],modbuffer[255],outbuffer[255];
+  float finbuffer[255],fmodbuffer[255],foutbuffer[255];
+  
   for (i=0;i<255;i++){
-    xx=(float)i*0.039f;
-    xxx=xx;
-    printf("%d,",xxx);
+    //    xx=(float)i*0.039f;
+    //    xxx=xx;
+    //    printf("%d,",xxx);
+    inbuffer[i]=rand()%32768;
+    modbuffer[i]=rand()%32768;
   }
-  */
-  //  int16_t tmp;
+  
+  //  doenvelopefollower(modbuffer, 16, inbuffer, 16, outbuffer);//{ // stick to 32 samples=48k/32 ms???
+
+    for (xx=0;xx<32;xx++){
+      finbuffer[xx]=(float)(inbuffer[xx])/32768.0f;//REDO! why/how?
+    }
+
+//    x=vill_eff->modifier&15;
+    for (xx=0;xx<16;xx++){
+      fmodbuffer[xx]=(float)(modbuffer[xx])/32768.0f;//REDO! why/how?
+    }
+    //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
+    convolve1D(finbuffer, foutbuffer, 32, fmodbuffer, 2);
+
+    for (xx=0;xx<32;xx++){
+    tmp = (int)(foutbuffer[xx] * 32768.0f);
+    tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+    printf("out: %d\n",tmp);
+    //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+    //    vill_eff->outpos+=vill_eff->step;
+    //    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+
+
+    //  for (i=0;i<32;i++){
+    //    printf("out: %d\n",outbuffer[i]);
+    //  }
+
+
+  //  int tmp;
   //  //  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
   //  u16 inpos=0,modpos=0,oldmodwrap,oldinwrap,modwrap=50,inwrap=100;
   //  u16 n1=32,n2=32;
@@ -197,19 +246,19 @@ void main(void)
   //  printf("freq*mod: %d\n",mod);
 
   u8 whichdatagenwalkervillager=0,step=10;
-  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp,tmp, start=0, wrap=400;
+  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp, start=0, wrap=400;
   int dirry=-1;
 
-    while(1){
-  samplepos+=dirry;//)&32767;
+  //    while(1){
+      /*  samplepos+=dirry;//)&32767;
   printf("samplepos %d\n",samplepos);
   if (samplepos>=start+wrap || samplepos<=start){
     //    running==0;
     dirry=-1;
     if (dirry>0) samplepos=start;
     else samplepos=start+wrap;
-		}
-    }
+    }*/
+  //    }
 
 
   /*  while(1){
