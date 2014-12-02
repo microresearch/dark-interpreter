@@ -23,11 +23,6 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- test new audio walkers - seems okay
-
-problem is somewhere in new walker code (R,W or???)
-
-- test each mode in main: TESTED: 0/1/2/3/4/5+effects/6-datagenwalker/7/8//9=mirror 10+=hardware
 
 - ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
 - re-test full and sanity check all again
@@ -121,7 +116,10 @@ biquad), const structure (would need pre-calc whole array and print)
 - in effect.c: %32768 replaced, changed envelope follower, test.c for envelope and convolve CHECKED
 - checked sim/pureleak/ca/cpu - for CA and CPU added wrap!
 - changes to audio.c code
-- inlining bandpass code in effects but still effects seem odd
+- inlining bandpass code in effects but still effects seem odd//maybe is just way come in
+- hdgener also odd
+- tested all other modes fine!
+
 
 **** DEC 1
 

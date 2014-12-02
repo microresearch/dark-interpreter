@@ -442,8 +442,7 @@ void main(void)
     village_filtout[xx].step=1;
     village_filtout[xx].start=0;
     village_filtout[xx].wrap=100; //  test
-    //    village_filtout[xx].mstart=0;
-    //    village_filtout[xx].mwrap=100; // test
+    village_filtout[xx].fingered=2;//TESTY! - to test datagen walker 
     village_filtout[xx].dir=1;
     village_filtout[xx].dirry=1;
     village_filtout[xx].samplepos=0;
@@ -456,9 +455,9 @@ void main(void)
   for (xx=0;xx<17;xx++){
     village_hardware[xx].length=16;
     village_hardware[xx].inp=0;
-    village_hardware[xx].setting=0; 
+    village_hardware[xx].setting=8;// TESTY! hdgener
     village_hardware[xx].del=0; 
-    village_hardware[xx].speed=0; 
+    village_hardware[xx].speed=1; 
 
     village_40106[xx].length=16;
     village_40106[xx].dataoffset=0;
@@ -468,6 +467,7 @@ void main(void)
     village_40106[xx].dir=1;
     village_40106[xx].speed=1;
     village_40106[xx].step=1;
+    village_40106[xx].del=0;
 
     village_hdgener[xx].length=16;
     village_hdgener[xx].dataoffset=0;
@@ -477,6 +477,7 @@ void main(void)
     village_hdgener[xx].dir=1;
     village_hdgener[xx].speed=1;
     village_hdgener[xx].step=1;
+    village_hdgener[xx].del=0;
 
     village_lm[xx].length=16;
     village_lm[xx].dataoffset=0;
@@ -486,6 +487,7 @@ void main(void)
     village_lm[xx].dir=1;
     village_lm[xx].speed=1;
     village_lm[xx].step=1;
+    village_lm[xx].del=0;
 
     village_maxim[xx].length=16;
     village_maxim[xx].dataoffset=0;
@@ -495,6 +497,7 @@ void main(void)
     village_maxim[xx].dir=1;
     village_maxim[xx].speed=1;
     village_maxim[xx].step=1;
+    village_maxim[xx].del=0;
   }
 #endif
 
@@ -679,7 +682,7 @@ void main(void)
 	  // which mode are we in?
 #ifndef LACH
     mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-    mainmode=7;
+    mainmode=14;
 	  switch(mainmode){
 	  case 0:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -1015,7 +1018,6 @@ void main(void)
 	    village_lm[whichvillager].length=adc_buffer[SECOND]; 
 	    village_lm[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    village_lm[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
-
 	    village_lm[whichvillager].dir=xx;
 	    village_lm[whichvillager].speed=(spd&15)+1; 
 	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
