@@ -243,8 +243,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 3://last
-		if (tmp>lasttmp) buf16[lp]=tmp16+32768;
-		if (tmp16>lasttmp16) audio_buffer[lp]=tmp;
+		if (tmp>lasttmp) buf16[lp]=tmp+32768;
+		if (tmp16>lasttmp16) audio_buffer[lp]=tmp16;
 		lasttmp=tmp; lasttmp16=tmp16;
 	      break;
 
@@ -441,6 +441,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
 		if (village_read[x].dirry>0) samplepos=0;
 		  else samplepos=village_read[x].wrap;
+		village_read[x].samplepos=samplepos;// only need update here
 		}
 		/*	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
@@ -457,7 +458,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  else village_read[x].samplepos=village_read[x].start+village_read[x].wrap;
 		  }*/
 	    village_read[x].del=0;
-	    village_read[x].samplepos=samplepos;// only need update here
 	      }
 	    }//running
 	    } // howmanyreadvill
@@ -482,8 +482,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else village_write[whichwritevillager].dirry=dir[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
 		if (village_write[whichwritevillager].dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
-		}
 		village_write[whichwritevillager].samplepos=samplepos;
+		}
 
 	      /*	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
 	      if (count<village_write[whichwritevillager].wrap && count>0)
@@ -528,9 +528,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else village_filtout[whichfiltoutvillager].dirry=dir[village_filtout[whichfiltoutvillager].dir]*village_filtout[whichfiltoutvillager].speed;
 		if (village_filtout[whichfiltoutvillager].dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
-		}
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
-
+		}
 
 	      /*	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
 	      if (count<village_filtout[whichfiltoutvillager].wrap && count>0)

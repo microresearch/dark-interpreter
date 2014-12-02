@@ -23,18 +23,19 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-next week:
-
 - test new audio walkers//test each mode in main esp. mode 8
 
-- sanity checks:
+- sanity checks: check TWICE all in sequence!
 
-sanity: audioLARGEWRITE/FILTbugfixed-changes, effects, sim, ca, leak, cpu, mainX-all modes sanity
+sanity: audioLARGEWRITE/FILTbugfixed-changes, mainX-all modes sanity
+
+effects, sim, ca, leak, cpu
 
 - ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
 
 - re-test full and all sections again: - re-test each section:
-  datagen//datagenwalker//r/w/filt//effects//mirrors//hw
+  datagen//datagenwalker//r/w/filt//effects//mirrors//hw//modes
+
 
 - web pages//price drop=130/210/260//announce and advertise//ebay/etsy
 
@@ -118,6 +119,9 @@ biquad), const structure (would need pre-calc whole array and print)
 **** DEC 2
 - reverted ninth[] in LACH as had removed by accident!
 - sanity checks and few changes across main/audio (modifier as 8 bits)
+- int32_t in village_read for samplepos only
+
+
 
 **** DEC 1
 
