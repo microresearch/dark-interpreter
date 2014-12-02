@@ -142,7 +142,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
 #ifndef LACH
-  u8 hdgener; 
+  static u8 hdgener; 
   static u16 counthw=0;
   static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;
   static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichfiltoutvillager=0;
@@ -595,16 +595,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  // hdgener=16// note hdgener is 8 bits
 
+	  
 	  if (digfilterflag&16){
 	  x=whichhdgenervillager%howmanyhdgenervill;
 	    if (++village_hdgener[x].del>=village_hdgener[x].speed){
 	      village_hdgener[x].del=0;
 	      samplepos=village_hdgener[x].samplepos;
-
 	      counthdgener+=village_hdgener[x].step;
 	      tmp=village_hdgener[x].knoboffset>>7; // 8 bits
 	      hdgener=(tmp+(datagenbuffer[(village_hdgener[x].dataoffset+samplepos)])%(256-tmp));
-
 	      samplepos+=village_hdgener[x].dirry;
 	      if (samplepos>=village_hdgener[x].length) samplepos=0;
 	      else if (samplepos<0) samplepos=village_hdgener[x].length;
@@ -615,6 +614,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }
 	  }
 	  }
+	  //	  hdgener=village_hdgener[x].knoboffset>>7;//TESTY!
+
+
 	  // maxim=8 depth is 13 bits 8192
 
 	  	  if (digfilterflag&8){ // TESTY!

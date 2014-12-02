@@ -682,7 +682,7 @@ void main(void)
 	  // which mode are we in?
 #ifndef LACH
     mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-    mainmode=14;
+    //    mainmode=14;
 	  switch(mainmode){
 	  case 0:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!

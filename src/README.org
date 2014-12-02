@@ -117,7 +117,7 @@ biquad), const structure (would need pre-calc whole array and print)
 - checked sim/pureleak/ca/cpu - for CA and CPU added wrap!
 - changes to audio.c code
 - inlining bandpass code in effects but still effects seem odd//maybe is just way come in
-- hdgener also odd
+- hdgener also odd - fixed with hdgener as static
 - tested all other modes fine!
 
 

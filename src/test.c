@@ -130,6 +130,9 @@ void main(void)
 
     printf("f=%f",f);
 
+    i=32;
+    if (i&16) printf("hhh\n");
+
     //  for (i=0;i<32;i++){
     //    printf("out: %d\n",outbuffer[i]);
     //  }
