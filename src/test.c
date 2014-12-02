@@ -120,12 +120,15 @@ void main(void)
     for (xx=0;xx<32;xx++){
     tmp = (int)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-    printf("out: %d\n",tmp);
+    //    printf("out: %d\n",tmp);
     //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
     //    vill_eff->outpos+=vill_eff->step;
     //    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
 
+    float f = 2.0*M_PI*10.0f/32000.0f;
+
+    printf("f=%f",f);
 
     //  for (i=0;i<32;i++){
     //    printf("out: %d\n",outbuffer[i]);
@@ -166,9 +169,12 @@ void main(void)
     printf("\n");
   */
 
-
-  /*    while(1){
-
+    int inpos=0;
+    //      while(1){
+    //	inpos+=16;
+    //	printf("inpos %d\n",inpos&32767);
+    //      }
+	/*
       //        xx++;
 
     if (inpos>=inwrap) {

@@ -131,9 +131,11 @@ extern u8 howmanywritevill,howmanyfiltoutvill,howmanyreadvill;
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int32_t lasttmp=0,lasttmp16=0;
+  int32_t lasttmp=0,lasttmp16=0,count;
   register int32_t lp,samplepos;
   register int32_t tmp,tmpl,tmp16,tmp32d;
+  //int16_t lp,samplepos,tmp,tmpl,tmp16,tmp32d;
+
   u8 x,xx;
   u16 overlay;
   //  int16_t tmptmp,tmptmp16;
@@ -218,8 +220,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 
 	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
-	      samplepos=village_read[x].samplepos;
-	      lp=(samplepos+village_read[x].start)&32767;
+	            samplepos=village_read[x].samplepos;
+		    lp=(samplepos+village_read[x].start)&32767;
+		    //	      lp=(samplepos)&32767; // TESTY!
 	      tmp16=buf16[lp]-32768;
 
 	      //	      overlay=32; // TESTY for datagens!
@@ -440,10 +443,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		else if (village_read[x].dir==3) village_read[x].dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
 		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
 		if (village_read[x].dirry>0) samplepos=0;
-		  else samplepos=village_read[x].wrap;
-		village_read[x].samplepos=samplepos;// only need update here
+		  else samplepos=village_read[x].wrap;		
 		}
-		/*	      count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
+		village_read[x].samplepos=samplepos;// only need update here
+		/*		count=((village_read[x].samplepos-village_read[x].start)+village_read[x].dirry);
 	      if (count<village_read[x].wrap && count>0)
 	      {
 		village_read[x].samplepos+=village_read[x].dirry;//)&32767;
@@ -464,28 +467,31 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  }//sz
 
 	// WRITE! simplified to consecutive!! DONE- to test!
+	
 	  for (xx=0;xx<sz/2;xx++){
-	    samplepos=village_write[whichwritevillager].samplepos;//)&32767;
-	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
+	  samplepos=village_write[whichwritevillager].samplepos;//)&32767;
+    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
+	    //	    lp=(samplepos)&32767; // TESTY!
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
 	      village_write[whichwritevillager].del=0;
 
 		////try this// TESTY!
-		samplepos+=village_write[whichwritevillager].dirry;//)&32767;
-		if (samplepos>=village_write[whichwritevillager].wrap || samplepos<0){
+	      samplepos+=village_write[whichwritevillager].dirry;//)&32767;
+	      if (samplepos>=village_write[whichwritevillager].wrap || samplepos<0){
 		  /// next villager now
-		  whichwritevillager++; 
-		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		if (village_write[whichwritevillager].dir==2) village_write[whichwritevillager].dirry=newdir[wormdir];
 		else if (village_write[whichwritevillager].dir==3) village_write[whichwritevillager].dirry=dir[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
 		else village_write[whichwritevillager].dirry=dir[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
 		if (village_write[whichwritevillager].dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
 		village_write[whichwritevillager].samplepos=samplepos;
+		whichwritevillager++; 
+		whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		}
-
-	      /*	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
+		else village_write[whichwritevillager].samplepos=samplepos;
+ 
+		/*	      	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
 	      if (count<village_write[whichwritevillager].wrap && count>0)
 		{
 		  village_write[whichwritevillager].samplepos+=village_write[whichwritevillager].dirry;//)&32767;
@@ -501,7 +507,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		  whichwritevillager++; 
 		  whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		  }*/
-
 	    }
 	  }/// end of write!
 
@@ -520,8 +525,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		samplepos+=village_filtout[whichfiltoutvillager].dirry;//)&32767;
 		if (samplepos>=village_filtout[whichfiltoutvillager].wrap || samplepos<0){
 		  /// next villager now
-		  whichfiltoutvillager++; 
-		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 
 		if (village_filtout[whichfiltoutvillager].dir==2) village_filtout[whichfiltoutvillager].dirry=newdir[wormdir];
 		else if (village_filtout[whichfiltoutvillager].dir==3) village_filtout[whichfiltoutvillager].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
@@ -529,7 +532,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		if (village_filtout[whichfiltoutvillager].dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
+		  whichfiltoutvillager++; 
+		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 		}
+		else village_filtout[whichfiltoutvillager].samplepos=samplepos;
 
 	      /*	      count=((village_filtout[whichfiltoutvillager].samplepos-village_filtout[whichfiltoutvillager].start)+village_filtout[whichfiltoutvillager].dirry);
 	      if (count<village_filtout[whichfiltoutvillager].wrap && count>0)
@@ -577,7 +583,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
 	  samplepos=village_40106[x].samplepos;
 	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+samplepos)&32767])%(2048-tmp));
-
 	  samplepos+=village_40106[x].dirry;
 	  if (samplepos>=village_40106[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_40106[x].length;

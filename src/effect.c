@@ -265,7 +265,7 @@ void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSi
 float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
   float f,fb,hp,bp,scale;
   static float buf0=0,buf1=0;
-  f = 2.0*M_PI*fc/48000.0f;
+  f = 2.0*M_PI*fc/32000.0f;
   fb= q + q/(1.0 - f);
 
   hp=sample-buf0;
@@ -276,8 +276,9 @@ float bandpass(float sample,float q, float fc, float gain){ // from OWL code - s
 }
 
 float dobandpass(float sample,float f,float fb){ // from OWL code - statevariable
-  float hp,bp,scale,q=0.9f;
-  static float buf0=0,buf1=0;
+  float hp,bp;
+
+  static float buf0=0.0f,buf1=0.0f;
 
   hp=sample-buf0;
   bp = buf0 - buf1; 
@@ -397,10 +398,14 @@ void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){/
 
 void do_effect(villager_effect* vill_eff){
   int32_t tmp;float tmpp; 
-  float freq,freqc;
+  float freq;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
+
+  float hp,bp;
+  static float buf0=0.0f,buf1=0.0f;
+
 
   // modifier is 8 bits
   // chunk in size 32
@@ -611,14 +616,21 @@ void do_effect(villager_effect* vill_eff){
     break;
 
   case 7://      8--variable bandpass based on modifier 
-    freq = 2.0*M_PI*((float32_t)(vill_eff->modifier)/255.0f); // mod is now 8 bits
-    freqc= 0.9f + 0.9f/(1.0f - freq);
+    freq = (float32_t)(vill_eff->modifier)/2550.0f; // mod is now 8 bits
+    float fb= 0.8f + 0.8f/(1.0f - freq);
+
+    //    xx=bandpassmod(xxx,0.9f,10.0f,1.0f); // q freq gain
 
     for (xx=0;xx<tmpinlong;xx++){
       tmpp=(float32_t)(audio_buffer[(vill_eff->instart+vill_eff->inpos++)&32767])/32768.0f;//REDO! why/how?
-      tmpp=dobandpass(tmpp,freq,freqc); // from OWL code - statevariable
+      //      tmpp=dobandpass(tmpp, freq,fb); // from OWL code - statevariable
+      hp=tmpp-buf0;
+      bp = buf0 - buf1; 
+      buf0 = buf0 + freq * (hp + fb * bp); 
+      buf1 = buf1 + freq * (buf0 - buf1);
+      
 	// out here
-      tmp = (int32_t)(tmpp * 32768.0f);
+      tmp = (int32_t)(bp * 32768.0f);
       tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
       vill_eff->outpos+=vill_eff->step;
@@ -631,15 +643,15 @@ void do_effect(villager_effect* vill_eff){
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
   //  extern VocoderInstance* vocoder; u8 x;
-  //  float xx,xxx;
+  float xx,xxx;
   float finbuffer[32],foutbuffer[32];
-  //  float tmpotherbuffer[32];
+  float tmpbuffer[32];
   //  float tmpotherotherbuffer[32];
   //  float out[BUFF_LEN];
-      int_to_floot(inbuffer,finbuffer,32);
+  //      int_to_floot(inbuffer,finbuffer,32);
   //      doformantfilter(inbuffer, outbuffer, 32, 0);
-      doformantfilterf(finbuffer, foutbuffer, 32, 0);
-        floot_to_int(outbuffer,foutbuffer,32);
+  //      doformantfilterf(finbuffer, foutbuffer, 32, 0);
+  //        floot_to_int(outbuffer,foutbuffer,32);
 
 
   // BPFSC
@@ -701,16 +713,18 @@ void test_effect(int16_t* inbuffer, int16_t* outbuffer){
 
   // BANDPASS:
 
-  /*    int_to_floot(inbuffer,tmpbuffer);
-    for (x=0;x<32;x++){
+  int_to_floot(inbuffer,tmpbuffer,32);
+    for (u8 x=0;x<32;x++){
     //    xxx=(float)inbuffer[x]/32768.0;
     xxx=tmpbuffer[x];
     //    xx=bandpass(xxx,0.8f,270.0f,1.0f); // q freq gain
     //    xx+=bandpass(xxx,0.8f,2300.0f,1.0f); // q freq gain
-    xx=bandpass(xxx,0.7f,3000.0f,1.0f); // q freq gain
+    //    xx=bandpass(xxx,0.9f,10.0f,1.0f); // q freq gain
+    //        xx=bandpass(xxx,0.9f,10.0f,1.0f); // q freq gain
+    //xx=dobandpass(xxx,0.0019f);
     tmpbuffer[x]=xx;
       }
-      floot_to_int(outbuffer,tmpbuffer);*/
+    floot_to_int(outbuffer,tmpbuffer,32);
 
   // CONVOLVE:
   /*    int_to_floot(inbuffer,tmpbuffer);

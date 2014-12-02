@@ -22,7 +22,7 @@
     typedef struct {
       u8 whicheffect,speed,step;
       u16 instart,modstart,outstart;
-      u16 inpos,modpos,outpos;// various counters
+      int32_t inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
       u8 mirrormod,mirrordel,mirrorspeed,del; 
       //      u8 infected;
@@ -49,7 +49,7 @@
       u16 length;
       u16 dataoffset;
       u16 knoboffset;
-      int16_t samplepos;
+      int32_t samplepos;
       int16_t dirry;
       u8 speed, step;
       u8 dir;
@@ -83,7 +83,7 @@ typedef struct {
   //  u8 infected;
   u8 fingered; // what is input here as modifier
   u16 start,wrap;
-  int16_t samplepos;
+  int32_t samplepos;
   u8 del;
   int16_t dirry;
   u8 speed, step;
@@ -102,7 +102,7 @@ typedef struct {
       u16 start;
       u8 CPU;
       u16 wrap;
-      u16 position;
+      int32_t position;
       u8 del,howmany;
       int16_t dirry;
       u8 speed, step; 

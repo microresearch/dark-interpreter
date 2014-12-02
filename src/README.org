@@ -23,11 +23,15 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- test new audio walkers
-- test each mode in main esp. mode 8
+- test new audio walkers - seems okay
+
+problem is somewhere in new walker code (R,W or???)
+
+- test each mode in main: TESTED: 0/1/2/3/4/5+effects/6-datagenwalker/7/8//9=mirror 10+=hardware
+
 - ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
-- re-test full and all sections again: - re-test each section:
-  datagen//datagenwalker//r/w/filt//effects//mirrors//hw//modes
+- re-test full and sanity check all again
+- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 
 //////////////////////////////////////////////////////////////////////
 - web pages//price drop=130/210/260//announce and advertise//ebay/etsy
@@ -113,9 +117,11 @@ biquad), const structure (would need pre-calc whole array and print)
 
 - reverted ninth[] in LACH as had removed by accident!
 - sanity checks and few changes across main/audio (modifier as 8 bits)
-- int32_t in village_read for samplepos only, small fixes in audio.c
+- int32_t in village_read for samplepos only(but needs be in all as swap samplepos), small fixes in audio.c
 - in effect.c: %32768 replaced, changed envelope follower, test.c for envelope and convolve CHECKED
 - checked sim/pureleak/ca/cpu - for CA and CPU added wrap!
+- changes to audio.c code
+- inlining bandpass code in effects but still effects seem odd
 
 **** DEC 1
 

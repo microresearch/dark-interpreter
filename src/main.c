@@ -255,7 +255,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=10;// TESTY on effects and data...// testy datavill
 
 //u16 counterd=0, databegin=0,dataend=32767;
 //u8 deldata=0,dataspeed=1;
@@ -317,7 +317,7 @@ void main(void)
   float Fc,Q,peakGain;
 
 #ifndef LACH
-  const float Fs=48000.0f;// TODO
+  const float Fs=32000.0f;// TODO
 #else
   const float Fs=48000.0f;
 #endif
@@ -374,7 +374,7 @@ void main(void)
 
     village_write[xx].del=0;
     village_write[xx].mirrormod=0;//TESTY!
-    village_write[xx].fingered=0;//TESTY!
+    village_write[xx].fingered=2;//TESTY! - to test datagen walker 
     village_write[xx].mirrordel=0;
     //    village_write[xx].infected=0;
     village_write[xx].samplepos=0;
@@ -421,13 +421,13 @@ void main(void)
     village_effect[xx].modpos=0;
     village_effect[xx].outpos=0;
     village_effect[xx].instart=0;
-    village_effect[xx].inwrap=32767;
-    village_effect[xx].outstart=100;
-    village_effect[xx].outwrap=200;//TESTY!
+    village_effect[xx].inwrap=3200;
+    village_effect[xx].outstart=3200;
+    village_effect[xx].outwrap=32000;//TESTY!
     village_effect[xx].modstart=0;
-    village_effect[xx].modwrap=32767;
+    village_effect[xx].modwrap=3200;
     village_effect[xx].modifier=0;
-    village_effect[xx].whicheffect=0;
+    village_effect[xx].whicheffect=7;// TESTY all!!!
     village_effect[xx].step=1;
     village_effect[xx].speed=1;
 
@@ -537,7 +537,7 @@ void main(void)
   // maintain order
   Audio_Init();
 #ifndef LACH
-  Codec_Init(32000); // TODO!
+  Codec_Init(48000); // TODO!
 #else
   Codec_Init(48000); 
 #endif
@@ -602,7 +602,7 @@ void main(void)
 
 	    u16 *starts[64][8];
 	    u16 *wraps[64][8];
-	    u16 *posses[64][8];
+	    int32_t *posses[64][8];
 
 	    for (xx=0;xx<64;xx++){
 	      starts[xx][0]=&village_write[xx].start;
@@ -651,7 +651,7 @@ void main(void)
 #ifdef TEST_EFFECTS
       //runsine
       //u16 runsine(u8 step, u16 count, u16 start, u16 wrap){
-         count=runnoise(1,count,0,32767);
+      //count=runnoise(1,count,0,32767);
 #else
 
 #ifdef TEST_EEG
@@ -679,7 +679,7 @@ void main(void)
 	  // which mode are we in?
 #ifndef LACH
     mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
-    //    mainmode=0;
+    mainmode=7;
 	  switch(mainmode){
 	  case 0:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -709,10 +709,10 @@ void main(void)
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
 	    // don't reset
-	    //	    	    if (village_read[whichvillager].running==0){
-	    //	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    //	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-	    //	    }
+	    /*	    	    if (village_read[whichvillager].running==0){
+	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
+	    	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
+	    	    }*/
 	    break;
 
 	  case 1: // READ 2nd
@@ -1120,10 +1120,10 @@ void main(void)
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
 	    // don't reset
-	    //	    if (village_read[whichvillager].running==0){
-	    //	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    //	      else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-	    //	    	    }
+	    /*	    if (village_read[whichvillager].running==0){
+	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
+	    	      else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
+		      }*/
 	    break;
 
 	  case 1:
