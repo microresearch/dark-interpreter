@@ -27,7 +27,7 @@
       u8 mirrormod,mirrordel,mirrorspeed,del; 
       //      u8 infected;
       u8 fingered; // what is input here as modifier
-      u16  modifier,kmodifier;
+      u8  modifier,kmodifier;
     } villager_effect;
 
     typedef struct {
@@ -83,7 +83,7 @@ typedef struct {
   //  u8 infected;
   u8 fingered; // what is input here as modifier
   u16 start,wrap;
-  u16 samplepos;
+  int16_t samplepos;
   u8 del;
   int16_t dirry;
   u8 speed, step;

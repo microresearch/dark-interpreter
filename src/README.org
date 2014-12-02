@@ -29,7 +29,7 @@ next week:
 
 - sanity checks:
 
-sanity: audioLARGEWRITE/FILTbugfixed-changes, effects, sim, ca, leak, cpu, main-all modes sanity
+sanity: audioLARGEWRITE/FILTbugfixed-changes, effects, sim, ca, leak, cpu, mainX-all modes sanity
 
 - ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
 
@@ -114,10 +114,14 @@ as not to init:
 biquad), const structure (would need pre-calc whole array and print)
 
 *** DONE
+
+**** DEC 2
+- reverted ninth[] in LACH as had removed by accident!
+- sanity checks and few changes across main/audio (modifier as 8 bits)
+
 **** DEC 1
 
 - redo some of mode 8DONE TEST!
-
 
 **** NOV 27
 
