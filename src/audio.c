@@ -6,8 +6,6 @@ LINEIN/OUTL-filter
 
 */
 
-///#define M_PI 3.14159265358979323846
-
 #ifdef TENE
 #define FIRST 2
 #define SECOND 0
@@ -30,17 +28,6 @@ LINEIN/OUTL-filter
 #define RIGHT 7
 #endif
 
-#ifdef LACH
-#define SETSIZE 36
-#define INFECTSIZE 740 
-#define SETSHIFT 11
-#define SHIFTY 7
-#else
-#define SETSIZE 66
-#define INFECTSIZE 770 
-#define SETSHIFT 10
-#define SHIFTY 6
-#endif
 
 #define STEREO_BUFSZ (BUFF_LEN/2) // 64
 #define MONO_BUFSZ (STEREO_BUFSZ/2) // 32
@@ -88,9 +75,6 @@ int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
 signed char dir[2]={-1,1};
 extern u8 wormdir;
 extern u8 digfilterflag;
-extern const u16 SAMPLE_FREQUENCY;
-extern const float Pi;
-extern const float PI_2;
 
 void Audio_Init(void)
 {
@@ -130,14 +114,12 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int32_t lasttmp=0,lasttmp16=0,count;
+  int32_t lasttmp=0,lasttmp16=0;
   register int32_t lp,samplepos;
   register int32_t tmp,tmpl,tmp16,tmp32d;
-  //int16_t lp,samplepos,tmp,tmpl,tmp16,tmp32d;
 
   u8 x,xx;
   u16 overlay;
-  //  int16_t tmptmp,tmptmp16;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
@@ -207,7 +189,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    tmp=*(src++); 
 #endif
 
-	    //	    howmanyreadvill=0;
 	    //	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
 	    for(x=howmanyreadvill; x--; ){
 	      overlay=village_read[x].overlay;
@@ -488,7 +469,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		village_write[whichwritevillager].samplepos=samplepos;
 		whichwritevillager++; 
 		whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
-		}
+	      }
 		else village_write[whichwritevillager].samplepos=samplepos;
  
 		/*	      	       count=((village_write[whichwritevillager].samplepos-village_write[whichwritevillager].start)+village_write[whichwritevillager].dirry);
@@ -593,6 +574,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    which40106villager++; //u8
 	  }
 	  }
+
+	  // how looks without step:
+	  /*	  if (++village_40106[x].del>=village_40106[x].speed){
+	      village_40106[x].del=0;
+	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
+	  samplepos=village_40106[x].samplepos;
+	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+samplepos)&32767])%(2048-tmp));
+	  samplepos+=village_40106[x].dirry;
+	  if (samplepos>=village_40106[x].length) {
+	    samplepos=0;
+	    which40106villager++; //u8
+	  }
+	  else if (samplepos<0) {
+	    samplepos=village_40106[x].length;
+	    which40106villager++; //u8
+	  }
+	  village_40106[x].samplepos=samplepos;
+	  }*/
+
+
 	  // hdgener=16// note hdgener is 8 bits
 
 	  

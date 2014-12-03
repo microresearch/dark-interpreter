@@ -879,32 +879,32 @@ void main(void)
 	      break;
 	    case 1:// dump to buf16
 		buf16[posy]=*starts[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 2:// dump to buf16
 		buf16[posy]=*wraps[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 3:// dump to buf16
 		buf16[posy]=*posses[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 		break; 
 	    case 4:// dump back from buf16
 		*starts[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 5:// dump back from buf16
 		*wraps[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 6:// dump back from buf16
 		*posses[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	      ///////////////////
@@ -1290,32 +1290,32 @@ void main(void)
 	      break;
 	    case 1:// dump to buf16
 		buf16[posy]=*starts[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 2:// dump to buf16
 		buf16[posy]=*wraps[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 3:// dump to buf16
 		buf16[posy]=*posses[whichx][whichy]<<1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 		break; 
 	    case 4:// dump back from buf16
 		*starts[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 5:// dump back from buf16
 		*wraps[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	    case 6:// dump back from buf16
 		*posses[whichx][whichy]=buf16[posy]>>1;
-		posy++;
+		posy+=spd&7;
 		posy=posy&32767;
 	      break; 
 	      ///////////////////

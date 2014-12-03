@@ -23,9 +23,10 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-
-- ifdefs for LACH-DONE and test LACH (to finish) SUSP should be as TENE but test when ordered!
-- re-test full and sanity check all again
+- take stepm out of main and audio for hW - test!
+- test LACH [+ SUSP should be as TENE but test when ordered!]
+- sanity check all again - main, audio, effect, sim, ca, pureleak, cpu
+- re-test full
 - re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 
 //////////////////////////////////////////////////////////////////////
@@ -112,14 +113,14 @@ biquad), const structure (would need pre-calc whole array and print)
 
 - reverted ninth[] in LACH as had removed by accident!
 - sanity checks and few changes across main/audio (modifier as 8 bits)
-- int32_t in village_read for samplepos only(but needs be in all as swap samplepos), small fixes in audio.c
+- int32_t in village_read for samplepos only(but needs be in all as swap sampleposDONE), small fixes in audio.c
 - in effect.c: %32768 replaced, changed envelope follower, test.c for envelope and convolve CHECKED
 - checked sim/pureleak/ca/cpu - for CA and CPU added wrap!
 - changes to audio.c code
-- inlining bandpass code in effects but still effects seem odd//maybe is just way come in
+- inlining bandpass code in effects but still effects seem odd//maybe is just way comes in
 - hdgener also odd - fixed with hdgener as static
 - tested all other modes fine!
-
+- posy in fingers inc with spd
 
 **** DEC 1
 
