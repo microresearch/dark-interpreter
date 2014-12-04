@@ -34,7 +34,7 @@ Lower: 1 bare + x PCB
 1uFx2bulk
 2.2uFx2 have50
 4.7uFx1 have42
-10uFx7bulk
+10uFx7bulk BUT NEED 16V SEGOR!!
 
 ** Active
 

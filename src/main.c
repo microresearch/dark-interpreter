@@ -255,7 +255,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=10;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=10;// TESTY on effects and data...// testy datavill
 
 //u16 counterd=0, databegin=0,dataend=32767;
 //u8 deldata=0,dataspeed=1;
@@ -317,7 +317,7 @@ void main(void)
   float Fc,Q,peakGain;
 
 #ifndef LACH
-  const float Fs=32000.0f;// TODO
+  const float Fs=48000.0f;// TODO
 #else
   const float Fs=48000.0f;
 #endif
@@ -354,7 +354,7 @@ void main(void)
     village_read[xx].counterr=0;
     village_read[xx].del=0;
     village_read[xx].compress=32767;
-    village_read[xx].mirrormod=0;
+    village_read[xx].mirrormod=2;
     village_read[xx].mirrordel=0;
     //    village_read[xx].infected=0;
     village_read[xx].samplepos=0;
@@ -373,8 +373,8 @@ void main(void)
     village_read[xx].running=1;
 
     village_write[xx].del=0;
-    village_write[xx].mirrormod=0;//TESTY!
-    village_write[xx].fingered=2;//TESTY! - to test datagen walker 
+    village_write[xx].mirrormod=2;// as we change in mode then okayyy
+    village_write[xx].fingered=0;//TESTY! - to test datagen walker 
     village_write[xx].mirrordel=0;
     //    village_write[xx].infected=0;
     village_write[xx].samplepos=0;
@@ -402,13 +402,13 @@ void main(void)
     
     // datagen
     village_datagen[xx].start = 0;
-    village_datagen[xx].CPU = 63;// testy
+    village_datagen[xx].CPU = 0;// testy
     village_datagen[xx].wrap=32767;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
-    village_datagen[xx].howmany=32;// testy!
+    village_datagen[xx].howmany=1;// testy!
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
     village_datagen[xx].m_stack_pos=0;
@@ -540,7 +540,7 @@ void main(void)
   // maintain order
   Audio_Init();
 #ifndef LACH
-  Codec_Init(48000); // TODO!
+  Codec_Init(32000); // TODO!
 #else
   Codec_Init(48000); 
 #endif
@@ -684,7 +684,38 @@ void main(void)
     mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
     //    mainmode=14;
 	  switch(mainmode){
-	  case 0:// READ
+
+	  case 0:// WRITE
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    howmanywritevill=whichvillager+1;
+
+	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
+	    village_write[whichvillager].dir=xx;
+	    village_write[whichvillager].speed=(spd&15)+1; 
+	    village_write[whichvillager].step=(spd&240)>>4;
+
+	    if (adc_buffer[SECOND]>10){
+	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+	      // else just wait till mirrors
+	    }
+	    if (adc_buffer[THIRD]>10){
+	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+	      // else just wait till mirrors
+	    }
+	    ///
+	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
+	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
+
+	    /// TO TEST// don't reset
+	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
+	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
+	    break;
+
+
+	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
@@ -718,7 +749,7 @@ void main(void)
 	    	    }*/
 	    break;
 
-	  case 1: // READ 2nd
+	  case 2: // READ 2nd
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    village_read[whichvillager].fingered=xx;
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
@@ -736,35 +767,6 @@ void main(void)
 	      village_read[whichvillager].kcompress=tmpp;
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	      //	    }
-	    break;
-
-	  case 2:// WRITE
-	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
-	    howmanywritevill=whichvillager+1;
-
-	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
-	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=(spd&15)+1; 
-	    village_write[whichvillager].step=(spd&240)>>4;
-
-	    if (adc_buffer[SECOND]>10){
-	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
-	      // else just wait till mirrors
-	    }
-	    if (adc_buffer[THIRD]>10){
-	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
-	      // else just wait till mirrors
-	    }
-	    ///
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-
-	    /// TO TEST// don't reset
-	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
 
 	  case 3: // DATAGEN villagers
@@ -1094,7 +1096,37 @@ void main(void)
 	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 8 bit array LEAVE as is
 
 	  switch(mainmode){
-	  case 0:// READ
+
+	  case 0:// WRITE
+	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+	    howmanywritevill=whichvillager+1;
+
+	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
+	    village_write[whichvillager].dir=xx;
+	    village_write[whichvillager].speed=(spd&15)+1; 
+	    village_write[whichvillager].step=(spd&240)>>4;
+
+	    if (adc_buffer[SECOND]>10){
+	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+	      // else just wait till mirrors
+	    }
+	    if (adc_buffer[THIRD]>10){
+	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];
+	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+	      // else just wait till mirrors
+	    }
+	    ///
+	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
+	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
+	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
+	    /// TO TEST// don't reset
+	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
+	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
+	    break;
+
+
+	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
@@ -1128,7 +1160,7 @@ void main(void)
 		      }*/
 	    break;
 
-	  case 1:
+	  case 2:
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    village_read[whichvillager].fingered=xx;
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
@@ -1147,34 +1179,6 @@ void main(void)
 	      village_read[whichvillager].kcompress=tmpp;
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	      //	    }
-	    break;
-
-	  case 2:// WRITE
-	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
-	    howmanywritevill=whichvillager+1;
-
-	    village_write[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;// now 3 bits=8///4 bits=16 options but NO sel for fingered?
-	    village_write[whichvillager].dir=xx;
-	    village_write[whichvillager].speed=(spd&15)+1; 
-	    village_write[whichvillager].step=(spd&240)>>4;
-
-	    if (adc_buffer[SECOND]>10){
-	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
-	      // else just wait till mirrors
-	    }
-	    if (adc_buffer[THIRD]>10){
-	      village_write[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
-	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
-	      // else just wait till mirrors
-	    }
-	    ///
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-	    /// TO TEST// don't reset
-	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
 	    break;
 
 	  case 3: // DATAGEN villagers

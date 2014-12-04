@@ -23,14 +23,15 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- take stepm out of main and audio for hW - test!
 - test LACH [+ SUSP should be as TENE but test when ordered!]
 - sanity check all again - main, audio, effect, sim, ca, pureleak, cpu
-- re-test full
+
+- re-test full 
 - re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 
 //////////////////////////////////////////////////////////////////////
-- web pages//price drop=130/210/260//announce and advertise//ebay/etsy
+- manual update/web pages//price drop=130/210/260//announce and advertise//ebay/etsy
+- also for LACH sever out pad connection [under power conn], replacement 10uFs on incoming!!!
 
 *** new speed schemeDONE
 
@@ -99,15 +100,12 @@ as not to init:
 
 ////- effects cleaned up/init all effect structures:
 
-
-**** MON 10 NOV:
-
-- filters will tend overwrite (so maybe re-do with digfilterflag=1) 
-
-- redo formant filter as too many loops (can only do if use diff
-biquad), const structure (would need pre-calc whole array and print)
-
 *** DONE
+
+**** DEC 4
+
+- swapped reads and write in  mainmode
+- back to 32k for TENE/SUSP
 
 **** DEC 2
 
