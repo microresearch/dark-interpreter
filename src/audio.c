@@ -71,8 +71,8 @@ int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define float float32_t
 #endif
 
-const int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
-const signed char dir[2]={-1,1};
+static const int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
+static const signed char dir[2]={-1,1};
 extern u8 wormdir;
 extern u8 digfilterflag;
 
@@ -114,6 +114,7 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
+  int16_t dirry;
   int32_t lasttmp=0,lasttmp16=0;
   register int32_t lp,samplepos;
   register int32_t tmp,tmpl,tmp16,tmp32d;
@@ -417,13 +418,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	      if (++village_read[x].del>=village_read[x].step){
 		////try this// TESTY!
-		samplepos+=village_read[x].dirry;//)&32767;
+		if (village_read[x].dir==2) dirry=newdir[wormdir];
+		else if (village_read[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
+		else dirry=village_read[x].dirry;
+
+		samplepos+=dirry;//)&32767;
 		if (samplepos>=village_read[x].wrap || samplepos<0){
 		  village_read[x].running==0;
-		if (village_read[x].dir==2) village_read[x].dirry=newdir[wormdir];
-		else if (village_read[x].dir==3) village_read[x].dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else village_read[x].dirry=dir[village_read[x].dir]*village_read[x].speed;
-		if (village_read[x].dirry>0) samplepos=0;
+		if (dirry>0) samplepos=0;
 		  else samplepos=village_read[x].wrap;		
 		}
 		village_read[x].samplepos=samplepos;// only need update here
@@ -444,13 +446,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_write[whichwritevillager].del=0;
 
 		////try this// TESTY!
-	      samplepos+=village_write[whichwritevillager].dirry;//)&32767;
+	      if (village_write[whichwritevillager].dir==2) dirry=newdir[wormdir];
+	      else if (village_write[whichwritevillager].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
+	      else dirry=village_write[whichwritevillager].dirry;
+
+	      samplepos+=dirry;//)&32767;
 	      if (samplepos>=village_write[whichwritevillager].wrap || samplepos<0){
 		  /// next villager now
-		if (village_write[whichwritevillager].dir==2) village_write[whichwritevillager].dirry=newdir[wormdir];
-		else if (village_write[whichwritevillager].dir==3) village_write[whichwritevillager].dirry=dir[adc_buffer[DOWN]&1]*village_write[whichwritevillager].speed;
-		else village_write[whichwritevillager].dirry=dir[village_write[whichwritevillager].dir]*village_write[whichwritevillager].speed;
-		if (village_write[whichwritevillager].dirry>0) samplepos=0;
+		if (dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
 		village_write[whichwritevillager].samplepos=samplepos;
 		whichwritevillager++; 
@@ -473,14 +476,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_filtout[whichfiltoutvillager].del=0;
 
 		////try this// TESTY!
-		samplepos+=village_filtout[whichfiltoutvillager].dirry;//)&32767;
+		if (village_filtout[whichfiltoutvillager].dir==2) dirry=newdir[wormdir];
+		else if (village_filtout[whichfiltoutvillager].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
+		else dirry=village_filtout[whichfiltoutvillager].dirry;
+		samplepos+=dirry;//)&32767;
 		if (samplepos>=village_filtout[whichfiltoutvillager].wrap || samplepos<0){
 		  /// next villager now
 
-		if (village_filtout[whichfiltoutvillager].dir==2) village_filtout[whichfiltoutvillager].dirry=newdir[wormdir];
-		else if (village_filtout[whichfiltoutvillager].dir==3) village_filtout[whichfiltoutvillager].dirry=dir[adc_buffer[DOWN]&1]*village_filtout[whichfiltoutvillager].speed;
-		else village_filtout[whichfiltoutvillager].dirry=dir[village_filtout[whichfiltoutvillager].dir]*village_filtout[whichfiltoutvillager].speed;
-		if (village_filtout[whichfiltoutvillager].dirry>0) samplepos=0;
+		if (dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
 		  whichfiltoutvillager++; 
@@ -515,14 +518,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    village_40106[x].del=0;
 	  count40106+=village_40106[x].step;
 
-	  if (village_40106[x].dir==2) village_40106[x].dirry=newdir[wormdir];
-	  else if (village_40106[x].dir==3) village_40106[x].dirry=dir[adc_buffer[DOWN]&1]*village_40106[x].speed;
-	  else village_40106[x].dirry=dir[village_40106[x].dir]*village_40106[x].speed;
+	  if (village_40106[x].dir==2) dirry=newdir[wormdir];
+	  else if (village_40106[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_40106[x].speed;
+	  else dirry=village_40106[x].dirry;
 
 	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
 	  samplepos=village_40106[x].samplepos;
 	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+samplepos)&32767])%(2049-tmp));
-	  samplepos+=village_40106[x].dirry;
+	  samplepos+=dirry;
 	  if (samplepos>=village_40106[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_40106[x].length;
 	  village_40106[x].samplepos=samplepos;
@@ -560,24 +563,24 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (++village_hdgener[x].del>=village_hdgener[x].speed){
 	      village_hdgener[x].del=0;
 
-	    if (village_hdgener[x].dir==2) village_hdgener[x].dirry=newdir[wormdir];
-	    else if (village_hdgener[x].dir==3) village_hdgener[x].dirry=dir[adc_buffer[DOWN]&1]*village_hdgener[x].speed;
-	    else village_hdgener[x].dirry=dir[village_hdgener[x].dir]*village_hdgener[x].speed;
+	    if (village_hdgener[x].dir==2) dirry=newdir[wormdir];
+	    else if (village_hdgener[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_hdgener[x].speed;
+	    else dirry=village_hdgener[x].dirry;
 
 
 	      samplepos=village_hdgener[x].samplepos;
 	      counthdgener+=village_hdgener[x].step;
 	      tmp=village_hdgener[x].knoboffset>>7; // 8 bits
 	      hdgener=(tmp+(datagenbuffer[(village_hdgener[x].dataoffset+samplepos)])%(256-tmp));
-	      samplepos+=village_hdgener[x].dirry;
+	      samplepos+=dirry;
 	      if (samplepos>=village_hdgener[x].length) samplepos=0;
 	      else if (samplepos<0) samplepos=village_hdgener[x].length;
-	  village_hdgener[x].samplepos=samplepos;
-	  if (counthdgener>=village_hdgener[x].length){
-	    counthdgener=0;
-	    whichhdgenervillager++; //u8
-	  }
-	  }
+	      village_hdgener[x].samplepos=samplepos;
+	      if (counthdgener>=village_hdgener[x].length){
+		counthdgener=0;
+		whichhdgenervillager++; //u8
+	      }
+	    }
 	  }
 	  //	  hdgener=village_hdgener[x].knoboffset>>7;//TESTY!
 
@@ -589,15 +592,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (++village_maxim[x].del>=village_maxim[x].speed){
 	      village_maxim[x].del=0;
 
-	    if (village_maxim[x].dir==2) village_maxim[x].dirry=newdir[wormdir];
-	    else if (village_maxim[x].dir==3) village_maxim[x].dirry=dir[adc_buffer[DOWN]&1]*village_maxim[x].speed;
-	    else village_maxim[x].dirry=dir[village_maxim[x].dir]*village_maxim[x].speed;
+	    if (village_maxim[x].dir==2) dirry=newdir[wormdir];
+	    else if (village_maxim[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_maxim[x].speed;
+	    else dirry=village_maxim[x].dirry;
 
 	  countmaxim+=village_maxim[x].step;
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
 	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
-	  samplepos+=village_maxim[x].dirry;
+	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_maxim[x].length;
 	  village_maxim[x].samplepos=samplepos;
@@ -616,15 +619,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if (++village_lm[x].del>=village_lm[x].speed){
 	      village_lm[x].del=0;
 
-	      if (village_lm[x].dir==2) village_lm[x].dirry=newdir[wormdir];
-	      else if (village_lm[x].dir==3) village_lm[x].dirry=dir[adc_buffer[DOWN]&1]*village_lm[x].speed;
-	      else village_lm[x].dirry=dir[village_lm[x].dir]*village_lm[x].speed;
+	      if (village_lm[x].dir==2) dirry=newdir[wormdir];
+	      else if (village_lm[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_lm[x].speed;
+	      else dirry=village_lm[x].dirry;
 
 	  countlm+=village_lm[x].step;
 	  tmp=village_lm[x].knoboffset>>3; // 12 bits=4096 for lm
 	  samplepos=village_lm[x].samplepos;
 	  setlmpwm(tmp+(buf16[(village_lm[x].dataoffset+samplepos)&32767])%(4097-tmp));
-	  samplepos+=village_lm[x].dirry;
+	  samplepos+=dirry;
 	  if (samplepos>=village_lm[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_lm[x].length;
 	  village_lm[x].samplepos=samplepos;

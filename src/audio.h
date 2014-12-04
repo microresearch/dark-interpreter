@@ -39,7 +39,7 @@
       u16 length;
       u16 dataoffset;
       u16 knoboffset;
-      int16_t samplepos;
+      int32_t samplepos;
       int16_t dirry;
       u8 speed, step,del;
       u8 dir;
