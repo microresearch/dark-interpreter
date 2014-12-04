@@ -23,8 +23,12 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- test LACH [+ SUSP should be as TENE but test when ordered!]
-- sanity check all again - main, audio, effect, sim, ca, pureleak, cpu
+- sanity check all again - main, audioX, effect, sim, ca, pureleak, cpu
+
+esp. bits/sizes/sanityingeneral!
+
+- to step or not in audio.c and main.c (hardware and datagen)
+- test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
 
 - re-test full 
 - re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
@@ -104,7 +108,8 @@ as not to init:
 
 **** DEC 4
 
-- swapped reads and write in  mainmode
+- dir changes should be in audio.c and where changes!DONE all TO TEST!
+- swapped reads and write in mainmode
 - back to 32k for TENE/SUSP
 
 **** DEC 2

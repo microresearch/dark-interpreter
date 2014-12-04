@@ -142,8 +142,8 @@ u8 howmanyhardvill=1,howmany40106vill=1,howmanylmvill=1,howmanyhdgenervill=1,how
 //u8 readspeed=1,writespeed=1,filtinspeed=1,filtoutspeed=1;
 //int16_t dirryr=1,dirryf=1,dirryff=1;
 u8 hardcompress=1;
-int16_t newdirection[8]={-256,-255,1,255,256,254,-1,-257};
-signed char direction[2]={-1,1};
+const int16_t newdirection[8]={-256,-255,1,255,256,254,-1,-257};
+const signed char direction[2]={-1,1};
 //u8 wormflag[10]={0,0,0,0,0,0,0,0,0,0};
 u16 *buf16;
 
@@ -274,14 +274,19 @@ u16 nextdatagen(void){
   u8 x;
   static u8 whichdatagenwalkervillager=0;
   static u16 countdatagenwalker=0;
+
   samplepos=village_datagenwalker[x].samplepos;
   x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+
+if (village_datagenwalker[x].dir==2) village_datagenwalker[x].dirry=newdirection[wormdir];
+  else if (village_datagenwalker[x].dir==3) village_datagenwalker[x].dirry=direction[adc_buffer[DOWN]&1]*village_datagenwalker[x].speed;
+  else village_datagenwalker[x].dirry=direction[village_datagenwalker[x].dir]*village_datagenwalker[x].speed;
+
+
   countdatagenwalker+=village_datagenwalker[x].step;
   tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
   //  if (tmp==32768) tmp=32767;  // as knoboffset never gets so high!
   tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+samplepos)&32767])%(32768-tmp);
-  //  tmp=buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[x].samplepos)&32767];
-
   samplepos+=village_datagenwalker[x].dirry;
   if (samplepos>=village_datagenwalker[x].length) samplepos=0;
   else if (samplepos<0) samplepos=village_datagenwalker[x].length;
@@ -317,7 +322,7 @@ void main(void)
   float Fc,Q,peakGain;
 
 #ifndef LACH
-  const float Fs=48000.0f;// TODO
+  const float Fs=32000.0f;// TODO
 #else
   const float Fs=48000.0f;
 #endif
@@ -373,8 +378,8 @@ void main(void)
     village_read[xx].running=1;
 
     village_write[xx].del=0;
-    village_write[xx].mirrormod=2;// as we change in mode then okayyy
-    village_write[xx].fingered=0;//TESTY! - to test datagen walker 
+    village_write[xx].mirrormod=0;
+    village_write[xx].fingered=2;
     village_write[xx].mirrordel=0;
     //    village_write[xx].infected=0;
     village_write[xx].samplepos=0;
@@ -500,14 +505,6 @@ void main(void)
     village_maxim[xx].del=0;
   }
 #endif
-
-  // any other inits/variables????
-
-  //    village_read[0].wrap=32767; //  test
-  //    village_write[0].wrap=32767; //  test
-    //    village_filtin[0].wrap=32767; //  test
-  //    village_filtout[0].wrap=32767; //  test
-
 
   // think is all set
 
@@ -705,10 +702,10 @@ void main(void)
 	      // else just wait till mirrors
 	    }
 	    ///
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
+	    /*	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-
+	    */
 	    /// TO TEST// don't reset
 	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
@@ -739,9 +736,10 @@ void main(void)
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    /*	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
+	    */
 	    // don't reset
 	    /*	    	    if (village_read[whichvillager].running==0){
 	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
@@ -820,9 +818,6 @@ void main(void)
 	    village_datagenwalker[whichvillager].speed=(spd&15)+1; 
 	    village_datagenwalker[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 
-	    if (village_datagenwalker[whichvillager].dir==2) village_datagenwalker[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_datagenwalker[whichvillager].dir==3) village_datagenwalker[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_datagenwalker[whichvillager].speed;
-	    else village_datagenwalker[whichvillager].dirry=direction[village_datagenwalker[whichvillager].dir]*village_datagenwalker[whichvillager].speed;
 	    /// TO TEST// don't reset
 	    ///	    if (village_datagenwalker[whichvillager].dirry>0) village_datagenwalker[whichvillager].samplepos=0;
 	    //	    else village_datagenwalker[whichvillager].samplepos=village_datagenwalker[whichvillager].length;
@@ -980,10 +975,10 @@ void main(void)
 	    village_filtout[whichvillager].speed=(spd&15)+1; 
 	    village_filtout[whichvillager].step=(spd&240)>>4;
 
-	    if (village_filtout[whichvillager].dir==2) village_filtout[whichvillager].dirry=newdirection[wormdir];
+	    /*	    if (village_filtout[whichvillager].dir==2) village_filtout[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_filtout[whichvillager].dir==3) village_filtout[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichvillager].speed;
 	    else village_filtout[whichvillager].dirry=direction[village_filtout[whichvillager].dir]*village_filtout[whichvillager].speed;
-
+	    */
 	    /*
 	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
 	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;*/
@@ -1002,9 +997,6 @@ void main(void)
 	    village_40106[whichvillager].speed=(spd&15)+1; 
 	    village_40106[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 
-	    if (village_40106[whichvillager].dir==2) village_40106[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_40106[whichvillager].dir==3) village_40106[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_40106[whichvillager].speed;
-	    else village_40106[whichvillager].dirry=direction[village_40106[whichvillager].dir]*village_40106[whichvillager].speed;
 	    /// TO TEST// don't reset
 
 	    //	    if (village_40106[whichvillager].dirry>0) village_40106[whichvillager].samplepos=0;
@@ -1024,9 +1016,6 @@ void main(void)
 	    village_lm[whichvillager].speed=(spd&15)+1; 
 	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 
-	    if (village_lm[whichvillager].dir==2) village_lm[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_lm[whichvillager].dir==3) village_lm[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_lm[whichvillager].speed;
-	    else village_lm[whichvillager].dirry=direction[village_lm[whichvillager].dir]*village_lm[whichvillager].speed;
 	    /// TO TEST// don't reset
 	    //	    if (village_lm[whichvillager].dirry>0) village_lm[whichvillager].samplepos=0;
 	    //	    else village_lm[whichvillager].samplepos=village_lm[whichvillager].length;
@@ -1046,10 +1035,6 @@ void main(void)
 	    village_maxim[whichvillager].speed=(spd&15)+1; 
 	    village_maxim[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 
-	    if (village_maxim[whichvillager].dir==2) village_maxim[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_maxim[whichvillager].dir==3) village_maxim[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_maxim[whichvillager].speed;
-	    else village_maxim[whichvillager].dirry=direction[village_maxim[whichvillager].dir]*village_maxim[whichvillager].speed;
-
 	    /// TO TEST// don't reset
 	    //	    if (village_maxim[whichvillager].dirry>0) village_maxim[whichvillager].samplepos=0;
 	    //	    else village_maxim[whichvillager].samplepos=village_maxim[whichvillager].length;
@@ -1068,10 +1053,6 @@ void main(void)
 	    village_hdgener[whichvillager].dir=xx;
 	    village_hdgener[whichvillager].speed=(spd&15)+1; 
 	    village_hdgener[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-
-	    if (village_hdgener[whichvillager].dir==2) village_hdgener[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_hdgener[whichvillager].dir==3) village_hdgener[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_hdgener[whichvillager].speed;
-	    else village_hdgener[whichvillager].dirry=direction[village_hdgener[whichvillager].dir]*village_hdgener[whichvillager].speed;
 
 	    /// TO TEST// don't reset
 	    //	    if (village_hdgener[whichvillager].dirry>0) village_hdgener[whichvillager].samplepos=0;
@@ -1117,9 +1098,10 @@ void main(void)
 	      // else just wait till mirrors
 	    }
 	    ///
-	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
+	    /*	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
 	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
+	    */
 	    /// TO TEST// don't reset
 	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
 	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
@@ -1150,9 +1132,9 @@ void main(void)
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    /*	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;*/
 	    // don't reset
 	    /*	    if (village_read[whichvillager].running==0){
 	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
@@ -1230,14 +1212,6 @@ void main(void)
 	    village_datagenwalker[whichvillager].dir=xx;
 	    village_datagenwalker[whichvillager].speed=(spd&15)+1; 
 	    village_datagenwalker[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-
-	    if (village_datagenwalker[whichvillager].dir==2) village_datagenwalker[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_datagenwalker[whichvillager].dir==3) village_datagenwalker[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_datagenwalker[whichvillager].speed;
-	    else village_datagenwalker[whichvillager].dirry=direction[village_datagenwalker[whichvillager].dir]*village_datagenwalker[whichvillager].speed;
-
-	    /// TO TEST// don't reset
-	    //	    if (village_datagenwalker[whichvillager].dirry>0) village_datagenwalker[whichvillager].samplepos=0;
-	    //	    else village_datagenwalker[whichvillager].samplepos=village_datagenwalker[whichvillager].length;
 	    break;
 
 	  case 7: // swop and copy 
