@@ -704,7 +704,7 @@ void xxrunconvy(villager_generic *villager){ // proto->filled
 
   //  pos+=villager->speed;
   for (u8 xx=0;xx<villager->howmany;xx++){
-instr=datagenbuffer[pos];
+    instr=datagenbuffer[pos];
       temp=(machine_p88k(pos-1)*machine_p88k(0))+(machine_p88k(pos)*machine_p88k(1))+(machine_p88k(pos+1)*machine_p88k(2));
       y=pos+32768;
       //      if (y<3) y=3;

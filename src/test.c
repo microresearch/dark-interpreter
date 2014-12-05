@@ -58,17 +58,20 @@ void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSi
     {
         out[i] = 0;                             // init to 0 before accumulate
 
-        for(j = i, k = 0; k < kernelSize; --j, ++k)
+        for(j = i, k = 0; k < kernelSize; --j, ++k){
             out[i] += in[j] * kernel[k];
+	printf("i %d j %d\n",i,j);
     }
-
+    }
     // convolution from out[0] to out[kernelSize-2]
     for(i = 0; i < kernelSize - 1; ++i)
     {
-        out[i] = 0;                             // init to 0 before sum
+      //        out[i] = 0;                             // init to 0 before sum
 
-        for(j = i, k = 0; j >= 0; --j, ++k)
-            out[i] += in[j] * kernel[k];
+      for(j = i, k = 0; j >= 0; --j, ++k)      {
+      out[i] += in[j] * kernel[k];
+      printf("i %d j %d\n",i,j);
+      }
     }
 }
 
@@ -88,44 +91,83 @@ void doenvelopefollower(int* envbuffer, u8 envsize, int* inbuffer, u8 insize, in
 }
 } 
 
+void runnoney(int x){
+
+  printf("rrr %d\n",x);
+
+}
+
 void main(void)
 {
 
   //  int i; float xx,xa,xb,xc; int xxx;
-  int i,xx,tmp;
+  int i,xx,tmp,inpos,inwrap,tmpinlong;
   int inbuffer[255],modbuffer[255],outbuffer[255];
-  float finbuffer[255],fmodbuffer[255],foutbuffer[255];
-  
-  for (i=0;i<255;i++){
-    //    xx=(float)i*0.039f;
-    //    xxx=xx;
-    //    printf("%d,",xxx);
-    inbuffer[i]=rand()%32768;
-    modbuffer[i]=rand()%32768;
-  }
-  
-  //  doenvelopefollower(modbuffer, 16, inbuffer, 16, outbuffer);//{ // stick to 32 samples=48k/32 ms???
+  float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
+
+  /*  while(1){
+
+    inpos=rand()%32768;
+    inwrap=rand()%32768;
+
+    if (inpos>=inwrap) {
+      inpos=0;
+    }
+    if ((inpos+32)<=inwrap) tmpinlong=32;
+    else tmpinlong=inwrap-inpos; 
+    if (tmpinlong>32)    printf("inpos %d inwarp %d tmpinblog %d\n",inpos, inwrap, tmpinlong);
+    
+    }*/
+
+
+
 
     for (xx=0;xx<32;xx++){
+      inbuffer[xx]=rand()%32768;
       finbuffer[xx]=(float)(inbuffer[xx])/32768.0f;//REDO! why/how?
     }
 
-//    x=vill_eff->modifier&15;
+//    x=modifier&15;
     for (xx=0;xx<16;xx++){
+       modbuffer[xx]=rand()%32768;
       fmodbuffer[xx]=(float)(modbuffer[xx])/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
-    convolve1D(finbuffer, foutbuffer, 32, fmodbuffer, 2);
+    //    convolve1D(finbuffer, foutbuffer, 0, fmodbuffer, 1);
+
+    float freq = (float)(255)/2550.0f; // mod is now 8 bits
+    float fb= 0.8f + 0.8f/(1.0f - freq),hp,bp;
+    float buf0=0,buf1=0;
+
+    //    xx=bandpassmod(xxx,0.9f,10.0f,1.0f); // q freq gain
 
     for (xx=0;xx<32;xx++){
+      tmpp=(float)(rand()%32768)/32768.0f;//REDO! why/how?
+      //      tmpp=dobandpass(tmpp, freq,fb); // from OWL code - statevariable
+      hp=tmpp-buf0;
+      bp = buf0 - buf1; 
+      buf0 = buf0 + freq * (hp + fb * bp); 
+      buf1 = buf1 + freq * (buf0 - buf1);
+      
+	// out here
+      tmp = (int)(bp * 32768.0f);
+      tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+      printf("out: %d\n",tmp);
+      //      audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+      //      vill_eff->outpos+=vill_eff->step;
+      //      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+      }
+
+
+    /*    for (xx=0;xx<32;xx++){
     tmp = (int)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-    //    printf("out: %d\n",tmp);
-    //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
-    //    vill_eff->outpos+=vill_eff->step;
-    //    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    printf("out: %d\n",tmp);
+    //    audio_buffer[(outstart+outpos)&32767]=(int16_t)tmp;
+    //    outpos+=step;
+    //    if (outpos>outwrap) outpos=0;
     }
-
+    */
     float f = 2.0*M_PI*10.0f/32000.0f;
 
     printf("f=%f",f);
@@ -172,7 +214,7 @@ void main(void)
     printf("\n");
   */
 
-    int inpos=0;
+    //    int inpos=0;
     //      while(1){
     //	inpos+=16;
     //	printf("inpos %d\n",inpos&32767);
@@ -203,7 +245,7 @@ void main(void)
 
     for (x=0;x<longest;x++){
       inpos++;
-      //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)%32768];
+      //      modbuffer[xx]=audio_buffer[(modstart+modpos++)%32768];
     printf("shortest %d inlong %d modlong %d inpos %d modpos %d\n inwrap %d\n",longest,tmpinlong,tmpmodlong,inpos,modpos,inwrap);
     }
 
@@ -248,14 +290,14 @@ void main(void)
   printf ("%f,",xa);
   }*/
 
-  float freq;int mod=200;
+    //  float freq;int mod=200;
 
   //  freq = 2.0*M_PI*((float)(mod/255.0f)); // mod is now 8 bits
   //  mod=freq*(float)mod;
   //  printf("freq*mod: %d\n",mod);
 
   u8 whichdatagenwalkervillager=0,step=10;
-  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp, start=0, wrap=400;
+  //  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp, start=0, wrap=400;
   int dirry=-1;
 
   //    while(1){
@@ -365,4 +407,4 @@ void main(void)
     which40106villager++; //u8
 	  }
 	  }*/
-}
+    }

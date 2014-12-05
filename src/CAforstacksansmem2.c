@@ -24,8 +24,8 @@ extern int16_t *audio_buffer;
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
 extern u8 table[21];
-extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
-extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
+//extern u16 stackery[STACK_SIZE*4]; // 16*4 MAX
+//extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 #endif
 
 extern u8 *datagenbuffer;
@@ -323,7 +323,7 @@ void runcel(villager_generic* vill){
   if (datagenbuffer[(y + datagenbuffer[0])&65535]>128)
       state |= 0x1;
 
-    y=(x+(datagenbuffer[0]*2))%65536;// next row but one!
+    y=(x+(datagenbuffer[0]*2))&65535;// next row but one!
 
       if ((datagenbuffer[1] >> state) & 1){
 	datagenbuffer[y] = 0;
@@ -382,7 +382,7 @@ void runcel1d(villager_generic* vill){
       zz=x+z;
       if (zz>=datagenbuffer[4]) zz=zz-datagenbuffer[4];
       //      if (zz<0) zz=datagenbuffer[4]+zz;
-      sum+=(datagenbuffer[zz]>>4)%4; // crash here? and it did/// not now !
+      sum+=(datagenbuffer[zz]>>4)&3; // crash here? and it did/// not now !
     }
 
     y=x+datagenbuffer[4];
@@ -447,8 +447,8 @@ void runfire(villager_generic* vill){
 
     if (datagenbuffer[x]==0 || datagenbuffer[x]==254) datagenbuffer[y]=datagenbuffer[x]; //empty or burnt
     // now deal with vegetation(bit1 empty) and burning(&1)
-    else if ((datagenbuffer[x]&1)==0 && randi()%255<=(sum*probI)) datagenbuffer[y]=datagenbuffer[x]|1;  //veg->burning
-    else if ((datagenbuffer[x]&1)==1 && randi()%255<=probB) datagenbuffer[y]=254; // burning->burnt
+    else if ((datagenbuffer[x]&1)==0 && randi()&255<=(sum*probI)) datagenbuffer[y]=datagenbuffer[x]|1;  //veg->burning
+    else if ((datagenbuffer[x]&1)==1 && randi()&255<=probB) datagenbuffer[y]=254; // burning->burnt
     else datagenbuffer[y]=datagenbuffer[x];
 
 #ifdef PCSIM  
@@ -645,11 +645,11 @@ void runSIR16(villager_generic* vill){
 #endif
     // choose random neighbour
 
-    dest=y+biotadir[randi()%8];
+    dest=y+biotadir[randi()&7];
     // 16 bits: top/lower top/lower total/S/I/R
     totaldest=datagenbuffer[dest]>>4;
     totalhost=datagenbuffer[y]>>4;
-    if (totaldest<15 &&totalhost>0 && randi()%255<=probM){
+    if (totaldest<15 &&totalhost>0 && randi()&255<=probM){
     // from host choose S,I or R to shift over if motionP and not full
     // then update both host y and dest...
       which=randi()%3;
@@ -718,14 +718,14 @@ void runSIR16(villager_generic* vill){
     // for each of infected:
     // deduct virus morbidity
     // recoveries
-      if ((randi()%255)<=probR) {futureinfected--; futuretotal--;} // dead
-      if ((randi()%255)<=probV) {futurerecovered++; futureinfected--;} // recovered
+      if ((randi()&255)<=probR) {futureinfected--; futuretotal--;} // dead
+      if ((randi()&255)<=probV) {futurerecovered++; futureinfected--;} // recovered
     }
     suscept=futuresuscept=datagenbuffer[x]&15;
     for (ii=0;ii<suscept;ii++){
     // for each of suscept:
     // compute contact infections based on how many infected in cell
-      if (((randi()%16)*infected)>probC) {futureinfected++; futuresuscept--;} // dead
+      if (((randi()&15)*infected)>probC) {futureinfected++; futuresuscept--;} // dead
     }
 
     // put all back together???

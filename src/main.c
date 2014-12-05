@@ -35,7 +35,6 @@
 //#include "settings.h"
 uint16_t *adc_buffer;
 u8 digfilterflag;
-int16_t *stacker,*stackery;
 int16_t *src, *dst;
 
 void  dohardwareswitch(u8 one,u8 two){
@@ -77,9 +76,6 @@ __IO int16_t tx_buffer[BUFF_LEN], rx_buffer[BUFF_LEN];
 
 /* DMA buffer for ADC  & copy */
 __IO uint16_t adc_buffer[10];
-
-u16 stackery[STACK_SIZE*4]; // 64*4 MAX now
-u16 stacker[STACK_SIZE*4]; // 64*4 MAX
 #endif
 
 // for knobwork
@@ -264,7 +260,6 @@ u16 nextdatagen(void){
   u16 tmp,tmpp;
   int16_t samplepos,dirry;
   u8 x;
-
   static u8 whichdatagenwalkervillager=0;
   static u16 countdatagenwalker=0;
 
@@ -295,7 +290,8 @@ void main(void)
 {
   // formerly in audio.c
   u8 whichvillager,grupx;
-  u16 tmpp,tmps,tmpw,mstart,mwrap,moverlay,mcompress,mmodifier,posx=0,posy=0;
+  u16 tmpp,tmps,tmpw,mstart,mwrap,mcompress,posx=0,posy=0;
+  u8 mmodifier,moverlay;
   u8 howlook[4]={1,4,8,32};
 
   // order that all inits and audio_init called seems to be important
@@ -455,7 +451,7 @@ void main(void)
   for (xx=0;xx<17;xx++){
     village_hardware[xx].length=16;
     village_hardware[xx].inp=0;
-    village_hardware[xx].setting=8;// TESTY! hdgener
+    village_hardware[xx].setting=0;// TESTY! hdgener
     village_hardware[xx].del=0; 
     village_hardware[xx].speed=1; 
 
@@ -551,8 +547,6 @@ void main(void)
   datagenbuffer=(u8*)malloc(65536);
   audio_buffer=(int16_t*)malloc(32768*sizeof(int16_t));
   villager=malloc(VILLAGE_SIZE*sizeof(int16_t));
-  stacker=malloc(4*64*sizeof(int16_t));
-  stackery=malloc(4*64*sizeof(int16_t));
   adc_buffer=malloc(10*sizeof(int16_t));
   initaudio();
   srandom(time(0));
@@ -693,16 +687,8 @@ void main(void)
 	      // else just wait till mirrors
 	    }
 	    ///
-	    village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-	    /*	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-	    */
-	    /// TO TEST// don't reset
-	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
-	    break;
-
+	    village_write[whichvillager].dirry=direction[xx]*village_write[whichvillager].speed;
+    break;
 
 	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -728,17 +714,9 @@ void main(void)
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
-	    village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
-
-	    /*	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
-	    */
-	    // don't reset
-	    /*	    	    if (village_read[whichvillager].running==0){
-	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    	    else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-	    	    }*/
+	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2: // READ 2nd
@@ -758,7 +736,6 @@ void main(void)
 	    //	    if (tmpp){///???
 	      village_read[whichvillager].kcompress=tmpp;
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
-	      //	    }
 	    break;
 
 	  case 3: // DATAGEN villagers
@@ -792,7 +769,7 @@ void main(void)
 	    break;
 
 	  case 5: // effects outstart,outwrap
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
+	    whichvillager=adc_buffer[FIRST]>>6; // now 64///4bits=16total
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
@@ -802,7 +779,7 @@ void main(void)
 	    break;
 
 	  case 6:	    // datagen walker????
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    whichvillager=adc_buffer[FIRST]>>6; // 64
 	    howmanydatagenwalkervill=whichvillager+1;
 	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 
 	    village_datagenwalker[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -811,10 +788,6 @@ void main(void)
 	    village_datagenwalker[whichvillager].dir=xx;
 	    village_datagenwalker[whichvillager].speed=(spd&15)+1; 
 	    village_datagenwalker[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-
-	    /// TO TEST// don't reset
-	    ///	    if (village_datagenwalker[whichvillager].dirry>0) village_datagenwalker[whichvillager].samplepos=0;
-	    //	    else village_datagenwalker[whichvillager].samplepos=village_datagenwalker[whichvillager].length;
 	    break;
 
 	  case 7: // swop and copy 
@@ -969,13 +942,6 @@ void main(void)
 	    village_filtout[whichvillager].speed=(spd&15)+1; 
 	    village_filtout[whichvillager].step=(spd&240)>>4;
 	    village_filtout[whichvillager].dirry=direction[village_filtout[whichvillager].dir]*village_filtout[whichvillager].speed;
-	    /*	    if (village_filtout[whichvillager].dir==2) village_filtout[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_filtout[whichvillager].dir==3) village_filtout[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_filtout[whichvillager].speed;
-	    else village_filtout[whichvillager].dirry=direction[village_filtout[whichvillager].dir]*village_filtout[whichvillager].speed;
-	    */
-	    /*
-	    if (village_filtout[whichvillager].dirry>0) village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start;
-	    else village_filtout[whichvillager].samplepos=village_filtout[whichvillager].start+village_filtout[whichvillager].wrap;*/
 	    break;
 
 	  case 11: // 40106 walker as sequential but offset as free period???
@@ -991,10 +957,6 @@ void main(void)
 	    village_40106[whichvillager].speed=(spd&15)+1; 
 	    village_40106[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 	    village_40106[whichvillager].dirry=direction[village_40106[whichvillager].dir]*village_40106[whichvillager].speed;
-	    /// TO TEST// don't reset
-
-	    //	    if (village_40106[whichvillager].dirry>0) village_40106[whichvillager].samplepos=0;
-	    //	    else village_40106[whichvillager].samplepos=village_40106[whichvillager].length;
 	    break;
 
 	  case 12: // lm walker as sequential but offset as free period???
@@ -1010,10 +972,6 @@ void main(void)
 	    village_lm[whichvillager].speed=(spd&15)+1; 
 	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 	    village_lm[whichvillager].dirry=direction[village_lm[whichvillager].dir]*village_lm[whichvillager].speed;
-
-	    /// TO TEST// don't reset
-	    //	    if (village_lm[whichvillager].dirry>0) village_lm[whichvillager].samplepos=0;
-	    //	    else village_lm[whichvillager].samplepos=village_lm[whichvillager].length;
 	    break;
 
 	  case 13: // maxim walker as sequential but offset as free period???
@@ -1025,15 +983,10 @@ void main(void)
 	    village_maxim[whichvillager].length=adc_buffer[SECOND]; 
 	    village_maxim[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    village_maxim[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
-
 	    village_maxim[whichvillager].dir=xx;
 	    village_maxim[whichvillager].speed=(spd&15)+1; 
 	    village_maxim[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 	    village_maxim[whichvillager].dirry=direction[village_maxim[whichvillager].dir]*village_maxim[whichvillager].speed;
-
-	    /// TO TEST// don't reset
-	    //	    if (village_maxim[whichvillager].dirry>0) village_maxim[whichvillager].samplepos=0;
-	    //	    else village_maxim[whichvillager].samplepos=village_maxim[whichvillager].length;
 	    break;
 
 	  case 14: // hdgener walker as sequential but offset as free period???
@@ -1045,15 +998,10 @@ void main(void)
 	    village_hdgener[whichvillager].length=adc_buffer[SECOND]; 
 	    village_hdgener[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    village_hdgener[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
-
 	    village_hdgener[whichvillager].dir=xx;
 	    village_hdgener[whichvillager].speed=(spd&15)+1; 
 	    village_hdgener[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
 	    village_hdgener[whichvillager].dirry=direction[village_hdgener[whichvillager].dir]*village_hdgener[whichvillager].speed;
-
-	    /// TO TEST// don't reset
-	    //	    if (village_hdgener[whichvillager].dirry>0) village_hdgener[whichvillager].samplepos=0;
-	    //	    else village_hdgener[whichvillager].samplepos=village_hdgener[whichvillager].length;
 	    break;
 
 	  case 15: // HW walker 
@@ -1094,19 +1042,8 @@ void main(void)
 	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
 	      // else just wait till mirrors
 	    }
-
-	    village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-
-	    ///
-	    /*	    if (village_write[whichvillager].dir==2) village_write[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_write[whichvillager].dir==3) village_write[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_write[whichvillager].speed;
-	    else village_write[whichvillager].dirry=direction[village_write[whichvillager].dir]*village_write[whichvillager].speed;
-	    */
-	    /// TO TEST// don't reset
-	    //	    if (village_write[whichvillager].dirry>0) village_write[whichvillager].samplepos=village_write[whichvillager].start;
-	    //	    else village_write[whichvillager].samplepos=village_write[whichvillager].start+village_write[whichvillager].wrap;
+	    village_write[whichvillager].dirry=direction[xx]*village_write[whichvillager].speed;
 	    break;
-
 
 	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -1131,16 +1068,10 @@ void main(void)
 	    village_read[whichvillager].dir=xx;
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
-	    village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;
 
-	    /*	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[village_read[whichvillager].dir]*village_read[whichvillager].speed;*/
-	    // don't reset
-	    /*	    if (village_read[whichvillager].running==0){
-	    	      if (village_read[whichvillager].dirry>0) village_read[whichvillager].samplepos=village_read[whichvillager].start;
-	    	      else village_read[whichvillager].samplepos=village_read[whichvillager].start+village_read[whichvillager].wrap;
-		      }*/
+	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2:
@@ -1193,7 +1124,7 @@ void main(void)
 	    break;
 
 	  case 5: // effects outstart,outwrap
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16total
+	    whichvillager=adc_buffer[FIRST]>>6;
 	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 
@@ -1204,7 +1135,7 @@ void main(void)
 	    break;
 
 	  case 6:// datagen walker????
-	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
+	    whichvillager=adc_buffer[FIRST]>>6; //now 6 bits
 	    howmanydatagenwalkervill=whichvillager+1;
 	    village_datagenwalker[whichvillager].length=adc_buffer[SECOND]; 
 	    village_datagenwalker[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -1393,10 +1324,10 @@ void main(void)
 		village_write[whichx].wrap=(village_write[whichx].kwrap+mwrap)&32767;
 		break;
 	      case 3: // addition up to 32768
-		tmpp=32768-village_write[whichx].kstart;
+		tmpp=32767-village_write[whichx].kstart;
 		if (!tmpp) tmpp=1;
 		village_write[whichx].start=village_write[whichx].kstart+(mstart%tmpp);
-		tmpp=32768-village_write[whichx].kwrap;
+		tmpp=32767-village_write[whichx].kwrap;
 		if (!tmpp) tmpp=1;
 		village_write[whichx].wrap=village_write[whichx].kwrap+(mwrap%tmpp);
 		break;
@@ -1468,10 +1399,10 @@ void main(void)
 		village_filtout[whichx].wrap=(village_filtout[whichx].kwrap+mwrap)&32767;
 		break;
 	      case 3: // addition up to 32768
-		tmpp=32768-village_filtout[whichx].kstart;
+		tmpp=32767-village_filtout[whichx].kstart;
 		if (!tmpp) tmpp=1;
 		village_filtout[whichx].start=village_filtout[whichx].kstart+(mstart%tmpp);
-		tmpp=32768-village_filtout[whichx].kwrap;
+		tmpp=32767-village_filtout[whichx].kwrap;
 		if (!tmpp) tmpp=1;
 		village_filtout[whichx].wrap=village_filtout[whichx].kwrap+(mwrap%tmpp);
 		break;
@@ -1553,27 +1484,27 @@ void main(void)
 	      case 2: // addition with wrap
 		village_read[whichx].start=(village_read[whichx].kstart+mstart)&32767;
 		village_read[whichx].wrap=(village_read[whichx].kwrap+mwrap)&32767;
-		village_read[whichx].overlay=(village_read[whichx].koverlay+moverlay)&32767;
+		village_read[whichx].overlay=(village_read[whichx].koverlay+moverlay)&63;
 		village_read[whichx].compress=(village_read[whichx].kcompress+mcompress)&32767;
 		break;
 	      case 3: // addition up to 32768
-		tmpp=32768-village_read[whichx].kstart;
+		tmpp=32767-village_read[whichx].kstart;
 		if (!tmpp) tmpp=1;
 		village_read[whichx].start=village_read[whichx].kstart+(mstart%tmpp);
-		tmpp=32768-village_read[whichx].kwrap;
+		tmpp=32767-village_read[whichx].kwrap;
 		if (!tmpp) tmpp=1;
 		village_read[whichx].wrap=village_read[whichx].kwrap+(mwrap%tmpp);
-		tmpp=32768-village_read[whichx].kcompress;
+		tmpp=32767-village_read[whichx].kcompress;
 		if (!tmpp) tmpp=1;
 		village_read[whichx].compress=village_read[whichx].kcompress+(mcompress%tmpp);
-		tmpp=32768-village_read[whichx].koverlay;
+		tmpp=64-village_read[whichx].koverlay;
 		if (!tmpp) tmpp=1;
 		village_read[whichx].overlay=village_read[whichx].koverlay+(moverlay%tmpp);
 		break;
 	      case 4: // 4subtraction
 		village_read[whichx].start=(village_read[whichx].kstart-mstart)&32767;
 		village_read[whichx].wrap=(village_read[whichx].kwrap-mwrap)&32767;
-		village_read[whichx].overlay=(village_read[whichx].koverlay-moverlay)&32767;
+		village_read[whichx].overlay=(village_read[whichx].koverlay-moverlay)&63;
 		village_read[whichx].compress=(village_read[whichx].kcompress-mcompress)&32767;
 		break;
 	      case 5: // 5 and
@@ -1626,7 +1557,7 @@ void main(void)
 		mmodifier=adc_buffer[FOURTH]>>4;
 		break;
 	      case 2: // UP=datagen
-		mmodifier=nextdatagen();
+		mmodifier=nextdatagen()>>7;
 		break;
 	      case 3: // DOWN=EEG ifdef
 #ifdef TENE
@@ -1645,7 +1576,7 @@ void main(void)
 		village_effect[whichx].modifier=(village_effect[whichx].kmodifier+mmodifier)&255;
 		break;
 	      case 3: // addition up to 32768
-		tmpp=32768-village_effect[whichx].kmodifier;
+		tmpp=255-village_effect[whichx].kmodifier;
 		if (!tmpp) tmpp=1;
 		village_effect[whichx].modifier=village_effect[whichx].kmodifier+(mmodifier%tmpp);
 		break;

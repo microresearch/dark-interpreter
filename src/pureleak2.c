@@ -66,6 +66,7 @@ Based in part on spork factory by Dave Griffiths.
 #define STACK datagenbuffer[stack]
 
 
+/*
 void thread_createee(u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset) { // ??? or we steer each of these?
   datagenbuffer[offset]=which; // cpu
   datagenbuffer[offset+1]=delay;
@@ -82,7 +83,7 @@ void thread_createee(u16 address, u16 wrapaddress,u8 which, u8 delay,u16 offset)
   datagenbuffer[offset+12]=randi()%255;
   datagenbuffer[offset+13]=14; // stack_pos -1????
   }
-
+*/
 
 inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end);
 inline u8 machine_p88kkk(uint16_t addr,u16 start,u16 end);
@@ -103,14 +104,14 @@ void machine_runnn(villager_generic* vill){
   vill->position=x;
 }
 
-void cpustackpushhh(u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy,u16 start,u16 end){
+/*void cpustackpushhh(u16 addr,u16 wrapaddr,u8 cpuuu, u8 delayyy,u16 start,u16 end){
   u16 offset;
   offset=datagenbuffer[start]*30;
   datagenbuffer[datagenbuffer[start]]=offset>>8; // but offset can be over 255 - so top bit
   datagenbuffer[datagenbuffer[start]+1]=offset&255; // lower bit
   thread_createee( addr, wrapaddr,cpuuu,delayyy,offset);
   datagenbuffer[start]+=2;
-}
+  }*/
 
 void cpustackpoppp(u16 start,u16 end){
   datagenbuffer[start]--;
@@ -259,9 +260,9 @@ break;
     case XOR: if (thread_stack_counttt(2,offset)) thread_pushhh(thread_poppp(offset)^thread_poppp(offset),offset); break;
     case NOT: if (thread_stack_counttt(1,offset)) thread_pushhh(~thread_poppp(offset),offset); break;
 
-    case ROR: if (thread_stack_counttt(2,offset)) thread_pushhh(thread_poppp(offset)>>(machine_peekkk(addr,start,end)%8),offset); break;
+    case ROR: if (thread_stack_counttt(2,offset)) thread_pushhh(thread_poppp(offset)>>(machine_peekkk(addr,start,end)&7),offset); break;
 
-    case ROL: if (thread_stack_counttt(2,offset)) thread_pushhh(thread_poppp(offset)<<(machine_peekkk(addr,start,end)%8),offset); break;
+    case ROL: if (thread_stack_counttt(2,offset)) thread_pushhh(thread_poppp(offset)<<(machine_peekkk(addr,start,end)&7),offset); break;
     case PIP: 
     {
       u16 d=machine_peekkk(addr++,start,end);
@@ -298,22 +299,22 @@ break;
       instr=machine_p88kkk(addr,start,end);
       flag=0;
       //      printf("instr %d ",instr);
-      switch(instr%8)
+      switch(instr&7)
 	{
 	case 0:
 	  //s -- straight: move DC in the current direction. Fail if that cell is empty.
 	  addr=((BITADDRHI<<8)+BITADDRLO);
-	  addr+=biotadir[(BIT81)%8];
+	  addr+=biotadir[(BIT81)&7];
 	  if (machine_p88kkk(addr,start,end)==0) flag=1;
 	  BITADDRHI=addr>>8;// hi/lo
 	  BITADDRLO=addr&255;
 	  break;
 	case 1:
 	  //* b -- backup: move DC opposite the current direction. Fail if that cell is empty.
-	  //	  this->m_reg16bit1+=biotadir[(this->m_reg8bit1+4)%8];
+	  //	  this->m_reg16bit1+=biotadir[(this->m_reg8bit1+4)&7];
 	  //	  if (machine_p88k(this->m_reg16bit1)==0) flag=1;
 	  addr=((BITADDRHI<<8)+BITADDRLO);
-	  addr+=biotadir[((BIT81)+4)%8];
+	  addr+=biotadir[((BIT81)+4)&7];
 	  if (machine_p88kkk(addr,start,end)==0) flag=1;
 	  BITADDRHI=addr>>8;// hi/lo
 	  BITADDRLO=addr&255;
@@ -328,30 +329,30 @@ break;
 	  break;
 	case 4:
 	  //    * g -- go to a non-empty character ahead (tries to move DC straight ahead, then right and left 45 degrees, then 90, then 135, then back).
-	  temp=BIT81%8;
+	  temp=BIT81&7;
 	  addr=((BITADDRHI<<8)+BITADDRLO);
 	  addr+=biotadir[temp];
 	  if (machine_p88kkk(addr,start,end)==0) {
 	    addr-=biotadir[temp];// go back
-	    addr+=biotadir[(BIT81+1)%8];// right 45
+	    addr+=biotadir[(BIT81+1)&7];// right 45
 	    if (machine_p88kkk(addr,start,end)==0) {
-	      addr-=biotadir[(BIT81+1)%8];// go back
-	      addr+=biotadir[(BIT81-1)%8];// left 45
+	      addr-=biotadir[(BIT81+1)&7];// go back
+	      addr+=biotadir[(BIT81-1)&7];// left 45
 	      if (machine_p88kkk(addr,start,end)==0) {
-		addr-=biotadir[(BIT81-1)%8];// go back
-		addr+=biotadir[(BIT81+2)%8];// right 90
+		addr-=biotadir[(BIT81-1)&7];// go back
+		addr+=biotadir[(BIT81+2)&7];// right 90
 		if (machine_p88kkk(addr,start,end)==0) {
-		  addr-=biotadir[(BIT81+2)%8];// go back
-		  addr+=biotadir[(BIT81-2)%8];// left 90
+		  addr-=biotadir[(BIT81+2)&7];// go back
+		  addr+=biotadir[(BIT81-2)&7];// left 90
 		  if (machine_p88kkk(addr,start,end)==0) {
-		    addr-=biotadir[(BIT81-2)%8];// go back
-		    addr+=biotadir[(BIT81+3)%8];// right 135
+		    addr-=biotadir[(BIT81-2)&7];// go back
+		    addr+=biotadir[(BIT81+3)&7];// right 135
 		    if (machine_p88kkk(addr,start,end)==0) {
-		    addr-=biotadir[(BIT81-3)%8];// go back
-		    addr+=biotadir[(BIT81-3)%8];// left 135
+		    addr-=biotadir[(BIT81-3)&7];// go back
+		    addr+=biotadir[(BIT81-3)&7];// left 135
 		    if (machine_p88kkk(addr,start,end)==0) {
-		    addr-=biotadir[(BIT81-3)%8];// go back
-		    addr+=biotadir[(BIT81+4)%8];// back
+		    addr-=biotadir[(BIT81-3)&7];// go back
+		    addr+=biotadir[(BIT81+4)&7];// back
 		  }
 		  }
 		  }
@@ -369,8 +370,8 @@ break;
 	  //    * d -- duplicate the current data into the cell left of the DC. Fails if source cell is empty or target cell is non-empty.
 	  // left is -2
 
-	  if (machine_p88kkk(addr,start,end)==0 || (machine_p88kkk(addr+(addr+((BIT81-4)%8)),start,end))!=0) flag=1;
-	  else machine_pokeee(addr+(addr+((BIT81-4)%8),start,end),machine_p88kkk(addr,start,end),start,end);
+	  if (machine_p88kkk(addr,start,end)==0 || (machine_p88kkk(addr+(addr+((BIT81-4)&7)),start,end))!=0) flag=1;
+	  else machine_pokeee(addr+(addr+((BIT81-4)&7),start,end),machine_p88kkk(addr,start,end),start,end);
 	  break;
 	case 7:
 	  //    * . -- no-op, a non-empty do nothing. 
@@ -383,7 +384,7 @@ break;
       // REDO ADDR
       addr=((PCADDRHI<<8)+PCADDRLO);
 
-      wormdir=BIT82%8;
+      wormdir=BIT82&7;
       if (machine_p88kkk(addr,start,end)==0 || flag==1){
 	BIT82-=1;
       }
@@ -488,7 +489,7 @@ break;
 	if (BIT81==13){
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  y++;
-	  machine_pokeee(y,audio_buffer[addr%32768],start,end);//READ ,start,endIN
+	  machine_pokeee(y,audio_buffer[addr&32767],start,end);//READ ,start,endIN
 	  BITADDRHI=y>>8;// hi/lo
 	  BITADDRLO=y&255;
 	  addr++;
@@ -525,7 +526,7 @@ break;
 	  BITADDRLO=y&255;
 	  break;
 	case 5:
-	  flag=randi()%4;
+	  flag=randi()&3;
 	  if (flag==0) 	  BIT81++;
 	  if (flag==1) 	  BIT81--;
 	  if (flag==2) 	  BIT81+=16;
@@ -562,26 +563,26 @@ break;
 	  machine_pokeee(addr-1,machine_p88kkk(addr,start,end),start,end);
 	  machine_pokeee(addr+1,machine_p88kkk(addr,start,end),start,end);
 	}
-	addr+=biotadir[BIT81%8];
+	addr+=biotadir[BIT81&7];
 	break;
       case 2:
 	machine_pokeee(addr-1,0,start,end);
 	machine_pokeee(addr+1,0,start,end);
-	addr+=biotadir[BIT81%8];
+	addr+=biotadir[BIT81&7];
 	break;
       case 3:
 	if ((machine_p88kkk(addr,start,end)%0x03)==1) BIT81+=4;
 	else BIT81*=machine_p88kkk(addr,start,end)>>4;
-	addr+=biotadir[BIT81%8];
+	addr+=biotadir[BIT81&7];
 	break;
       case 4:
 	machine_pokeee(addr+1,adc_buffer[(BIT81>>8)%10],start,end);
-	addr+=biotadir[BIT81%8];
+	addr+=biotadir[BIT81&7];
 	  break;
 
       }
       if (machine_p88kkk(addr,start,end)==255) BIT81+=4;
-	wormdir=BIT81%8;
+	wormdir=BIT81&7;
 	//      printf("%c",addr);
       PCADDRHI=addr>>8;// hi/lo
       PCADDRLO=addr&255;
@@ -840,7 +841,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 26:
 	//- add new thread at address x SPL
-	cpustackpushhh(machine_peekkk(addr+1,start,end),machine_peekkk(addr+2,start,end),6,0,start,end);
+	//	cpustackpushhh(machine_peekkk(addr+1,start,end),machine_peekkk(addr+2,start,end),6,0,start,end);
 	addr+=3;
 	break;
       case 27:
@@ -848,12 +849,12 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
       case 28:
 	// input to direct.
-	machine_pokeee(addr+machine_p88kkk(addr+2,start,end),randi()%255,start,end);
+	machine_pokeee(addr+machine_p88kkk(addr+2,start,end),randi()&255,start,end);
 	addr+=3;
 	break;
       case 29:
 	// to indirect.
-	machine_pokeee(machine_peekkk(machine_peekkk(addr+2,start,end),start,end),randi()%255,start,end);
+	machine_pokeee(machine_peekkk(machine_peekkk(addr+2,start,end),start,end),randi()&255,start,end);
 	addr+=3;
 	break;
       }
@@ -896,7 +897,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	addr++;
 	break;
       case 4:
-	machine_pokeee(addr,randi()%255,start,end);
+	machine_pokeee(addr,randi()&255,start,end);
 	addr++;
 	break;
       }
@@ -911,7 +912,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //      instr=machine_peekkk(addr,start,end);
       //      printf("instr %d ",instr);
 
-      wormdir=randi()%8;
+      wormdir=randi()&7;
       addr=((PCADDRHI<<8)+PCADDRLO);
       y=biotadir[wormdir];
       addr+=y;
@@ -974,7 +975,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(addr,start,end);
       //      printf("instr %d ",instr);
-      switch(instr%16){
+      switch(instr&15){
       case 0:
 	flag=thread_poppp(offset);
 	machine_pokeee(thread_poppp(offset),flag,start,end);
@@ -1154,7 +1155,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	thread_poppp(offset);
 	break;
       case 27:
-	addr+=biotadir[BIT81%8];
+	addr+=biotadir[BIT81&7];
 	break;
       case 28:
 	machine_pokeee((thread_poppp(offset))*(thread_poppp(offset)),thread_poppp(offset),start,end);
@@ -1167,7 +1168,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	break;
 
       }
-      wormdir=BIT81%8;
+      wormdir=BIT81&7;
       addr+=biotadir[wormdir];
       //      printf("%c",addr);
       PCADDRHI=addr>>8;// hi/lo
@@ -1208,7 +1209,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 	  machine_pokeee(addr,instr^thread_poppp(offset),start,end);
 	  break;
 	}
-      wormdir=BIT81%8;
+      wormdir=BIT81&7;
       addr+=biotadir[wormdir];
       //      printf("%c",addr);
       PCADDRHI=addr>>8;// hi/lo
@@ -1227,12 +1228,12 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       //delta = dmove[(instr - datagenbuffer->reg8bit1) & 0xf];
       flag=instr - BIT81;
       //tm->dir = (tm->dir + delta) & 3;
-      BIT82=(BIT82+flag)%8;
+      BIT82=(BIT82+flag)&7;
       //do move and wrap
       wormdir=BIT82;
-      addr+=biotadir[wormdir];// %8 is above
+      addr+=biotadir[wormdir];// &7 is above
       // finally
-      BIT81 += deltastate[instr%16];
+      BIT81 += deltastate[instr&15];
       //      printf("%c",addr);
       PCADDRHI=addr>>8;// hi/lo
       PCADDRLO=addr&255;
@@ -1268,9 +1269,9 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       if (addr>((WRAPADDRHI<<8)+WRAPADDRLO)) addr=((ADDRHI<<8)+ADDRLO);
       instr=machine_p88kkk(addr,start,end);
       //      machine_pokeee(addr,instr+1,start,end);
-      machine_pokeee(addr,instr+biotadir[BIT81%8],start,end);
-      BIT81=antrule(BIT81,instr%8,machine_p88kkk(0,start,end));//last is rule
-      addr+=biotadir[BIT81%8];
+      machine_pokeee(addr,instr+biotadir[BIT81&7],start,end);
+      BIT81=antrule(BIT81,instr&7,machine_p88kkk(0,start,end));//last is rule
+      addr+=biotadir[BIT81&7];
       //      printf("%c",addr);
     PCADDRHI=addr>>8;// hi/lo
     PCADDRLO=addr&255;
@@ -1411,80 +1412,80 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
       switch(instr%15)
 	{
 	case 0:
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 1:
 	  //inc
 	  machine_pokeee(addr,instr+1,start,end);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 2:
 	  machine_pokeee(addr,instr-1,start,end);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 3:
 	  y=(ADDRHI<<8)+ADDRLO;
 	  addr=y+machine_p88kkk(addr,start,end);
-	  y=biotadir[randi()%8];
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 4:
-	  machine_pokeee(addr,randi()%255,start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,randi()&255,start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 5:
-	  machine_pokeee(addr,machine_p88kkk(addr+biotadir[randi()%8],start,end),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,machine_p88kkk(addr+biotadir[randi()&7],start,end),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 6:
-	  machine_pokeee(addr,machine_p88kkk(addr+biotadir[randi()%8],start,end),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,machine_p88kkk(addr+biotadir[randi()&7],start,end),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 7:
-	  machine_pokeee(addr,machine_p88kkk(addr-biotadir[randi()%8],start,end),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,machine_p88kkk(addr-biotadir[randi()&7],start,end),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 8:
-	  machine_pokeee(addr,machine_p88kkk(addr<<biotadir[randi()%8],start,end),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,machine_p88kkk(addr<<biotadir[randi()&7],start,end),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 9:
-	  machine_pokeee(addr,machine_p88kkk(addr>>biotadir[randi()%8],start,end),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee(addr,machine_p88kkk(addr>>biotadir[randi()&7],start,end),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 10:
-	  if (machine_p88kkk(addr+(biotadir[randi()%8]*2),start,end)==0){
-	    y=biotadir[randi()%8];
+	  if (machine_p88kkk(addr+(biotadir[randi()&7]*2),start,end)==0){
+	    y=biotadir[randi()&7];
 	    addr+=y;
 	  }
 	  break;
 	case 11:
-	  machine_pokeee((addr-biotadir[randi()%8]),instr,start,end);
-	  machine_pokeee((addr+biotadir[randi()%8]),instr,start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee((addr-biotadir[randi()&7]),instr,start,end);
+	  machine_pokeee((addr+biotadir[randi()&7]),instr,start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 12:
-	  thread_pushhh( machine_p88kkk(addr+biotadir[randi()%8],start,end),offset);
-	  y=biotadir[randi()%8];
+	  thread_pushhh( machine_p88kkk(addr+biotadir[randi()&7],start,end),offset);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
 	case 13:
-	  machine_pokeee((addr+=biotadir[randi()%8]),thread_poppp(offset),start,end);
-	  y=biotadir[randi()%8];
+	  machine_pokeee((addr+=biotadir[randi()&7]),thread_poppp(offset),start,end);
+	  y=biotadir[randi()&7];
 	  addr+=y;
 	  break;
       case 14:
-	machine_pokeee((addr+=biotadir[randi()%8]),adc_buffer[thread_poppp(offset)%10],start,end);
+	machine_pokeee((addr+=biotadir[randi()&7]),adc_buffer[thread_poppp(offset)%10],start,end);
 	break;
 	}
       PCADDRHI=addr>>8;// hi/lo
@@ -1585,6 +1586,7 @@ http://www.koth.org/info/akdewdney/images/Redcode.jpg
 
 inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end) {
   //	return datagenbuffer->m_heap[addr%HEAP_SIZE];
+  if (end==0) end=1;
   u16 woolier=(addr%end)+start;
   u16 addr2=woolier+1;
   return (datagenbuffer[woolier]<<8)+datagenbuffer[addr2];
@@ -1592,6 +1594,7 @@ inline u16 machine_peekkk(uint16_t addr,u16 start,u16 end) {
 
 inline u8 machine_p88kkk(uint16_t addr,u16 start,u16 end) {
   //	return datagenbuffer->m_heap[addr%HEAP_SIZE];
+  if (end==0) end=1;
   u16 woolier=(addr%end)+start;
   return (datagenbuffer[woolier]);
 }
@@ -1599,6 +1602,7 @@ inline u8 machine_p88kkk(uint16_t addr,u16 start,u16 end) {
 
 inline void machine_pokeee(uint16_t addr, u8 data, u16 start,u16 end) {
   //	datagenbuffer->m_heap[addr%HEAP_SIZE]=data;
+  if (end==0) end=1;
   u16 woolier=(addr%end)+start;
   datagenbuffer[woolier]=data;// protecting 0 as number of threads???
   //  printf("%c",data);

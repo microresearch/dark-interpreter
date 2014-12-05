@@ -334,7 +334,7 @@ void doenvelopefollower(int16_t* envbuffer, u8 envsize, int16_t* inbuffer, u8 in
    }*/
  for (int x=0;x<insize;x++){
    xx++;
-   if (xx%envsize) env=0;
+   if (xx>envsize) {env=0;xx=0;}
    if (abs(env)<envbuffer[x]) env=envbuffer[x];
    envout=(float)env/32768.0;
    outbuffer[x]=(float)inbuffer[x]*envout;
@@ -558,7 +558,7 @@ void do_effect(villager_effect* vill_eff){
       finbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->instart+vill_eff->inpos++)&32767])/32768.0f;//REDO! why/how?
     }
 
-    x=vill_eff->modifier&15;
+    x=(vill_eff->modifier&15)+1;
     for (xx=0;xx<x;xx++){
       fmodbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->modstart+vill_eff->modpos++)&32767])/32768.0f;//REDO! why/how?
     }
@@ -580,7 +580,7 @@ void do_effect(villager_effect* vill_eff){
       modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos++)&32767];
     }
 
-    doenvelopefollower(modbuffer, (vill_eff->modifier>>4)+1, inbuffer, tmpinlong, outbuffer);
+    doenvelopefollower(modbuffer, (vill_eff->modifier>>4), inbuffer, tmpinlong, outbuffer);
 
     for (xx=0;xx<longest;xx++){
       audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];

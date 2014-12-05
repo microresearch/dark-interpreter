@@ -184,7 +184,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifndef LACH
 	    tmpl=*(src++);
 	    tmp=*(src++); 
-	    if (digfilterflag&1 && village_read[x].overlay&16) tmp=tmpl;
+	    if (digfilterflag&1 && village_read[x].overlay&32) tmp=tmpl;
 #else
 	    src++;
 	    tmp=*(src++); 
@@ -202,48 +202,52 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    }
 
 	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
-	            samplepos=village_read[x].samplepos;
-		    lp=(samplepos+village_read[x].start)&32767;
-		    //	      lp=(samplepos)&32767; // TESTY!
-	      tmp16=buf16[lp]-32768;
+	      samplepos=village_read[x].samplepos;
+	      lp=(samplepos+village_read[x].start)&32767;
 
-	      //	      overlay=32; // TESTY for datagens!
-	      if (overlay&32){ // datagen business readin! - top bit=32
+	      if (overlay&16){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
+	      tmp16=buf16[lp]-32768;
 		buf16[lp]=tmp+32768; // TESTY commented out for datagens
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 1://or
-		buf16[lp]|=tmp+32768;
-		audio_buffer[lp]|=tmp16;
+	      tmp16=buf16[lp]-32768;
+	      buf16[lp]|=tmp+32768;
+	      audio_buffer[lp]|=tmp16;
 	      break;
 	      case 2:///+
-		tmp32d=tmp16+tmp;
-		tmp16+=audio_buffer[lp];
+	      tmp16=buf16[lp];
+	      tmp32d=tmp16+tmp;
+	      tmp16+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32d+32768;// 
+		buf16[lp]=tmp32d;// 
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 3://last
-		if (tmp>lasttmp) buf16[lp]=tmp+32768;
-		if (tmp16>lasttmp16) audio_buffer[lp]=tmp16;
-		lasttmp=tmp; lasttmp16=tmp16;
+	      tmp16=buf16[lp]-32768;
+	      if (tmp>lasttmp) buf16[lp]=tmp+32768;
+	      if (tmp16>lasttmp16) audio_buffer[lp]=tmp16;
+	      lasttmp=tmp; lasttmp16=tmp16;
 	      break;
 
 	      case 4: // // overlay=all,effect=&
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		buf16[lp]=tmp16+32768;
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 5:// overlay or
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		buf16[lp]|=tmp16+32768;
 		audio_buffer[lp]|=tmp16;
 		break;
 	      case 6: // overlay +
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		tmp16+=audio_buffer[lp];
 		tmp32d=buf16[lp]+tmp16+32768;
@@ -253,6 +257,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 7: // overlay last
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		if (tmp16>lasttmp) {
 		  buf16[lp]=tmp16+32768;
@@ -262,49 +267,56 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 
 	      case 8: // // overlay=all,effect=+
+		tmp16=buf16[lp];
 		tmp32d=tmp+tmp16; 
 		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32d+32768;// 
-		audio_buffer[lp]=tmp32d;
+		buf16[lp]=tmp32d;// 
+		audio_buffer[lp]=tmp32d-32768;
 	      break;
 	      case 9:// overlay or
+		tmp16=buf16[lp];
 		tmp32d=tmp+tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]|=tmp32d+32768;
-		audio_buffer[lp]|=tmp32d;
+		buf16[lp]|=tmp32d;
+		audio_buffer[lp]|=tmp32d-32768;
 		break;
 	      case 10: // overlay +
+		tmp16=buf16[lp];
 		tmp32d=tmp+tmp16; 
-		tmp16=buf16[lp]+tmp32d;
+		tmp16+=tmp32d;
 		tmp32d+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
-		buf16[lp]=tmp16+32768;
-		audio_buffer[lp]=tmp32d;
+		buf16[lp]=tmp16;
+		audio_buffer[lp]=tmp32d-32768;
 		break;
 	      case 11: // overlay last
+		tmp16=buf16[lp];
 		tmp32d=tmp+tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		if (tmp32d>lasttmp) {
-		  buf16[lp]=tmp32d+32768;
-		audio_buffer[lp]=tmp32d;
+		  buf16[lp]=tmp32d;
+		  audio_buffer[lp]=tmp32d-32768;
 		}
 		lasttmp=tmp32d;
 		break;
 
 	      case 12: // // overlay=all,effect=*
+		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32d+32768;// 
+		buf16[lp]=tmp32d-32768;// 
 		audio_buffer[lp]=tmp32d;
 	      break;
 	      case 13:// overlay or
+		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		buf16[lp]|=tmp32d+32768;
 		audio_buffer[lp]|=tmp32d;
 		break;
 	      case 14: // overlay +
+		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		tmp16=buf16[lp]+tmp32d;
 		tmp32d+=audio_buffer[lp];
@@ -314,6 +326,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		audio_buffer[lp]=tmp32d;
 		break;
 	      case 15: // overlay last
+		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		if (tmp32d>lasttmp) {
@@ -344,14 +357,17 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      break;
 
 	      case 4: // // overlay=all,effect=&
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 5:// overlay or
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		audio_buffer[lp]|=tmp16;
 		break;
 	      case 6: // overlay +
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		tmp16+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
@@ -359,6 +375,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 7: // overlay last
+		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		if (tmp16>lasttmp) {
 		  audio_buffer[lp]=tmp16;
@@ -366,21 +383,25 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp16;
 		break;
 	      case 8: // // overlay=all,effect=+
+		tmp16=buf16[lp]-32768;
 		tmp16+=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 9:// overlay or
+		tmp16=buf16[lp]-32768;
 		tmp16+=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]|=tmp16;
 		break;
 	      case 10: // overlay +
+		tmp16=buf16[lp]-32768;
 		tmp16+=tmp+audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 11: // overlay last
+		tmp16=buf16[lp]-32768;
 		tmp16+=tmp;
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		if (tmp16>lasttmp) {
@@ -390,22 +411,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		break;
 
 	      case 12: // // overlay=all,effect=*
+		tmp16=buf16[lp]-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 13:// overlay or
+		tmp16=buf16[lp]-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]|=tmp16;
 		break;
 	      case 14: // overlay +
+		tmp16=buf16[lp]-32768;
 		tmp16*=tmp; 
 		tmp16+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 15: // overlay last
+		tmp16=buf16[lp]-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		if (tmp16>lasttmp) {
@@ -417,11 +442,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		} //
 
 	      if (++village_read[x].del>=village_read[x].step){
-		////try this// TESTY!
-		if (village_read[x].dir==2) dirry=newdir[wormdir];
-		else if (village_read[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_read[x].speed;
-		else dirry=village_read[x].dirry;
-
+		dirry=village_read[x].dirry;
 		samplepos+=dirry;//)&32767;
 		if (samplepos>=village_read[x].wrap || samplepos<0){
 		  village_read[x].running==0;

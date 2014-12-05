@@ -23,14 +23,12 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- sanity check all again - main, audio, effect, sim, ca, pureleak, cpu
+- sanity check all again - mainX, audioX, effectX
 
-esp. bits/sizes/sanityingeneral!
+- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
-
-- re-test full 
-- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
+- full tests
 
 //////////////////////////////////////////////////////////////////////
 - manual update/web pages//price drop=130/210/260//announce and advertise//ebay/etsy
@@ -104,6 +102,16 @@ as not to init:
 ////- effects cleaned up/init all effect structures:
 
 *** DONE
+
+**** DEC 5
+
+- small bug datagenwalkers and effects numbers of FIXED
+- bug koverlay/mmodifier mirror fixed (as is max 6 bits)
+- mmodifier fixed and is u8 now
+- poss bug in env follower...
+- poss %0 bug and overflow in SPL/threadcreation in pureleak2.cFIXED
+- moved dirry business out of audio.c
+- convolve tested for -1 array and small fix
 
 **** DEC 4
 
