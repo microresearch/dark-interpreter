@@ -23,7 +23,7 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- sanity check all again - main, audioX, effect, sim, ca, pureleak, cpu
+- sanity check all again - main, audio, effect, sim, ca, pureleak, cpu
 
 esp. bits/sizes/sanityingeneral!
 
@@ -108,17 +108,16 @@ as not to init:
 
 **** DEC 4
 
-speed up:
-
-else if (village_maxim[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_maxim[x].speed;
-else dirry=dir[village_maxim[x].dir]*village_maxim[x].speed;
-
 2nd as pre-calc. 1st--->
 
 - fixed nextdatagen, dirry now as local
 - dir changes should be in audio.c and where changes!DONE all TO TEST!
 - swapped reads and write in mainmode
 - back to 32k for TENE/SUSP
+
+
+- speeded up:else dirry=dir[village_maxim[x].dir]*village_maxim[x].speed;
+
 
 **** DEC 2
 

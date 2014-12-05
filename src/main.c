@@ -352,7 +352,8 @@ void main(void)
     village_read[xx].counterr=0;
     village_read[xx].del=0;
     village_read[xx].compress=32767;
-    village_read[xx].mirrormod=2;
+    village_read[xx].mirrormod=0;
+    village_read[xx].fingered=2;
     village_read[xx].mirrordel=0;
     //    village_read[xx].infected=0;
     village_read[xx].samplepos=0;
@@ -364,13 +365,15 @@ void main(void)
     //    village_read[xx].mwrap=32767; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
+    village_read[xx].dirry=1;
     village_read[xx].samplepos=0;
     village_read[xx].offset=0;
     village_read[xx].overlay=0;
     village_read[xx].running=1;
 
     village_write[xx].del=0;
-    village_write[xx].mirrormod=0;
+    village_write[xx].dirry=1;
+    village_write[xx].mirrormod=7;
     village_write[xx].fingered=2;
     village_write[xx].mirrordel=0;
     //    village_write[xx].infected=0;
@@ -387,13 +390,14 @@ void main(void)
     village_write[xx].samplepos=0;
 
     // datagenwalker
-    village_datagenwalker[xx].length = 100;
+    village_datagenwalker[xx].length = 32767;
     village_datagenwalker[xx].dataoffset = 0;
     village_datagenwalker[xx].knoboffset = 0;
     village_datagenwalker[xx].samplepos = 0;
     village_datagenwalker[xx].speed = 1;
     village_datagenwalker[xx].step = 1;
     village_datagenwalker[xx].dir = 1;
+    village_datagenwalker[xx].dirry = 1;
     
     // datagen
     village_datagen[xx].start = 0;
@@ -404,6 +408,7 @@ void main(void)
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
     village_datagen[xx].howmany=1;// testy!
+    village_datagen[xx].dirry = 1;
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
     village_datagen[xx].m_stack_pos=0;
@@ -439,6 +444,7 @@ void main(void)
     village_filtout[xx].wrap=100; //  test
     village_filtout[xx].fingered=2;//TESTY! - to test datagen walker 
     village_filtout[xx].dir=1;
+    village_filtout[xx].dirry=1;
     village_filtout[xx].samplepos=0;
 #endif
 
@@ -1310,7 +1316,6 @@ void main(void)
 	    break;
 	    }
 	    break;
-
 
 	    //////////////////
 	  case 9: // mirror 
