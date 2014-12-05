@@ -27,7 +27,6 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 esp. bits/sizes/sanityingeneral!
 
-- to step or not in audio.c and main.c (hardware and datagen)
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
 
 - re-test full 
