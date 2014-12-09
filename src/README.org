@@ -13,7 +13,7 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 - somehow to define complexity/interface in that first mode!=sans
   modes or 8 modes//that there are no modes=a village//HW as one mode
-  with fingers only?
+  with fingers only? to /not/ hit the mode as defined
 
 - a general settings/mirror walker who walks through villagers and settings
 - simplify all hw as datagenwalkers
@@ -30,7 +30,6 @@ From 28 OCT 2014+: to avoid repetition of notes
 ** General TODO: 
 
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
-- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 - full tests
 
 //////////////////////////////////////////////////////////////////////
@@ -109,6 +108,7 @@ as not to init:
 **** DEC 9
 
 - re-testing all modes: reversed former reverse of audio reads, tiny bug in effects
+- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hwDONE
 - fixed major misplacement of where we do overlay/left filter in audio.c
 - HW lengths changed to loggy
 - offset in read is not mirrored
