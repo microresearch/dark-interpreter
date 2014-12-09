@@ -23,11 +23,8 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- sanity check all again - mainX, audioX, effectX - check size any pointers
-
-- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
-
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
+- re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 - full tests
 
 //////////////////////////////////////////////////////////////////////
@@ -102,6 +99,12 @@ as not to init:
 ////- effects cleaned up/init all effect structures:
 
 *** DONE
+
+**** DEC 9
+
+- re-testing all modes: reversed former reverse of audio reads, tiny bug in effects
+- fixed major misplacement of overlay/left filter in audio.c
+- HW lengths changed to loggy
 
 **** DEC 5
 

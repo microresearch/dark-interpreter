@@ -119,8 +119,9 @@ void main(void)
     
     }*/
 
+  int digfilterflag=1;int overlay=32;
 
-
+  if ((digfilterflag&1) && (overlay&32)) printf("helpo");
 
     for (xx=0;xx<32;xx++){
       inbuffer[xx]=rand()%32768;

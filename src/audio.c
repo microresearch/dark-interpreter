@@ -185,16 +185,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifndef LACH
 	    tmpl=*(src++);
 	    tmp=*(src++); 
-	    if (digfilterflag&1 && village_read[x].overlay&32) tmp=tmpl;
 #else
 	    src++;
 	    tmp=*(src++); 
 #endif
 
-	    //	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
-	    for(x=howmanyreadvill; x--; ){
-	      overlay=village_read[x].overlay;
-
+	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
+	    //   for(x=howmanyreadvill; x--; ){
+#ifndef LACH
+	    if ((digfilterflag&1) && (village_read[x].overlay&32)) tmp=tmpl;
+#endif
+	           overlay=village_read[x].overlay;
+		   overlay=16;
 	    village_read[x].counterr+=village_read[x].dirryr;
 
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
@@ -211,7 +213,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
 	      tmp16=buf16[lp]-32768;
-		buf16[lp]=tmp+32768; // TESTY commented out for datagens
+	      buf16[lp]=tmp+32768; // TESTY commented out for datagens
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 1://or
@@ -622,6 +624,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
 	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
+	  //	  setmaximpwm(255); // testy!
 	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_maxim[x].length;
