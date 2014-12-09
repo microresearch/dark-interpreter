@@ -23,7 +23,7 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- sanity check all again - mainX, audioX, effectX
+- sanity check all again - mainX, audioX, effectX - check size any pointers
 
 - re-test each section/mode: datagen//datagenwalker//r/w/filt//effects//mirrors//hw
 

@@ -124,14 +124,15 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
+  extern u8 howmanywritevill,howmanyreadvill;
+
 #ifndef LACH
   static u8 hdgener; 
   static u16 counthw=0;
   static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;
   static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichfiltoutvillager=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
-  extern u8 howmanywritevill,howmanyfiltoutvill,howmanyreadvill;
-  extern u8 hardcompress;
+  extern u8 hardcompress,howmanyfiltoutvill;
   extern villagerw village_filtout[MAX_VILLAGERS+1];
   extern villager_hardware village_hardware[17];
   extern villager_hardwarehaha village_40106[17];
