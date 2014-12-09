@@ -248,7 +248,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=10;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
 
 // effects tests
 
@@ -258,7 +258,8 @@ float coeffs[5][5][5];//{a0 a1 a2 -b1 -b2} b1 and b2 negate
 
 u16 nextdatagen(void){
   u16 tmp,tmpp;
-  int16_t samplepos,dirry;
+  int32_t samplepos;
+  int16_t dirry;
   u8 x;
   static u8 whichdatagenwalkervillager=0;
   static u16 countdatagenwalker=0;
@@ -351,14 +352,11 @@ void main(void)
     village_read[xx].mirrormod=0;
     village_read[xx].fingered=2;
     village_read[xx].mirrordel=0;
-    //    village_read[xx].infected=0;
     village_read[xx].samplepos=0;
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=0;
     village_read[xx].wrap=32767; // test
-    //    village_read[xx].mstart=0;
-    //    village_read[xx].mwrap=32767; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -366,6 +364,11 @@ void main(void)
     village_read[xx].offset=0;
     village_read[xx].overlay=0; // testy!
     village_read[xx].running=1;
+    village_read[xx].koverlay=0;
+    village_read[xx].kcompress=0;
+    village_read[xx].kstart=0;
+    village_read[xx].kwrap=32767; // test
+
 
     village_write[xx].del=0;
     village_write[xx].dirry=1;
@@ -424,6 +427,7 @@ void main(void)
     village_effect[xx].modstart=0;
     village_effect[xx].modwrap=3200;
     village_effect[xx].modifier=127;
+    village_effect[xx].kmodifier=127;
     village_effect[xx].whicheffect=0;// TESTY all!!!
     village_effect[xx].step=1;
     village_effect[xx].speed=1;
@@ -439,14 +443,14 @@ void main(void)
     village_filtout[xx].step=1;
     village_filtout[xx].start=0;
     village_filtout[xx].wrap=100; //  test
+    village_filtout[xx].kstart=0;
+    village_filtout[xx].kwrap=100; //  test
     village_filtout[xx].fingered=2;//TESTY! - to test datagen walker 
     village_filtout[xx].dir=1;
     village_filtout[xx].dirry=1;
     village_filtout[xx].samplepos=0;
 #endif
-
 	}
-
 
 #ifndef LACH
   for (xx=0;xx<17;xx++){
@@ -565,18 +569,12 @@ void main(void)
 
 #endif
 
-  //  buf16 = (u16*) datagenbuffer;
-
   // fill datagenbuffer???
 
   for (x=0;x<32768;x++){
     buf16[x]=rand()&65535; // was RANDI OCT
     delayxx();
   }
-  
-	    // compile test
-	    //	    	    	    testvocode();
-	    //	    	    x=sqrtf(x);
 
   // inits for datagens
 
@@ -706,9 +704,7 @@ void main(void)
 	      // else just wait till 
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	      village_read[whichvillager].koffset=loggy[adc_buffer[FOURTH]];
-	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].offset=village_read[whichvillager].koffset;
-	      // else just wait till mirrors
+	      village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]];// offset is not mirrored
 	    }
 
 	    village_read[whichvillager].dir=xx;
@@ -729,7 +725,7 @@ void main(void)
 
 	    xx=adc_buffer[SECOND]>>6;// 6 bits
 	    village_read[whichvillager].koverlay=xx;
-		      village_read[whichvillager].kcompress=tmpp;
+	    village_read[whichvillager].kcompress=tmpp;
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	    break;
 
@@ -1054,9 +1050,8 @@ void main(void)
 	      // else just wait till mirrors
 	    }
 	    if (adc_buffer[FOURTH]>10){
-	      village_read[whichvillager].koffset=loggy[adc_buffer[FOURTH]];
-	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].offset=village_read[whichvillager].koffset;
-	      // else just wait till mirrors
+	      village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]];
+	      // offset is not mirrored
 	    }
 
 	    village_read[whichvillager].dir=xx;

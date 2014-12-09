@@ -62,7 +62,6 @@ int16_t* audio_buffer;
 extern __IO uint16_t adc_buffer[10];
 extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 extern u16 sin_data[256];
-extern u16 stacker[STACK_SIZE*4]; // 16*4 MAX
 extern u16 *buf16;
 #endif
 
@@ -71,7 +70,12 @@ extern u16 *buf16;
 
 // formantz
 
+#ifdef LACH
 const u16 SAMPLE_FREQUENCY = 48000;
+#else
+const u16 SAMPLE_FREQUENCY = 32000;
+#endif
+
 const float32_t Pi = 3.1415926535f;
 const float32_t PI_2 = 6.28318531f;
 
@@ -244,7 +248,6 @@ static u16 othercount;
           count+=step;
       if (count>start+wrap) count=start;
 
-    
     othercount+=direction[dirr];
 
     if (othercount<otherwrap && othercount>0){
@@ -465,12 +468,12 @@ void runswap(villager_generic* vill){
 u16 temp;
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>start+wrap-1) count=start;
 
-    if (count>=(wrap-1)) count=start;
+      //    if (count>=(wrap-1)) count=start;
     temp=buf16[count&32767];
-    buf16[count&32767]=buf16[(count+1+start)&32767];
-    buf16[(count+1+start)&32767]=temp;
+    buf16[count&32767]=buf16[(count+1)&32767];
+    buf16[(count+1)&32767]=temp;
 #ifdef PCSIM
     //    //    //    //    printf("%d\n",buf16[count&32767]);
     //printf("%c", buf16[count&32767]);
@@ -488,10 +491,10 @@ void runnextinc(villager_generic* vill){
    for (u8 xx=0;xx<vill->howmany;xx++){
   
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>=start+wrap-1) count=start;
  
-    if (count>=(wrap-1)) count=0;
-    buf16[count&32767]=buf16[(count+1+start)&32767]+1;
+      //    if (count>=(wrap-1)) count=0;
+    buf16[count&32767]=buf16[(count+1)&32767]+1;
    }
   vill->position=count;
 }
@@ -505,11 +508,11 @@ void runnextdec(villager_generic* vill){
   
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>start+wrap-1) count=start;
 
     //    if (count>=32766) count=0;
-    if (count>=(wrap-1)) count=0;
-    buf16[count&32767]=buf16[(count+1+start)&32767]-1;
+      //    if (count>=(wrap-1)) count=0;
+    buf16[count&32767]=buf16[(count+1)&32767]-1;
      }
   vill->position=count;
 }
@@ -523,10 +526,10 @@ void runnextmult(villager_generic* vill){
   
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>-start+wrap-1) count=start;
 
-    if (count>=(wrap-1)) count=0;
-    buf16[count&32767]*=buf16[(count+1+start)&32767];
+      //    if (count>=(wrap-1)) count=0;
+    buf16[count&32767]*=buf16[(count+1)&32767];
      }
   vill->position=count;
 }
@@ -540,10 +543,10 @@ void runnextdiv(villager_generic* vill){
   
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>start+wrap-1) count=start;
 
-    if (count>=(wrap-1)) count=0;
-    if ((buf16[(count+1+start)&32767])>0)   buf16[count&32767]/=buf16[(count+1+start)&32767];
+      //    if (count>=(wrap-1)) count=0;
+    if ((buf16[(count+1)&32767])>0)   buf16[count&32767]/=buf16[(count+1)&32767];
      }
   vill->position=count;
 }
@@ -557,11 +560,11 @@ void runcopy(villager_generic* vill){
   
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+      if (count>start+wrap-1) count=start;
  
     //    if (count>=32766) count=0;
-    if (count>=(wrap-1)) count=0;
-    buf16[(count+1+start)&32767]=buf16[count&32767];
+      //    if (count>=(wrap-1)) count=0;
+    buf16[(count+1)&32767]=buf16[count&32767];
      }
   vill->position=count;
 }
@@ -606,11 +609,11 @@ void runrand(villager_generic* vill){
           count+=step;
       if (count>start+wrap) count=start;
 
-    workingbuffeur[count&32767]=randi()&255;
+      workingbuffeur[count]=randi()&255;// TESTY!!!???
           count+=step;
       if (count>start+wrap) count=start;
 
-    workingbuffeur[count&32767]=randi()&255;
+    workingbuffeur[count]=randi()&255;
    }
   vill->position=count;
 }
@@ -1035,9 +1038,6 @@ void runsicr(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-
-  
-
 beta=(float32_t)buf16[0]/65536.0f;
 epsilon=(float32_t)buf16[1]/65536.0f;
 gamm=(float32_t)buf16[2]/65536.0f;
@@ -1319,7 +1319,7 @@ void runbrussel(villager_generic* vill){
         y += delta*dy; 
 	
 
-	buf16[count&32767]=y*32768;
+	buf16[count&32767]=y*32768.0f;
    }
   vill->position=count;
 }
@@ -1453,7 +1453,7 @@ void runfitz(villager_generic* vill){
         if ((u>1.0) || (u<-1.0)) u=fabsf(fmodf(u-1.0,4.0)-2.0)-1.0;
     //    if ((u>1.0) || (u<-1.0)) u=fabsf(u-2.0)-1.0;
 
-	    int z=((float32_t)(u)*3600);
+	    int z=((float32_t)(u)*3600.0f);
     //    int zz=((float32_t)(w)*1500);
 
        buf16[count&32767]=(u16)z;//buf16[x+2]=zz;

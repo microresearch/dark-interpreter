@@ -196,7 +196,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if ((digfilterflag&1) && (village_read[x].overlay&32)) tmp=tmpl;
 #endif
 	           overlay=village_read[x].overlay;
-		   overlay=16;
+		   //		   overlay=16;
 	    village_read[x].counterr+=village_read[x].dirryr;
 
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
@@ -623,7 +623,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  countmaxim+=village_maxim[x].step;
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
-	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
+	  //	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
+	  setmaximpwm((buf16[(village_maxim[x].dataoffset+samplepos)&32767])%tmp); // inverted
 	  //	  setmaximpwm(255); // testy!
 	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;

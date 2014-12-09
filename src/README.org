@@ -20,6 +20,12 @@ From 28 OCT 2014+: to avoid repetition of notes
 - further new datagens+incorporate villagers/klatt/paf/VOSIM
 - some effects as buf16/simulations or just effects walker code (eg. impulses, convolution, envelope detection/reduction)
 - bitwise hardware
+- hardware settings as mirrored too
+- that we need offset and constrain for hardware
+- that way mirrors handled makes most villagers the same!
+- speed up all effects
+- re-init and clean all simulations
+- pureleak extended across all operations
 
 ** General TODO: 
 
@@ -103,8 +109,11 @@ as not to init:
 **** DEC 9
 
 - re-testing all modes: reversed former reverse of audio reads, tiny bug in effects
-- fixed major misplacement of overlay/left filter in audio.c
+- fixed major misplacement of where we do overlay/left filter in audio.c
 - HW lengths changed to loggy
+- offset in read is not mirrored
+- MAXIM as inverted so knoboffset is a constraint from zero up
+- few changes to simforstack (mostly start sets), cpu(pos)
 
 **** DEC 5
 

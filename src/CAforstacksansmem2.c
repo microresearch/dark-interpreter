@@ -556,10 +556,10 @@ void runSIR(villager_generic* vill){
 
   u8 probD=datagenbuffer[0]/32;
   u8 probI=datagenbuffer[1]/10;
+  datagenbuffer[4]=datagenbuffer[2];
 
   for (u8 xx=0;xx<vill->howmany;xx++){
 
-  datagenbuffer[4]=datagenbuffer[2];
 
     y=x+32768;
 

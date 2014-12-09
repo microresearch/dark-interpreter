@@ -332,7 +332,7 @@ void doenvelopefollower(int16_t* envbuffer, u8 envsize, int16_t* inbuffer, u8 in
   /* for (int x=0;x<envsize;x++){
    if (abs(env)<envbuffer[x]) env=envbuffer[x];
    }*/
- for (int x=0;x<insize;x++){
+ for (u8 x=0;x<insize;x++){
    xx++;
    if (xx>envsize) {env=0;xx=0;}
    if (abs(env)<envbuffer[x]) env=envbuffer[x];
@@ -349,8 +349,8 @@ void doringcopy(int16_t *inbuffer,int16_t *modbuffer,int16_t* outbuffer,u8 longe
   }
 }
 
-void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer,u16 howmany){
-  for (u16 x=0;x<howmany;x++){
+void accumbuffer(float *tmpotherbuffer,float *tmpotherotherbuffer,u8 howmany){
+  for (u8 x=0;x<howmany;x++){
     tmpotherotherbuffer[x]+=(tmpotherbuffer[x]*10.0f);
   }
 }
@@ -405,7 +405,6 @@ void do_effect(villager_effect* vill_eff){
 
   float hp,bp;
   static float buf0=0.0f,buf1=0.0f;
-
 
   // modifier is 8 bits
   // chunk in size 32

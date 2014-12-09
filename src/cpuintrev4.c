@@ -495,7 +495,6 @@ instr=datagenbuffer[pos];
     machine_poke(pos+128,flag);
     pos+=villager->speed; 
     if (pos>(villager->start+villager->wrap)) pos=villager->start;
-
   }
 villager->position=pos;
 }
@@ -1222,7 +1221,7 @@ void xxrunleakystack(villager_generic *villager){
   for (u8 xx=0;xx<villager->howmany;xx++){
 instr=datagenbuffer[pos];
 
-  pos+=villager->speed;
+//  pos+=villager->speed;
       switch(instr%25)
 	{
 	case NOP: break;
@@ -1234,17 +1233,19 @@ instr=datagenbuffer[pos];
 	case PSH: thread_push(villager,machine_p88k(machine_peek(pos++))); break;
 	case PSHI: thread_push(villager,machine_p88k(machine_peek(machine_peek(pos++)))); break;
 	case POP: if (thread_stack_count(villager,1)) machine_poke(machine_peek(pos++),thread_pop(villager)); break;
-    case POPI: if (thread_stack_count(villager,1)) machine_poke(machine_peek(machine_peek(pos++)),thread_pop(villager)); break;
-    case ADD: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)+thread_pop(villager)); break;
-    case SUB: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)-thread_pop(villager)); break;
-    case INC: if (thread_stack_count(villager,1)) thread_push(villager,thread_pop(villager)+1); break;
-    case DEC: if (thread_stack_count(villager,1)) thread_push(villager,thread_pop(villager)-1); break;
-    case AND: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)&thread_pop(villager)); break;
-    case OR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)|thread_pop(villager)); break;
-    case XOR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)^thread_pop(villager)); break;
-    case NOT: if (thread_stack_count(villager,1)) thread_push(villager,~thread_pop(villager)); break;
+	case POPI: if (thread_stack_count(villager,1)) machine_poke(machine_peek(machine_peek(pos++)),thread_pop(villager)); break;
+
+	case ADD: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)+thread_pop(villager));pos++; break;
+    case SUB: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)-thread_pop(villager));pos++; break;
+    case INC: if (thread_stack_count(villager,1)) thread_push(villager,thread_pop(villager)+1);pos++; break;
+    case DEC: if (thread_stack_count(villager,1)) thread_push(villager,thread_pop(villager)-1);pos++; break;
+    case AND: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)&thread_pop(villager));pos++; break;
+    case OR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)|thread_pop(villager));pos++; break;
+    case XOR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)^thread_pop(villager));pos++; break;
+    case NOT: if (thread_stack_count(villager,1)) thread_push(villager,~thread_pop(villager));pos++; break;
     case ROR: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)>>(machine_p88k(pos++)&7)); break;
     case ROL: if (thread_stack_count(villager,2)) thread_push(villager,thread_pop(villager)<<(machine_p88k(pos++)&7)); break;
+
     case PIP: 
     {
         u16 d=machine_peek(pos++); 
@@ -1255,8 +1256,9 @@ instr=datagenbuffer[pos];
         u16 d=machine_peek(pos++); 
         machine_poke(d,machine_peek(d)-1); 
     } break;
-    case DUP: if (thread_stack_count(villager,1)) thread_push(villager,thread_top(villager)); break;
+    case DUP: if (thread_stack_count(villager,1)) thread_push(villager,thread_top(villager)); pos++; break;
     case SAY: 
+      pos++;
       //      printf("%c",thread_pop(villager));
       //      machine_poke(machine_peek(pos++),randi()%255);      
         break;
@@ -1265,7 +1267,6 @@ instr=datagenbuffer[pos];
 	  pos+=villager->speed;
 	  break;
 
-    default : break;
 	}
       if (pos>(villager->start+villager->wrap)) pos=villager->start;
   }
