@@ -108,7 +108,7 @@ as not to init:
 
 - changed LACH/SUSP knob scheme
 - in LACH howmany for datagens was missing (re-compare all modes, test all modes)
-- sims: some re-init and clean all simulationsDONE
+- sims: some re-init on wrap and clean all simulationsDONE
 - wrap and start now full for 8 bit datagens
 
 **** DEC 9

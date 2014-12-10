@@ -735,6 +735,15 @@ static float32_t stepp;
 static float32_t steppp;
 static float32_t stepppp;
 
+void simplesirinit(void){
+  beta=(float32_t)buf16[0]/65536.0f;
+  gamm=(float32_t)buf16[1]/65536.0f;
+  S0=1.0-1e-6;
+  I0=1e-6;
+  stepp=0.01f/((beta+gamm)*S0);
+  SS=S0; II=I0; R=1-SS-II;
+}
+
 void Diff(float32_t Pop[3])
 {
   float32_t tmpS, tmpI, tmpR;
@@ -800,17 +809,18 @@ void runsimplesir(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
+   for (u8 xx=0;xx<vill->howmany;xx++){
+  
+          count+=step;
+	  if (count>start+wrap){
+	    count=start;
   beta=(float32_t)buf16[0]/65536.0f;
   gamm=(float32_t)buf16[1]/65536.0f;
   S0=1.0-1e-6;
   I0=1e-6;
   stepp=0.01f/((beta+gamm)*S0);
   SS=S0; II=I0; R=1-SS-II;
-
-   for (u8 xx=0;xx<vill->howmany;xx++){
-  
-          count+=step;
-      if (count>start+wrap) count=start;
+	  }
 	Runge_Kutta();//  t+=step;
 	buf16[count&32767]=(u16)((float)II*1000000000.0f);
    }
@@ -843,6 +853,9 @@ void seirinit(u16 *buf16){
     {
       I[i]=I00/(float)n;
     }
+  beta=(float32_t)buf16[0]/65536.0f;
+  gamm=(float32_t)buf16[1]/65536.0f;
+  steppp=0.01f/(beta+gamm*n+mu);
     }
 
 void seirDiff(float32_t Pop[MAX_GROUPS+1])
@@ -929,15 +942,15 @@ void runseir(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-
-  
-  beta=(float32_t)buf16[0]/65536.0f;
-  gamm=(float32_t)buf16[1]/65536.0f;
-  steppp=0.01f/(beta+gamm*n+mu);
-
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+	    beta=(float32_t)buf16[0]/65536.0f;
+	    gamm=(float32_t)buf16[1]/65536.0f;
+	    steppp=0.01f/(beta+gamm*n+mu);
+
+	  }
     seir_Runge_Kutta();//  t+=step;
     buf16[count&32767]=S*65536.0f;
      }
@@ -973,6 +986,14 @@ I0=1e-4;
 C000=1e-3;
 
 SSS=S000; III=I0; C=C000; RRR=1-SSS-III-C000;
+
+ betaa=(float32_t)buf16[0]/65536.0f;
+ epsilon=(float32_t)buf16[1]/65536.0f;
+ gammm=(float32_t)buf16[2]/65536.0f;
+ Gamm=(float32_t)buf16[3]/65536.0f;
+ stepppp=0.01/((betaa+gammm+muu+Gamm)*S000);
+
+
 }
 
 void sicrdiff(float32_t Pop[3])
@@ -1034,17 +1055,22 @@ void runsicr(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-betaa=(float32_t)buf16[0]/65536.0f;
-epsilon=(float32_t)buf16[1]/65536.0f;
-gammm=(float32_t)buf16[2]/65536.0f;
-Gamm=(float32_t)buf16[3]/65536.0f;
-stepppp=0.01/((betaa+gammm+muu+Gamm)*S000);
-
    for (u8 xx=0;xx<vill->howmany;xx++){
   
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+	    I0=1e-4;
+	    C000=1e-3;
+	    
+	    SSS=S000; III=I0; C=C000; RRR=1-SSS-III-C000;
 
+	    betaa=(float32_t)buf16[0]/65536.0f;
+	    epsilon=(float32_t)buf16[1]/65536.0f;
+	    gammm=(float32_t)buf16[2]/65536.0f;
+	    Gamm=(float32_t)buf16[3]/65536.0f;
+	    stepppp=0.01/((betaa+gammm+muu+Gamm)*S000);
+	  }
     sicr_Runge_Kutta();//  t+=step;
     buf16[count&32767]=(u16)(SSS*1000000.0f);
    }
@@ -1320,10 +1346,6 @@ void runbrussel(villager_generic* vill){
   
   static float32_t x= 0.5f; 
   static float32_t y= 0.5f;  
-  delta = (float32_t)buf16[0]/FACT;
-  muuu = (float32_t)buf16[1]/FACT;
-  muplusone = 1.0f+muuu; 
-  gammar = (float32_t)buf16[2]/FACT;
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   //    for (i=0; i<howmuch; ++i) {

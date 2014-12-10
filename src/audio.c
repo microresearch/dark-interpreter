@@ -186,7 +186,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    if ((digfilterflag&1) && (village_read[x].overlay&32)) tmp=tmpl;
 #endif
 	           overlay=village_read[x].overlay;
-		   overlay=16; // testy!
+		   //	   overlay=16; // testy!
 	    village_read[x].counterr+=village_read[x].dirryr;
 
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
@@ -203,7 +203,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
 	      tmp16=buf16[lp]-32768;
-	      //	      buf16[lp]=tmp+32768; // TESTY commented out for datagens
+	      buf16[lp]=tmp+32768; // TESTY commented out for datagens
 		audio_buffer[lp]=tmp16;
 	      break;
 	      case 1://or

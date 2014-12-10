@@ -379,7 +379,7 @@ void main(void)
     village_write[xx].samplepos=0;
     village_write[xx].speed=1;
     village_write[xx].step=1;
-    village_write[xx].start=2000; // TESTY!
+    village_write[xx].start=0; // TESTY!
     village_write[xx].wrap=32767; //  test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; //  test
@@ -581,6 +581,13 @@ void main(void)
   seirinit(buf16);// LEAVE IN!
   sicrinit(buf16);// LEAVE IN!
   ifsinit(buf16);// LEAVE IN!
+  rosslerinit();
+  secondrosllerinit();
+  brusselinit();
+  spruceinit();
+  oregoninit();
+  fitzinit();
+  simplesirinit();
 
   void (*ddd[64])(villager_generic *vill)={runnoney, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runswapaudio, runORaudio, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque,machine_runnn};
 
@@ -1010,7 +1017,7 @@ void main(void)
 #else // LACH modes!
 
 	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 8 bit array LEAVE as is
-	  mainmode=3;
+	  //	  mainmode=9;
 	  switch(mainmode){
 
 	  case 0:// WRITE
