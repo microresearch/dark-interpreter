@@ -732,8 +732,9 @@ void main(void)
 
 	    xx=adc_buffer[SECOND]>>6;// 6 bits
 	    village_read[whichvillager].koverlay=xx;
+	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
 	    village_read[whichvillager].kcompress=tmpp;
-	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
+	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	    break;
 
 	  case 3: // DATAGEN villagers
@@ -1017,9 +1018,8 @@ void main(void)
 #else // LACH modes!
 
 	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 8 bit array LEAVE as is
-	  //	  mainmode=9;
-	  switch(mainmode){
 
+	  switch(mainmode){
 	  case 0:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
@@ -1186,7 +1186,7 @@ void main(void)
 	    posx+=(spd>>4);
 	    posx=posx&511;
 	    whichx=posx>>3;
-	    whichy=(posx&7)%7; // change for LACH!
+	    whichy=(posx&7)%7; // changed for LACH!
 
 	    switch(tmp){ // x actions
 	    case 0: // fingers in the code
@@ -1232,9 +1232,6 @@ void main(void)
 
 	      village_read[whichx].mirrorspeed=(spd&15)+1; 
 	      village_read[whichx].speed=(spd&15)+1; 
-
-	      village_filtout[whichx].mirrorspeed=(spd&15)+1; 
-	      village_filtout[whichx].speed=(spd&15)+1; 
 
 	      village_effect[whichx].mirrorspeed=(spd&15)+1; 
 	      village_effect[whichx].speed=(spd&15)+1; 
@@ -1354,7 +1351,7 @@ void main(void)
 	} // end of this mirror
 
 #ifndef LACH
-	if (digfilterflag){
+	if (digfilterflag&1){
 	for (whichx=0;whichx<howmanyfiltoutvill;whichx++){//FILTOUT mirror
 	  if (village_filtout[whichx].mirrormod){
 	    // speed wrapper
