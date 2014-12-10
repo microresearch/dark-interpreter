@@ -293,7 +293,7 @@ void main(void)
   u8 whichvillager,grupx;
   u16 tmpp,tmps,tmpw,mstart,mwrap,mcompress,posx=0,posy=0;
   u8 mmodifier,moverlay;
-  u8 howlook[4]={1,4,8,32};
+  u8 howlook[4]={1,8,16,64}; // modded
 
   // order that all inits and audio_init called seems to be important
   u16 x;
@@ -379,7 +379,7 @@ void main(void)
     village_write[xx].samplepos=0;
     village_write[xx].speed=1;
     village_write[xx].step=1;
-    village_write[xx].start=0;
+    village_write[xx].start=2000; // TESTY!
     village_write[xx].wrap=32767; //  test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; //  test
@@ -406,7 +406,7 @@ void main(void)
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
-    village_datagen[xx].howmany=1;// testy!
+    village_datagen[xx].howmany=1;// testy! - but where can this be set????
     village_datagen[xx].dirry = 1;
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
@@ -738,9 +738,9 @@ void main(void)
 	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    }
-	    if (adc_buffer[FOURTH]>10){
+	    //	    if (adc_buffer[FOURTH]>10){
 	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
-	    }
+	      //	    }
 	    //	    village_datagen[whichvillager].dir=xx;
 	    // TODO: xx is left to set howmany to re-instate???
 	    village_datagen[whichvillager].howmany=howlook[xx]; // 0->4
@@ -1010,7 +1010,7 @@ void main(void)
 #else // LACH modes!
 
 	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 8 bit array LEAVE as is
-
+	  mainmode=3;
 	  switch(mainmode){
 
 	  case 0:// WRITE
@@ -1093,10 +1093,11 @@ void main(void)
 	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    }
-	    if (adc_buffer[FOURTH]>10){
+	    //	    if (adc_buffer[FOURTH]>10){
 	      village_datagen[whichvillager].CPU=adc_buffer[FOURTH]>>6;// now 64 options
-	    }
+	      //	    }
 	    //	    village_datagen[whichvillager].dir=xx;
+	    village_datagen[whichvillager].howmany=howlook[xx]; // 0->4
 	    village_datagen[whichvillager].speed=(spd&15)+1; // check how many bits is spd? 8 as changed in main.c 
 	    village_datagen[whichvillager].step=(spd&240)>>4;
 	    break;

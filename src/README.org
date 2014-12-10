@@ -24,7 +24,6 @@ From 28 OCT 2014+: to avoid repetition of notes
 - that we need offset and constrain for hardware
 - that way mirrors handled makes most villagers the same!
 - speed up all effects
-- re-init and clean all simulations
 - pureleak extended across all operations
 
 ** General TODO: 
@@ -108,6 +107,9 @@ as not to init:
 **** DEC 10
 
 - changed LACH/SUSP knob scheme
+- in LACH howmany for datagens was missing (re-compare all modes, test all modes)
+- sims: some re-init and clean all simulationsDONE
+- wrap and start now full for 8 bit datagens
 
 **** DEC 9
 

@@ -725,13 +725,15 @@ see also: http://homepages.warwick.ac.uk/~masfz/ModelingInfectiousDiseases/
 
  */
 
-float32_t dPop[3];
-float32_t beta;//=520.0/365.0;
-float32_t gamm;//=1.0/7.0;
-float32_t S0;//=1.0-1e-6;
-float32_t I0;//=1e-6;
-float32_t step;
-float32_t S,II,R;
+static float32_t dPop[3];
+static float32_t beta;//=520.0/365.0;
+static float32_t gamm;//=1.0/7.0;
+static float32_t S0;//=1.0-1e-6;
+static float32_t I0;//=1e-6;
+static float32_t SS,II,R;
+static float32_t stepp;
+static float32_t steppp;
+static float32_t stepppp;
 
 void Diff(float32_t Pop[3])
 {
@@ -753,27 +755,27 @@ void Runge_Kutta(void)
      Note: we work with arrays rather than variables to make the
      coding easier */
 
-  initialPop[0]=S; initialPop[1]=II; initialPop[2]=R;
+  initialPop[0]=SS; initialPop[1]=II; initialPop[2]=R;
 
   Diff(initialPop);
   for(i=0;i<3;i++)
     {
       dPop1[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop1[i]/2;
+      tmpPop[i]=initialPop[i]+stepp*dPop1[i]/2;
     }
 
   Diff(tmpPop);
   for(i=0;i<3;i++)
     {
       dPop2[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop2[i]/2;  
+      tmpPop[i]=initialPop[i]+stepp*dPop2[i]/2;  
     }
 
   Diff(tmpPop);
   for(i=0;i<3;i++)
     {
       dPop3[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop3[i]; 
+      tmpPop[i]=initialPop[i]+stepp*dPop3[i]; 
     }
 
   Diff(tmpPop);
@@ -781,10 +783,10 @@ void Runge_Kutta(void)
   for(i=0;i<3;i++)
     {
       dPop4[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*step;
+      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*stepp;
     }
 
-  S=tmpPop[0]; II=tmpPop[1]; R=tmpPop[2];
+  SS=tmpPop[0]; II=tmpPop[1]; R=tmpPop[2];
   //  //  //  printf("%g %g %g\n",S,II,R);
 
   return;
@@ -798,21 +800,17 @@ void runsimplesir(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-
-    beta=(float32_t)buf16[0]/65536.0f;
-    gamm=(float32_t)buf16[1]/65536.0f;
+  beta=(float32_t)buf16[0]/65536.0f;
+  gamm=(float32_t)buf16[1]/65536.0f;
   S0=1.0-1e-6;
   I0=1e-6;
-  step=0.01f/((beta+gamm)*S0);
-  S=S0; II=I0; R=1-S-II;
+  stepp=0.01f/((beta+gamm)*S0);
+  SS=S0; II=I0; R=1-SS-II;
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   
           count+=step;
       if (count>start+wrap) count=start;
-
-    
-
 	Runge_Kutta();//  t+=step;
 	buf16[count&32767]=(u16)((float)II*1000000000.0f);
    }
@@ -823,12 +821,12 @@ void runsimplesir(villager_generic* vill){
 
 // SEIR. SIR
 
-u16 n;
-u16 m;
-float32_t mu;
-float32_t S0,I0;
-float32_t S,I[MAX_GROUPS]; // 4x16=64bytes
-float32_t dPopp[MAX_GROUPS+1];//4x9=36bytes
+static u16 n;
+static u16 m;
+static float32_t mu;
+static float32_t S00,I00;
+static float32_t S,I[MAX_GROUPS]; // 4x16=64bytes
+static float32_t dPopp[MAX_GROUPS+1];//4x9=36bytes
 
 void seirinit(u16 *buf16){
   u8 i;
@@ -837,13 +835,13 @@ void seirinit(u16 *buf16){
   n=13;
   m=8;
   mu=1.0f/(55.0f*365.0f);
-  S0=0.05f;
-  I0=0.00001f;
+  S00=0.05f;
+  I00=0.00001f;
 
-  S=S0;
+  S=S00;
   for(i=0;i<n;i++)
     {
-      I[i]=I0/(float)n;
+      I[i]=I00/(float)n;
     }
     }
 
@@ -894,21 +892,21 @@ void seir_Runge_Kutta(void)
   for(i=0;i<=n;i++)
     {
       dPop1[i]=dPopp[i];
-      tmpPop[i]=InitialPop[i]+step*dPop1[i]/2.0f;
+      tmpPop[i]=InitialPop[i]+steppp*dPop1[i]/2.0f;
     }
 
   seirDiff(tmpPop);
   for(i=0;i<=n;i++)
     {
       dPop2[i]=dPopp[i];
-      tmpPop[i]=InitialPop[i]+step*dPop2[i]/2.0f;  
+      tmpPop[i]=InitialPop[i]+steppp*dPop2[i]/2.0f;  
     }
 
   seirDiff(tmpPop);
   for(i=0;i<=n;i++)
     {
       dPop3[i]=dPopp[i];
-      tmpPop[i]=InitialPop[i]+step*dPop3[i]; 
+      tmpPop[i]=InitialPop[i]+steppp*dPop3[i]; 
     }
 
   seirDiff(tmpPop);
@@ -916,10 +914,10 @@ void seir_Runge_Kutta(void)
   for(i=0;i<n;i++)
     {
       dPop4[i+1]=dPopp[i+1];
-      I[i]=I[i]+(dPop1[i+1]/6.0f + dPop2[i+1]/3.0f + dPop3[i+1]/3.0f + dPop4[i+1]/6.0f)*step;
+      I[i]=I[i]+(dPop1[i+1]/6.0f + dPop2[i+1]/3.0f + dPop3[i+1]/3.0f + dPop4[i+1]/6.0f)*steppp;
     }
   dPop4[0]=dPop[0];
-  S=S+(dPop1[0]/6.0f + dPop2[0]/3.0f + dPop3[0]/3.0f + dPop4[0]/6.0f)*step;
+  S=S+(dPop1[0]/6.0f + dPop2[0]/3.0f + dPop3[0]/3.0f + dPop4[0]/6.0f)*steppp;
   //  //  //  printf("S: %g\n",S);
   return;
 }
@@ -935,7 +933,7 @@ void runseir(villager_generic* vill){
   
   beta=(float32_t)buf16[0]/65536.0f;
   gamm=(float32_t)buf16[1]/65536.0f;
-  step=0.01f/(beta+gamm*n+mu);
+  steppp=0.01f/(beta+gamm*n+mu);
 
      for (u8 xx=0;xx<vill->howmany;xx++){
           count+=step;
@@ -950,42 +948,40 @@ void runseir(villager_generic* vill){
 
 // SICR. SIR
 
-  float32_t beta;
-  float32_t epsilon;
-  float32_t gamm;
-  float32_t Gamm; 
-  float32_t mu;
-  float32_t q;
-  float32_t S0;
-  float32_t I0;
-  float32_t C0;
-  float32_t t,S,III,C,R;
-  float32_t dPop[3];
-  float32_t step;
-
+static float32_t betaa;
+static float32_t epsilon;
+static float32_t gammm;
+static float32_t Gamm; 
+static float32_t muu;
+static float32_t q;
+static float32_t S000;
+static float32_t I000;
+static float32_t C000;
+static float32_t t,SSS,III,C,RRR;
+static float32_t dPop[3];
 
 void sicrinit(u16 *buf16){
-  //beta=0.2;
+  //betaa=0.2;
   //epsilon=0.1;
 //gamm=1.0/100.0;
 //Gamm=1.0/1000.0;
 
-mu=1.0f/(50.0f*365.0f);
+muu=1.0f/(50.0f*365.0f);
 q=0.4f;
-S0=0.1f;
+S000=0.1f;
 I0=1e-4;
-C0=1e-3;
+C000=1e-3;
 
-S=S0; III=I0; C=C0; R=1-S-III-C0;
+SSS=S000; III=I0; C=C000; RRR=1-SSS-III-C000;
 }
 
 void sicrdiff(float32_t Pop[3])
 {
   float32_t tmpS, tmpI, tmpC;
   tmpS=Pop[0]; tmpI=Pop[1]; tmpC=Pop[2];
-  dPop[0] = mu - beta*tmpS*(tmpI + epsilon*tmpC) - mu*tmpS;
-  dPop[1] = beta*tmpS*(tmpI + epsilon*tmpC) - gamm*tmpI -mu*tmpI;
-  dPop[2] = gamm*q*tmpI - Gamm*tmpC - mu*tmpC;
+  dPop[0] = muu - betaa*tmpS*(tmpI + epsilon*tmpC) - muu*tmpS;
+  dPop[1] = betaa*tmpS*(tmpI + epsilon*tmpC) - gammm*tmpI -muu*tmpI;
+  dPop[2] = gammm*q*tmpI - Gamm*tmpC - muu*tmpC;
   return;
 }
 
@@ -995,27 +991,27 @@ void sicr_Runge_Kutta(void)
   float32_t dPop1[3], dPop2[3], dPop3[3], dPop4[3];
   float32_t tmpPop[3], initialPop[3];
   u8 i;
-  initialPop[0]=S; initialPop[1]=III; initialPop[2]=C;
+  initialPop[0]=SSS; initialPop[1]=III; initialPop[2]=C;
 
   sicrdiff(initialPop);
   for(i=0;i<3;i++)
     {
       dPop1[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop1[i]/2;
+      tmpPop[i]=initialPop[i]+stepppp*dPop1[i]/2;
     }
 
   sicrdiff(tmpPop);
   for(i=0;i<3;i++)
     {
       dPop2[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop2[i]/2;  
+      tmpPop[i]=initialPop[i]+stepppp*dPop2[i]/2;  
     }
 
   sicrdiff(tmpPop);
   for(i=0;i<3;i++)
     {
       dPop3[i]=dPop[i];
-      tmpPop[i]=initialPop[i]+step*dPop3[i]; 
+      tmpPop[i]=initialPop[i]+stepppp*dPop3[i]; 
     }
 
   sicrdiff(tmpPop);
@@ -1024,10 +1020,10 @@ void sicr_Runge_Kutta(void)
     {
       dPop4[i]=dPop[i];
 
-      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*step;
+      tmpPop[i]=initialPop[i]+(dPop1[i]/6 + dPop2[i]/3 + dPop3[i]/3 + dPop4[i]/6)*stepppp;
     }
 
-  S=tmpPop[0]; III=tmpPop[1]; C=tmpPop[2];  R=1-S-III-C;
+  SSS=tmpPop[0]; III=tmpPop[1]; C=tmpPop[2];  RRR=1-SSS-III-C;
  
   return;
 }
@@ -1038,11 +1034,11 @@ void runsicr(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-beta=(float32_t)buf16[0]/65536.0f;
+betaa=(float32_t)buf16[0]/65536.0f;
 epsilon=(float32_t)buf16[1]/65536.0f;
-gamm=(float32_t)buf16[2]/65536.0f;
+gammm=(float32_t)buf16[2]/65536.0f;
 Gamm=(float32_t)buf16[3]/65536.0f;
-step=0.01/((beta+gamm+mu+Gamm)*S0);
+stepppp=0.01/((betaa+gammm+muu+Gamm)*S000);
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   
@@ -1050,7 +1046,7 @@ step=0.01/((beta+gamm+mu+Gamm)*S0);
       if (count>start+wrap) count=start;
 
     sicr_Runge_Kutta();//  t+=step;
-    buf16[count&32767]=(u16)(S*1000000.0f);
+    buf16[count&32767]=(u16)(SSS*1000000.0f);
    }
   vill->position=count;
 }
@@ -1059,9 +1055,9 @@ step=0.01/((beta+gamm+mu+Gamm)*S0);
 
 // IFS
 
-float32_t prob[5];
-float32_t coeff[4][6];
-Point p1,p2;
+static float32_t prob[5];
+static float32_t coeff[4][6];
+static Point p1,p2;
 
 void ifsinit(u16 *buf16){
   u8 column = 6, row = 4;
@@ -1083,10 +1079,10 @@ void ifsinit(u16 *buf16){
   prob[4]=0.07f; 
     */
     prob[0]=(float32_t)buf16[0]/65536.0f;
-      prob[1]=(float32_t)buf16[1]/65536.0f;
-      prob[2]=(float32_t)buf16[2]/65536.0f;
-      prob[3]=(float32_t)buf16[3]/65536.0f;
-      prob[4]=(float32_t)buf16[4]/65536.0f;
+    prob[1]=(float32_t)buf16[1]/65536.0f;
+    prob[2]=(float32_t)buf16[2]/65536.0f;
+    prob[3]=(float32_t)buf16[3]/65536.0f;
+    prob[4]=(float32_t)buf16[4]/65536.0f;
   }
   }
 
@@ -1109,7 +1105,14 @@ void runifs(villager_generic* vill){
    for (u8 xx=0;xx<vill->howmany;xx++){
   //  for (x=0;x<howmuch;x++){
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+	    prob[0]=(float32_t)buf16[0]/65536.0f;
+	    prob[1]=(float32_t)buf16[1]/65536.0f;
+	    prob[2]=(float32_t)buf16[2]/65536.0f;
+	    prob[3]=(float32_t)buf16[3]/65536.0f;
+	    prob[4]=(float32_t)buf16[4]/65536.0f;
+	  }
 
   for(i = 0; i < row; i++){
     if ( BET(randiom_num,prob[i],prob[i+1]) ){
@@ -1140,6 +1143,14 @@ void runifs(villager_generic* vill){
 
 //float32_t h,a,b,c;
 
+static float32_t h,a,b,c;
+
+void rosslerinit(void){
+h = (float32_t)buf16[0]/120536.0;
+a = (float32_t)buf16[1]/122536.0;
+b = (float32_t)buf16[2]/100536.0;
+}
+
 void runrossler(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
@@ -1147,7 +1158,6 @@ void runrossler(villager_generic* vill){
   u16 wrap=vill->wrap;
 
   float32_t lx1,ly1,lz1;
-  float32_t h,a,b,c;
   
   /* which unit to vary according to buf16 */
   // leave as so!
@@ -1155,22 +1165,20 @@ void runrossler(villager_generic* vill){
  static float32_t   ly0 = 0.0f;
  static float32_t   lz0 = 0.0f;
 
- // float32_t  h = (float32_t)buf16[0]/120536.0;
- // float32_t  a = (float32_t)buf16[1]/122536.0;
- // float32_t  b = (float32_t)buf16[2]/100536.0;
- // h = 0.1f;
- //  a = 0.3f;
- //  b = 0.2f;
-  
-  h = (float32_t)buf16[0]/120536.0;
-  a = (float32_t)buf16[1]/122536.0;
-  b = (float32_t)buf16[2]/100536.0;
   c = 5.8f;
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+	    lx0 = 0.1f;
+	    ly0 = 0.0f;
+	    lz0 = 0.0f;
+	    h = (float32_t)buf16[0]/120536.0;
+	    a = (float32_t)buf16[1]/122536.0;
+	    b = (float32_t)buf16[2]/100536.0;
+	  }
 
   lx1 = lx0 + h * (-ly0 - lz0);
   ly1 = ly0 + h * (lx0 + (a * ly0));
@@ -1196,32 +1204,29 @@ void runrossler(villager_generic* vill){
 
 // 2nd rossler from: MCLDChaosUGens.cpp
 
+static float32_t hh,aa,bb,cc;
+
+void secondrosllerinit(void){
+  aa = (float32_t)buf16[0]/65536.0f;
+  bb = (float32_t)buf16[1]/65536.0f;
+  cc = (float32_t)buf16[2]/65536.0f;
+  hh = (float32_t)buf16[3]/65536.0f;
+}
+
 void runsecondrossler(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
+  // what these should be?
 
-  
-  float32_t h,a,b,c;
-  
-  a = (float32_t)buf16[0]/65536.0f;
-  b = (float32_t)buf16[1]/65536.0f;
-  c = (float32_t)buf16[2]/65536.0f;
-  h = (float32_t)buf16[3]/65536.0f;
-
-  //float32_t  a = (float32_t)buf16[0]/65536.0f;
-  //float32_t  b = (float32_t)buf16[1]/65536.0f;
-  //float32_t  c = (float32_t)buf16[2]/65536.0f;
-  //float32_t  h = (float32_t)buf16[3]/65536.0f;
-
- static float32_t xn;
- static float32_t yn;
- static float32_t zn;
- static float32_t xnm1;
- static float32_t ynm1;
- static float32_t znm1;
+ static float32_t xn=0.1f;
+ static float32_t yn=0.1f;
+ static float32_t zn=0.1f;
+ static float32_t xnm1=0.0f;
+ static float32_t ynm1=0.0f;
+ static float32_t znm1=0.0f;
 
   float32_t dx = xn - xnm1;
   float32_t dy = yn - ynm1;
@@ -1231,39 +1236,46 @@ void runsecondrossler(villager_generic* vill){
    for (u8 xx=0;xx<vill->howmany;xx++){
   //	for (i=0; i<howmuch; ++i) {
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+
+  aa = (float32_t)buf16[0]/65536.0f;
+  bb = (float32_t)buf16[1]/65536.0f;
+  cc = (float32_t)buf16[2]/65536.0f;
+  hh = (float32_t)buf16[3]/65536.0f;
+	  }
 
     xnm1 = xn;
     ynm1 = yn;
     znm1 = zn;
 
-			float32_t k1x, k2x, k3x, k4x,
-				k1y, k2y, k3y, k4y,
-				k1z, k2z, k3z, k4z,
-				kxHalf, kyHalf, kzHalf;
+    float32_t k1x, k2x, k3x, k4x,
+      k1y, k2y, k3y, k4y,
+      k1z, k2z, k3z, k4z,
+      kxHalf, kyHalf, kzHalf;
 
 			// 4th order Runge-Kutta approximate solution for differential equations
-			k1x = - (h * (ynm1 + znm1));
-			k1y = h * (xnm1 + a * ynm1);
-			k1z = h * (b + znm1 * (xnm1 - c));
+			k1x = - (hh * (ynm1 + znm1));
+			k1y = hh * (xnm1 + aa * ynm1);
+			k1z = hh * (bb + znm1 * (xnm1 - cc));
 			kxHalf = k1x * 0.5;
 			kyHalf = k1y * 0.5;
 			kzHalf = k1z * 0.5;
 
-			k2x = - (h * (ynm1 + kyHalf + znm1 + kzHalf));
-			k2y = h * (xnm1 + kxHalf + a * (ynm1 + kyHalf));
-			k2z = h * (b + (znm1 + kzHalf) * (xnm1 + kxHalf - c));
+			k2x = - (hh * (ynm1 + kyHalf + znm1 + kzHalf));
+			k2y = hh * (xnm1 + kxHalf + aa * (ynm1 + kyHalf));
+			k2z = hh * (bb + (znm1 + kzHalf) * (xnm1 + kxHalf - cc));
 			kxHalf = k2x * 0.5;
 			kyHalf = k2y * 0.5;
 			kzHalf = k2z * 0.5;
 
-			k3x = - (h * (ynm1 + kyHalf + znm1 + kzHalf));
-			k3y = h * (xnm1 + kxHalf + a * (ynm1 + kyHalf));
-			k3z = h * (b + (znm1 + kzHalf) * (xnm1 + kxHalf - c));
+			k3x = - (hh * (ynm1 + kyHalf + znm1 + kzHalf));
+			k3y = hh * (xnm1 + kxHalf + aa * (ynm1 + kyHalf));
+			k3z = hh * (bb + (znm1 + kzHalf) * (xnm1 + kxHalf - cc));
 
-			k4x = - (h * (ynm1 + k3y + znm1 + k3z));
-			k4y = h * (xnm1 + k3x + a * (ynm1 + k3y));
-			k4z = h * (b + (znm1 + k3z) * (xnm1 + k3x - c));
+			k4x = - (hh * (ynm1 + k3y + znm1 + k3z));
+			k4y = hh * (xnm1 + k3x + aa * (ynm1 + k3y));
+			k4z = hh * (bb + (znm1 + k3z) * (xnm1 + k3x - cc));
 
 			xn = xn + (k1x + 2.0*(k2x + k3x) + k4x) * ONESIXTH;
 			yn = yn + (k1y + 2.0*(k2y + k3y) + k4y) * ONESIXTH;
@@ -1289,13 +1301,21 @@ void runsecondrossler(villager_generic* vill){
 
 #define FACT 32768.0f
 
+static float32_t delta,muuu,muplusone,gammar;    
+
+void brusselinit(void){
+  delta = (float32_t)buf16[0]/FACT;
+  muuu = (float32_t)buf16[1]/FACT;
+  muplusone = 1.0f+muuu; 
+  gammar = (float32_t)buf16[2]/FACT;
+}
+
 void runbrussel(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-  float32_t delta,muuu,muplusone,gammar;    
   float32_t dx, dy; 
   
   static float32_t x= 0.5f; 
@@ -1308,7 +1328,14 @@ void runbrussel(villager_generic* vill){
    for (u8 xx=0;xx<vill->howmany;xx++){
   //    for (i=0; i<howmuch; ++i) {
 	          count+=step;
-      if (count>start+wrap) count=start;
+		  if (count>start+wrap) {
+		    count=start;
+  delta = (float32_t)buf16[0]/FACT;
+  muuu = (float32_t)buf16[1]/FACT;
+  muplusone = 1.0f+muuu; 
+  gammar = (float32_t)buf16[2]/FACT;
+  x=0.5f;y=0.5f;
+		  }
 	
       float32_t temp = x*x*y; 
         
@@ -1328,18 +1355,9 @@ void runbrussel(villager_generic* vill){
 
 // spruceworm
 
-void runspruce(villager_generic* vill){
-  u8 step=vill->step;
-  u16 count=vill->position;
-  u16 start=vill->start;
-  u16 wrap=vill->wrap;
+static float32_t k1,k2,alpha,betaa,muuu,rho,delta;
 
-
-  float32_t k1,k2,alpha,betaa,muuu,rho,delta;
-  float32_t dx, dy; 
-  
-  static float32_t x= 0.9f; 
-  static float32_t y= 0.1f;  
+void spruceinit(void){
   k1 = (float32_t)buf16[0]/FACT;
   k2 = (float32_t)buf16[1]/FACT;
   alpha = (float32_t)buf16[2]/FACT;
@@ -1347,12 +1365,34 @@ void runspruce(villager_generic* vill){
   muuu = (float32_t)buf16[4]/FACT;
   rho = (float32_t)buf16[5]/FACT;
   delta = (float32_t)buf16[6]/FACT;
+}
+
+void runspruce(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
+  float32_t dx, dy; 
+  
+  static float32_t x= 0.9f; 
+  static float32_t y= 0.1f;  
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   //	for (i=0; i<howmuch; ++i) {
 	          count+=step;
-      if (count>start+wrap) count=start;
-	
+		  if (count>start+wrap) {
+		    count=start;
+  k1 = (float32_t)buf16[0]/FACT;
+  k2 = (float32_t)buf16[1]/FACT;
+  alpha = (float32_t)buf16[2]/FACT;
+  betaa = (float32_t)buf16[3]/FACT;
+  muuu = (float32_t)buf16[4]/FACT;
+  rho = (float32_t)buf16[5]/FACT;
+  delta = (float32_t)buf16[6]/FACT;
+  x=0.9f;y=0.1f;
+		  }
+
         float32_t temp = y*y; 
         float32_t temp2 = betaa*x;
         
@@ -1374,6 +1414,14 @@ void runspruce(villager_generic* vill){
 
 // OREGONATOR
 
+static float32_t deltaaa,epsilonnn,qqq,muuuu;
+
+void oregoninit(void){
+  deltaaa = (float32_t)buf16[0]/FACT;
+  epsilonnn = (float32_t)buf16[1]/FACT;
+  muuuu = (float32_t)buf16[2]/FACT;
+  qqq = (float32_t)buf16[3]/FACT;
+}
 
 void runoregon(villager_generic* vill){
   u8 step=vill->step;
@@ -1381,26 +1429,26 @@ void runoregon(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
 
-
-  float32_t delta,epsilonn,qq,muu;
   float32_t dx, dy, dz; 
   
   static float32_t x= 0.5f; 
   static float32_t y= 0.5f; 
   static float32_t z= 0.5f; 
   
-    delta = (float32_t)buf16[0]/FACT;
-    epsilonn = (float32_t)buf16[1]/FACT;
-    muu = (float32_t)buf16[2]/FACT;
-    qq = (float32_t)buf16[3]/FACT;
 
    for (u8 xx=0;xx<vill->howmany;xx++){
     //	for (i=0; i<howmuch; ++i) {
 	          count+=step;
-      if (count>start+wrap) count=start;
-	
-        dx = epsilonn*((qq*y) -(x*y) + (x*(1-x))); 
-	dy = muu* (-(qq*y) -(x*y) + z); 
+		  if (count>start+wrap) {
+		    count=start;
+		    deltaaa = (float32_t)buf16[0]/FACT;
+		    epsilonnn = (float32_t)buf16[1]/FACT;
+		    muuuu = (float32_t)buf16[2]/FACT;
+		    qqq = (float32_t)buf16[3]/FACT;
+		    x=0.5f;y=0.5f;z=0.5f;
+		  }
+        dx = epsilonnn*((qqq*y) -(x*y) + (x*(1-x))); 
+	dy = muuuu* (-(qqq*y) -(x*y) + z); 
         dz = x-y; 
         
         x += delta*dx; 
@@ -1422,6 +1470,15 @@ void runoregon(villager_generic* vill){
 
 // FITZHUGH - writes into buffer 3xhowmuch, how to store local float32_ts?
 
+  static float32_t b0;//= 1.4;
+  static float32_t b1;//= 1.1;
+
+
+void fitzinit(void){
+  b0=(float32_t)buf16[0]/32768.0;
+  b1=(float32_t)buf16[1]/32768.0;
+}
+
 void runfitz(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
@@ -1433,15 +1490,16 @@ void runfitz(villager_generic* vill){
   float32_t urate= 0.7f;
   float32_t wrate= 1.7f;
   static float32_t u=0.0f,ww=0.0f; 
-  float32_t b0;//= 1.4;
-  float32_t b1;//= 1.1;
-  b0=(float32_t)buf16[0]/32768.0;
-  b1=(float32_t)buf16[1]/32768.0;
 
    for (u8 xx=0;xx<vill->howmany;xx++){
   //  for (x=0;x<howmuch;x++){
           count+=step;
-      if (count>start+wrap) count=start;
+	  if (count>start+wrap) {
+	    count=start;
+  b0=(float32_t)buf16[0]/32768.0;
+  b1=(float32_t)buf16[1]/32768.0;
+  u=0.0f, ww=0.0f;
+	  }
 
     //    if (count>=MAX_SAM) count=0;
     float32_t dudt= urate*(u-(0.33333*u*u*u)-ww);

@@ -36,8 +36,8 @@ extern u8 *datagenbuffer;
 u16 runnoney(uint8_t howmuch, u8* cells, u16 x, u16 start, u16 wrap){
   u8 i;
   for (i=0;i<howmuch;i++){
-  x++;
-  if (x>(start+wrap)) x=start;
+    x++;
+    if (x>(start+wrap)) x=start;
   }
   return x;
 }

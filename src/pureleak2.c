@@ -91,8 +91,8 @@ void machine_pokeee(uint16_t addr, u8 data,u16 start,u16 end);
 void thread_runnn(u8 threadcount, u16 start,u16 end);
 
 void machine_runnn(villager_generic* vill){
-  u16 start=vill->start;
-  u16 end=vill->wrap;
+  u16 start=vill->start<<1;
+  u16 end=vill->wrap<<1;
   u8 x=vill->position; u8 xx;
   for (xx=0;xx<vill->howmany;xx++){ 
   if (datagenbuffer[start]==0) datagenbuffer[start]=128;

@@ -37,9 +37,8 @@ void runnoney(villager_generic* vill){
   u16 x=vill->position;
   for (u8 xx=0;xx<vill->howmany;xx++){
     x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
-
-  datagenbuffer[x]=0;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
+    datagenbuffer[x]=0;
 }
   vill->position=x;
 }
@@ -52,7 +51,7 @@ void runhodge(villager_generic* vill){
   
   u8 step=vill->step;
   u16 x=vill->position;
-  u16 wrap=vill->wrap;
+  u16 wrap=vill->wrap<<1;
   //  u16 x=vill->position;
 
 
@@ -113,7 +112,7 @@ void runhodge(villager_generic* vill){
     datagenbuffer[y] = datagenbuffer[0] - 1;
 
     x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+wrap)) x=vill->start<<1;
 
   }
 #ifdef PCSIM  
@@ -189,7 +188,8 @@ void runhodgenet(villager_generic* vill){
     datagenbuffer[y] = datagenbuffer[0];
 
     x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+    //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
   }
 #ifdef PCSIM  
@@ -254,7 +254,8 @@ void runlife(villager_generic* vill){
 
   //  //  printf("%c",datagenbuffer[x]);
     x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+    //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
   }
   vill->position=x;
@@ -290,7 +291,8 @@ void runkrum(villager_generic* vill){
   if (datagenbuffer[place]==(datagenbuffer[x]+1)%n) datagenbuffer[y]=datagenbuffer[place];
 
     x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+    //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
   }
 #ifdef PCSIM  
@@ -313,7 +315,8 @@ void runcel(villager_generic* vill){
   for (u8 xx=0;xx<vill->howmany;xx++){
     state = 0;
       x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+      //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
   if (datagenbuffer[(x +1+ (datagenbuffer[0]))&65535]>128)
       state |= 0x4;
@@ -392,7 +395,8 @@ void runcel1d(villager_generic* vill){
     //	printf("%c",datagenbuffer[y]);
 #endif
   x=x+step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+  //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
   }
  vill->position= x;
 }
@@ -456,8 +460,8 @@ void runfire(villager_generic* vill){
 #endif
 
       x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
-
+      //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
   }
     vill->position=x;
 
@@ -517,7 +521,8 @@ void runwire(villager_generic* vill){
 #endif
 
       x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+      //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
   }
   vill->position=x;
@@ -603,7 +608,8 @@ void runSIR(villager_generic* vill){
 #endif
 
       x+=step;
-  if (x>vill->start+vill->wrap) x=vill->start;
+      //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
   }
   vill->position=x;
   }
@@ -733,7 +739,8 @@ void runSIR16(villager_generic* vill){
     yy=y+1;
     datagenbuffer[yy]=(futureinfected<<4)+futurerecovered;
     x+=step*2;
-  if (x>vill->start+vill->wrap) x=vill->start;
+    //  if (x>vill->start+vill->wrap) x=vill->start;
+    if (x>((vill->start<<1)+(vill->wrap<<1))) x=vill->start<<1;
 
 #ifdef PCSIM  
     //        printf("%c",datagenbuffer[x]);
