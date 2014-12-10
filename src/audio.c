@@ -7,21 +7,11 @@ LINEIN/OUTL-filter
 */
 
 #ifdef TENE
-#define FIRST 2
-#define SECOND 0
-#define THIRD 3
-#define FOURTH 4
-#define FIFTH 1
 #define UP 6
 #define DOWN 8
 #define LEFT 5
 #define RIGHT 7
 #else
-#define FIRST 3
-#define SECOND 0
-#define THIRD 2
-#define FOURTH 4
-#define FIFTH 1
 #define UP 5
 #define DOWN 6
 #define LEFT 8

@@ -79,7 +79,7 @@ __IO uint16_t adc_buffer[10];
 #endif
 
 // for knobwork
-// TENE: 2,0,3,4,1 // else: 3,0,2,4,1
+// TENE: 2,0,3,4,1 // else: 3,2,4,1 -> 1-topleft/5lowerleft/2,3,4,right
 
 #ifdef TENE
 #define FIRST 2
@@ -93,10 +93,10 @@ __IO uint16_t adc_buffer[10];
 #define RIGHT 7
 #else
 #define FIRST 3
-#define SECOND 0
-#define THIRD 2
-#define FOURTH 4
-#define FIFTH 1
+#define SECOND 2
+#define THIRD 4
+#define FOURTH 1
+#define FIFTH 0
 #define UP 5
 #define DOWN 6
 #define LEFT 8

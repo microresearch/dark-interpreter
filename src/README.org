@@ -105,6 +105,10 @@ as not to init:
 
 *** DONE
 
+**** DEC 10
+
+- changed LACH/SUSP knob scheme
+
 **** DEC 9
 
 - re-testing all modes: reversed former reverse of audio reads, tiny bug in effects
