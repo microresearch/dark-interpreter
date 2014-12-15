@@ -1534,16 +1534,13 @@ void main(void)
 	} // end of this mirror
 
 	for (whichx=0;whichx<howmanyeffectvill;whichx++){//EFFECT mirror
-
 	  do_effect(&village_effect[whichx]); // do effects HERE!
-
 	  if (village_effect[whichx].mirrormod){
 	    // speed wrapper
 	    if (++village_effect[whichx].mirrordel>=village_effect[whichx].mirrorspeed){
 	      village_effect[whichx].mirrordel=0;
 	      switch(village_effect[whichx].fingered){
 	//fingered - UP.2=datagen DOWN.3=eeg/finger(SUSP) LEFT.0.finger RIGHT.1knob
-
 		// modifier is 8 bits
 	      case 0: // LEFT=finger
 		mmodifier=adc_buffer[LEFT]>>4;

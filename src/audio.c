@@ -1,4 +1,4 @@
-/*
+sdire/*
  * audio.c - justttt the callback 
 
 LINEIN/OUTR-main IO
