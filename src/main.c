@@ -733,6 +733,7 @@ void main(void)
 	    xx=adc_buffer[SECOND]>>6;// 6 bits
 	    village_read[whichvillager].koverlay=xx;
 	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
+	    tmpp=(32768-(adc_buffer[THIRD]<<3));
 	    village_read[whichvillager].kcompress=tmpp;
 	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	    break;

@@ -28,6 +28,7 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
+- again sanity code check 
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
 - full tests
 - manual: new layout for LACH swap 2 and 5!
@@ -104,6 +105,11 @@ as not to init:
 ////- effects cleaned up/init all effect structures:
 
 *** DONE
+
+**** DEC 15
+
+- LACH tests fine
+- missing tmpp in read code (TENE)
 
 **** DEC 10
 

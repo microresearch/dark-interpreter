@@ -83,14 +83,14 @@ for skin/life coding, intended to be played fully by skin and head.
 
 *The Dark Interpeter will not always be found sitting inside my dreams, but at times outside, and in open daylight.*
 
-\includegraphics[width=24em]{../images/lachlayout.png}
+\includegraphics[width=24em]{../images/lachlayouttowers.png}
 
 \includegraphics[width=24em]{../images/tenelayout.png}
 
 Describing each module, we refer to the knobs as numbered and the
 fingerboard directions Left, Right, Up, Down. See below - knobs effect
-U,D,R,L finger operations. INL and OUT refer to hardware routing (only
-out in Lachrymarum - a hum).
+U,D,R,L finger operations. INL and OUT refer to hardware routing (not
+so in Lachrymarum).
 
 \begin{test}
 \pagebreak
@@ -145,19 +145,81 @@ fingers or the village itself).
 1- In most modes this determines the total number of specific
 villagers (for read, write and hardware villagers amongst others) and
 which villager is being accessed and controlled (by parameter knobs
-2,3,4).
+2,3,4). See below.
 
-2-
-3-
-4- These knobs control various parameters for the villager selected
+2-3-4- These knobs control various parameters for the villager selected
 by knob one (such as start point, end point, overlap, effect). Under
 certain mirror conditions these knobs will control parameters across
-multiple villagers and can be accessed without a finger down.
+multiple villagers and can be accessed without a finger down. In some
+cases parameters remain uneffected when inb zero or close to zero position.
 
-5- Selects the operating mode (in the case of Lachrymarum there are 9
-mode, otherwise there are 16 modes).
+5- Selects the operating mode (in the case of Lachrymarum there are 10
+modes, otherwise there are 16 modes).
 
 * Those modes
+
+** Lachrymarum
+
+1- Write villagers. Knobs: 1-howmany/which one 2-start 3-end 4-mirror 
+
+2- Read villagers. Knobs: 1-howmany/which one 2-start 3-end 4-offset
+
+3- Read villagers additional. Knobs: 1-which one/2-overlay
+3-compression 4-mirror with finger direction as mirror type
+(Directions indicate what is to be attached (up is village itself),
+down is skin, left is fingers, right is knobs.
+
+4- Simulation villagers. Knobs: 1-howmany/which one 2-start 3-end 4-CPU
+
+5- Effects. Knobs: 1- which one 2-which read villager 3-which write villager 4-effect
+
+6- Effects additional. Knobs: 1- which one 2-start 3-end 4-modifier
+
+7- Simulations walker. Knobs: 1- which one 2-length 3-offset 4-offset2
+
+8- Swop and copy. Knobs: 1- which villager swops with 2-which one 3-in which groups 
+
+9- Fingers in the code. Knobs: 1- actions. Rest is all finger navigation and change
+
+10- Mirrors. Knobs: 1- which one 2-which villager group 3-mirror (for fingers see above).
+
+** Suspiriorum or Tenebrarum
+
+1- Write villagers. Knobs: 1-howmany/which one 2-start 3-end 4-mirror 
+
+2- Read villagers. Knobs: 1-howmany/which one 2-start 3-end 4-offset
+
+3- Read villagers additional. Knobs: 1-which one/2-overlay
+3-compression 4-mirror with finger direction as mirror type
+(Directions indicate what is to be attached (up is village itself),
+down is head (the two fangs on the head or inserted in the body), left
+is fingers, right is knobs.
+
+4- Simulation villagers. Knobs: 1-howmany/which one 2-start 3-end 4-CPU
+
+5- Effects. Knobs: 1- which one 2-which read villager 3-which write villager 4-effect
+
+6- Effects additional. Knobs: 1- which one 2-start 3-end 4-modifier
+
+7- Simulations walker. Knobs: 1- which one 2-length 3-offset 4-offset2
+
+8- Swop and copy. Knobs: 1- which villager swops with 2-which one 3-in which groups 
+
+9- Fingers in the code. Knobs: 1- actions. Rest is all finger navigation and change
+
+10- Mirrors. Knobs: 1- which one 2-which villager group 3-mirror (for fingers see above).
+
+11- Filter villagers. Knobs: 1-howmany/which one 2-start 3-end 4-mirror
+
+12- Distortion walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
+
+13- Analogue filter walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
+
+14- Second analogue filter walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
+
+15- Bitwise hardware walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
+
+16- Macro hardware walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
 
 * A sample inquisition
 
@@ -165,7 +227,11 @@ mode, otherwise there are 16 modes).
 
 The inquisition should follow the mood of the interpreter, perhaps
 exploring each mode in turn or moving frantically between modes,
-switching direction and tact. 
+switching direction and tact. Mode 16 (hardware) is obviously very
+important in setting hardware and will be returned to again and
+again. It is essential to remove fingers from the board to allow for
+changes of settings across modes. Fingers up, flip mode (knob 5),
+fingers down and change those settings.
 
 Mirror modes are also important and care should be taken as to the
 attachment, if you intend using primarily a knob-driven interrogation
