@@ -438,7 +438,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		dirry=village_read[x].dirry;
 		samplepos+=dirry;//)&32767;
 		if (samplepos>=village_read[x].wrap || samplepos<0){
-		  village_read[x].running==0;
+		  village_read[x].running=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_read[x].wrap;		
 		}

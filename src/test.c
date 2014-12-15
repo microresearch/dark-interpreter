@@ -119,8 +119,11 @@ void main(void)
     
     }*/
 
-  int digfilterflag=1;int overlay=32;
+  i=0;
+  printf("i=%d\n",i);
 
+  int digfilterflag=1;int overlay=32;
+  /*
   if ((digfilterflag&1) && (overlay&32)) printf("helpo");
 
     for (xx=0;xx<32;xx++){
@@ -159,7 +162,7 @@ void main(void)
       //      if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
       }
 
-
+  */
     /*    for (xx=0;xx<32;xx++){
     tmp = (int)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
