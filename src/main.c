@@ -693,7 +693,7 @@ void main(void)
 	      // else just wait till mirrors
 	    }
 	    ///
-	    village_write[whichvillager].dirry=direction[xx]*village_write[whichvillager].speed;
+	    village_write[whichvillager].dirry=direction[xx&1]*village_write[whichvillager].speed;
     break;
 
 	  case 1:// READ
@@ -714,13 +714,13 @@ void main(void)
 	      village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]];// offset is not mirrored
 	    }
 
-	    village_read[whichvillager].dir=xx;
+	    //	    village_read[whichvillager].dir=xx;
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
+	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[xx&1]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2: // READ 2nd
@@ -940,7 +940,7 @@ void main(void)
 	    village_filtout[whichvillager].dir=xx;
 	    village_filtout[whichvillager].speed=(spd&15)+1; 
 	    village_filtout[whichvillager].step=(spd&240)>>4;
-	    village_filtout[whichvillager].dirry=direction[xx]*village_filtout[whichvillager].speed;
+	    village_filtout[whichvillager].dirry=direction[xx&1]*village_filtout[whichvillager].speed;
 	    break;
 
 	  case 11: // 40106 walker as sequential but offset as free period???
@@ -955,7 +955,7 @@ void main(void)
 	    village_40106[whichvillager].dir=xx;
 	    village_40106[whichvillager].speed=(spd&15)+1; 
 	    village_40106[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-	    village_40106[whichvillager].dirry=direction[xx]*village_40106[whichvillager].speed;
+	    village_40106[whichvillager].dirry=direction[xx&1]*village_40106[whichvillager].speed;
 	    break;
 
 	  case 12: // lm walker as sequential but offset as free period???
@@ -970,7 +970,7 @@ void main(void)
 	    village_lm[whichvillager].dir=xx;
 	    village_lm[whichvillager].speed=(spd&15)+1; 
 	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-	    village_lm[whichvillager].dirry=direction[xx]*village_lm[whichvillager].speed;
+	    village_lm[whichvillager].dirry=direction[xx&1]*village_lm[whichvillager].speed;
 	    break;
 
 	  case 13: // maxim walker as sequential but offset as free period???
@@ -985,7 +985,7 @@ void main(void)
 	    village_maxim[whichvillager].dir=xx;
 	    village_maxim[whichvillager].speed=(spd&15)+1; 
 	    village_maxim[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-	    village_maxim[whichvillager].dirry=direction[xx]*village_maxim[whichvillager].speed;
+	    village_maxim[whichvillager].dirry=direction[xx&1]*village_maxim[whichvillager].speed;
 	    break;
 
 	  case 14: // hdgener walker as sequential but offset as free period???
@@ -1000,7 +1000,7 @@ void main(void)
 	    village_hdgener[whichvillager].dir=xx;
 	    village_hdgener[whichvillager].speed=(spd&15)+1; 
 	    village_hdgener[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
-	    village_hdgener[whichvillager].dirry=direction[xx]*village_hdgener[whichvillager].speed;
+	    village_hdgener[whichvillager].dirry=direction[xx&1]*village_hdgener[whichvillager].speed;
 	    break;
 
 	  case 15: // HW walker 
@@ -1040,7 +1040,7 @@ void main(void)
 	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
 	      // else just wait till mirrors
 	    }
-	    village_write[whichvillager].dirry=direction[xx]*village_write[whichvillager].speed;
+	    village_write[whichvillager].dirry=direction[xx&1]*village_write[whichvillager].speed;
 	    break;
 
 	  case 1:// READ
@@ -1062,13 +1062,13 @@ void main(void)
 	      // offset is not mirrored
 	    }
 
-	    village_read[whichvillager].dir=xx;
+	    //	    village_read[whichvillager].dir=xx;
 	    village_read[whichvillager].speed=(spd&15)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
-	    if (village_read[whichvillager].dir==2) village_read[whichvillager].dirry=newdirection[wormdir];
-	    else if (village_read[whichvillager].dir==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
+	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
+	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[xx&1]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2:

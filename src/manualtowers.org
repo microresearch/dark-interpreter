@@ -2,6 +2,8 @@
 #+AUTHOR: Martin Howse
 #+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
 
+\setlength{\parindent}{0em}
+
 \includegraphics[width=26em]{../images/ad.jpeg}
 
 * Dark Interpretation
@@ -119,12 +121,12 @@ amplifier related.
 * General theory of operation
 
 The Dark Interpreter is modelled as a leaky, overlapping medieval
-village space within which various plague simulations runs, and
-through which an array of villagers wanders. Audio is processed
-and/or generated according to the state of the village and the
-movements of inhabitants. Villagers (grains?) generate changes and
-are classified according to incoming or outgoing audio, filter,
-effects and hardware. 
+village space within which various plague simulations run, and through
+which an array of villagers wanders. Audio is processed and/or
+generated according to the state of the village and the movements of
+inhabitants. Villagers (grains?) generate changes and are classified
+according to incoming or outgoing audio (read/write), filter, effects
+and hardware.
 
 The Dark Interpreter is essentially mode driven, with modes also
 changing the complexity of operation. Modes are selected by turning

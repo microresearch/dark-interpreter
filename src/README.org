@@ -31,10 +31,10 @@ From 28 OCT 2014+: to avoid repetition of notes
 - again sanity code check 
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
 - full tests
-- manual: new layout for LACH swap 2 and 5!
+
 
 //////////////////////////////////////////////////////////////////////
-- manual update/web pages//price drop=130/210/260//announce and advertise//ebay/etsy
+- manual updateDONE/web pages//price drop=130/210/260//announce and advertise//ebay/etsy
 - also for LACH sever out pad connection [under power conn], 3x replacement 10uFs on incoming!!!
 
 *** new speed schemeDONE
@@ -109,7 +109,8 @@ as not to init:
 **** DEC 15
 
 - LACH tests fine
-- missing tmpp in read code (TENE)
+- missing tmpp in read code fixed(TENE)
+- direction bug fixed
 
 **** DEC 10
 
