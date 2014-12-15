@@ -308,6 +308,6 @@ compile the code. To upload the code you will need a suitable ARM
 STM32 programmer such as the stm32f4-discovery board. This should be
 correctly attached to the four bare holed socket near the top of base board
 (from left to right: 3.3V, SWCK, GND, SWDIO). Then simply (using a
-program such as stlink_flash upload the code. Any local hackerspace
+program such as stlinkflash upload the code. Any local hackerspace
 should be able to assist in this operation.
 

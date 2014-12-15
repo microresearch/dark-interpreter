@@ -30,10 +30,11 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 - test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
 - full tests
+- manual: new layout for LACH swap 2 and 5!
 
 //////////////////////////////////////////////////////////////////////
 - manual update/web pages//price drop=130/210/260//announce and advertise//ebay/etsy
-- also for LACH sever out pad connection [under power conn], replacement 10uFs on incoming!!!
+- also for LACH sever out pad connection [under power conn], 3x replacement 10uFs on incoming!!!
 
 *** new speed schemeDONE
 
