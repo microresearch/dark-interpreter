@@ -28,9 +28,10 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- again sanity code check 
-- test LACH(48k???) [+ SUSP should be as TENE but test when ordered!]
-- full tests
+- again sanity code check main.c audio.c
+
+- re-test LACH [+ SUSP should be as TENE but test when ordered!]
+- re-test TENE
 
 
 //////////////////////////////////////////////////////////////////////
@@ -111,6 +112,7 @@ as not to init:
 - LACH tests fine
 - missing tmpp in read code fixed(TENE)
 - direction bug fixed
+- ==  bug in audio.c read fixed
 
 **** DEC 10
 
