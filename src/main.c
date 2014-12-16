@@ -1081,8 +1081,8 @@ void main(void)
 	    //	    village_read[whichvillager].overlay=adc_buffer[SECOND]>>6; // 6 bits =64 top bit is datagen
 	    xx=adc_buffer[SECOND]>>6;
 	    //	    if (xx){///??? why????
-	      village_read[whichvillager].koverlay=xx;
-	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
+	    village_read[whichvillager].koverlay=xx;
+	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
 	      //	    }
 	    //	    village_read[whichvillager].compress=(32768-(adc_buffer[THIRD]<<3))+1;
 	    tmpp=(32768-(adc_buffer[THIRD]<<3));

@@ -419,6 +419,9 @@ void do_effect(villager_effect* vill_eff){
       u16  modifier;
    */
 
+    if (++vill_eff->del>=vill_eff->speed){
+      vill_eff->del=0;
+
     if (vill_eff->inpos>=vill_eff->inwrap) {
       vill_eff->inpos=0;
     }
@@ -439,9 +442,6 @@ void do_effect(villager_effect* vill_eff){
     //    now copy with length as longest
     if (tmpinlong<=tmpmodlong) longest=tmpinlong;// NOW lONGEST is really shortest which is as should be
     else longest=tmpmodlong;
-
-    if (++vill_eff->del>=vill_eff->speed){
-      vill_eff->del=0;
 
   switch(vill_eff->whicheffect){
   case 0: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
@@ -637,7 +637,7 @@ void do_effect(villager_effect* vill_eff){
       }
     break;
   }
-}
+    }
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){

@@ -28,8 +28,8 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- again sanity code check main.c audio.c
-
+- again sanity code check main.c audio.c effect.cX
+- if <10 on loggy change on all or none???? TODO?TEST?
 - re-test LACH [+ SUSP should be as TENE but test when ordered!]
 - re-test TENE
 
@@ -106,6 +106,10 @@ as not to init:
 ////- effects cleaned up/init all effect structures:
 
 *** DONE
+
+**** DEC 16
+
+- speed wrap in effect.c shifted
 
 **** DEC 15
 
