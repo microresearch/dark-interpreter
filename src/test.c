@@ -101,7 +101,7 @@ void main(void)
 {
 
   //  int i; float xx,xa,xb,xc; int xxx;
-  int i,xx,tmp,inpos,inwrap,tmpinlong;
+  int i,xx,inpos,inwrap,tmpinlong;
   int inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
@@ -174,10 +174,16 @@ void main(void)
     */
     float f = 2.0*M_PI*10.0f/32000.0f;
 
-    printf("f=%f",f);
+    //    printf("f=%f",f);
 
     i=32;
-    if (i&16) printf("hhh\n");
+    //    if (i&16) printf("hhh\n");
+    int lp=60000; int tmp=-320;
+    int tmp16=lp;
+    int tmp32d=tmp+tmp16; 
+    //    asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+    lp|=(tmp32d-32768);
+    printf("lp=%d\n",lp);
 
     //  for (i=0;i<32;i++){
     //    printf("out: %d\n",outbuffer[i]);

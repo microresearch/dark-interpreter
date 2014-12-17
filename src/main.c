@@ -720,7 +720,7 @@ void main(void)
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[xx&1]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2: // READ 2nd
@@ -948,10 +948,15 @@ void main(void)
 	    // but start and wrap for datagen
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmany40106vill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
 	    village_40106[whichvillager].length=loggy[adc_buffer[SECOND]]; 
+	    }
+	    if (adc_buffer[THIRD]>10){
 	    village_40106[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
 	    village_40106[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
-
+	    }
 	    village_40106[whichvillager].dir=xx;
 	    village_40106[whichvillager].speed=(spd&15)+1; 
 	    village_40106[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
@@ -964,9 +969,15 @@ void main(void)
 
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanylmvill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
 	    village_lm[whichvillager].length=loggy[adc_buffer[SECOND]]; 
+	    }
+	    if (adc_buffer[THIRD]>10){
 	    village_lm[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
 	    village_lm[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+	    }
 	    village_lm[whichvillager].dir=xx;
 	    village_lm[whichvillager].speed=(spd&15)+1; 
 	    village_lm[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
@@ -979,9 +990,15 @@ void main(void)
 
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanymaximvill=whichvillager+1;
+	    if (adc_buffer[SECOND]>10){
 	    village_maxim[whichvillager].length=loggy[adc_buffer[SECOND]]; 
-	    village_maxim[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[THIRD]>10){
+	      village_maxim[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
 	    village_maxim[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+	    }
 	    village_maxim[whichvillager].dir=xx;
 	    village_maxim[whichvillager].speed=(spd&15)+1; 
 	    village_maxim[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
@@ -994,9 +1011,15 @@ void main(void)
 
 	    whichvillager=adc_buffer[FIRST]>>8; // 4bits=16
 	    howmanyhdgenervill=whichvillager+1;
-	    village_hdgener[whichvillager].length=loggy[adc_buffer[SECOND]]; 
+	    if (adc_buffer[SECOND]>10){
+	      village_hdgener[whichvillager].length=loggy[adc_buffer[SECOND]]; 
+	    }
+	    if (adc_buffer[THIRD]>10){
 	    village_hdgener[whichvillager].dataoffset=loggy[adc_buffer[THIRD]]; //as logarithmic
+	    }
+	    if (adc_buffer[FOURTH]>10){
 	    village_hdgener[whichvillager].knoboffset=loggy[adc_buffer[FOURTH]]; //as logarithmic - varies each one!
+	    }
 	    village_hdgener[whichvillager].dir=xx;
 	    village_hdgener[whichvillager].speed=(spd&15)+1; 
 	    village_hdgener[whichvillager].step=((spd&240)>>4)+1; // change from other walkers here!
@@ -1016,7 +1039,7 @@ void main(void)
 
 	  } // end of mainmodes 
 
-#else // LACH modes!
+#else // LACH modes! - check to here!
 
 	  mainmode=ninth[adc_buffer[FIFTH]>>4];// 8 bit array LEAVE as is
 
@@ -1068,7 +1091,7 @@ void main(void)
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
-	    else village_read[whichvillager].dirry=direction[xx&1]*village_read[whichvillager].speed;
+	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
 	    break;
 
 	  case 2:

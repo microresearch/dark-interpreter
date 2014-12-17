@@ -120,7 +120,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static u8 hdgener; 
   static u16 counthw=0;
   static int16_t count40106=0,counthdgener=0,countlm=0,countmaxim=0;
-  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=1,whichfiltoutvillager=0;
+  static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=0,whichfiltoutvillager=0;
   extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
   extern u8 hardcompress,howmanyfiltoutvill;
   extern villagerw village_filtout[MAX_VILLAGERS+1];
@@ -182,10 +182,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
 	    //   for(x=howmanyreadvill; x--; ){
+		      overlay=village_read[x].overlay;
 #ifndef LACH
-	    if ((digfilterflag&1) && (village_read[x].overlay&32)) tmp=tmpl;
+	    if ((digfilterflag&1) && (overlay&32)) tmp=tmpl;
 #endif
-	           overlay=village_read[x].overlay;
 		   //	   overlay=16; // testy!
 	    village_read[x].counterr+=village_read[x].dirryr;
 
@@ -204,21 +204,21 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      case 0: // overlay=all,effect=straight
 	      tmp16=buf16[lp]-32768;
 	      buf16[lp]=tmp+32768; // TESTY commented out for datagens
-		audio_buffer[lp]=tmp16;
+	      audio_buffer[lp]=tmp16;
 	      break;
 	      case 1://or
 	      tmp16=buf16[lp]-32768;
-	      buf16[lp]|=tmp+32768;
+	      buf16[lp]|=(tmp+32768);
 	      audio_buffer[lp]|=tmp16;
 	      break;
 	      case 2:///+
 	      tmp16=buf16[lp];
-	      tmp32d=tmp16+tmp;
+	      tmp32d=tmp16+tmp+32768;
 	      tmp16+=audio_buffer[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
 		buf16[lp]=tmp32d;// 
-		audio_buffer[lp]=tmp16;
+		audio_buffer[lp]=tmp16-32768;
 		break;
 	      case 3://last
 	      tmp16=buf16[lp]-32768;
@@ -226,7 +226,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      if (tmp16>lasttmp16) audio_buffer[lp]=tmp16;
 	      lasttmp=tmp; lasttmp16=tmp16;
 	      break;
-
 	      case 4: // // overlay=all,effect=&
 		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
@@ -236,7 +235,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      case 5:// overlay or
 		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
-		buf16[lp]|=tmp16+32768;
+		buf16[lp]|=(tmp16+32768);
 		audio_buffer[lp]|=tmp16;
 		break;
 	      case 6: // overlay +
@@ -270,8 +269,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		tmp16=buf16[lp];
 		tmp32d=tmp+tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]|=tmp32d;
-		audio_buffer[lp]|=tmp32d-32768;
+		  buf16[lp]|=tmp32d;
+		audio_buffer[lp]|=(tmp32d-32768);
 		break;
 	      case 10: // overlay +
 		tmp16=buf16[lp];
@@ -298,14 +297,14 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]=tmp32d-32768;// 
+		buf16[lp]=tmp32d+32768;// 
 		audio_buffer[lp]=tmp32d;
 	      break;
 	      case 13:// overlay or
 		tmp16=buf16[lp]-32768;
 		tmp32d=tmp*tmp16; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-		buf16[lp]|=tmp32d+32768;
+		  buf16[lp]|=(tmp32d+32768);
 		audio_buffer[lp]|=tmp32d;
 		break;
 	      case 14: // overlay +
@@ -348,7 +347,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		if (tmp>lasttmp) audio_buffer[lp]=tmp;
 		lasttmp=tmp;
 	      break;
-
 	      case 4: // // overlay=all,effect=&
 		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
@@ -363,8 +361,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		tmp16=buf16[lp]-32768;
 		tmp16&=tmp;
 		tmp16+=audio_buffer[lp];
-		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
-		  //		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
+		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		audio_buffer[lp]=tmp16;
 		break;
 	      case 7: // overlay last
@@ -402,7 +399,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		}
 		lasttmp=tmp16;
 		break;
-
 	      case 12: // // overlay=all,effect=*
 		tmp16=buf16[lp]-32768;
 		tmp16*=tmp; 
@@ -570,7 +566,6 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 
 	  // hdgener=16// note hdgener is 8 bits
-
 	  
 	  if (digfilterflag&16){
 	  x=whichhdgenervillager%howmanyhdgenervill;
@@ -585,7 +580,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      samplepos=village_hdgener[x].samplepos;
 	      counthdgener+=village_hdgener[x].step;
 	      tmp=village_hdgener[x].knoboffset>>7; // 8 bits
-	      hdgener=(tmp+(datagenbuffer[(village_hdgener[x].dataoffset+samplepos)])%(256-tmp));
+	      tmpl=(village_hdgener[x].dataoffset+samplepos)&65535;
+	      hdgener=(tmp+(datagenbuffer[tmpl])%(256-tmp));
 	      samplepos+=dirry;
 	      if (samplepos>=village_hdgener[x].length) samplepos=0;
 	      else if (samplepos<0) samplepos=village_hdgener[x].length;
