@@ -13,10 +13,10 @@ Open Fire edition) is the ultimate plague-driven, finger sensitive,
 stand-alone noise processor, granular synthesiser and sound generator,
 merging digital and analogue processing.
 
-The Dark Interpreter is modelled as a leaky, overlapping medieval
-village space within which various plague simulations run, and through
-which an array of villagers (grains) wanders, steered by electric
-fingers and touch.
+The Dark Interpreter is modelled as a set of leaky, overlapping
+medieval village spaces within which various plague simulations run,
+and through which a motley of villagers (grains) wander, steered by
+electric fingers and touch.
 
 All models of the Dark Interpreter can generate sound or process
 incoming audio (full size (6.5mm) input and output JACKs). The model
@@ -57,7 +57,7 @@ From 28 OCT 2014+: to avoid repetition of notes
 
 ** General TODO: 
 
-- again sanity code check main.cX audio.cX effect.cX
+- check all again
 - re-test LACH [+ SUSP should be as TENE but test when ordered!]
 - re-test TENE
 
@@ -143,6 +143,8 @@ as not to init:
   in audio.c
 - few changes to overlay in audio.c
 - small error in datagen access in hdgener in audio.c
+- again sanity code check main.cX audio.cX effect.cX
+
 
 **** DEC 16
 

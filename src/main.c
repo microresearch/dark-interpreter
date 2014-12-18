@@ -312,7 +312,7 @@ void main(void)
   float Fc,Q,peakGain;
 
 #ifndef LACH
-  const float Fs=32000.0f;// TODO
+  const float Fs=48000.0f;// TODO
 #else
   const float Fs=48000.0f;
 #endif
@@ -529,7 +529,7 @@ void main(void)
   // maintain order
   Audio_Init();
 #ifndef LACH
-  Codec_Init(32000); // TODO!
+  Codec_Init(48000); // TODO!
 #else
   Codec_Init(48000); 
 #endif

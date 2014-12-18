@@ -73,7 +73,7 @@ extern u16 *buf16;
 #ifdef LACH
 const u16 SAMPLE_FREQUENCY = 48000;
 #else
-const u16 SAMPLE_FREQUENCY = 32000;
+const u16 SAMPLE_FREQUENCY = 48000;
 #endif
 
 const float32_t Pi = 3.1415926535f;

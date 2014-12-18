@@ -265,7 +265,7 @@ void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSi
 float bandpass(float sample,float q, float fc, float gain){ // from OWL code - statevariable
   float f,fb,hp,bp,scale;
   static float buf0=0,buf1=0;
-  f = 2.0*M_PI*fc/32000.0f;
+  f = 2.0*M_PI*fc/48000.0f;
   fb= q + q/(1.0 - f);
 
   hp=sample-buf0;
