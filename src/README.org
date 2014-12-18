@@ -34,6 +34,41 @@ Samples: soundcloud links
 
 ebay price: 150 inc. wordwide tracked postage
 
+update:
+
+I'm very pleased to announce a radically new Dark Interpreter firmware
+version, and price reductions across all Interpreters:
+
+http://1010.co.uk/org/darkint.html 
+
+This latest "Towers Open Fire" release maintains underlying plague
+code, yet re-works nearly all modes and sampling methods for extended
+granulation, formant filtering, vocoding, further emphasis on
+villagers and walkers and an improved interface.
+
+For those already using The Dark Interpreter, firmware can be updated
+by downloading the latest appropriate main.bin.MODEL from the above page,
+and uploading this using a suitable programmer and software (you could
+ask a local hackerspace to assist). If this is not possible I can also
+pre-program the unit for free. Otherwise an extra unit could be
+purchased with an additional 40 euro discount. In all these cases
+please get in touch if you need any help!
+
+price drop=140/210/270
+
+Hand steering medieval villagers through leaky, overlacking plague
+stacks to generate audio
+
+
+Announcing the new Dark Interpreter Towers code update an unedited
+recording straight from Interpreter to mixer to Tascam recorder, with
+the usual vocal test recording as input. No other effects or
+processing or editing. Mater Tenebrarum. Little hardware/hand work is
+in evidence here.
+
+More details at: http://1010.co.uk/org/darkint.html
+
+
 * new scheme for development
 
 From 28 OCT 2014+: to avoid repetition of notes 

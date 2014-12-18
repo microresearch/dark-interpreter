@@ -250,9 +250,8 @@ inquisition.
 
 The Dark Interpreter operates as contagious sample or village
 granulator, distortion, and unique sound generator based on a speedy
-ARM processor allowing for 16 bit sampling at either 32 KHz (for Suspiriorum or
-Tenebrarum) or 48 KHz (Lachrymarum), and with a sample memory of around
-one second (extended by undersampling).
+ARM processor allowing for 16 bit sampling at 48 KHz, and with a
+sample memory of around one second (extended by undersampling).
 
 The Dark Interpreter is delivered in three versions, all fully
 assembled and tested, and features high quality ALPS potentiometers,
