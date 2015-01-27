@@ -136,7 +136,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif
 
 #ifdef TEST_EEG
-  static u16 samplepos=0;
+  static u16 sampleposss=0;
 #endif
 
 #ifdef TEST_STRAIGHT
@@ -147,8 +147,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #ifdef TEST_EEG
 	// write buf16 into mono
 	for (x=0;x<sz/2;x++){
-	  mono_buffer[x]=buf16[samplepos&32767];//-32768;
-	  samplepos++;
+	  mono_buffer[x]=buf16[sampleposss&32767];//-32768;
+	  sampleposss++;
 	}
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else
