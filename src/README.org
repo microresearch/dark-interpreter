@@ -688,6 +688,15 @@ lee 270 2290 3010
 
 * ////////////////////////
 
+
+
+
+* MON APR 27 2015
+
+- few tweaks to effect.c and main.c 
+- not done - calibrate MODE and shift HW from audio.c for next release!
+
+
 * TUE 28 OCT+
 
 - test all effects with simple audio I/O (see below)//EVENINGS:

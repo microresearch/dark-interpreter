@@ -380,7 +380,7 @@ void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){/
   float tmpotherbuffer[BUFF_LEN/4];
   float tmpotherotherbuffer[BUFF_LEN/4];
   memset(tmpotherotherbuffer,0,howmany*4); 
-  vowel=vowel%5;  
+  vowel=(vowel>>5)%5;  
   //  int_to_floot(inbuffer,tmpbuffer,howmany);///or do conv when we sort out buffers
   arm_biquad_cascade_df1_f32(&df[vowel][0],inbuffer,tmpotherbuffer,32); 
   accumbuffer(tmpotherbuffer,tmpotherotherbuffer,howmany);
@@ -419,8 +419,8 @@ void do_effect(villager_effect* vill_eff){
       u16  modifier;
    */
 
-    if (++vill_eff->del>=vill_eff->speed){
-      vill_eff->del=0;
+  if (++vill_eff->del>=vill_eff->speed){
+    vill_eff->del=0;
 
     if (vill_eff->inpos>=vill_eff->inwrap) {
       vill_eff->inpos=0;
@@ -428,7 +428,7 @@ void do_effect(villager_effect* vill_eff){
  
    if (vill_eff->modpos>=vill_eff->modwrap) {
       vill_eff->modpos=0;
-    }
+   }
  
     // so copy into inbuffer
 
@@ -594,7 +594,7 @@ void do_effect(villager_effect* vill_eff){
       //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)&32767];
     }
 
-    switch(vill_eff->modifier&3){
+    switch((vill_eff->modifier>>5)&3){
     case 0:
     default:
       hanningprocess(inbuffer, outbuffer, tmpinlong); 
@@ -615,7 +615,7 @@ void do_effect(villager_effect* vill_eff){
     break;
 
   case 7://      8--variable bandpass based on modifier 
-    freq = (float32_t)(vill_eff->modifier)/2550.0f; // mod is now 8 bits
+    freq = (float32_t)(vill_eff->modifier)/1024.0f; // mod is now 8 bits
     float fb= 0.8f + 0.8f/(1.0f - freq);
 
     //    xx=bandpassmod(xxx,0.9f,10.0f,1.0f); // q freq gain
@@ -637,7 +637,7 @@ void do_effect(villager_effect* vill_eff){
       }
     break;
   }
-    }
+  }
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){

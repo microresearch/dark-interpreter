@@ -28,19 +28,19 @@ signed char direction[2]={-1,1};
 double
 blackman (int i, int nn)
 {
-  return ( 0.42 - 0.5 * cos (2.0*M_PI*(double)i/(double)(nn-1))
-	  + 0.08 * cos (4.0*M_PI*(double)i/(double)(nn-1)) );
+  //  return ( 0.42 - 0.5 * cos (2.0*M_PI*(double)i/(double)(nn-1))
+  //	  + 0.08 * cos (4.0*M_PI*(double)i/(double)(nn-1)) );
 }
 
 double
 hamming (int i, int nn)
 {
-  return ( 0.54 - 0.46 * cos (2.0*M_PI*(double)i/(double)(nn-1)) );
+  //  return ( 0.54 - 0.46 * cos (2.0*M_PI*(double)i/(double)(nn-1)) );
 }
 
 double hanning (int i, int nn)
 {
-  return ( 0.5 * (1.0 - cos (2.0*M_PI*(double)i/(double)(nn-1))) );
+  ///  return ( 0.5 * (1.0 - cos (2.0*M_PI*(double)i/(double)(nn-1))) );
 }
 
 float intun_to_float(unsigned int inbuffer){
@@ -97,6 +97,100 @@ void runnoney(int x){
 
 }
 
+    typedef struct {
+      u8 whicheffect,speed,step;
+      u16 instart,modstart,outstart;
+      int32_t inpos,modpos,outpos;// various counters
+      u16 inwrap,modwrap,outwrap;
+      u8 mirrormod,mirrordel,mirrorspeed,del; 
+      //      u8 infected;
+      u8 fingered; // what is input here as modifier
+      u8  modifier,kmodifier;
+    } villager_effect;
+
+
+void testpass(villager_effect* vill_eff){
+
+    if (++vill_eff->del>=vill_eff->speed){
+      vill_eff->del=0;
+    }
+  }
+
+villager_effect village_effect;
+
+void do_effect(villager_effect* vill_eff){
+  int32_t tmp;float tmpp; 
+  float freq;
+  int16_t inbuffer[32],modbuffer[32],outbuffer[32];
+  float finbuffer[32],fmodbuffer[32],foutbuffer[32];
+  u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
+
+  float hp,bp;
+  static float buf0=0.0f,buf1=0.0f;
+
+  // modifier is 8 bits
+  // chunk in size 32
+  // pos and wrap are fixed by select/knob in audio.c!
+  // pos is NOT with start!
+
+  /*
+      u8 whicheffect,speed,step;
+      u16 instart,modstart,outstart;
+      u16 inpos,modpos,outpos;// various counters
+      u16 inwrap,modwrap,outwrap;
+      u16  modifier;
+   */
+
+  if (++vill_eff->del>=vill_eff->speed){
+    vill_eff->del=0;
+
+    if (vill_eff->inpos>=vill_eff->inwrap) {
+      vill_eff->inpos=0;
+    }
+ 
+   if (vill_eff->modpos>=vill_eff->modwrap) {
+      vill_eff->modpos=0;
+    }
+ 
+    // so copy into inbuffer
+
+    if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
+    else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
+    
+   // same for mod...
+    if ((vill_eff->modpos+32)<=vill_eff->modwrap) tmpmodlong=32;
+    else tmpmodlong=vill_eff->modwrap-vill_eff->modpos;
+    
+    //    now copy with length as longest
+    if (tmpinlong<=tmpmodlong) longest=tmpinlong;// NOW lONGEST is really shortest which is as should be
+    else longest=tmpmodlong;
+
+    //  switch(vill_eff->whicheffect){
+    //  case 0: // void doformantfilterf(float *inbuffer, float *outbuffer, u8 howmany, u8 vowel){// vowel as 0-4
+    // just in->out as float 
+
+    printf("tmpinlong: %d inpos %d outpos %d\n",tmpinlong,vill_eff->inpos,vill_eff->outpos);
+
+
+    for (xx=0;xx<tmpinlong;xx++){
+      foutbuffer[xx]=(float)(rand()%32768)/32768.0f;//REDO!howso?
+      vill_eff->inpos++;
+    }
+    // do effect
+    //    doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
+    // copy outbuffer to audio and do float back
+    for (xx=0;xx<tmpinlong;xx++){
+    tmp = foutbuffer[xx] * 32768.0f;
+    tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
+    printf("%d\n",tmp);
+    //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+    vill_eff->outpos+=vill_eff->step;
+    if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
+    }
+  }
+}
+
+
 void main(void)
 {
 
@@ -105,6 +199,27 @@ void main(void)
   int inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
+    village_effect.del=0;
+    village_effect.inpos=0;
+    village_effect.modpos=0;
+    village_effect.outpos=0;
+    village_effect.instart=0;
+    village_effect.inwrap=31;
+    village_effect.outstart=3200;
+    village_effect.outwrap=32000;//TESTY!
+    village_effect.modstart=0;
+    village_effect.modwrap=3200;
+    village_effect.modifier=127;
+    village_effect.kmodifier=127;
+    village_effect.whicheffect=0;// TESTY all!!!
+    village_effect.step=1;
+    village_effect.speed=1;
+
+
+  while(1){
+    do_effect(&village_effect);
+    //    printf("vill: %d\n",village_effect.del);
+  }
   /*  while(1){
 
     inpos=rand()%32768;
@@ -119,10 +234,10 @@ void main(void)
     
     }*/
 
-  i=0;
-  printf("i=%d\n",i);
+  //  i=0;
+  //  printf("i=%d\n",i);
 
-  int digfilterflag=1;int overlay=32;
+  //  int digfilterflag=1;int overlay=32;
   /*
   if ((digfilterflag&1) && (overlay&32)) printf("helpo");
 
@@ -172,18 +287,18 @@ void main(void)
     //    if (outpos>outwrap) outpos=0;
     }
     */
-    float f = 2.0*M_PI*10.0f/32000.0f;
+  //    float f = 2.0*M_PI*10.0f/32000.0f;
 
     //    printf("f=%f",f);
 
-    i=32;
+  //    i=32;
     //    if (i&16) printf("hhh\n");
-    int lp=60000; int tmp=-320;
-    int tmp16=lp;
-    int tmp32d=tmp+tmp16; 
+  //    int lp=60000; int tmp=-320;
+  //    int tmp16=lp;
+  //    int tmp32d=tmp+tmp16; 
     //    asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
-    lp|=(tmp32d-32768);
-    printf("lp=%d\n",lp);
+  //    lp|=(tmp32d-32768);
+  //    printf("lp=%d\n",lp);
 
     //  for (i=0;i<32;i++){
     //    printf("out: %d\n",outbuffer[i]);
@@ -306,9 +421,9 @@ void main(void)
   //  mod=freq*(float)mod;
   //  printf("freq*mod: %d\n",mod);
 
-  u8 whichdatagenwalkervillager=0,step=10;
+  //  u8 whichdatagenwalkervillager=0,step=10;
   //  u16 countdatagenwalker=0,knoboffset=100,samplepos=0,length=120,dataoffset=0,tmpp, start=0, wrap=400;
-  int dirry=-1;
+  //  int dirry=-1;
 
   //    while(1){
       /*  samplepos+=dirry;//)&32767;

@@ -462,7 +462,7 @@ void main(void)
 
     village_40106[xx].length=32767;
     village_40106[xx].dataoffset=0;
-    village_40106[xx].knoboffset=0;
+    village_40106[xx].knoboffset=1024;
     village_40106[xx].samplepos=0;
     village_40106[xx].dir=1;
     village_40106[xx].speed=1;
@@ -489,7 +489,7 @@ void main(void)
 
     village_maxim[xx].length=32767;
     village_maxim[xx].dataoffset=0;
-    village_maxim[xx].knoboffset=0;
+    village_maxim[xx].knoboffset=128;
     village_maxim[xx].samplepos=0;
     village_maxim[xx].dir=1;
     village_maxim[xx].speed=1;

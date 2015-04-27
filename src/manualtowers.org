@@ -281,7 +281,6 @@ amplification, oscillation) can be accessed and routed by skin and
 fingers using the extended hardware board. Hardware points can easily
 be probed and discovered.
 
-
 * Addendum
 
 - In certain cases it may be necessary to touch one finger against the
