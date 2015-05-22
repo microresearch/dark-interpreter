@@ -42,7 +42,7 @@ Based in part on SLUGens by Nicholas Collins.
 u16 sin_data[256];
 u16 *stacker;//[256]; // 16*3 MAX
 uint16_t adc_buffer[10];
-int16_t audio_buffer[32768];
+//int16_t audio_buffer[32768];
 uint16_t buf16[32768];
 /* 
 u16 sin_data[256];
@@ -60,7 +60,7 @@ int16_t* audio_buffer;
 #include "arm_math.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
+//extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));
 extern u16 sin_data[256];
 extern u16 *buf16;
 #endif
@@ -655,9 +655,9 @@ u16 temp;
       if (count>start+wrap) count=start;
 
     // convert signed to unsigned how? 
-	temp=(uint16_t)audio_buffer[count&32767];
-	audio_buffer[count&32767]=(int16_t)buf16[count&32767];
-	buf16[count&32767]=temp;
+      //	temp=(uint16_t)audio_buffer[count&32767];
+	//	audio_buffer[count&32767]=(int16_t)buf16[count&32767];
+      //	buf16[count&32767]=temp;
      }
   vill->position=count;
 }
@@ -665,7 +665,7 @@ u16 temp;
 //////////////////////////////////////////////////////////
 // OR/XOR/AND/other ops datagen 16 bits to and from audio buffer
 
-void runORaudio(villager_generic* vill){
+/*void runORaudio(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
@@ -707,7 +707,7 @@ u16 temp;
     }
   vill->position=count;
 }
-
+*/
 
 //////////////////////////////////////////////////////////
 

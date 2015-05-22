@@ -28,7 +28,7 @@ Based in part on spork factory by Dave Griffiths.
 #include <string.h>
 #include <time.h>
 //#include "CPUint.h"
-extern int16_t* audio_buffer;
+//extern int16_t* audio_buffer;
 extern uint16_t* adc_buffer;
 #define randi() rand()
 #else
@@ -37,7 +37,7 @@ extern uint16_t* adc_buffer;
 #include "audio.h"
 #define randi() (adc_buffer[9])
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
+//extern int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));;
 //extern u8 *datagenbuffer;
 #endif
 
@@ -1025,7 +1025,7 @@ instr=datagenbuffer[pos];
       case 1:
 	if (villager->m_reg8bit2==13){
 	  villager->m_reg16bit1++;
-	  machine_poke(villager->m_reg16bit1,audio_buffer[pos&32767]); //READ IN
+	  //	  machine_poke(villager->m_reg16bit1,audio_buffer[pos&32767]); //READ IN
 	  pos+=villager->speed;
 	}
 	else pos+=villager->speed;

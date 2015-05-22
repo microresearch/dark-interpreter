@@ -8,7 +8,7 @@
 #include "settings.h"
 #define randi() rand()
 extern uint16_t *settingsarray;
-extern int16_t* audio_buffer;
+//extern int16_t* audio_buffer;
 extern uint16_t* adc_buffer;
 /*uint16_t settingsarray[64];
 int16_t audio_buffer[32768];
@@ -20,7 +20,7 @@ uint16_t adc_buffer[10];*/
 #define randi() (adc_buffer[9])
 //#define randi() rand()
 extern __IO uint16_t adc_buffer[10];
-extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
+//extern int16_t audio_buffer[32768] __attribute__ ((section (".data")));;
 //extern u16 settingsarray[64];
 #endif
 
@@ -489,7 +489,7 @@ break;
 	if (BIT81==13){
 	  y=((BITADDRHI<<8)+BITADDRLO);
 	  y++;
-	  machine_pokeee(y,audio_buffer[addr&32767],start,end);//READ ,start,endIN
+	  //	  machine_pokeee(y,audio_buffer[addr&32767],start,end);//READ ,start,endIN
 	  BITADDRHI=y>>8;// hi/lo
 	  BITADDRLO=y&255;
 	  addr++;

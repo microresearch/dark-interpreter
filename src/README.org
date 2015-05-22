@@ -47,7 +47,7 @@ granulation, formant filtering, vocoding, further emphasis on
 villagers and walkers and an improved interface.
 
 For those already using The Dark Interpreter, firmware can be updated
-by downloading the latest appropriate main.bin.MODEL from the above page,
+by downloading the latest appropriate firmware from the above page,
 and uploading this using a suitable programmer and software (you could
 ask a local hackerspace to assist). If this is not possible I can also
 pre-program the unit for free. Otherwise an extra unit could be
@@ -68,6 +68,46 @@ in evidence here.
 
 More details at: http://1010.co.uk/org/darkint.html
 
+
+* FRI MAY 22
+
+Quick debug links: do we have SWO on discovery st-link connection as per:
+
+http://stm32f4-discovery.com/2014/12/library-46-debug-stm32f4-device-swo-feature/
+
+do we need to use openocd or can use st-link utils/gdb???
+
+http://electronics.stackexchange.com/questions/149387/how-do-i-print-debug-messages-to-gdb-console-with-stm32-discovery-board-using-gd
+
+* SUN MAY 17
+
+- few fixes for runvoice
+- get rid of read compress and shift read to mode 0 and fill in
+  overlay TODO this for LACH to as only TO TEST with TENE!
+
+
+* FRI MAY 15
+
+- 32k samplerate
+- TEST_SPEECH code
+- how to add in as a data gen and to make access to effects and datagens easier?
+
+* THU MAY 14
+
+- recent changes (for TENE): recalibrate mainmodes knob, recal maxim
+  and some other hardware, moved all HW to main again from audio.c
+
+- TO TEST: speedup in audio.c write code! FIXED bug!
+
+- TODO: start to wrap in code from TTS, re-check all code for
+  blockages, maybe new single buffer/stripped fork scheme
+
+- TTS code notes:
+
+// 32k samplerate set in def_pars.c, compilation linkage problems with
+_kill, _getpid and _write - FIXED in syscalls.c (write is a bit mess but...)
+
+// what of 32 bit samples? how phoneme is represented? pwavbuffer? memory?
 
 * new scheme for development
 

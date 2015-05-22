@@ -2,6 +2,29 @@
 
 int __errno;
 
+
+int _write(int fd, const char *buf, size_t cnt)
+{
+  int i;
+
+  for (i = 0; i < cnt; i++)
+    //    putch(buf[i]);
+
+  return cnt;
+}
+
+
+int _getpid(int file)
+{
+	return 1;
+}
+
+int _kill(int file)
+{
+	return 1;
+}
+
+
 int _close(int file) {
 	return 0;
 }

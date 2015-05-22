@@ -8,6 +8,7 @@
 #include <math.h>
 #include <time.h>
 #include <malloc.h>
+#include <string.h>
 #define randi() rand()
 
 typedef int u16;
@@ -101,10 +102,40 @@ void main(void)
 {
 
   //  int i; float xx,xa,xb,xc; int xxx;
-  int i,xx,inpos,inwrap,tmpinlong;
+  int i,x,xx,inpos,inwrap,tmpinlong;
   int inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
+  int adapter[16]={32,288,288,288,288,288,288,288,288,288,288,288,288,288,288,32};
+
+  char testph[128]; char *randy;
+
+    typedef struct {
+      char pp[3];
+    } lll;
+
+
+static const char phonemmm[41][3] =
+{"IY\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0","AY\0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0"," \0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"};
+
+// for (x=0;x<64;x++){
+   // grow the string! how?
+//   strcat(testph,phonemmm[rand()%41]);
+// }
+ printf("%s\n",phonemmm[28]);
+
+     printf("%s %d\n",testph,strlen(testph));
+
+     printf("%d\n",0xffff);
+
+  int cnt=0;
+  /*  for (xx=0;xx<16;xx++){
+    for (i=0;i<adapter[xx];i++){
+      printf("%d,",xx);
+      cnt++;
+      }
+      }*/
+  //    printf("\ncount: %d\n", cnt);
   /*  while(1){
 
     inpos=rand()%32768;
@@ -119,8 +150,8 @@ void main(void)
     
     }*/
 
-  i=0;
-  printf("i=%d\n",i);
+  //  i=0;
+  //  printf("i=%d\n",i);
 
   int digfilterflag=1;int overlay=32;
   /*
@@ -183,7 +214,7 @@ void main(void)
     int tmp32d=tmp+tmp16; 
     //    asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp32d) : [src] "r" (tmp32d));
     lp|=(tmp32d-32768);
-    printf("lp=%d\n",lp);
+    //    printf("lp=%d\n",lp);
 
     //  for (i=0;i<32;i++){
     //    printf("out: %d\n",outbuffer[i]);

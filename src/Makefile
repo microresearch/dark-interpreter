@@ -7,6 +7,8 @@ LIB_PREFIX = $(TOOL_PREFIX)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpu
 CC      = $(PRG_PREFIX)gcc
 LD      = $(PRG_PREFIX)gcc
 
+rsynth-portDIR	= ./rsynth-2.0-port
+
 # Object files
 OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			stm32f4xx_tim.o adc.o stm32f4xx_pwr.o\
@@ -15,6 +17,17 @@ OBJECTS = 	startup_stm32f4xx.o system_stm32f4xx.o main.o codec.o i2s.o \
 			syscalls.o pureleak2.o audio.o hardware.o effect.o \
 			biquad.o vocode.o mdavocoder.o mdavoc.o PV_vocoder.o\
 			simforstacksansmem2.o cpuintrev4.o CAforstacksansmem2.o
+
+OBJECTS += \
+ $(rsynth-portDIR)/holmes.o					\
+ $(rsynth-portDIR)/elements.o				\
+ $(rsynth-portDIR)/nsynth.o					\
+ $(rsynth-portDIR)/say.o					\
+ $(rsynth-portDIR)/darray.o					\
+ $(rsynth-portDIR)/phtoelm.o				\
+ $(rsynth-portDIR)/def_pars.o				\
+ $(rsynth-portDIR)/trie.o					
+
 
 # Linker script
 #LDSCRIPT = stm32f407.ld
@@ -25,8 +38,8 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 # was -02 before below... 
 
-CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -std=gnu99 \
-	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DLACH \
+CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -I./rsynth-2.0-port -std=gnu99 \
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
 	-mthumb \
 	-mfpu=fpv4-sp-d16 \
 	-c -lm -lc -fno-common -O3 \
