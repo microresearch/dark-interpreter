@@ -120,9 +120,10 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 #ifndef LACH
   static u8 hdgener; 
-  static u16 counthw=0,whichfiltoutvillager=0;
-  extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
-  extern u8 hardcompress,howmanyfiltoutvill;
+  static u16 whichfiltoutvillager=0;
+  //  extern u8 howmanyhardvill,howmany40106vill,howmanylmvill,howmanyhdgenervill,howmanymaximvill;
+  //  extern u8 hardcompress;
+  extern u8 howmanyfiltoutvill;
   extern villagerw village_filtout[MAX_VILLAGERS+1];
   extern villager_hardware village_hardware[17];
   extern villager_hardwarehaha village_40106[17];
