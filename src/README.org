@@ -69,6 +69,17 @@ in evidence here.
 More details at: http://1010.co.uk/org/darkint.html
 
 
+* MON JUN 01 voice branch
+
+- testing start+previous start for all walkers - watch -1 in array ref
+- compress and offset fixed (offset%compress)
+- swap back write as first mode
+
+*- port these changes to TOWERS and test*
+- verify that effects is really working
+- debug tests
+- see notebook
+
 * FRI MAY 22
 
 Quick debug links: do we have SWO on discovery st-link connection as per:

@@ -59,7 +59,7 @@
 
 typedef struct {
   u16 kstart,kcompress,kwrap;
-  //  u16 mstart,mcompress,mwrap;
+  u16 mstart,mcompress,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
   u8 koverlay;
   //  u8 infected;

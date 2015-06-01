@@ -689,6 +689,7 @@ void main(void)
 
 
   u8 mainmode,ranger,whichx,whichy,spd;
+  u16 tmper;
 
   while(1)
     {
@@ -788,7 +789,7 @@ a**
 #ifndef LACH
       //    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16 >>8
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
-      //      mainmode=1;// TSTY!
+      //      mainmode=4;// TSTY!
 
 
     // calibrate hitting 0:
@@ -797,7 +798,7 @@ a**
 
 	  switch(mainmode){
 
-	  case 2:// WRITE
+	  case 0:// WRITE
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanywritevill=whichvillager+1;
 
@@ -820,7 +821,7 @@ a**
 	    village_write[whichvillager].dirry=direction[xx&1]*village_write[whichvillager].speed;
     break;
 
-	  case 0:// READ
+	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
@@ -848,7 +849,7 @@ a**
 	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
 	    break;
 
-	  case 1: // READ 2nd
+	  case 2: // READ 2nd
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    village_read[whichvillager].fingered=xx;
 	    village_read[whichvillager].mirrormod=adc_buffer[FOURTH]>>9;
@@ -889,9 +890,12 @@ a**
 	  case 4: // effects across also case 5:
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
-	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    //village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    tmper=whichvillager-1;
+	    village_effect[whichvillager].instart=village_effect[tmper%MAX_VILLAGERS].instart+village_read[adc_buffer[SECOND]>>6].start;
+
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
-	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+	    village_effect[whichvillager].modstart=village_effect[tmper%MAX_VILLAGERS].modstart+village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=(spd&15)+1; 
@@ -899,7 +903,8 @@ a**
 
 	  case 5: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64///4bits=16total
-	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    tmper=whichvillager-1;
+	    village_effect[whichvillager].outstart=village_effect[tmper%MAX_VILLAGERS].outstart+loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    
 	    xx=adc_buffer[FOURTH]>>4; //8 bits

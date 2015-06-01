@@ -104,7 +104,7 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int16_t dirry;
+  int16_t dirry,tmpr;
   int32_t lasttmp=0,lasttmp16=0;
 #ifndef TEST_SPEECH
   register int32_t lp,samplepos;
@@ -200,17 +200,18 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    //	    overlay=16; // testy!
 	    village_read[x].counterr+=village_read[x].dirryr;
 
-	    //	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
-	    if (village_read[x].counterr>=32767) {// whether still makes sense as ??? guess so!!!
+	    	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
+	    //	    if (village_read[x].counterr>=32767) {// whether still makes sense as ??? guess so!!!
 	      village_read[x].counterr=0;
 	      village_read[x].running=1;
 	    	    }
-
-	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
+		    // 
+		    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 	    //	      if (village_read[x].offset<=village_read[x].counterr){
 	      samplepos=village_read[x].samplepos;
 	      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start
-	      lp=(samplepos+village_read[x].start+village_read[(x-1)%howmanyreadvill].wrap)&32767; // start is now added to the last start
+	      tmpr=x-1;
+	      lp=(samplepos+village_read[x].start+village_read[tmpr%howmanyreadvill].start)&32767; // start is now added to the last start // rather than WRAP!
 
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
@@ -331,7 +332,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  samplepos=village_write[whichwritevillager].samplepos;//)&32767;
 	  for (xx=0;xx<sz/2;xx++){
-    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
+	      tmpr=whichwritevillager-1;
+	      lp=(samplepos+village_write[x].start+village_write[tmpr%howmanywritevill].start)&32767; 
+	      //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
 	    //	    lp=(samplepos)&32767; // TESTY!
 	    	    mono_buffer[xx]=buf16[lp];
 	    //	    mono_buffer[xx]=buf16[lp];
@@ -364,7 +367,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	    samplepos=village_filtout[whichfiltoutvillager].samplepos;
 
 	  for (xx=0;xx<sz/2;xx++){
-	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
+	      tmpr=whichfiltoutvillager-1;
+	      lp=(samplepos+village_filtout[x].start+village_filtout[tmpr%howmanyfiltoutvill].start)&32767; 
+	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
 	    left_buffer[xx]=buf16[lp];
 	    //	    left_buffer[xx]=0;
 	  

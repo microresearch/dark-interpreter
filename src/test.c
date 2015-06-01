@@ -122,11 +122,15 @@ static const char phonemmm[41][3] =
    // grow the string! how?
 //   strcat(testph,phonemmm[rand()%41]);
 // }
- printf("%s\n",phonemmm[28]);
+// printf("%s\n",phonemmm[28]);
 
-     printf("%s %d\n",testph,strlen(testph));
+//     printf("%s %d\n",testph,strlen(testph));
 
-     printf("%d\n",0xffff);
+//     printf("%d\n",0xffff);
+
+ unsigned int tzz=0;
+ unsigned char tmppp=(tzz-1);
+ printf("%d\n",tmppp%16);
 
   int cnt=0;
   /*  for (xx=0;xx<16;xx++){
