@@ -1271,9 +1271,13 @@ a**
 	  case 4:
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
-	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    tmper=whichvillager-1;
+	    village_effect[whichvillager].instart=village_effect[tmper%MAX_VILLAGERS].instart+village_read[adc_buffer[SECOND]>>6].start;
+
+	    //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
-	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+	    village_effect[whichvillager].modstart=village_effect[tmper%MAX_VILLAGERS].modstart+village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=(spd&15)+1; 
@@ -1281,9 +1285,10 @@ a**
 
 	  case 5: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>6;
-	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    tmper=whichvillager-1;
+	    village_effect[whichvillager].outstart=village_effect[tmper%MAX_VILLAGERS].outstart+loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
-
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
 	    village_effect[whichvillager].kmodifier=xx;
 	    if (!village_effect[whichvillager].mirrormod) village_effect[whichvillager].modifier=xx; // 8 bits
