@@ -333,7 +333,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	  samplepos=village_write[whichwritevillager].samplepos;//)&32767;
 	  for (xx=0;xx<sz/2;xx++){
 	      tmpr=whichwritevillager-1;
-	      lp=(samplepos+village_write[x].start+village_write[tmpr%howmanywritevill].start)&32767; 
+	      lp=(samplepos+village_write[whichwritevillager].start+village_write[tmpr%howmanywritevill].start)&32767; 
 	      //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
 	    //	    lp=(samplepos)&32767; // TESTY!
 	    	    mono_buffer[xx]=buf16[lp];
