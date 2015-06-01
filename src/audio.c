@@ -368,7 +368,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 
 	  for (xx=0;xx<sz/2;xx++){
 	      tmpr=whichfiltoutvillager-1;
-	      lp=(samplepos+village_filtout[x].start+village_filtout[tmpr%howmanyfiltoutvill].start)&32767; 
+	      lp=(samplepos+village_filtout[whichfiltoutvillager].start+village_filtout[tmpr%howmanyfiltoutvill].start)&32767; 
 	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
 	    left_buffer[xx]=buf16[lp];
 	    //	    left_buffer[xx]=0;
