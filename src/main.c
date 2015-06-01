@@ -856,9 +856,9 @@ a**
 	    village_read[whichvillager].mirrorspeed=(spd&15)+1; 
 	    village_read[whichvillager].dirryr=(spd&240)>>4;
 
-	    //	    xx=adc_buffer[SECOND]>>6;// 6 bits
-	    //	    village_read[whichvillager].koverlay=xx;
-	    //	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
+	    xx=adc_buffer[SECOND]>>6;// 6 bits
+	    village_read[whichvillager].koverlay=xx;
+	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
 	    tmpp=(32768-(adc_buffer[THIRD]<<3));
 	    village_read[whichvillager].kcompress=tmpp;
 	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
