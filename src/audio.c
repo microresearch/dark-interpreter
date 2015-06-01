@@ -194,7 +194,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      village_read[x].running=1;
 	    }
 
-	    if (village_read[x].offset<=village_read[x].counterr && village_read[x].running==1){
+	    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 	      samplepos=village_read[x].samplepos;
 	      lp=(samplepos+village_read[x].start)&32767;
 
