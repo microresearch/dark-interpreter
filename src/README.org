@@ -687,10 +687,6 @@ lee 270 2290 3010
 - 963/964/simple vocals
 
 * ////////////////////////
-
-
-
-
 * MON APR 27 2015
 
 - few tweaks to effect.c and main.c 
