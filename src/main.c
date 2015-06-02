@@ -251,7 +251,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=16,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
 
 // effects tests
 
