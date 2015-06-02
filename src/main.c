@@ -1767,7 +1767,7 @@ a**
 	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 #ifndef LACH
 	  // always running!	  	  
-	/*
+	
 	  x=which40106villager%howmany40106vill;
 	  if (++village_40106[x].del>=village_40106[x].speed){
 	  tmper=which40106villager-1;
@@ -1836,7 +1836,7 @@ a**
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
 	  //	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
-	  setmaximpwm((buf16[(village_maxim[x].dataoffset+village_maxim[tmper%howmanymaximvill].dataoffset+samplepos)&32767])%tmp); // inverted
+	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+village_maxim[tmper%howmanymaximvill].dataoffset+samplepos)&32767])%(8193-tmp)); // inverted
 	  //	  setmaximpwm(255); // testy!
 	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;
@@ -1890,7 +1890,7 @@ a**
 	    whichhwvillager++; //u8
 	    }
 	    }
-	*/
+	
 #endif // LACH
 
 
