@@ -766,7 +766,7 @@ void main(void)
 	    tmper=whichvillager-1;
 	    //	    if (adc_buffer[SECOND]>10){
 	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
 	    //	    }
 	    //	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -1150,7 +1150,7 @@ void main(void)
 
 	    //	    if (adc_buffer[SECOND]>10){
 	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
 	    //	    }
 	    //	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
