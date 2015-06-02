@@ -257,7 +257,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=1,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
 
 // effects tests
 
@@ -793,7 +793,6 @@ a**
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
       //      mainmode=4;// TSTY!
 
-
     // calibrate hitting 0:
       //      if (mainmode==8) mainmode=0;
       //      else mainmode=16;
@@ -876,7 +875,7 @@ a**
 	    tmper=whichvillager-1;
 	    //	    if (adc_buffer[SECOND]>10){
 	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
 	    //	    }
 	    //	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -1260,7 +1259,7 @@ a**
 	    tmper=whichvillager-1;
 	    //	    if (adc_buffer[SECOND]>10){
 	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
 	    //	    }
 	    //	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
