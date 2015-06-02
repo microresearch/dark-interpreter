@@ -1767,6 +1767,7 @@ a**
 	  //digfilterflag= 32.16.8.4.2.1=filterfeedin,switch_hardware,maxim,lm,40106,digfilter_process
 #ifndef LACH
 	  // always running!	  	  
+	/*
 	  x=which40106villager%howmany40106vill;
 	  if (++village_40106[x].del>=village_40106[x].speed){
 	  tmper=which40106villager-1;
@@ -1791,23 +1792,6 @@ a**
 	  }
 	  }
 
-	  // how looks without step:
-	  /*	  if (++village_40106[x].del>=village_40106[x].speed){
-	      village_40106[x].del=0;
-	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
-	  samplepos=village_40106[x].samplepos;
-	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+samplepos)&32767])%(2048-tmp));
-	  samplepos+=village_40106[x].dirry;
-	  if (samplepos>=village_40106[x].length) {
-	    samplepos=0;
-	    which40106villager++; //u8
-	  }
-	  else if (samplepos<0) {
-	    samplepos=village_40106[x].length;
-	    which40106villager++; //u8
-	  }
-	  village_40106[x].samplepos=samplepos;
-	  }*/
 
 
 	  // hdgener=16// note hdgener is 8 bits
@@ -1906,6 +1890,7 @@ a**
 	    whichhwvillager++; //u8
 	    }
 	    }
+	*/
 #endif // LACH
 
 
