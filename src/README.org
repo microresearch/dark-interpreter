@@ -687,6 +687,13 @@ lee 270 2290 3010
 - 963/964/simple vocals
 
 * ////////////////////////
+
+* TUE JUN 02
+
+- porting recent changes from voice back to towers = start+olderstart
+  (do we need &32767 for effects/datagen/others? but is so in all
+  funcs using), compress, >10
+
 * MON APR 27 2015
 
 - few tweaks to effect.c and main.c 
