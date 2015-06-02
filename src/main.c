@@ -85,7 +85,7 @@ __IO uint16_t adc_buffer[10];
 #define FIRST 2
 #define SECOND 0
 #define THIRD 3
-#define FOURTH 4
+#define FOURTH 4 // somehow these got swopped?
 #define FIFTH 1
 #define UP 6
 #define DOWN 8
@@ -401,8 +401,8 @@ void main(void)
     village_write[xx].step=1;
     village_write[xx].start=0; // TESTY!
     village_write[xx].wrap=32767; //  test
-    village_write[xx].kstart=100;
-    village_write[xx].kwrap=200; //  test
+    village_write[xx].kstart=0;
+    village_write[xx].kwrap=32767; //  test
     //    village_write[xx].mstart=0;
     //    village_write[xx].mwrap=32767; // test
     village_write[xx].dir=1;
@@ -691,8 +691,7 @@ void main(void)
 #ifndef LACH
       //    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
-
-    //    mainmode=14;
+      //      mainmode=13;
 	  switch(mainmode){
 
 	  case 0:// WRITE
@@ -705,7 +704,7 @@ void main(void)
 	    village_write[whichvillager].step=(spd&240)>>4;
 
 	    //	    if (adc_buffer[SECOND]>10){
-	      village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
+	    village_write[whichvillager].kstart=loggy[adc_buffer[SECOND]];
 	      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
 	      // else just wait till mirrors
 	      //	    }
@@ -715,8 +714,8 @@ void main(void)
 	      // else just wait till mirrors
 	      //	    }
 	    ///
-	    village_write[whichvillager].dirry=direction[xx&1]*village_write[whichvillager].speed;
-    break;
+	      village_write[whichvillager].dirry=direction[xx&1]*village_write[whichvillager].speed;
+	      break;
 
 	  case 1:// READ
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
@@ -737,7 +736,7 @@ void main(void)
 	      //	    }
 
 	    //	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=(spd&15)+1;
+	      village_read[whichvillager].speed=(spd&4)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
@@ -1336,7 +1335,7 @@ void main(void)
 	///////////////////////////////
 
 	// process all MIRRORS! 
-
+    
 	for (whichx=0;whichx<howmanywritevill;whichx++){// WRITE mirror
 	  if (village_write[whichx].mirrormod){
 	    // speed wrapper
@@ -1741,8 +1740,8 @@ void main(void)
 	  countmaxim+=village_maxim[x].step;
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
-	  //	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
-	  setmaximpwm((buf16[(village_maxim[x].dataoffset+village_maxim[tmper%howmanymaximvill].dataoffset+samplepos)&32767])%tmp); // inverted
+	  //setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
+	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+village_maxim[tmper%howmanymaximvill].dataoffset+samplepos)&32767])%(8193-tmp)); // inverted
 	  //	  setmaximpwm(255); // testy!
 	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;
