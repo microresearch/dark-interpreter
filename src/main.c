@@ -402,8 +402,8 @@ void main(void)
     village_read[xx].mirrordel=0;
     village_read[xx].speed=1;
     village_read[xx].step=1;
-    village_read[xx].start=0; /// test
-    village_read[xx].wrap=32767; // test
+    village_read[xx].start=rand()%32768; /// test
+    village_read[xx].wrap=rand()%32768; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -639,7 +639,7 @@ void main(void)
 
 
   // was runnoney instead of runvoice
-  void (*ddd[64])(villager_generic *vill)={runvoice, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runnoney, runnoney, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque,machine_runnn};
+  void (*ddd[64])(villager_generic *vill)={runnoney, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runnoney, runnoney, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque,machine_runnn};
 
 	    u16 *starts[64][8];
 	    u16 *wraps[64][8];
@@ -1446,7 +1446,7 @@ a**
 	///////////////////////////////
 
 	// process all MIRRORS! 
-   
+       
 	for (whichx=0;whichx<howmanywritevill;whichx++){// WRITE mirror
 	  if (village_write[whichx].mirrormod){
 	    // speed wrapper
