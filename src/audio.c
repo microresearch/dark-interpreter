@@ -213,6 +213,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start
 	      tmpr=x-1;
 	      lp=(samplepos+village_read[x].start+village_read[tmpr%howmanyreadvill].start)&32767; // start is now added to the last start // rather than WRAP!
+	      tmp=tmp+32768;
 
 	      switch(overlay&15){
 	      case 0: // overlay=all,effect=straight
@@ -231,24 +232,24 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp;
 	      break;
 	      case 4: // // overlay=all,effect=&
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16&=tmp;
 		buf16[lp]=tmp16;
 	      break;
 	      case 5:// overlay or
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16&=tmp;
 		buf16[lp]|=tmp16;
 		break;
 	      case 6: // overlay +
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16&=tmp;
 		tmp16+=buf16[lp];
 		asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]=tmp16;
 		break;
 	      case 7: // overlay last
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16&=tmp;
 		if (tmp16>lasttmp) {
 		  buf16[lp]=tmp16;
@@ -256,25 +257,25 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp16;
 		break;
 	      case 8: // // overlay=all,effect=+
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16+=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]=tmp16;
 	      break;
 	      case 9:// overlay or
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16+=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]|=tmp16;
 		break;
 	      case 10: // overlay +
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16+=tmp+buf16[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]=tmp16;
 		break;
 	      case 11: // overlay last
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16+=tmp;
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		if (tmp16>lasttmp) {
@@ -283,26 +284,26 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		lasttmp=tmp16;
 		break;
 	      case 12: // // overlay=all,effect=*
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]=tmp16;
 	      break;
 	      case 13:// overlay or
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]|=tmp16;
 		break;
 	      case 14: // overlay +
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16*=tmp; 
 		tmp16+=buf16[lp];
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		buf16[lp]=tmp16;
 		break;
 	      case 15: // overlay last
-		tmp16=buf16[lp]-32768;
+		tmp16=buf16[lp];//-32768;
 		tmp16*=tmp; 
 		  asm("ssat %[dst], #16, %[src]" : [dst] "=r" (tmp16) : [src] "r" (tmp16));
 		if (tmp16>lasttmp) {
@@ -337,7 +338,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      lp=(samplepos+village_write[whichwritevillager].start+village_write[tmpr%howmanywritevill].start)&32767; 
 	      //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
 	    //	    lp=(samplepos)&32767; // TESTY!
-	    	    mono_buffer[xx]=buf16[lp];
+	    	    mono_buffer[xx]=buf16[lp]-32768;
 	    //	    mono_buffer[xx]=buf16[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
 	      village_write[whichwritevillager].del=0;
@@ -371,7 +372,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	      tmpr=whichfiltoutvillager-1;
 	      lp=(samplepos+village_filtout[whichfiltoutvillager].start+village_filtout[tmpr%howmanyfiltoutvill].start)&32767; 
 	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
-	    left_buffer[xx]=buf16[lp];
+	    left_buffer[xx]=buf16[lp]-32768;
 	    //	    left_buffer[xx]=0;
 	  
 	    if (++village_filtout[whichfiltoutvillager].del>=village_filtout[whichfiltoutvillager].step){

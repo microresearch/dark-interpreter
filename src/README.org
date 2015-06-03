@@ -69,6 +69,13 @@ in evidence here.
 More details at: http://1010.co.uk/org/darkint.html
 
 
+
+
+*  WED 3 JUN
+
+- audio.c and main/voice add/sub 32768 but we still need to figure out effect.c
+- finish siggen.c
+
 * TUE JUN 02
 - bugfixes but still very slow/hangy?// memory debug/changes?
 

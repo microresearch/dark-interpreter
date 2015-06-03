@@ -20,12 +20,40 @@ static uint16_t grain2PhaseInc;
 static uint16_t grain2Amp;
 static uint8_t grain2Decay;
 
+uint16_t antilogTable[] = {
+  64830,64132,63441,62757,62081,61413,60751,60097,59449,58809,58176,57549,56929,56316,55709,55109,
+  54515,53928,53347,52773,52204,51642,51085,50535,49991,49452,48920,48393,47871,47356,46846,46341,
+  45842,45348,44859,44376,43898,43425,42958,42495,42037,41584,41136,40693,40255,39821,39392,38968,
+  38548,38133,37722,37316,36914,36516,36123,35734,35349,34968,34591,34219,33850,33486,33125,32768
+};
+
+uint16_t mapPhaseInc(uint16_t input) {
+  return (antilogTable[input & 0x3f]) >> (input >> 6);
+}
+
+
 void runVOSIMaud(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
   u16 wrap=vill->wrap;
   uint16_t output; u8 value;
+
+  /*
+  // Smooth frequency mapping
+  syncPhaseInc = mapPhaseInc(analogRead(SYNC_CONTROL)) / 4; // 10 bits /4
+  
+  // Stepped mapping to MIDI notes: C, Db, D, Eb, E, F...
+  //syncPhaseInc = mapMidi(analogRead(SYNC_CONTROL));
+  
+  // Stepped pentatonic mapping: D, E, G, A, B
+  syncPhaseInc = mapPentatonic(analogRead(SYNC_CONTROL));
+
+  grainPhaseInc  = mapPhaseInc(analogRead(GRAIN_FREQ_CONTROL)) / 2;
+  grainDecay     = analogRead(GRAIN_DECAY_CONTROL) / 8;
+  grain2PhaseInc = mapPhaseInc(analogRead(GRAIN2_FREQ_CONTROL)) / 2;
+  grain2Decay    = analogRead(GRAIN2_DECAY_CONTROL) / 4;
+  */
 
   // deal with step and count and so on... 
    for (u8 xx=0;xx<vill->howmany;xx++){

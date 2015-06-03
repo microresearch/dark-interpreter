@@ -315,7 +315,7 @@ static const signed char dir[2]={-1,1};
 
     PhonemeToWaveData(phonOUT,1, 0);
     for (x=0;x<wav_len;x++){
-      buf16[count&32767]=pWavBuffer[x];//>>16; // but pwav is 32 bits or how many????
+      buf16[count&32767]=pWavBuffer[x]+32768;//>>16; // but pwav is 32 bits or how many???? do we need to add 32768 or?
       count++;
       if (count>start+wrap) count=start;
       }
