@@ -25,6 +25,63 @@ typedef unsigned char u8;
 
 signed char direction[2]={-1,1};
 
+    typedef struct {
+      u16 length;
+      u16 dataoffset;
+      u16 knoboffset;
+      int32_t samplepos;
+      int16_t dirry;
+      u8 speed, step;
+      u8 dir;
+    } villager_datagenwalker;
+
+
+villager_datagenwalker village_datagenwalker[64];
+
+u16 howmanydatagenwalkervill=10;
+
+static const int16_t newdirection[8]={-256,-255,1,255,256,254,-1,-257};
+
+
+u16 nextdatagen(void){
+  u16 tmp,tmpp,tmppp;
+  int32_t sampleposs,lastoffset;
+  int16_t dirryy;
+  u8 x;
+  static u8 whichdatagenwalkervillager=0;
+  static u16 countdatagenwalker=0;
+
+  x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+  sampleposs=village_datagenwalker[x].samplepos;
+
+  if (village_datagenwalker[x].dir==2) dirryy=newdirection[rand()%8];
+  else if (village_datagenwalker[x].dir==3) dirryy=rand()%255;//direction[adc_buffer[DOWN]&1]*village_datagenwalker[x].speed;
+  else dirryy=direction[village_datagenwalker[x].dir]*village_datagenwalker[x].speed;
+
+  countdatagenwalker+=village_datagenwalker[x].step;
+  tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
+  //  if (tmp==32768) tmp=32767;  // as knoboffset never gets so high!
+  //  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+sampleposs)&32767])%(32768-tmp);
+  //  tmppp=x-1;
+  //  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[tmppp%howmanydatagenwalkervill].dataoffset+sampleposs)&32767])%(32768-tmp);
+  //tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[tmppp%howmanydatagenwalkervill].dataoffset+sampleposs)&32767])%(32768-tmp);
+  printf("tmp: %d offset: %d poss: %d\n",tmp,(village_datagenwalker[x].dataoffset)&32767, sampleposs);
+  sampleposs+=dirryy;
+  if (sampleposs>=village_datagenwalker[x].length) sampleposs=0;
+  else if (sampleposs<0) sampleposs=village_datagenwalker[x].length;
+
+  village_datagenwalker[x].samplepos=sampleposs;
+  if (countdatagenwalker>=village_datagenwalker[x].length){
+    countdatagenwalker=0;
+    lastoffset=village_datagenwalker[x].dataoffset;
+    whichdatagenwalkervillager++; //u8
+    x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+    village_datagenwalker[x].dataoffset+=lastoffset;
+  }
+  return tmpp;
+}
+
+
 double
 blackman (int i, int nn)
 {
@@ -215,11 +272,22 @@ void main(void)
     village_effect.step=1;
     village_effect.speed=1;
 
+    for (u16 xx=0;xx<64;xx++){
+      village_datagenwalker[xx].length = rand()%32767;
+    village_datagenwalker[xx].dataoffset = 100;
+    village_datagenwalker[xx].knoboffset = 120;
+    village_datagenwalker[xx].samplepos = 0;
+    village_datagenwalker[xx].speed = 1;
+    village_datagenwalker[xx].step = 1;
+    village_datagenwalker[xx].dir = 1;
+    village_datagenwalker[xx].dirry = 1;
+    }
 
-  while(1){
-    do_effect(&village_effect);
+    while(1){
+      nextdatagen();
+    //    do_effect(&village_effect);
     //    printf("vill: %d\n",village_effect.del);
-  }
+      }
   /*  while(1){
 
     inpos=rand()%32768;

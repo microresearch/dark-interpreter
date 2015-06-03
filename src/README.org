@@ -688,6 +688,11 @@ lee 270 2290 3010
 
 * ////////////////////////
 
+
+* WED JUN 03
+- fixed datagenwalker and changes to hwgeners as adding previous start is still fixed -TODO> port to VOiCE!
+- other walkers: audioDONE, effect and datagen to fix HOW? DONE!
+
 * TUE JUN 02
 
 - porting recent changes from voice back to towers = start+olderstart

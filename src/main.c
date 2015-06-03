@@ -264,8 +264,8 @@ static const signed char dir[2]={-1,1};
 
 
 u16 nextdatagen(void){
-  u16 tmp,tmpp,tmppp;
-  int32_t samplepos;
+  u16 tmp,tmpp;
+  int32_t samplepos,lastoffset;
   int16_t dirry;
   u8 x;
   static u8 whichdatagenwalkervillager=0;
@@ -282,8 +282,7 @@ u16 nextdatagen(void){
   tmp=village_datagenwalker[x].knoboffset; // as is =32768 for datagenwalker
   //  if (tmp==32768) tmp=32767;  // as knoboffset never gets so high!
   //  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+samplepos)&32767])%(32768-tmp);
-  tmppp=x-1;
-  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+village_datagenwalker[tmppp%howmanydatagenwalkervill].dataoffset+samplepos)&32767])%(32768-tmp);
+  tmpp=tmp+(buf16[(village_datagenwalker[x].dataoffset+samplepos)&32767])%(32768-tmp);
   samplepos+=dirry;
   if (samplepos>=village_datagenwalker[x].length) samplepos=0;
   else if (samplepos<0) samplepos=village_datagenwalker[x].length;
@@ -291,7 +290,10 @@ u16 nextdatagen(void){
   village_datagenwalker[x].samplepos=samplepos;
   if (countdatagenwalker>=village_datagenwalker[x].length){
     countdatagenwalker=0;
+    lastoffset=village_datagenwalker[x].dataoffset;
     whichdatagenwalkervillager++; //u8
+    x=whichdatagenwalkervillager%howmanydatagenwalkervill;
+    village_datagenwalker[x].dataoffset+=lastoffset;
   }
   return tmpp;
 }
@@ -303,7 +305,7 @@ void main(void)
   u16 tmpp,tmps,tmpw,mstart,mwrap,mcompress,posx=0,posy=0;
   u8 mmodifier,moverlay;
   u8 howlook[4]={1,8,16,64}; // modded
-  u16 tmper;
+  u16 lastoff;
 
   // taken form audio.c
   static u8 which40106villager=0,whichlmvillager=0,whichhdgenervillager=0,whichmaximvillager=0,whichhwvillager=0;
@@ -375,8 +377,8 @@ void main(void)
     village_read[xx].samplepos=0;
     village_read[xx].speed=1;
     village_read[xx].step=1;
-    village_read[xx].start=rand()%32767;
-    village_read[xx].wrap=rand()%32767;; // test
+    village_read[xx].start=0;
+    village_read[xx].wrap=32767;; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -763,10 +765,18 @@ void main(void)
 	  case 3: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
-	    tmper=whichvillager-1;
+	    //	    tmper=whichvillager-1t;
 	    	    if (adc_buffer[SECOND]>10){
 	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
+	      // testy
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_datagen[x].start;
+	      }
+	      village_datagen[whichvillager].start=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
+	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]&32767; //as logarithmic
+
+	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    	    }
 	    	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
@@ -785,12 +795,19 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
 	    //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
-	    tmper=whichvillager-1;
-	    village_effect[whichvillager].instart=village_effect[tmper%howmanyeffectvill].instart+village_read[adc_buffer[SECOND]>>6].start;
+	    //	    tmper=whichvillager-1;
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_effect[x].instart;
+	      }
+
+	      village_effect[whichvillager].instart=lastoff+village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+
+	      //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;
 	    //	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 
 	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
-	    	    village_effect[whichvillager].modstart=village_effect[tmper%howmanyeffectvill].modstart+village_write[adc_buffer[THIRD]>>6].start;
+	    	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=(spd&15)+1; 
@@ -799,7 +816,13 @@ void main(void)
 	  case 5: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64///4bits=16total
 	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_effect[whichvillager].outstart=village_effect[tmper%howmanyeffectvill].outstart+loggy[adc_buffer[SECOND]]; //as logarithmic
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_effect[x].outstart;
+	      }
+	    village_effect[whichvillager].outstart=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
+
+	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
 	    village_effect[whichvillager].kmodifier=xx;
@@ -1147,12 +1170,17 @@ void main(void)
 	  case 3: // DATAGEN villagers
 	    whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
 	    howmanydatavill=whichvillager+1;
-	    tmper=whichvillager-1;
+//	    tmper=whichvillager-1;
 
-	    	    if (adc_buffer[SECOND]>10){
-	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_datagen[whichvillager].start=(village_datagen[tmper%howmanydatavill].start+loggy[adc_buffer[SECOND]])&32767; //as logarithmic
-	    	    }
+	    if (adc_buffer[SECOND]>10){
+	      // testy
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_datagen[x].start;
+	      }
+	      village_datagen[whichvillager].start=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
+	      //	    village_datagen[whichvillager].start=loggy[adc_buffer[SECOND]]&32767; //as logarithmic
+	    }
 	    	    if (adc_buffer[THIRD]>10){
 	    village_datagen[whichvillager].wrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    	    }
@@ -1168,12 +1196,17 @@ void main(void)
 	  case 4:
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
-	    //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
-	    tmper=whichvillager-1;
-	    village_effect[whichvillager].instart=village_effect[tmper%howmanyeffectvill].instart+village_read[adc_buffer[SECOND]>>6].start;
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_effect[x].instart;
+	      }
+
+	    	    village_effect[whichvillager].instart=lastoff+village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    //	    tmper=whichvillager-1;
+	    //	    village_effect[whichvillager].instart=village_effect[tmper%howmanyeffectvill].instart+village_read[adc_buffer[SECOND]>>6].start;
 	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
-	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
-	    village_effect[whichvillager].modstart=village_effect[tmper%howmanyeffectvill].modstart+village_write[adc_buffer[THIRD]>>6].start;
+	    	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+		    //village_effect[whichvillager].modstart=village_effect[tmper%howmanyeffectvill].modstart+village_write[adc_buffer[THIRD]>>6].start;
 	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
 	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
 	    village_effect[whichvillager].speed=(spd&15)+1; 
@@ -1182,8 +1215,12 @@ void main(void)
 	  case 5: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>6;
 	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
-	    tmper=whichvillager-1;
-	    village_effect[whichvillager].outstart=village_effect[tmper%howmanyeffectvill].outstart+loggy[adc_buffer[SECOND]]; //as logarithmic
+//	    tmper=whichvillager-1;
+	      lastoff=0;
+	      for (x=0;x<whichvillager;x++){
+		lastoff+=village_effect[x].outstart;
+	      }
+	    village_effect[whichvillager].outstart=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
@@ -1660,7 +1697,7 @@ void main(void)
 	  // always running!	  	  
 	  x=which40106villager%howmany40106vill;
 	  if (++village_40106[x].del>=village_40106[x].speed){
-	  tmper=which40106villager-1;
+	    //	  tmper=which40106villager-1;
 	  village_40106[x].del=0;
 	  count40106+=village_40106[x].step;
 
@@ -1670,7 +1707,7 @@ void main(void)
 
 	  tmp=village_40106[x].knoboffset>>4; // 11 bits=2048 for 40106 as we have 15 bits from loggy! 32768 MAX NOTE!
 	  samplepos=village_40106[x].samplepos;
-	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+village_40106[tmper%howmany40106vill].dataoffset+samplepos)&32767])%(2049-tmp));
+	  set40106pwm(tmp+(buf16[(village_40106[x].dataoffset+samplepos)&32767])%(2049-tmp));
 	  samplepos+=dirry;
 	  if (samplepos>=village_40106[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_40106[x].length;
@@ -1678,7 +1715,9 @@ void main(void)
 
 	  if (count40106>=village_40106[x].length){
 	    count40106=0;
+	    lastoff=village_40106[x].dataoffset;
 	    which40106villager++; //u8
+	    village_40106[which40106villager%howmany40106vill].dataoffset+=lastoff;
 	  }
 	  }
 
@@ -1707,22 +1746,23 @@ void main(void)
 	  x=whichhdgenervillager%howmanyhdgenervill;
 	  if (++village_hdgener[x].del>=village_hdgener[x].speed){
 	    village_hdgener[x].del=0;
-	    tmper==whichhdgenervillager-1;
 	    if (village_hdgener[x].dir==2) dirry=newdir[wormdir];
 	    else if (village_hdgener[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_hdgener[x].speed;
 	    else dirry=village_hdgener[x].dirry;
 	      samplepos=village_hdgener[x].samplepos;
 	      counthdgener+=village_hdgener[x].step;
 	      tmp=village_hdgener[x].knoboffset>>7; // 8 bits
-	      tmpl=(village_hdgener[x].dataoffset+village_hdgener[tmper%howmanyhdgenervill].dataoffset+samplepos)&65535;
+	      tmpl=(village_hdgener[x].dataoffset+samplepos)&65535;
 	      hdgener=(tmp+(datagenbuffer[tmpl])%(256-tmp));
 	      samplepos+=dirry;
 	      if (samplepos>=village_hdgener[x].length) samplepos=0;
 	      else if (samplepos<0) samplepos=village_hdgener[x].length;
 	      village_hdgener[x].samplepos=samplepos;
 	      if (counthdgener>=village_hdgener[x].length){
-		counthdgener=0;
-		whichhdgenervillager++; //u8
+	    counthdgener=0;
+	    lastoff=village_hdgener[x].dataoffset;
+	    whichhdgenervillager++; //u8
+	    village_hdgener[whichhdgenervillager%howmanyhdgenervill].dataoffset+=lastoff;
 	      }
 	    }
 	  }
@@ -1734,7 +1774,7 @@ void main(void)
 	  	  if (digfilterflag&8){ // TESTY!
 	  x=whichmaximvillager%howmanymaximvill;
 	    if (++village_maxim[x].del>=village_maxim[x].speed){
-	      tmper=whichmaximvillager-1;
+	      //	      tmper=whichmaximvillager-1;
 	      village_maxim[x].del=0;
 	    if (village_maxim[x].dir==2) dirry=newdir[wormdir];
 	    else if (village_maxim[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_maxim[x].speed;
@@ -1743,7 +1783,7 @@ void main(void)
 	  tmp=village_maxim[x].knoboffset>>2; // 13 bits
 	  samplepos=village_maxim[x].samplepos;
 	  //setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp));
-	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+village_maxim[tmper%howmanymaximvill].dataoffset+samplepos)&32767])%(8193-tmp)); // inverted
+	  setmaximpwm(tmp+(buf16[(village_maxim[x].dataoffset+samplepos)&32767])%(8193-tmp)); // inverted
 	  //	  setmaximpwm(255); // testy!
 	  samplepos+=dirry;
 	  if (samplepos>=village_maxim[x].length) samplepos=0;
@@ -1751,7 +1791,9 @@ void main(void)
 	  village_maxim[x].samplepos=samplepos;
 	  if (countmaxim>=village_maxim[x].length){
 	    countmaxim=0;
+	    lastoff=village_maxim[x].dataoffset;
 	    whichmaximvillager++; //u8
+	    village_maxim[whichmaximvillager%howmanymaximvill].dataoffset+=lastoff;
 	  }
 	    }
 	    }
@@ -1762,7 +1804,7 @@ void main(void)
 	    // copy from above - change depth/2048
 	    if (++village_lm[x].del>=village_lm[x].speed){
 	      village_lm[x].del=0;
-	      tmper=whichlmvillager-1;
+	      //	      tmper=whichlmvillager-1;
 	      if (village_lm[x].dir==2) dirry=newdir[wormdir];
 	      else if (village_lm[x].dir==3) dirry=dir[adc_buffer[DOWN]&1]*village_lm[x].speed;
 	      else dirry=village_lm[x].dirry;
@@ -1770,14 +1812,16 @@ void main(void)
 	  countlm+=village_lm[x].step;
 	  tmp=village_lm[x].knoboffset>>3; // 12 bits=4096 for lm
 	  samplepos=village_lm[x].samplepos;
-	  setlmpwm(tmp+(buf16[(village_lm[x].dataoffset+village_lm[tmper%howmanylmvill].dataoffset+samplepos)&32767])%(4097-tmp));
+	  setlmpwm(tmp+(buf16[(village_lm[x].dataoffset+samplepos)&32767])%(4097-tmp));
 	  samplepos+=dirry;
 	  if (samplepos>=village_lm[x].length) samplepos=0;
 	  else if (samplepos<0) samplepos=village_lm[x].length;
 	  village_lm[x].samplepos=samplepos;
 	  if (countlm>=village_lm[x].length){
 	    countlm=0;
+	    lastoff=village_lm[x].dataoffset;
 	    whichlmvillager++; //u8
+	    village_lm[whichlmvillager%howmanylmvill].dataoffset+=lastoff;
 	  }
 	  }
 	  }

@@ -104,7 +104,7 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int16_t dirry,tmpr;
+  int16_t dirry,laststart;
   int32_t lasttmp=0,lasttmp16=0;
   register int32_t lp,samplepos;
   register int32_t tmp,tmpl,tmp16,tmp32d;
@@ -181,7 +181,7 @@ static u8 whichfiltoutvillager=0;
 	    src++;
 	    tmp=*(src++); 
 #endif
-
+	    laststart=0;
 	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
 	    //   for(x=howmanyreadvill; x--; ){
 		      overlay=village_read[x].overlay;
@@ -200,8 +200,10 @@ static u8 whichfiltoutvillager=0;
 	      samplepos=village_read[x].samplepos;
 	      //	      lp=(samplepos+village_read[x].start)&32767;
 
-	      tmpr=x-1;
-	      lp=(samplepos+village_read[x].start+village_read[tmpr%howmanyreadvill].start)&32767; // start is now added to the last start // rather than WRAP!
+	      //	      tmpr=x-1;x
+	      	      laststart+=village_read[x].start;
+	      	      lp=(samplepos+laststart)&32767; // start is now added to the last start // rather than WRAP!
+	      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start // rather than WRAP!
 
 	      if (overlay&16){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
@@ -456,8 +458,8 @@ static u8 whichfiltoutvillager=0;
 	  for (xx=0;xx<sz/2;xx++){
 	  //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
 	    //	    lp=(samplepos)&32767; // TESTY!
-	      tmpr=whichwritevillager-1;
-	      lp=(samplepos+village_write[whichwritevillager].start+village_write[tmpr%howmanywritevill].start)&32767; 
+	    //	      tmpr=whichwritevillager-1;
+	      lp=(samplepos+village_write[whichwritevillager].start)&32767; 
 
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
@@ -474,9 +476,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
 		village_write[whichwritevillager].samplepos=samplepos;
+		laststart=village_write[whichwritevillager].start;
 		whichwritevillager++; 
 		whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
-		samplepos=village_write[whichwritevillager].samplepos;//)&32767;
+		samplepos=village_write[whichwritevillager].samplepos;
+		village_write[whichwritevillager].start+=laststart;
 	      }
 	      //		else village_write[whichwritevillager].samplepos=samplepos;
 	    }
@@ -490,8 +494,8 @@ static u8 whichfiltoutvillager=0;
 
 	  for (xx=0;xx<sz/2;xx++){
 
-	      tmpr=whichfiltoutvillager-1;
-	      lp=(samplepos+village_filtout[whichfiltoutvillager].start+village_filtout[tmpr%howmanyfiltoutvill].start)&32767; 
+	    //	      tmpr=whichfiltoutvillager-1;
+	      lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767; 
 
 	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
 	    left_buffer[xx]=audio_buffer[lp];
@@ -511,9 +515,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
-		  whichfiltoutvillager++; 
-		  whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
-	    samplepos=village_filtout[whichfiltoutvillager].samplepos;
+		laststart=village_filtout[whichfiltoutvillager].start;
+		whichfiltoutvillager++; 
+		whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
+		samplepos=village_filtout[whichfiltoutvillager].samplepos;
+		village_filtout[whichfiltoutvillager].start+=laststart;
 		}
 		//		else village_filtout[whichfiltoutvillager].samplepos=samplepos;
 	    }
