@@ -1,6 +1,7 @@
 #include <sys/stat.h>
+#include <errno.h>
 
-int __errno;
+extern int errno;
 
 
 int _write(int fd, const char *buf, size_t cnt)
@@ -52,9 +53,10 @@ int _read(int file, char *ptr, int len) {
 /* Register name faking - works in collusion with the linker.  */
 register char * stack_ptr asm ("sp");
 
-caddr_t _sbrk_r (struct _reent *r, int incr)
+
+caddr_t _sbrk (struct _reent *r, int incr) // was _sbrk_r
 {
-	extern char   end asm ("end"); /* Defined by the linker.  */
+	extern char   end asm ("end"); // Defined by the linker. 
 	static char * heap_end;
 	char *        prev_heap_end;
 
@@ -65,8 +67,6 @@ caddr_t _sbrk_r (struct _reent *r, int incr)
 
 	if (heap_end + incr > stack_ptr)
 	{
-		/* Some of the libstdc++-v3 tests rely upon detecting
-        out of memory errors, so do not abort here.  */
 #if 0
 		extern void abort (void);
 
@@ -74,7 +74,7 @@ caddr_t _sbrk_r (struct _reent *r, int incr)
 
 		abort ();
 #else
-		//errno = ENOMEM;
+			errno = ENOMEM;
 		return (caddr_t) -1;
 #endif
 	}

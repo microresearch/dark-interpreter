@@ -70,7 +70,21 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 * TUE JUN 02
-- bugfixes but still very slow/hangy?
+- bugfixes but still very slow/hangy?// memory debug/changes?
+
+in .ld _Min_Heap_Size = 0x400;      /* required amount of heap  _Min_Heap_Size = 0; was 0x400*/
+
+/// try this or...
+
+see: http://www.atollic.com/index.php/kb/1-kb_building/111-library-functions_hardfault
+
+// VOSIM etc.
+
+- Formlet as filter in SC: [[file:~/SuperCollider-Source/server/plugins/FilterUGens.cpp::void%20Formlet_next_1(Formlet*%20unit,%20int%20inNumSamples)][file:~/SuperCollider-Source/server/plugins/FilterUGens.cpp::void Formlet_next_1(Formlet* unit, int inNumSamples)]]
+
+VOSIM: [[file:~/sc3-plugins/source/VOSIMUGens/VOSIM.cpp::VOSIM%20implemented%20by%20L%C3%A9on%20Spek][file:~/sc3-plugins/source/VOSIMUGens/VOSIM.cpp::VOSIM implemented by Léon Spek]]
+
+LPC: [[file:~/sc3-plugins/source/NCAnalysisUGens/LPCAnalysis.cpp::*%20LPCAnalysis.cpp][file:~/sc3-plugins/source/NCAnalysisUGens/LPCAnalysis.cpp::* LPCAnalysis.cpp]]
 
 * MON JUN 01 voice branch
 

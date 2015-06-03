@@ -38,7 +38,6 @@ Based in part on SLUGens by Nicholas Collins.
 #define randi() (rand()&4095)
 #define float32_t float
 
-
 u16 sin_data[256];
 u16 *stacker;//[256]; // 16*3 MAX
 uint16_t adc_buffer[10];
