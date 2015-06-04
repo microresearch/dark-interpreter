@@ -453,13 +453,13 @@ static u8 whichfiltoutvillager=0;
 	  }//sz
 
 	// WRITE! simplified to consecutive!! DONE- to test!
-
+	  laststart=0;
 	  samplepos=village_write[whichwritevillager].samplepos;//)&32767;
 	  for (xx=0;xx<sz/2;xx++){
 	  //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
 	    //	    lp=(samplepos)&32767; // TESTY!
 	    //	      tmpr=whichwritevillager-1;
-	      lp=(samplepos+village_write[whichwritevillager].start)&32767; 
+	      lp=(samplepos+village_write[whichwritevillager].last)&32767; 
 
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
@@ -476,11 +476,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
 		village_write[whichwritevillager].samplepos=samplepos;
-		laststart=village_write[whichwritevillager].start;
+		laststart+=village_write[whichwritevillager].start;
 		whichwritevillager++; 
 		whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		samplepos=village_write[whichwritevillager].samplepos;
-		village_write[whichwritevillager].start+=laststart;
+		village_write[whichwritevillager].last=laststart;
 	      }
 	      //		else village_write[whichwritevillager].samplepos=samplepos;
 	    }
@@ -490,12 +490,13 @@ static u8 whichfiltoutvillager=0;
 #ifndef LACH
 	  if (digfilterflag&1){
 
-	    samplepos=village_filtout[whichfiltoutvillager].samplepos;
+	  laststart=0;
+	  samplepos=village_filtout[whichfiltoutvillager].samplepos;
 
 	  for (xx=0;xx<sz/2;xx++){
 
 	    //	      tmpr=whichfiltoutvillager-1;
-	      lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767; 
+	      lp=(samplepos+village_filtout[whichfiltoutvillager].last)&32767; 
 
 	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
 	    left_buffer[xx]=audio_buffer[lp];
@@ -515,11 +516,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
-		laststart=village_filtout[whichfiltoutvillager].start;
+		laststart+=village_filtout[whichfiltoutvillager].start;
 		whichfiltoutvillager++; 
 		whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 		samplepos=village_filtout[whichfiltoutvillager].samplepos;
-		village_filtout[whichfiltoutvillager].start+=laststart;
+		village_filtout[whichfiltoutvillager].last=laststart;
 		}
 		//		else village_filtout[whichfiltoutvillager].samplepos=samplepos;
 	    }

@@ -693,6 +693,8 @@ lee 270 2290 3010
 - fixed datagenwalker and changes to hwgeners as adding previous start is still fixed -TODO> port to VOiCE!
 - other walkers: audioDONE, effect and datagen to fix HOW? DONE! - but should make start a bit smaller on knobs TODO!
 
+TODO: re-fix incremental starts in audio write, eff, all HW and datagen!!!! fixed all NOW TO TEST!
+
 * TUE JUN 02
 
 - porting recent changes from voice back to towers = start+olderstart
