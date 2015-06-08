@@ -49,9 +49,9 @@ void runVOSIMaud(villager_generic* vill){
   //  syncPhaseInc = mapPentatonic(buf16[1]>>6);
 
   grainPhaseInc  = mapPhaseInc(buf16[1]>>6) / 2;
-  grainDecay     = buf16[2]>>6 / 8;
+  grainDecay     = (buf16[2]>>6) / 8;
   grain2PhaseInc = mapPhaseInc(buf16[3]>>6) / 2;
-  grain2Decay    = buf16[4]>>6 / 4;
+  grain2Decay    = (buf16[4]>>6) / 4;
  
 
   // deal with step and count and so on... 
@@ -92,11 +92,87 @@ void runVOSIMaud(villager_generic* vill){
 
 }
 
+static float vosim;
+static 	float phase=0.f;
+static 	float prevtrig=0.f;
+static 	float nCycles=1.f;
+static 	u16 numberCurCycle=0;
+static 	float prevsine;
+static 	float decay=0.5f;
+static 	float amp=1.f;
+
+const float PII = 3.1415926535f;
 
 void runVOSIM_SC(villager_generic* vill){
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
   u16 wrap=vill->wrap;
+  u16 out;
+
+  float freq = (float)(buf16[0]>>9);
+  float nCycles = (float)(buf16[1]>>14);
+  float nDecay = (float)(buf16[2])/65536.0f;
+  float phaseinc = freq * 2.f * PII / 32000.0f;
+  float numberCycles = nCycles;
+  int number = numberCurCycle;
+
+
+  for (u8 xx=0;xx<vill->howmany;xx++){
+
+     count+=step;
+     if (count>start+wrap) count=start;
+  
+     float z = vosim;
+          float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
+     //     float trigin = (float)((rand()%65536)-32768)/32768.0f;
+
+     if(phase > 0 && number <= numberCycles ){
+       float sine = sinf(phase);
+       vosim = (sine * sine) * amp;
+
+       if(prevsine >= 0.f && sine <= 0.f){
+	 number += 1;
+	 amp = amp * decay;
+       }
+
+       if(prevsine <= 0.f && sine >= 0.f){
+	 number += 1;
+	 amp = amp * decay;
+       }
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+
+     }else if(trigin > 0.f && prevtrig <= 0.f){
+       numberCycles = nCycles;
+       decay = nDecay;
+       amp = 1.f;
+       number = 0;
+
+       float sine = sinf(phase);
+
+       vosim = (sine * sine) * amp;
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+     }else if(number >= numberCycles){
+       phase = 0;
+       //vosim = 0.f;
+     }
+     prevtrig = trigin;
+
+     // write the output
+     out = (float)z*65536.0f;
+
+     buf16[count&32767]=out+32768; 
+     //        buf16[count&32767]=rand()%32768;
+
+  }
+  vill->position=count;
+  nCycles = numberCycles;
+  numberCurCycle = number;
 
 }

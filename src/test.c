@@ -98,6 +98,85 @@ void runnoney(int x){
 
 }
 
+static float vosim;
+static 	float phase=0.f;
+static 	float prevtrig=0.f;
+static 	float nCycles=1.f;
+static 	u16 numberCurCycle=0;
+static 	float prevsine;
+static 	float decay=0.5f;
+static 	float amp=1.f;
+
+const float PII = 3.1415926535f;
+
+void runVOSIM_SC(void){
+  u16 out;
+  float freq = (float)(100);
+  float nCycles = (float)(100);
+  float nDecay = (float)(1);
+  float phaseinc = freq * 2.f * PII / 32000.0f;
+  float numberCycles = nCycles;
+  int number = numberCurCycle;
+  static int count=0; int start=0, wrap=1000;
+
+  for (u8 xx=0;xx<64;xx++){
+
+    count+=1;
+    if (count>start+wrap) count=start;
+  
+     float z = vosim;
+     float trigin = (float)((rand()%65536)-32768)/32768.0f;
+
+     if(phase > 0 && number <= numberCycles ){
+       float sine = sinf(phase);
+       vosim = (sine * sine) * amp;
+
+       if(prevsine >= 0.f && sine <= 0.f){
+	 number += 1;
+	 amp = amp * decay;
+       }
+
+       if(prevsine <= 0.f && sine >= 0.f){
+	 number += 1;
+	 amp = amp * decay;
+       }
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+
+     }else if(trigin > 0.f && prevtrig <= 0.f){
+       numberCycles = nCycles;
+       decay = nDecay;
+       amp = 1.f;
+       number = 0;
+
+       float sine = sinf(phase);
+
+       vosim = (sine * sine) * amp;
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+     }else if(number >= numberCycles){
+       phase = 0;
+       //vosim = 0.f;
+     }
+     prevtrig = trigin;
+
+     // write the output
+     out = (float)z*65536.0f;
+
+     //  buf16[count&32767]=out+32768; 
+     printf("cnt: %d out: %d\n",count, out);
+  }
+  //  vill->position=count;
+  nCycles = numberCycles;
+  numberCurCycle = number;
+
+}
+
+
 void main(void)
 {
 
@@ -117,8 +196,12 @@ void main(void)
     int instart=0, inpos=0,inwrap=16000, outpos=16000, outstart=16000,outwrap=16000;
     int tmpinlong=32;
 
-    while(1){
+        while(1){
 
+	  runVOSIM_SC();
+
+	}
+	/*
     if (inpos>=inwrap) {
       inpos=0;
     }
@@ -140,7 +223,7 @@ void main(void)
       if (outpos>outwrap) outpos=0;
     }
 
-    }
+    }*/
 
 static const char phonemmm[41][3] =
 {"IY\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0","AY\0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0"," \0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"};
