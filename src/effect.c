@@ -470,12 +470,12 @@ void do_effect(villager_effect* vill_eff){
     //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
     // but must be 32 samples
     for (xx=0;xx<tmpinlong;xx++){
-      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768;
     }
     dofftin(inbuffer,outbuffer);
     // copy into buf16
     for (xx=0;xx<tmpinlong;xx++){
-      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];
+      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx]+32768;
       //      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=0;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
@@ -484,12 +484,12 @@ void do_effect(villager_effect* vill_eff){
 
   case 2: // reverse FFT from values in buf16
     for (xx=0;xx<32;xx++){
-      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768;
     }
     dofftout(inbuffer,outbuffer);
     // copy into buf16
     for (xx=0;xx<tmpinlong;xx++){
-      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];
+      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx]+32768;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
@@ -538,8 +538,8 @@ void do_effect(villager_effect* vill_eff){
     }
     // to floats
     for (xx=0;xx<longest;xx++){
-      finbuffer[xx]=(float32_t)buf16[(vill_eff->instart+vill_eff->inpos++)&32767]/32768.0f;//REDO! why/how?
-      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]/32768.0f)-1.0f;//REDO! why/how?
+      finbuffer[xx]=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768)/32768.0f;//REDO! why/how?
+      fmodbuffer[xx]=(float32_t)((buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]-32768)/32768.0f)-1.0f;//REDO! why/how?
       //      fmodbuffer[xx]=(float32_t)(audio_buffer[(vill_eff->modstart+vill_eff->modpos++)&32767]/32768.0f);
     }
 
@@ -550,7 +550,7 @@ void do_effect(villager_effect* vill_eff){
     for (xx=0;xx<longest;xx++){
       tmp = (int32_t)(foutbuffer[xx] * 32768.0f);// was foutbuffer
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-    buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+    buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp+32768;
     vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
@@ -559,12 +559,12 @@ void do_effect(villager_effect* vill_eff){
 
   case 4: //5--convolve:
     for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767])/32768.0f;//REDO! why/how?
+      finbuffer[xx]=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768)/32768.0f;//REDO! why/how?
     }
 
     x=(vill_eff->modifier&15)+1;
     for (xx=0;xx<x;xx++){
-      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)&32767])/32768.0f;//REDO! why/how?
+      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]-32768)/32768.0f;//REDO! why/how?
     }
     //void convolve1D(float* in, float* out, int dataSize, float* kernel, int kernelSize)
     convolve1D(finbuffer, foutbuffer, tmpinlong, fmodbuffer, x);
@@ -595,7 +595,7 @@ void do_effect(villager_effect* vill_eff){
 
   case 6://      7+--windower - diff windows// also 32 ???
     for (xx=0;xx<tmpinlong;xx++){
-      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768;
       //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)&32767];
     }
 
@@ -613,7 +613,7 @@ void do_effect(villager_effect* vill_eff){
     }
 
     for (xx=0;xx<tmpinlong;xx++){
-      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];
+      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx]+32768;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
@@ -626,7 +626,7 @@ void do_effect(villager_effect* vill_eff){
     //    xx=bandpassmod(xxx,0.9f,10.0f,1.0f); // q freq gain
 
     for (xx=0;xx<tmpinlong;xx++){
-      tmpp=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767])/32768.0f;//REDO! why/how?
+      tmpp=(float32_t)((buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768))/32768.0f;//REDO! why/how?
       //      tmpp=dobandpass(tmpp, freq,fb); // from OWL code - statevariable
       hp=tmpp-buf0;
       bp = buf0 - buf1; 
@@ -636,7 +636,7 @@ void do_effect(villager_effect* vill_eff){
 	// out here
       tmp = (int32_t)(bp * 32768.0f);
       tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp+32768;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
       }
