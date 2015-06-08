@@ -8,7 +8,7 @@ organ!
 
 * new/short description/ebay
 
-From the designer of The Black Death, The Dark Interpreter (Towers
+From the designers of The Black Death, The Dark Interpreter (Towers
 Open Fire edition) is the ultimate plague-driven, finger sensitive,
 stand-alone noise processor, granular synthesiser and sound generator,
 merging digital and analogue processing.
@@ -31,6 +31,8 @@ minimum 300mA*). Returns and repairs are accepted within reason.
 More information on the Dark Interpreter range at: http://1010.co.uk/org/darkint.html
 
 Samples: soundcloud links
+
+ebay price: 150 inc. wordwide tracked postage
 
 update:
 
@@ -167,11 +169,15 @@ From 28 OCT 2014+: to avoid repetition of notes
 - pureleak extended across all operations
 
 ** General TODO: 
-- test SUSP should be as TENE but test when ordered!]
+
+- check all again
+- re-test LACH [+ SUSP should be as TENE but test when ordered!]
+- re-test TENE
+
 
 //////////////////////////////////////////////////////////////////////
-- manual updateDONE/web pagesDONE//price drop=140/210/270//DONE
-- *3x replacement 10uFs on incoming!!!*
+- manual updateDONE/web pages//price drop=140/210/270//announce and advertise//ebay/etsy
+- also for LACH sever out pad connection [under power conn], 3x replacement 10uFs on incoming!!!
 
 *** new speed schemeDONE
 
@@ -765,25 +771,6 @@ lee 270 2290 3010
 - 963/964/simple vocals
 
 * ////////////////////////
-
-
-* WED JUN 03
-- fixed datagenwalker and changes to hwgeners as adding previous start is still fixed -TODO> port to VOiCE!
-- other walkers: audioDONE, effect and datagen to fix HOW? DONE! - but should make start a bit smaller on knobs TODO!
-
-TODO: re-fix incremental starts in audio write, eff, all HW and datagen!!!! fixed all NOW TO TEST!
-
-* TUE JUN 02
-
-- porting recent changes from voice back to towers = start+olderstart
-  (do we need &32767 for effects/datagen/others? but is so in all
-  funcs using), compress, >10
-
-* MON APR 27 2015
-
-- few tweaks to effect.c and main.c 
-- not done - calibrate MODE and shift HW from audio.c for next release!
-
 
 * TUE 28 OCT+
 

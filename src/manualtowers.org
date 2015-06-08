@@ -1,4 +1,4 @@
-#+TITLE: A Manual for The Dark Interpreter (Towers) V0.6 
+#+TITLE: A Manual for The Dark Interpreter (Towers) V0.5 
 #+AUTHOR: Martin Howse
 #+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
 
@@ -39,25 +39,13 @@ refer to the five knobs/potentiometers and the finger-board, the gold
 set of contacts which in the case of Tenebrarum is seperate from the
 two pronged fangs (for head and earth use).
 
-** A few provisos
+** Two provisos
 
 The Dark Interpreter does crash or get stuck very, very rarely, often
 in interesting responses. Simpy reboot with a quick switch on/off.
 
 The Dark Interpreter can take over control of incoming samples and
 audio generation; attempt to regain control if desired.
-
-Always use your finger on the touch board unless you wish to leave
-settings untouched (so for example moving between modes).
-
-Some walkers such as hardware(see below under modes) can be viewed as
-a kind of sequencer, so keeping a reduced number of villagers here
-makes changes easier to predict.
-
-With Suspiriorum and Tenebrarum do watch out for that last hardware
-mode (bottom knob far left) as the direction fingers here will switch
-the input settings. To test out, also restrict hardware villagers to
-one (top knob far left).
 
 * The three interpreters, how they differ and can be interrogated
 
@@ -233,10 +221,7 @@ is fingers, right is knobs.
 
 15- Bitwise hardware walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
 
-16- Macro hardware walker. Knobs: 1- howmany/which one 2-length
-3-hardware setting 4-offset2/compression of settings (fingers as
-setting input with UP as feedback, DOWN as floating, LEFT as jack,
-RIGHT as INL.
+16- Macro hardware walker. Knobs: 1- howmany/which one 2-length 3-offset 4-offset2
 
 * A sample inquisition
 
@@ -281,6 +266,7 @@ amplification, oscillation) can be accessed and routed by skin and
 fingers using the extended hardware board. Hardware points can easily
 be probed and discovered.
 
+
 * Addendum
 
 - In certain cases it may be necessary to touch one finger against the
@@ -317,28 +303,4 @@ correctly attached to the four bare holed socket near the top of base board
 (from left to right: 3.3V, SWCK, GND, SWDIO). Then simply (using a
 program such as stlinkflash upload the code. Any local hackerspace
 should be able to assist in this operation.
-
-- Things don't appear to be working as they should, and how should
-  they be working?
-
-1- Make sure you using mono jack cables in and out (never
-  stereo). Check there is a signal coming in (left side jack with
-  point facing down) and output jack is on the right. Some of my
-  cables often don't click all the way in but this is never a problem.
-
-2- Make sure all of the knobs are turned far left and power on with the
-  switch. You should hear pretty much the incoming audio. If not then
-  there is a problem which could be not enough amps from the power
-  supply, or a low battery.
-
-3- If you do hear a sound then turning knobs while touching mostly the
-  indicated direction pads in the middle will change the sounds. The
-  bottom knob changes mode and all modes nearly always only work with
-  fingers. The one to watch is the last mode (bottom knob far
-  right/full on) as this changes hardware settings which can effect
-  how incoming/outgoing signals are routed. Check this manual but by
-  default incoming is routed to the processor.
-
-4- If there's still no sound we need to check further! I hope this
-  helps and apologies in advance if things aren't how they should be!
 

@@ -1,5 +1,4 @@
 
-
 TOOL_PREFIX = /opt/ARM/arm-linaro-eabi-4.6
 
 PRG_PREFIX = $(TOOL_PREFIX)/bin/arm-none-eabi-
@@ -39,11 +38,7 @@ LDSCRIPT = stm32_flash.ld
 #CFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard 
 # was -02 before below... 
 
-<<<<<<< HEAD
 CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -I./rsynth-2.0-port -std=gnu99 \
-=======
-CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -std=gnu99 \
->>>>>>> 5249adb807a4ff31d830749d4158c901cccd6d0b
 	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
 	-mthumb \
 	-mfpu=fpv4-sp-d16 \
