@@ -46,7 +46,7 @@
     } villager_hardwarehaha;
 
     typedef struct {
-      u16 length;
+      u16 length,last;
       u16 dataoffset;
       u16 knoboffset;
       int32_t samplepos;

@@ -202,8 +202,8 @@ static u8 whichfiltoutvillager=0;
 	      //	      lp=(samplepos+village_read[x].start)&32767;
 
 	      //	      tmpr=x-1;x
-	      	      laster+=village_read[x].start;
-		      lp=(samplepos+laster)&32767; // start is now added to the last start // rather than WRAP!
+	      laster+=village_read[x].start;
+	      lp=(samplepos+laster)&32767; // start is now added to the last start // rather than WRAP!
 		      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start // rather than WRAP!
 
 	      if (overlay&16){ // datagen business readin! - top bit=32
