@@ -1,12 +1,12 @@
 * parts list
 
-// to be updated!!!
+// to update begin JAN
 
 ** PCBs:
 
-Top: 1 bare + x PCB
+Top: 
 
-Lower: 1 bare + x PCB
+Lower: 
 
 ** Resistors
 
@@ -34,29 +34,29 @@ Lower: 1 bare + x PCB
 1uFx2bulk
 2.2uFx2 have50
 4.7uFx1 have42
-10uFx7bulk BUT NEED 16V SEGOR!!
+*10uFx7bulk BUT NEED 16V SEGOR for 3x incoming!!*- have 20 only NOW BULK!
 
 ** Active
 
 TOP:
-AD620ARZ x1 -topSEGOR - have 6
-OPA337UAG4  x3 -top (mouser) have 22
+AD620ARZ x1 -topSEGOR - have 8
+OPA337UAG4  x3 -top (mouser) have 46
 
-LEDx1 have11ordered30=30+
+*LEDx1 have11ordered30=10*
 
 DIODES BAS40-04, 215 (mouser 771-BAS40-04-T/R) x2 have200odd
 
-HCT40106x1 (have hcf)-works-have27
-CD74HCT4053M96x1 have28
-HCT4066x3 have119
-LM13700MX/NOPB x1(mouser/reichelt) have21
-LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have17
-LM1117-5Vx1  DT-5(mouser) have12+
+HCT40106x1 (have hcf)-works-have13
+CD74HCT4053M96x1 have10
+HCT4066x3 have70
+LM13700MX/NOPB x1(mouser/reichelt) have14
+LM1117-3.3x1 926-LM1117DT-3.3NOPB(mouser) have16-orderedebay
+LM1117-5Vx1  DT-5(mouser) have13+ebay
 LM358x1 (reichelt) bulk
-MAX7400CSAx1 (mouser/reichelt) have10orso
-STM32F405RGT6 x1 (mouser) have4
-8 MHz XTAL (SMD HC49=)x1 (reichelt) have9
-WM8731 audio codec have2
+MAX7400CSAx1 (mouser/reichelt) have10
+STM32F405RGT6 x1 (mouser) have6
+8 MHz XTAL (SMD HC49=)x1 (reichelt) haveX
+WM8731 audio codec have10
 
 ** other
 
@@ -64,8 +64,8 @@ POTIS: RK09K1130A5R XXX
 inductorx1: 81-BLM18BD252SN1D (mouser) have118
 JACKSx2 (Banzai) XXX
 switchx1 (ebay supplier) XXX
-2.1mm DC socketx1 (SEGOR) -have25
-battery holder 9vx1 534-1294 (mouser) have
+2.1mm DC socketx1 (SEGOR) -have14
+battery holder 9vx1 534-1294 (mouser) have ??
 
 TOP:
 

@@ -419,8 +419,8 @@ void do_effect(villager_effect* vill_eff){
       u16  modifier;
    */
 
-    if (++vill_eff->del>=vill_eff->speed){
-      vill_eff->del=0;
+  if (++vill_eff->del>=vill_eff->speed){
+    vill_eff->del=0;
 
     if (vill_eff->inpos>=vill_eff->inwrap) {
       vill_eff->inpos=0;
@@ -428,7 +428,7 @@ void do_effect(villager_effect* vill_eff){
  
    if (vill_eff->modpos>=vill_eff->modwrap) {
       vill_eff->modpos=0;
-    }
+   }
  
     // so copy into inbuffer
 
@@ -640,7 +640,7 @@ void do_effect(villager_effect* vill_eff){
       }
     break;
   }
-    }
+  }
 }
 
 void test_effect(int16_t* inbuffer, int16_t* outbuffer){
