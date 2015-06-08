@@ -26,7 +26,7 @@ typedef unsigned char u8;
 signed char direction[2]={-1,1};
 
     typedef struct {
-      u16 length;
+      u16 length,last;
       u16 dataoffset;
       u16 knoboffset;
       int32_t samplepos;
@@ -38,7 +38,7 @@ signed char direction[2]={-1,1};
 
 villager_datagenwalker village_datagenwalker[64];
 
-u16 howmanydatagenwalkervill=10;
+u16 howmanydatagenwalkervill=1;
 
 static const int16_t newdirection[8]={-256,-255,1,255,256,254,-1,-257};
 
@@ -73,10 +73,10 @@ u16 nextdatagen(void){
   village_datagenwalker[x].samplepos=sampleposs;
   if (countdatagenwalker>=village_datagenwalker[x].length){
     countdatagenwalker=0;
-    lastoffset=village_datagenwalker[x].dataoffset;
+    //    lastoffset=village_datagenwalker[x].dataoffset;
     whichdatagenwalkervillager++; //u8
     x=whichdatagenwalkervillager%howmanydatagenwalkervill;
-    village_datagenwalker[x].dataoffset+=lastoffset;
+    //    village_datagenwalker[x].dataoffset+=lastoffset;
   }
   return tmpp;
 }
@@ -156,7 +156,7 @@ void runnoney(int x){
 
     typedef struct {
       u8 whicheffect,speed,step;
-      u16 instart,modstart,outstart;
+      u16 instart,modstart,outstart,last;
       int32_t inpos,modpos,outpos;// various counters
       u16 inwrap,modwrap,outwrap;
       u8 mirrormod,mirrordel,mirrorspeed,del; 
@@ -256,7 +256,7 @@ void main(void)
   int inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
-    village_effect.del=0;
+  village_effect.del=0;
     village_effect.inpos=0;
     village_effect.modpos=0;
     village_effect.outpos=0;
@@ -271,23 +271,30 @@ void main(void)
     village_effect.whicheffect=0;// TESTY all!!!
     village_effect.step=1;
     village_effect.speed=1;
+    village_effect.last=0;
+
 
     for (u16 xx=0;xx<64;xx++){
       village_datagenwalker[xx].length = rand()%32767;
     village_datagenwalker[xx].dataoffset = 100;
     village_datagenwalker[xx].knoboffset = 120;
     village_datagenwalker[xx].samplepos = 0;
+    village_datagenwalker[xx].last = 0;
     village_datagenwalker[xx].speed = 1;
     village_datagenwalker[xx].step = 1;
     village_datagenwalker[xx].dir = 1;
     village_datagenwalker[xx].dirry = 1;
     }
 
+    u16 lastoff, whichvillager=10,x;
+
     while(1){
+
       nextdatagen();
     //    do_effect(&village_effect);
     //    printf("vill: %d\n",village_effect.del);
-      }
+    }   
+
   /*  while(1){
 
     inpos=rand()%32768;

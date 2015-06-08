@@ -104,7 +104,8 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int16_t dirry,laststart;
+  int16_t dirry; u16 laster;
+  //  static u16 laststart=0, lastfiltstart=0;
   int32_t lasttmp=0,lasttmp16=0;
   register int32_t lp,samplepos;
   register int32_t tmp,tmpl,tmp16,tmp32d;
@@ -181,7 +182,7 @@ static u8 whichfiltoutvillager=0;
 	    src++;
 	    tmp=*(src++); 
 #endif
-	    laststart=0;
+	    laster=0;
 	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
 	    //   for(x=howmanyreadvill; x--; ){
 		      overlay=village_read[x].overlay;
@@ -201,9 +202,9 @@ static u8 whichfiltoutvillager=0;
 	      //	      lp=(samplepos+village_read[x].start)&32767;
 
 	      //	      tmpr=x-1;x
-	      	      laststart+=village_read[x].start;
-	      	      lp=(samplepos+laststart)&32767; // start is now added to the last start // rather than WRAP!
-	      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start // rather than WRAP!
+	      	      laster+=village_read[x].start;
+		      lp=(samplepos+laster)&32767; // start is now added to the last start // rather than WRAP!
+		      //	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start // rather than WRAP!
 
 	      if (overlay&16){ // datagen business readin! - top bit=32
 		// 32 is swop datagen/16 could be leftIN rather than ssat//rest is overlay and effect
@@ -453,13 +454,13 @@ static u8 whichfiltoutvillager=0;
 	  }//sz
 
 	// WRITE! simplified to consecutive!! DONE- to test!
-	  laststart=0;
+	  //	  laststart=0;
 	  samplepos=village_write[whichwritevillager].samplepos;//)&32767;
 	  for (xx=0;xx<sz/2;xx++){
-	  //    	    lp=(samplepos+village_write[whichwritevillager].start)&32767;
+	    //	    lp=(samplepos+village_write[whichwritevillager].start)&32767; // TESTY!
 	    //	    lp=(samplepos)&32767; // TESTY!
 	    //	      tmpr=whichwritevillager-1;
-	      lp=(samplepos+village_write[whichwritevillager].last)&32767; 
+	    	    lp=(samplepos+village_write[whichwritevillager].start)&32767; 
 
 	    mono_buffer[xx]=audio_buffer[lp];
 	    if (++village_write[whichwritevillager].del>=village_write[whichwritevillager].step){
@@ -476,11 +477,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_write[whichwritevillager].wrap;
 		village_write[whichwritevillager].samplepos=samplepos;
-		laststart+=village_write[whichwritevillager].start;
+		//		laststart+=village_write[whichwritevillager].start;
 		whichwritevillager++; 
 		whichwritevillager=whichwritevillager%howmanywritevill;		  //u8 /// move on to next
 		samplepos=village_write[whichwritevillager].samplepos;
-		village_write[whichwritevillager].last=laststart;
+		//		village_write[whichwritevillager].last=laststart;
 	      }
 	      //		else village_write[whichwritevillager].samplepos=samplepos;
 	    }
@@ -490,13 +491,13 @@ static u8 whichfiltoutvillager=0;
 #ifndef LACH
 	  if (digfilterflag&1){
 
-	  laststart=0;
+	    //	  laststart=0;
 	  samplepos=village_filtout[whichfiltoutvillager].samplepos;
 
 	  for (xx=0;xx<sz/2;xx++){
 
 	    //	      tmpr=whichfiltoutvillager-1;
-	      lp=(samplepos+village_filtout[whichfiltoutvillager].last)&32767; 
+	      lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767; 
 
 	    //	    lp=(samplepos+village_filtout[whichfiltoutvillager].start)&32767;
 	    left_buffer[xx]=audio_buffer[lp];
@@ -516,11 +517,11 @@ static u8 whichfiltoutvillager=0;
 		if (dirry>0) samplepos=0;
 		  else samplepos=village_filtout[whichfiltoutvillager].wrap;
 		village_filtout[whichfiltoutvillager].samplepos=samplepos;
-		laststart+=village_filtout[whichfiltoutvillager].start;
+		//		lastfiltstart+=village_filtout[whichfiltoutvillager].start;
 		whichfiltoutvillager++; 
 		whichfiltoutvillager=whichfiltoutvillager%howmanyfiltoutvill;		  //u8 /// move on to next
 		samplepos=village_filtout[whichfiltoutvillager].samplepos;
-		village_filtout[whichfiltoutvillager].last=laststart;
+		//		village_filtout[whichfiltoutvillager].last=lastfiltstart;
 		}
 		//		else village_filtout[whichfiltoutvillager].samplepos=samplepos;
 	    }
