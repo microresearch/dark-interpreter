@@ -408,7 +408,7 @@ void main(void)
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=0; /// test
-    village_read[xx].wrap=1; // test
+    village_read[xx].wrap=32767; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -431,8 +431,8 @@ void main(void)
     village_write[xx].samplepos=0;// testy
     village_write[xx].speed=1;
     village_write[xx].step=1;
-    village_write[xx].start=16000; // TESTY!
-    village_write[xx].wrap=16000; //  test
+    village_write[xx].start=0; // TESTY!
+    village_write[xx].wrap=32767; //  test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; //  test
     //    village_write[xx].mstart=0;
@@ -453,7 +453,7 @@ void main(void)
     // datagen
     village_datagen[xx].start = 0;
     village_datagen[xx].CPU = 0;// testy
-    village_datagen[xx].wrap=16000;
+    village_datagen[xx].wrap=32000;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;

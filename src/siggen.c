@@ -38,7 +38,6 @@ void runVOSIMaud(villager_generic* vill){
   u16 start=vill->start;
   u16 wrap=vill->wrap;
   uint16_t output; u8 value;
-
   
   // Smooth frequency mapping
   syncPhaseInc = mapPhaseInc(buf16[0]>>6) / 4; // 10 bits /4
@@ -90,5 +89,14 @@ void runVOSIMaud(villager_generic* vill){
   grain2Amp -= (grain2Amp >> 8) * grain2Decay;
    }
   vill->position=count;
+
+}
+
+
+void runVOSIM_SC(villager_generic* vill){
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
 
 }
