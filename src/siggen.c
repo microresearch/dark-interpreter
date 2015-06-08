@@ -39,21 +39,21 @@ void runVOSIMaud(villager_generic* vill){
   u16 wrap=vill->wrap;
   uint16_t output; u8 value;
 
-  /*
+  
   // Smooth frequency mapping
-  syncPhaseInc = mapPhaseInc(analogRead(SYNC_CONTROL)) / 4; // 10 bits /4
+  syncPhaseInc = mapPhaseInc(buf16[0]>>6) / 4; // 10 bits /4
   
   // Stepped mapping to MIDI notes: C, Db, D, Eb, E, F...
   //syncPhaseInc = mapMidi(analogRead(SYNC_CONTROL));
   
   // Stepped pentatonic mapping: D, E, G, A, B
-  syncPhaseInc = mapPentatonic(analogRead(SYNC_CONTROL));
+  //  syncPhaseInc = mapPentatonic(buf16[1]>>6);
 
-  grainPhaseInc  = mapPhaseInc(analogRead(GRAIN_FREQ_CONTROL)) / 2;
-  grainDecay     = analogRead(GRAIN_DECAY_CONTROL) / 8;
-  grain2PhaseInc = mapPhaseInc(analogRead(GRAIN2_FREQ_CONTROL)) / 2;
-  grain2Decay    = analogRead(GRAIN2_DECAY_CONTROL) / 4;
-  */
+  grainPhaseInc  = mapPhaseInc(buf16[1]>>6) / 2;
+  grainDecay     = buf16[2]>>6 / 8;
+  grain2PhaseInc = mapPhaseInc(buf16[3]>>6) / 2;
+  grain2Decay    = buf16[4]>>6 / 4;
+ 
 
   // deal with step and count and so on... 
    for (u8 xx=0;xx<vill->howmany;xx++){

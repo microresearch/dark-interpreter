@@ -400,6 +400,7 @@ void do_effect(villager_effect* vill_eff){
   int32_t tmp;float tmpp; 
   float freq;
   int16_t inbuffer[32],modbuffer[32],outbuffer[32];
+
   float finbuffer[32],fmodbuffer[32],foutbuffer[32];
   u8 x,xx,tmpinlong,tmpmodlong,longest; // never longer than 32!
 
@@ -432,7 +433,7 @@ void do_effect(villager_effect* vill_eff){
  
     // so copy into inbuffer
 
-    if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
+   if ((vill_eff->inpos+32)<=vill_eff->inwrap) tmpinlong=32;
     else tmpinlong=vill_eff->inwrap-vill_eff->inpos; 
     
    // same for mod...
@@ -449,7 +450,7 @@ void do_effect(villager_effect* vill_eff){
     // just in->out as float 
 
     for (xx=0;xx<tmpinlong;xx++){
-      finbuffer[xx]=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767])/32768.0f;//REDO!howso?
+        finbuffer[xx]=(float32_t)(buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768)/32768.0f;//REDO!howso?
     }
     // do effect
     doformantfilterf(finbuffer, foutbuffer, tmpinlong, vill_eff->modifier);// vowel as 0-4
@@ -458,7 +459,7 @@ void do_effect(villager_effect* vill_eff){
     for (xx=0;xx<tmpinlong;xx++){
     tmp = foutbuffer[xx] * 32768.0f;
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-        buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+        buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp+32768;
     //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=audio_buffer[(vill_eff->instart+vill_eff->inpos++)&32767];
     vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
@@ -468,13 +469,14 @@ void do_effect(villager_effect* vill_eff){
   case 1: //FFT in PV from inbuffer into buf16
     //void dofftin(int16_t* inbuffer, int16_t* outbuffer){ // 32 samples
     // but must be 32 samples
-    for (xx=0;xx<32;xx++){
+    for (xx=0;xx<tmpinlong;xx++){
       inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
     }
     dofftin(inbuffer,outbuffer);
     // copy into buf16
     for (xx=0;xx<tmpinlong;xx++){
       buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];
+      //      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=0;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }

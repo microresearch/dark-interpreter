@@ -22,7 +22,7 @@
     typedef struct {
       u8 whicheffect,speed,step;
       u16 instart,modstart,outstart;
-      int32_t inpos,modpos,outpos;// various counters
+      int32_t inpos,modpos,outpos;// various counters // was int32t???
       u16 inwrap,modwrap,outwrap;
       u8 mirrormod,mirrordel,mirrorspeed,del; 
       //      u8 infected;

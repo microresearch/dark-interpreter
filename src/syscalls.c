@@ -53,12 +53,12 @@ int _read(int file, char *ptr, int len) {
 /* Register name faking - works in collusion with the linker.  */
 register char * stack_ptr asm ("sp");
 
-
 caddr_t _sbrk (struct _reent *r, int incr) // was _sbrk_r
 {
 	extern char   end asm ("end"); // Defined by the linker. 
 	static char * heap_end;
 	char *        prev_heap_end;
+
 
 	if (heap_end == NULL)
 		heap_end = & end;
@@ -67,16 +67,16 @@ caddr_t _sbrk (struct _reent *r, int incr) // was _sbrk_r
 
 	if (heap_end + incr > stack_ptr)
 	{
-#if 0
+	  /*#if 0
 		extern void abort (void);
 
 		_write (1, "_sbrk: Heap and stack collision\n", 32);
 
 		abort ();
-#else
-			errno = ENOMEM;
+		#else*/
+		errno = ENOMEM;
 		return (caddr_t) -1;
-#endif
+		//#endif
 	}
 
 	heap_end += incr;

@@ -102,7 +102,7 @@ void main(void)
 {
 
   //  int i; float xx,xa,xb,xc; int xxx;
-  int i,x,xx,inpos,inwrap,tmpinlong;
+    int i,x,xx;
   int inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
@@ -114,6 +114,33 @@ void main(void)
       char pp[3];
     } lll;
 
+    int instart=0, inpos=0,inwrap=16000, outpos=16000, outstart=16000,outwrap=16000;
+    int tmpinlong=32;
+
+    while(1){
+
+    if (inpos>=inwrap) {
+      inpos=0;
+    }
+
+    if ((inpos+32)<=inwrap) tmpinlong=32;
+    else tmpinlong=inwrap-inpos; 
+
+
+
+    for (xx=0;xx<tmpinlong;xx++){
+      printf("in: %d  ",(instart+inpos++)&32767);
+    }
+    //    dofftin(inbuffer,outbuffer);
+    // copy into buf16
+    for (xx=0;xx<tmpinlong;xx++){
+      printf("x out: %d  \n",(outstart+outpos)&32767);
+      //      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=0;
+      outpos+=1;
+      if (outpos>outwrap) outpos=0;
+    }
+
+    }
 
 static const char phonemmm[41][3] =
 {"IY\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0","AY\0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0"," \0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"};
