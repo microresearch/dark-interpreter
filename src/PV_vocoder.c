@@ -107,10 +107,8 @@ void hanningprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samp
   const int16_t *win = (int16_t *)AudioWindowHanning32;
 
   for (int i=0; i <length; i++) {
-    int32_t val = *inbuffer * *win++;
-    *outbuffer = signed_saturate_rshift(val, 16, 15);
-    //    *outbuffer = val >> 15;
-    outbuffer ++;
+    int32_t val = (int32_t)(*inbuffer++) * *win++;
+    *outbuffer++ = signed_saturate_rshift(val, 16, 15);
   }
 }
 
@@ -118,10 +116,8 @@ void blackmanprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 sam
   const int16_t *win = (int16_t *)AudioWindowBlackman32;
 
   for (int i=0; i <length; i++) {
-    int32_t val = *inbuffer * *win++;
-    *outbuffer = signed_saturate_rshift(val, 16, 15);
-    //    *outbuffer = val >> 15;
-    outbuffer ++;
+    int32_t val = (int32_t)(*inbuffer++) * *win++;
+    *outbuffer++ = signed_saturate_rshift(val, 16, 15);
   }
 }
 
@@ -129,10 +125,8 @@ void hammingprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samp
   const int16_t *win = (int16_t *)AudioWindowHamming32;
 
   for (int i=0; i <length; i++) {
-    int32_t val = *inbuffer * *win++;
-    *outbuffer = signed_saturate_rshift(val, 16, 15);
-    //    *outbuffer = val >> 15;
-    outbuffer ++;
+    int32_t val = (int32_t)(*inbuffer++) * *win++;
+    *outbuffer++ = signed_saturate_rshift(val, 16, 15);
   }
 }
 

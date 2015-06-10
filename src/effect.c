@@ -336,7 +336,7 @@ void doenvelopefollower(int16_t* envbuffer, u8 envsize, int16_t* inbuffer, u8 in
    xx++;
    if (xx>envsize) {env=0;xx=0;}
    if (abs(env)<envbuffer[x]) env=envbuffer[x];
-   envout=(float)env/32768.0;
+   envout=(float)(abs(env))/32768.0;
    outbuffer[x]=(float)inbuffer[x]*envout;
 }
 } 

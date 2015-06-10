@@ -823,7 +823,7 @@ void main(void)
 	      village_effect[whichvillager].last=village_read[adc_buffer[SECOND]>>6].start;
 
 	      //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;
-	    //	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
+	      village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 
 	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
@@ -1285,7 +1285,7 @@ void main(void)
 	      village_effect[whichvillager].last=village_read[adc_buffer[SECOND]>>6].start;
 
 	      //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;
-	    //	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
+	    	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 
 	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
 	    	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;

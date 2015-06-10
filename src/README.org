@@ -689,6 +689,10 @@ lee 270 2290 3010
 * ////////////////////////
 
 
+* WED JUN 10
+
+port from voices changes to effect.c and pvV
+
 * WED JUN 03
 - fixed datagenwalker and changes to hwgeners as adding previous start is still fixed -TODO> port to VOiCE!
 - other walkers: audioDONE, effect and datagen to fix HOW? DONE! - but should make start a bit smaller on knobs TODO!
