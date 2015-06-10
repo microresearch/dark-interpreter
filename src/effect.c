@@ -318,7 +318,7 @@ void envelopefollower(int16_t* envbuffer, int16_t* inbuffer, int16_t* outbuffer)
  for (int x=0;x<32;x++){
    if (abs(env)<envbuffer[x]) env=inbuffer[x];
 }
- envout=(float)env/65536.0;
+ envout=(float)(abs(env))/32768.0;
  for (int x=0;x<32;x++){
    outbuffer[x]=(float)inbuffer[x]*envout;
 }
@@ -580,14 +580,14 @@ void do_effect(villager_effect* vill_eff){
 
   case 5: //     6--envelope follower
     for (xx=0;xx<longest;xx++){
-      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
-      modbuffer[xx]=buf16[(vill_eff->modstart+vill_eff->modpos++)&32767];
+      inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768;
+      modbuffer[xx]=buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]-32768;
     }
 
     doenvelopefollower(modbuffer, (vill_eff->modifier>>4), inbuffer, tmpinlong, outbuffer);
 
     for (xx=0;xx<longest;xx++){
-      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx];
+      buf16[(vill_eff->outstart+vill_eff->outpos)&32767]=outbuffer[xx]+32768;
       vill_eff->outpos+=vill_eff->step;
       if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }
@@ -596,7 +596,6 @@ void do_effect(villager_effect* vill_eff){
   case 6://      7+--windower - diff windows// also 32 ???
     for (xx=0;xx<tmpinlong;xx++){
       inbuffer[xx]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767]-32768;
-      //      modbuffer[xx]=audio_buffer[(vill_eff->modstart+vill_eff->modpos+xx)&32767];
     }
 
     switch((vill_eff->modifier>>5)&3){

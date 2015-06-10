@@ -176,13 +176,32 @@ void runVOSIM_SC(void){
 
 }
 
+static const int16_t AudioWindowHanning32[]={
+  0,335,1327,2936,5095,7717,10693,13903,17213,20490,23599,26412,28815,30709,32016,32683,32683,
+  32016,30709,28815,26412,23599,20490,17213,13903,10693,7717,5095,2936,1327,335,0
+};
+
+void hanningprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samples
+  const int16_t *win = (int16_t *)AudioWindowHanning32;
+
+  for (int i=0; i <length; i++) {
+        int32_t val = *inbuffer * *win++;
+	//int16_t val = *inbuffer;
+	//	*outbuffer = signed_saturate_rshift(val, 16, 15);
+	*outbuffer = val>> 15;
+	printf("hann: in %d oot %d\n",*inbuffer, *outbuffer);
+    //    *outbuffer = val;
+	outbuffer ++; inbuffer++;
+  }
+}
+
 
 void main(void)
 {
 
   //  int i; float xx,xa,xb,xc; int xxx;
     int i,x,xx;
-  int inbuffer[255],modbuffer[255],outbuffer[255];
+  int16_t inbuffer[255],modbuffer[255],outbuffer[255];
   float finbuffer[255],fmodbuffer[255],foutbuffer[255],tmpp;
 
   int adapter[16]={32,288,288,288,288,288,288,288,288,288,288,288,288,288,288,32};
@@ -196,11 +215,17 @@ void main(void)
     int instart=0, inpos=0,inwrap=16000, outpos=16000, outstart=16000,outwrap=16000;
     int tmpinlong=32;
 
-        while(1){
+    for (xx=0;xx<32;xx++){
+      inbuffer[xx]=(rand()%65536)-32768;
+      modbuffer[xx]=(rand()%65536)-32768;
+    }
+
+    hanningprocess(inbuffer,outbuffer,32);
+    /*        while(1){
 
 	  runVOSIM_SC();
 
-	}
+	  }*/
 	/*
     if (inpos>=inwrap) {
       inpos=0;

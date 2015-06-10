@@ -310,7 +310,7 @@ static const signed char dir[2]={-1,1};
     u16 start=vill->start;
     u16 wrap=vill->wrap;
 
-   for (u8 xx=0;xx<vill->howmany;xx++){
+    //   for (u8 xx=0;xx<vill->howmany;xx++){
     strcpy(phonOUT,phonemmm[buf16[dirrry&32767]%42]);
     dirrry++;
 
@@ -321,7 +321,7 @@ static const signed char dir[2]={-1,1};
       if (count>start+wrap) count=start;
       }
         FreePhonemeToWaveData();
-   }
+	//   }
   vill->position=count;
 
 }
@@ -432,7 +432,7 @@ void main(void)
     village_write[xx].speed=1;
     village_write[xx].step=1;
     village_write[xx].start=0; // TESTY!
-    village_write[xx].wrap=32000; //  test
+    village_write[xx].wrap=32768; //  test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; //  test
     //    village_write[xx].mstart=0;
@@ -452,13 +452,13 @@ void main(void)
     
     // datagen
     village_datagen[xx].start = 64;
-    village_datagen[xx].CPU = 1;// testy
+    village_datagen[xx].CPU = 0;// testy
     village_datagen[xx].wrap=32000;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
-    village_datagen[xx].howmany=64;// testy! - but where can this be set????
+    village_datagen[xx].howmany=1;// testy! - but where can this be set????
     village_datagen[xx].dirry = 1;
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
@@ -473,14 +473,14 @@ void main(void)
     village_effect[xx].modpos=0;
     village_effect[xx].outpos=0;
     village_effect[xx].instart=0;
-    village_effect[xx].inwrap=16000;
-    village_effect[xx].outstart=16000;
-    village_effect[xx].outwrap=16000;//TESTY!
+    village_effect[xx].inwrap=32760;
+    village_effect[xx].outstart=0;
+    village_effect[xx].outwrap=32000;//TESTY!
     village_effect[xx].modstart=0;
     village_effect[xx].modwrap=32000;
     village_effect[xx].modifier=127;
     village_effect[xx].kmodifier=127;
-    village_effect[xx].whicheffect=0;// TESTY all!!!
+    village_effect[xx].whicheffect=1;// TESTY all!!!
     village_effect[xx].step=1;
     village_effect[xx].speed=1;
 
@@ -571,7 +571,7 @@ void main(void)
     }
 
 #ifndef PCSIM
-  //	ADC1_Initonce();
+ //	ADC1_Initonce();
   ADC1_Init((uint16_t *)adc_buffer);
 
 #ifndef LACH
@@ -906,11 +906,17 @@ a**
 	    //	    tmper=whichvillager-1;
 	    //village_effect[whichvillager].instart=village_effect[tmper%howmanyeffectvill].instart+village_read[adc_buffer[SECOND]>>6].start;
 
-	    	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
-	    	    village_effect[whichvillager].outstart=village_write[adc_buffer[THIRD]>>6].start;
-	    	    village_effect[whichvillager].outwrap=village_write[adc_buffer[THIRD]>>6].wrap;
-	    	    village_effect[whichvillager].outpos=0;
-	    	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
+	    village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
+	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
+	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
+	    village_effect[whichvillager].modpos=0;
+
+
+	    village_effect[whichvillager].modifier=adc_buffer[THIRD]>>4;
+
+
+	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
+
 	    village_effect[whichvillager].speed=(spd&15)+1; // and step?
 	    break;
 
@@ -1712,6 +1718,9 @@ a**
 	} // end of this mirror
 
 	for (whichx=0;whichx<howmanyeffectvill;whichx++){//EFFECT mirror
+	  do_effect(&village_effect[whichx]); // do effects HERE!
+	  do_effect(&village_effect[whichx]); // do effects HERE!
+	  do_effect(&village_effect[whichx]); // do effects HERE!
 	  do_effect(&village_effect[whichx]); // do effects HERE!
 	  if (village_effect[whichx].mirrormod){
 	    // speed wrapper

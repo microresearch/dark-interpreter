@@ -71,6 +71,13 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* TUE 9 JUN
+
+- fixes and debugging but still slow with speech as main cpu (so
+  reduced to just run once!)
+
+- testing/fixing effects. bug in all windows in pvvocoder.c to port to TOWERS
+
 *  WED 3 JUN
 
 - audio.c and main/voice add/sub 32768 but we still need to figure out effect.c

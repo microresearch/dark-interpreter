@@ -50,6 +50,11 @@ int _read(int file, char *ptr, int len) {
 	return 0;
 }
 
+/*int crashfun(void){
+  static int inc=0;
+  return inc++;
+  }*/
+
 /* Register name faking - works in collusion with the linker.  */
 register char * stack_ptr asm ("sp");
 
@@ -67,6 +72,7 @@ caddr_t _sbrk (struct _reent *r, int incr) // was _sbrk_r
 
 	if (heap_end + incr > stack_ptr)
 	{
+
 	  /*#if 0
 		extern void abort (void);
 
@@ -75,6 +81,7 @@ caddr_t _sbrk (struct _reent *r, int incr) // was _sbrk_r
 		abort ();
 		#else*/
 		errno = ENOMEM;
+		
 		return (caddr_t) -1;
 		//#endif
 	}

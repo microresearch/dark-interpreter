@@ -5,7 +5,8 @@
 
 
 
-extern short *pWavBuffer;
+//extern short *pWavBuffer;
+extern int16_t pWavBuffer[3840];
 extern darray_t wav_elm;
 extern unsigned short wav_len;
 
