@@ -442,6 +442,7 @@ void main(void)
 
     // effects
     village_effect[xx].del=0;
+    village_effect[xx].last=0;
     village_effect[xx].inpos=0;
     village_effect[xx].modpos=0;
     village_effect[xx].outpos=0;
