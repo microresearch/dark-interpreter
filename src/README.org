@@ -71,6 +71,23 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* WED 10 JUN 
+
+- effects fixes
+- added start offset to audio.c
+TODO: start on new finger scheme in audio.c to keep timing 
+
+- READ and WRITE done - DATEGENS/effects/datagenwalker on next
+
+but problem is how to assign howmanyeffects and howmanywalker from one knob?
+
+- how we deal with HW as can't really lose input select so easily? simplify HW
+
+- each villager has it's own setting index and can play with this
+- eg. modes to swop settings, make all one finger setting across the board and so on
+
+
+
 * TUE 9 JUN
 
 - fixes and debugging but still slow with speech as main cpu (so

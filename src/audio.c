@@ -7,17 +7,26 @@ LINEIN/OUTL-filter
 */
 
 #ifdef TENE
+#define FIRST 2
+#define SECOND 0
+#define THIRD 3
+#define FOURTH 4
+#define FIFTH 1
 #define UP 6
 #define DOWN 8
 #define LEFT 5
 #define RIGHT 7
 #else
+#define FIRST 3
+#define SECOND 2
+#define THIRD 4
+#define FOURTH 1
+#define FIFTH 0
 #define UP 5
 #define DOWN 6
 #define LEFT 8
 #define RIGHT 7
 #endif
-
 
 #define STEREO_BUFSZ (BUFF_LEN/2) // 64
 #define MONO_BUFSZ (STEREO_BUFSZ/2) // 32
@@ -63,8 +72,6 @@ int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 
 static const int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
 static const signed char dir[2]={-1,1};
-extern u8 wormdir;
-extern u8 digfilterflag;
 
 void Audio_Init(void)
 {
@@ -104,7 +111,7 @@ inline void audio_comb_stereo(int16_t sz, int16_t *dst, int16_t *lsrc, int16_t *
 
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 {
-  int16_t dirry;
+  int16_t dirry; u16 laster; static u16 count=0;
   int32_t lasttmp=0,lasttmp16=0;
 #ifndef TEST_SPEECH
   register int32_t lp,samplepos;
@@ -117,6 +124,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   extern villagerr village_read[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
   extern u8 howmanywritevill,howmanyreadvill;
+
+  u8 spd; static u8 index=0; u8 whichvillager=0;
+  extern signed char direction[2];
+  extern u8 wormdir;
+  extern u8 digfilterflag;
+
+  //  extern u16 loggy[4096];
 
 #ifndef LACH
   static u8 hdgener; 
@@ -180,7 +194,297 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #else
 	//////////////////////////////////////////////////////////	
 
-	// READ! 
+	// fingers here:
+
+	count++;
+	if (count==128){
+	  count=0;
+
+  xx=fingerdir(&spd);
+  
+  // start with WRITE just to test
+
+    if (xx!=5){
+
+      //      if (adc_buffer[FIRST]>8){
+
+      whichvillager=adc_buffer[FIRST]>>6; // 6bits=64
+      howmanywritevill=whichvillager+1;
+
+  // choose params for whichvillager (array?) and set these with finger
+  // up/down runs thru param
+  // spd>>x adds to param setting
+  
+  switch(xx){
+  case 0: // LEFT
+      village_write[whichvillager].index--; //might need be fractional=speedy
+      village_write[whichvillager].index%=9;
+    break;
+  case 1: // RIGHT
+      village_write[whichvillager].index++; //might need be fractional=speedy
+      village_write[whichvillager].index%=9;
+    break;
+  case 2: // UP - inc based on index:
+    index=village_write[whichvillager].index;
+    switch(index){
+    case 0:
+      village_write[whichvillager].kstart+=(spd>>1);
+      if (village_write[whichvillager].kstart>=32768) village_write[whichvillager].kstart=0;
+      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+      break;
+    case 1:
+      village_write[whichvillager].kwrap+=(spd>>1);
+      if (village_write[whichvillager].kwrap>=32768) village_write[whichvillager].kwrap=0;
+      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+      break;
+    case 2:
+      village_write[whichvillager].speed+=(spd&5); 
+      village_write[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_write[whichvillager].step+=(spd&5); 
+      village_write[whichvillager].step&=15;
+      break;
+    case 4:
+      village_write[whichvillager].dir++; 
+      village_write[whichvillager].dir%=5;
+      break;
+    case 5:
+      village_write[whichvillager].dirry=direction[1]*village_write[whichvillager].speed; 
+      break;
+      // mirror
+    case 6:
+      village_write[whichvillager].fingered++; 
+      village_write[whichvillager].fingered%=2; // 0 or 1
+      village_write[whichvillager].fingered+=2; //2 or 3
+      break;
+    case 7:
+      village_write[whichvillager].mirrormod++; 
+      village_write[whichvillager].mirrormod%=5;
+      break;
+    case 8:
+      village_write[whichvillager].mirrorspeed++; 
+      village_write[whichvillager].mirrormod&=15;
+      break;
+    }
+    break;
+  case 3: // DOWN - dec based on index:
+    index=village_write[whichvillager].index;
+    switch(index){
+    case 0:
+      village_write[whichvillager].kstart-=(spd);
+      if (village_write[whichvillager].kstart>=32768) village_write[whichvillager].kstart=32767;
+      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].start=village_write[whichvillager].kstart;
+      break;
+    case 1:
+      village_write[whichvillager].kwrap-=(spd);
+      if (village_write[whichvillager].kwrap>=32768) village_write[whichvillager].kwrap=32767;
+      if (!village_write[whichvillager].mirrormod) village_write[whichvillager].wrap=village_write[whichvillager].kwrap;
+      break;
+    case 2:
+      village_write[whichvillager].speed-=1; 
+      village_write[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_write[whichvillager].step-=(spd&5); 
+      village_write[whichvillager].step&=15;
+      break;
+    case 4:
+      village_write[whichvillager].dir--; 
+      if (village_write[whichvillager].dir>5) village_write[whichvillager].dir=4;
+      break;
+    case 5:
+      village_write[whichvillager].dirry=direction[0]*village_write[whichvillager].speed; 
+      break;
+      // mirror
+    case 6:
+      village_write[whichvillager].fingered--; 
+      village_write[whichvillager].fingered%=2; // 0 or 1
+      village_write[whichvillager].fingered+=2; //2 or 3
+      break;
+    case 7:
+      village_write[whichvillager].mirrormod--; 
+      if (village_write[whichvillager].mirrormod>4) village_write[whichvillager].mirrormod=4;
+      break;
+    case 8:
+      village_write[whichvillager].mirrorspeed--; 
+      village_write[whichvillager].mirrormod&=15;
+      break;
+    }
+    break;
+  } // switch for WRITE
+
+  //////////////////////////////////////////////////////////	
+  // READ! 
+      whichvillager=adc_buffer[SECOND]>>6; // 6bits=64
+      howmanyreadvill=whichvillager+1;
+
+
+  switch(xx){
+  case 0: // LEFT
+      village_read[whichvillager].index--; //might need be fractional=speedy
+      village_read[whichvillager].index%=13;
+    break;
+  case 1: // RIGHT
+      village_read[whichvillager].index++; //might need be fractional=speedy
+      village_read[whichvillager].index%=13;
+    break;
+  case 2: // UP - inc based on index:
+    index=village_read[whichvillager].index;
+    switch(index){
+    case 0:
+      village_read[whichvillager].kstart+=(spd>>1);
+      if (village_read[whichvillager].kstart>=32768) village_read[whichvillager].kstart=0;
+      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].start=village_read[whichvillager].kstart;
+      break;
+    case 1:
+      village_read[whichvillager].kwrap+=(spd>>1);
+      if (village_read[whichvillager].kwrap>=32768) village_read[whichvillager].kwrap=0;
+      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].wrap=village_read[whichvillager].kwrap;
+      break;
+    case 2:
+      village_read[whichvillager].speed+=(spd&5); 
+      village_read[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_read[whichvillager].step+=(spd&5); 
+      village_read[whichvillager].step&=15;
+      break;
+    case 4:
+      village_read[whichvillager].dir++; 
+      village_read[whichvillager].dir%=5;
+      break;
+    case 5:
+      village_read[whichvillager].dirry=direction[1]*village_read[whichvillager].speed; 
+      break;
+      // mirror
+    case 6:
+      village_read[whichvillager].fingered++; 
+      village_read[whichvillager].fingered%=2; // 0 or 1
+      village_read[whichvillager].fingered+=2; //2 or 3
+      break;
+    case 7:
+      village_read[whichvillager].mirrormod++; 
+      village_read[whichvillager].mirrormod%=5;
+      break;
+    case 8:
+      village_read[whichvillager].mirrorspeed++; 
+      village_read[whichvillager].mirrormod&=15;
+      break;
+    case 9:
+      village_read[whichvillager].koverlay++;
+      village_read[whichvillager].koverlay%=5;
+      if (!village_read[whichvillager].mirrormod)  village_read[whichvillager].overlay=village_read[whichvillager].koverlay;
+	break;
+      case 10:
+	village_read[whichvillager].kcompress-=(spd>>1); // inverted
+	if (village_read[whichvillager].kcompress>=32768) village_read[whichvillager].kcompress=32767;
+	if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=village_read[whichvillager].kcompress;
+	break;
+      case 11:
+	village_read[whichvillager].offset+=(spd>>1);
+	if (village_read[whichvillager].offset>=32768) village_read[whichvillager].kcompress=0;
+	break;
+      case 12:
+      village_read[whichvillager].dirryr++; 
+      village_read[whichvillager].mirrormod&=15;
+      break;
+      }
+    break;
+  case 3: // DOWN - dec based on index:
+    index=village_read[whichvillager].index;
+    switch(index){
+    case 0:
+      village_read[whichvillager].kstart-=(spd);
+      if (village_read[whichvillager].kstart>=32768) village_read[whichvillager].kstart=32767;
+      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].start=village_read[whichvillager].kstart;
+      break;
+    case 1:
+      village_read[whichvillager].kwrap-=(spd);
+      if (village_read[whichvillager].kwrap>=32768) village_read[whichvillager].kwrap=32767;
+      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].wrap=village_read[whichvillager].kwrap;
+      break;
+    case 2:
+      village_read[whichvillager].speed-=1; 
+      village_read[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_read[whichvillager].step-=(spd&5); 
+      village_read[whichvillager].step&=15;
+      break;
+    case 4:
+      village_read[whichvillager].dir--; 
+      if (village_read[whichvillager].dir>5) village_read[whichvillager].dir=4;
+      break;
+    case 5:
+      village_read[whichvillager].dirry=direction[0]*village_read[whichvillager].speed; 
+      break;
+      // mirror
+    case 6:
+      village_read[whichvillager].fingered--; 
+      village_read[whichvillager].fingered%=2; // 0 or 1
+      village_read[whichvillager].fingered+=2; //2 or 3
+      break;
+    case 7:
+      village_read[whichvillager].mirrormod--; 
+      if (village_read[whichvillager].mirrormod>4) village_read[whichvillager].mirrormod=4;
+      break;
+    case 8:
+      village_read[whichvillager].mirrorspeed--; 
+      village_read[whichvillager].mirrormod&=15;
+      break;
+    case 9:
+      village_read[whichvillager].koverlay--;
+      village_read[whichvillager].koverlay%=5;
+      if (!village_read[whichvillager].mirrormod)  village_read[whichvillager].overlay=village_read[whichvillager].koverlay;
+	break;
+      case 10:
+	village_read[whichvillager].kcompress+=(spd>>1); // inverted
+	if (village_read[whichvillager].kcompress>=32768) village_read[whichvillager].kcompress=0;
+	if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=village_read[whichvillager].kcompress;
+	break;
+      case 11:
+	village_read[whichvillager].offset-=(spd>>1);
+	if (village_read[whichvillager].offset>=32768) village_read[whichvillager].kcompress=32767;
+	break;
+      case 12:
+      village_read[whichvillager].dirryr--; 
+      village_read[whichvillager].mirrormod&=15;
+      break;
+    }
+    break;
+  } // switch for READ
+
+  //////////////////////////////////////////////////////////	
+  // DATA! 
+      whichvillager=adc_buffer[THIRD]>>6; // 6bits=64
+      /*      howmanydatagenvill=whichvillager+1; // question is as we have datagenwalker villagers and effects villagers howmany and which setting --- how to do?
+	      // well effects can be part of datagen, but datagenwalker is important to set?
+	      // also same question for all hardware walkers on one knob (or simplify HW?)
+
+  switch(xx){
+  case 0: // LEFT
+      village_read[whichvillager].index--; //might need be fractional=speedy
+      village_read[whichvillager].index%=13;
+    break;
+  case 1: // RIGHT
+      village_read[whichvillager].index++; //might need be fractional=speedy
+      village_read[whichvillager].index%=13;
+    break;
+  case 2: // UP - inc based on index:
+    index=village_read[whichvillager].index;
+    switch(index){
+    case 0:
+      */
+
+    } // finger !=5
+	} // count
+	//	}
+
+
+	//////////////////////////////////////////////////////////	
+	//////////////////////////////////////////////////////////	
+
 
 	  for (xx=0;xx<sz/2;xx++){
 #ifndef LACH
@@ -192,6 +496,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif
 	    //	    howmanyreadvill=1;
 	    //	    village_read[0].overlay=0;
+	    laster=0;
 	    	    for (x=0;x<howmanyreadvill;x++){ // process other way round:
 	    //   for(x=howmanyreadvill; x--; ){
 		      overlay=village_read[x].overlay;
@@ -210,7 +515,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 	    //	      if (village_read[x].offset<=village_read[x].counterr){
 	      samplepos=village_read[x].samplepos;
-	      	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start
+	      laster+=village_read[x].start;
+	      //	      	      lp=(samplepos+village_read[x].start)&32767; // start is now added to the last start
+	      lp=(samplepos+laster)&32767; // start is now added to the last start
 		      //	      tmpr=x-1;
 	      //lp=(samplepos+village_read[x].start+village_read[tmpr%howmanyreadvill].start)&32767; // start is now added to the last start // rather than WRAP!
 	      tmp=tmp+32768;

@@ -110,7 +110,7 @@ static inline int32_t signed_saturate_rshift(int32_t val, int bits, int rshift)
 
 void hanningprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samples
   //  const int16_t *win = (int16_t *)AudioWindowHanning32;
-  int16_t *win = AudioWindowHanning32;
+  const int16_t *win = AudioWindowHanning32;
 
   for (int i=0; i <length; i++) {
     int32_t val =(int32_t)(*inbuffer++) * (int32_t)(win++);

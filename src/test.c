@@ -215,12 +215,25 @@ void main(void)
     int instart=0, inpos=0,inwrap=16000, outpos=16000, outstart=16000,outwrap=16000;
     int tmpinlong=32;
 
+    unsigned char index=0;
+
+    
+
+    
+    for (xx=0;xx<32;xx++){
+      index--;
+      index%=2;
+      index+=2;
+      //            index&=7;
+      printf("index %d\n",index);
+    }
+
     for (xx=0;xx<32;xx++){
       inbuffer[xx]=(rand()%65536)-32768;
       modbuffer[xx]=(rand()%65536)-32768;
     }
-
-    hanningprocess(inbuffer,outbuffer,32);
+    
+    //    hanningprocess(inbuffer,outbuffer,32);
     /*        while(1){
 
 	  runVOSIM_SC();

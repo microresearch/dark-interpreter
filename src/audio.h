@@ -61,7 +61,7 @@ typedef struct {
   u16 kstart,kcompress,kwrap;
   u16 mstart,mcompress,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
-  u8 koverlay;
+  u8 koverlay,index;
   //  u8 infected;
   u8 fingered; // what is input here as modifier
   u16 start,offset,wrap;
@@ -84,7 +84,7 @@ typedef struct {
   u8 fingered; // what is input here as modifier
   u16 start,wrap;
   int32_t samplepos;
-  u8 del;
+  u8 del,index;
   int16_t dirry;
   u8 speed, step;
   u8 dir; // TODO: do as union or whatever for dir//flag for mirror
@@ -116,6 +116,10 @@ typedef struct {
 
 void Audio_Init(void);
 void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz);
+
+u8 fingerdir(u8 *speedmod);
+
+
 
 void xxrunleakystack(villager_generic *villager);
 void xxrunbiota(villager_generic *villager);
