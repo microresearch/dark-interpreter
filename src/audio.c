@@ -458,7 +458,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   //////////////////////////////////////////////////////////	
   // DATA! 
       whichvillager=adc_buffer[THIRD]>>6; // 6bits=64
-      /*      howmanydatagenvill=whichvillager+1; // question is as we have datagenwalker villagers and effects villagers howmany and which setting --- how to do?
+      /*      howmanydatagenvill=whichvillager+1; // question is as we have datagenwalker villagers and effects villagers howmany and which sssetting --- how to do?
 	      // well effects can be part of datagen, but datagenwalker is important to set?
 	      // also same question for all hardware walkers on one knob (or simplify HW?)
 
