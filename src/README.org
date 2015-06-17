@@ -71,6 +71,15 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* WED 17 JUN
+
+- how to get say range of different effects across villagers - also
+  for many of these as stays static with one knob change
+
+- datagen mode now as mode 0
+- port of start shifts - DONE for TENE and LACH and tested
+- DONE: all HW should have dataoffset on 2nd 0 check also datagenwalker
+
 * MON 15 JUN
 
 - small siggen fix

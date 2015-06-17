@@ -169,8 +169,8 @@ void runVOSIM_SC(villager_generic* vill){
   u16 wrap=vill->wrap;
   u16 out;
 
-  float freq = (float)(buf16[0]>>9);
-  float nCycles = (float)(buf16[1]>>14);
+  float freq = (float)(buf16[0]>>8);
+  float nCycles = (float)(buf16[1]>>10);
   float nDecay = (float)(buf16[2])/65536.0f;
   float phaseinc = freq * 2.f * PII / 32000.0f;
   float numberCycles = nCycles;

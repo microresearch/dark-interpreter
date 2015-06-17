@@ -20,7 +20,7 @@
 #define AUDIO_BUFSZ 32768 // was 32768
 
     typedef struct {
-      u8 whicheffect,speed,step;
+      u8 whicheffect,speed,step,last;
       u16 instart,modstart,outstart;
       int32_t inpos,modpos,outpos;// various counters // was int32t???
       u16 inwrap,modwrap,outwrap;
@@ -31,12 +31,12 @@
     } villager_effect;
 
     typedef struct {
-      u16 length;
+      u16 length,last;
       u8 setting,inp,del,speed;
     } villager_hardware;
 
     typedef struct {
-      u16 length;
+      u16 length, last;
       u16 dataoffset;
       u16 knoboffset;
       int32_t samplepos;
@@ -46,7 +46,7 @@
     } villager_hardwarehaha;
 
     typedef struct {
-      u16 length;
+      u16 length,last;
       u16 dataoffset;
       u16 knoboffset;
       int32_t samplepos;
@@ -77,7 +77,7 @@ typedef struct {
     } villagerr;
 
 typedef struct {
-  u16 kstart,kwrap;
+  u16 kstart,kwrap,last;
   //  u16 mstart,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
   //  u8 infected;
@@ -99,7 +99,7 @@ typedef struct {
   } mirror;*/
 
     typedef struct {
-      u16 start;
+      u16 start,last;
       u8 CPU, index;
       u16 wrap;
       int32_t position;
