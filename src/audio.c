@@ -122,8 +122,9 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   u16 overlay;
   extern villagerw village_write[MAX_VILLAGERS+1];
   extern villagerr village_read[MAX_VILLAGERS+1];
+  extern villager_generic village_datagen[MAX_VILLAGERS+1];
   static u8 whichwritevillager=0;
-  extern u8 howmanywritevill,howmanyreadvill;
+  extern u8 howmanywritevill,howmanyreadvill,howmanydatavill;
 
   u8 spd; static u8 index=0; u8 whichvillager=0;
   extern signed char direction[2];
@@ -194,8 +195,8 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #else
 	//////////////////////////////////////////////////////////	
 
+	/*
 	// fingers here:
-
 	count++;
 	if (count==128){
 	  count=0;
@@ -254,9 +255,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
       // mirror
     case 6:
-      village_write[whichvillager].fingered++; 
-      village_write[whichvillager].fingered%=2; // 0 or 1
-      village_write[whichvillager].fingered+=2; //2 or 3
+      village_write[whichvillager].fingered=2; 
       break;
     case 7:
       village_write[whichvillager].mirrormod++; 
@@ -298,9 +297,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
       // mirror
     case 6:
-      village_write[whichvillager].fingered--; 
-      village_write[whichvillager].fingered%=2; // 0 or 1
-      village_write[whichvillager].fingered+=2; //2 or 3
+      village_write[whichvillager].fingered=3; //2 or 3
       break;
     case 7:
       village_write[whichvillager].mirrormod--; 
@@ -359,9 +356,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
       // mirror
     case 6:
-      village_read[whichvillager].fingered++; 
-      village_read[whichvillager].fingered%=2; // 0 or 1
-      village_read[whichvillager].fingered+=2; //2 or 3
+      village_read[whichvillager].fingered=2; //2 or 3
       break;
     case 7:
       village_read[whichvillager].mirrormod++; 
@@ -421,9 +416,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
       // mirror
     case 6:
-      village_read[whichvillager].fingered--; 
-      village_read[whichvillager].fingered%=2; // 0 or 1
-      village_read[whichvillager].fingered+=2; //2 or 3
+      village_read[whichvillager].fingered=3; //2 or 3
       break;
     case 7:
       village_read[whichvillager].mirrormod--; 
@@ -456,31 +449,91 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   } // switch for READ
 
   //////////////////////////////////////////////////////////	
-  // DATA! 
+  // DATAGEN! 
       whichvillager=adc_buffer[THIRD]>>6; // 6bits=64
-      /*      howmanydatagenvill=whichvillager+1; // question is as we have datagenwalker villagers and effects villagers howmany and which sssetting --- how to do?
+      howmanydatavill=whichvillager+1; 
+
+	    // question is as we have datagenwalker villagers and effects villagers howmany and which setting --- how to do - as part of modes?
 	      // well effects can be part of datagen, but datagenwalker is important to set?
 	      // also same question for all hardware walkers on one knob (or simplify HW?)
 
   switch(xx){
   case 0: // LEFT
-      village_read[whichvillager].index--; //might need be fractional=speedy
-      village_read[whichvillager].index%=13;
+      village_datagen[whichvillager].index--; //might need be fractional=speedy
+      village_datagen[whichvillager].index%=7;
     break;
   case 1: // RIGHT
-      village_read[whichvillager].index++; //might need be fractional=speedy
-      village_read[whichvillager].index%=13;
+      village_datagen[whichvillager].index++; //might need be fractional=speedy
+      village_datagen[whichvillager].index%=6;
     break;
   case 2: // UP - inc based on index:
-    index=village_read[whichvillager].index;
+    index=village_datagen[whichvillager].index;
     switch(index){
+      ///    case 0:
+      // start, wrap1, CPU2, howmany3, speed4, step5
     case 0:
-      */
+      village_datagen[whichvillager].start+=(spd>>1);
+      if (village_datagen[whichvillager].start>=32768) village_datagen[whichvillager].start=0;
+      break;
+    case 1:
+      village_datagen[whichvillager].wrap+=(spd>>1);
+      if (village_datagen[whichvillager].wrap>=32768) village_datagen[whichvillager].wrap=0;
+      break;
+    case 2:
+      village_datagen[whichvillager].speed+=(spd&5); 
+      village_datagen[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_datagen[whichvillager].step+=(spd&5); 
+      village_datagen[whichvillager].step&=15;
+      break;
+    case 4:
+      village_datagen[whichvillager].howmany++; 
+      village_datagen[whichvillager].howmany&=63;
+      break;
+    case 5:
+      village_datagen[whichvillager].CPU++; 
+      village_datagen[whichvillager].CPU&=63;
+      break;
+    }     
+  case 3: // DOWN - dec based on index:
+    index=village_datagen[whichvillager].index;
+    switch(index){
+      ///    case 0:
+      // start, wrap1, CPU2, howmany3, speed4, step5
+    case 0:
+      village_datagen[whichvillager].start-=(spd>>1);
+      if (village_datagen[whichvillager].start>=32768) village_datagen[whichvillager].start=32767;
+      break;
+    case 1:
+      village_datagen[whichvillager].wrap-=(spd>>1);
+      if (village_datagen[whichvillager].wrap>=32768) village_datagen[whichvillager].wrap=32767;
+      break;
+    case 2:
+      village_datagen[whichvillager].speed-=(spd&5); 
+      village_datagen[whichvillager].speed&=15;
+      break;
+    case 3:
+      village_datagen[whichvillager].step-=(spd&5); 
+      village_datagen[whichvillager].step&=15;
+      break;
+    case 4:
+      village_datagen[whichvillager].howmany--; 
+      village_datagen[whichvillager].howmany&=63;
+      break;
+    case 5:
+      village_datagen[whichvillager].CPU--; 
+      village_datagen[whichvillager].CPU&=63;
+      break;
+    }     
+  }
 
-    } // finger !=5
+
+
+  } // finger !=5
 	} // count
 	//	}
-
+	*/
 
 	//////////////////////////////////////////////////////////	
 	//////////////////////////////////////////////////////////	

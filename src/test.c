@@ -101,32 +101,34 @@ void runnoney(int x){
 static float vosim;
 static 	float phase=0.f;
 static 	float prevtrig=0.f;
-static 	float nCycles=1.f;
+static 	float nCycles=10.f;
 static 	u16 numberCurCycle=0;
 static 	float prevsine;
-static 	float decay=0.5f;
+static 	float decay=0.1f;
 static 	float amp=1.f;
+static int running=1;
 
 const float PII = 3.1415926535f;
 
 void runVOSIM_SC(void){
   u16 out;
-  float freq = (float)(100);
-  float nCycles = (float)(100);
-  float nDecay = (float)(1);
+  float freq = (float)(10);
+  float nCycles = (float)(10);
+  float nDecay = (float)(0.3);
   float phaseinc = freq * 2.f * PII / 32000.0f;
   float numberCycles = nCycles;
   int number = numberCurCycle;
   static int count=0; int start=0, wrap=1000;
 
-  for (u8 xx=0;xx<64;xx++){
+  for (int xx=0;xx<12800;xx++){
 
-    count+=1;
-    if (count>start+wrap) count=start;
+     count+=1;
+     if (count>start+wrap) count=start;
   
      float z = vosim;
-     float trigin = (float)((rand()%65536)-32768)/32768.0f;
-
+     //          float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
+          float trigin = (float)((rand()%65536)-32768)/32768.0f;
+	  
      if(phase > 0 && number <= numberCycles ){
        float sine = sinf(phase);
        vosim = (sine * sine) * amp;
@@ -146,9 +148,10 @@ void runVOSIM_SC(void){
        phase = phase + phaseinc;
 
      }else if(trigin > 0.f && prevtrig <= 0.f){
+       //       printf("TRUG");
        numberCycles = nCycles;
        decay = nDecay;
-       amp = 1.f;
+       amp = 1.0f;
        number = 0;
 
        float sine = sinf(phase);
@@ -160,19 +163,73 @@ void runVOSIM_SC(void){
        phase = phase + phaseinc;
      }else if(number >= numberCycles){
        phase = 0;
-       //vosim = 0.f;
+      vosim = 0.f;
      }
      prevtrig = trigin;
 
      // write the output
      out = (float)z*65536.0f;
+     printf("%d\n",out);
+     //     buf16[count&32767]=out+32768; 
+     //        buf16[count&32767]=rand()%32768;
 
-     //  buf16[count&32767]=out+32768; 
-     printf("cnt: %d out: %d\n",count, out);
   }
-  //  vill->position=count;
+  //  position=count;
   nCycles = numberCycles;
   numberCurCycle = number;
+
+}
+
+
+void runVOSIM_SC_single(void){ // modded for single pulse
+  u16 out;
+  float freq = (float)(100);
+  //  float nCycles = (float)(10);
+  //  float nDecay = (float)(0.1);
+  float phaseinc = freq * 2.f * PII / 32000.0f;
+  //  float numberCycles = nCycles;
+  //  int number = numberCurCycle;
+  static int count=0; int start=0, wrap=1000;
+
+  for (int xx=0;xx<6400;xx++){
+
+        count+=1;
+        if (count>start+wrap) count=start;
+  
+     float z = vosim;
+     //     float trigin = (float)((rand()%65536)-32768)/32768.0f;
+
+     if(running ){
+       float sine = sinf(phase);
+       vosim = (sine * sine) * amp;
+
+       if(prevsine > 0.f && sine < 0.f){
+	 running=0;
+       }
+
+       if(prevsine < 0.f && sine > 0.f){
+	 running=0;
+       }
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+
+     }
+
+     //       phase = phase + phaseinc;
+
+     // write the output
+     out = (float)z*65536.0f;
+     printf("%d\n",out);
+
+     //  buf16[count&32767]=out+32768; 
+     //     printf("cnt: %d out: %d\n",count, out);
+     //          printf("%d\n",out);
+  }
+  //  vill->position=count;
+  //  nCycles = numberCycles;
+  //  numberCurCycle = number;
 
 }
 
@@ -194,6 +251,8 @@ void hanningprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samp
 	outbuffer ++; inbuffer++;
   }
 }
+
+
 
 
 void main(void)
@@ -225,7 +284,7 @@ void main(void)
       index%=2;
       index+=2;
       //            index&=7;
-      printf("index %d\n",index);
+      //      printf("index %d\n",index);
     }
 
     for (xx=0;xx<32;xx++){
@@ -234,11 +293,11 @@ void main(void)
     }
     
     //    hanningprocess(inbuffer,outbuffer,32);
-    /*        while(1){
+    //            while(1){
 
-	  runVOSIM_SC();
+    runVOSIM_SC_single();
 
-	  }*/
+	  //	  }
 	/*
     if (inpos>=inwrap) {
       inpos=0;
@@ -278,7 +337,7 @@ static const char phonemmm[41][3] =
 
  unsigned int tzz=0;
  unsigned char tmppp=(tzz-1);
- printf("%d\n",tmppp%16);
+ // printf("%d\n",tmppp%16);
 
   int cnt=0;
   /*  for (xx=0;xx<16;xx++){

@@ -256,7 +256,7 @@ villager_hardwarehaha village_hdgener[17];
 villager_hardwarehaha village_lm[17];
 villager_hardwarehaha village_maxim[17];
 
-u8 howmanydatagenwalkervill=1, howmanydatavill=0,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
+u8 howmanydatagenwalkervill=1, howmanydatavill=1,howmanyeffectvill=0,howmanywritevill=1,howmanyfiltoutvill=1,howmanyreadvill=1;// TESTY on effects and data...// testy datavill
 
 // effects tests
 
@@ -406,7 +406,7 @@ void main(void)
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=0; /// test
-    village_read[xx].wrap=32768; // test
+    village_read[xx].wrap=2; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -430,7 +430,7 @@ void main(void)
     village_write[xx].speed=1;
     village_write[xx].step=1;
     village_write[xx].start=0; // TESTY!
-    village_write[xx].wrap=1024; //  test
+    village_write[xx].wrap=32768; //  test
     village_write[xx].kstart=100;
     village_write[xx].kwrap=200; //  test
     //    village_write[xx].mstart=0;
@@ -450,13 +450,13 @@ void main(void)
     
     // datagen
     village_datagen[xx].start = 64;
-    village_datagen[xx].CPU = 0;// testy
+    village_datagen[xx].CPU = 1;// testy
     village_datagen[xx].wrap=32000;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
     village_datagen[xx].step=1;
     village_datagen[xx].speed=1;
-    village_datagen[xx].howmany=1;// testy! - but where can this be set????
+    village_datagen[xx].howmany=64;// testy! - but where can this be set????
     village_datagen[xx].dirry = 1;
     //    village_datagen[xx].dir=1;
     //    village_datagen[xx].running=1;
@@ -643,7 +643,7 @@ void main(void)
 
 
   // was runnoney instead of runvoice
-  void (*ddd[64])(villager_generic *vill)={runvoice, runVOSIM_SC, runVOSIMaud, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runknob, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque, machine_runnn};
+  void (*ddd[64])(villager_generic *vill)={runvoice, runVOSIM_SC, runVOSIMaud, runflam, runkrum, runhodge, runhodgenet, runlife, runcel, runcel1d, runfire, runwire, runSIR, runSIR16, runform, runconv, runsine, runconv, runchunk, runderefchunk, runwalkerchunk, runswapchunk, runinc, rundec, runleft, runright, runswap, runnextinc, runnextdec, runnextmult, runnextdiv, runcopy, runzero, runfull, runrand, runsimplesir, runseir, runsicr, runifs, runrossler, runsecondrossler, runbrussel, runspruce, runoregon, runfitz, xxrunleakystack, xxrunbiota, xxrun1, xxrunworm, xxrunstack, xxrunbefunge, xxrunlang, xxrunbf, xxrunturm, xxrunca, xxrunhodge, xxrunworm2, xxrunleaky, xxrunconvy, xxrunplague, xxrunmicro, xxruncw, xxrunmasque, machine_runnn};
 
 	    u16 *starts[64][8];
 	    u16 *wraps[64][8];
@@ -801,7 +801,7 @@ a**
      mirrors as either finger/EEG or datagen (so mirror modes?)
 */
 
-    /*
+    
   xx=fingerdir(&spd);
  
     if (xx!=5){
@@ -1468,7 +1468,7 @@ a**
 #endif
 
     }// Xx!=5// no fingers
-    */
+    
     //#endif // end of newfinger code
 
 	///////////////////////////////

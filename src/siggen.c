@@ -99,11 +99,70 @@ static 	float nCycles=1.f;
 static 	u16 numberCurCycle=0;
 static 	float prevsine;
 static 	float decay=0.5f;
-static 	float amp=1.f;
-
+static 	float amp=1.0f;
+static int running=1;
 const float PII = 3.1415926535f;
 
+void runflam(villager_generic* vill){ // single impulse sine*sine
+  u16 out;
+  float freq = (float)(100);
+  //  float nCycles = (float)(10);
+  //  float nDecay = (float)(0.1);
+  float phaseinc = freq * 2.f * PII / 32000.0f;
+  //  float numberCycles = nCycles;
+  //  int number = numberCurCycle;
+  //  static int count=0; int start=0, wrap=1000;
+  u8 step=vill->step;
+  u16 count=vill->position;
+  u16 start=vill->start;
+  u16 wrap=vill->wrap;
+
+
+
+   for (u8 xx=0;xx<vill->howmany;xx++){
+     count+=step;
+     if (count>start+wrap) count=start;
+  
+     float z = vosim;
+     //     float trigin = (float)((rand()%65536)-32768)/32768.0f;
+
+     if(running ){
+       float sine = sinf(phase);
+       vosim = (sine * sine) * amp;
+
+       if(prevsine > 0.f && sine < 0.f){
+	 running=0;
+       }
+
+       if(prevsine < 0.f && sine > 0.f){
+	 running=0;
+       }
+
+       prevsine = sine;
+
+       phase = phase + phaseinc;
+
+     }
+
+     //       phase = phase + phaseinc;
+
+     // write the output
+          out = (float)z*65536.0f;
+     //     printf("%d\n",out);
+
+       buf16[count&32767]=out+32768; 
+     //     printf("cnt: %d out: %d\n",count, out);
+     //          printf("%d\n",out);
+  }
+   vill->position=count;
+  //  nCycles = numberCycles;
+  //  numberCurCycle = number;
+
+
+}
+
 void runVOSIM_SC(villager_generic* vill){
+
   u8 step=vill->step;
   u16 count=vill->position;
   u16 start=vill->start;
@@ -165,7 +224,7 @@ void runVOSIM_SC(villager_generic* vill){
      prevtrig = trigin;
 
      // write the output
-     out = (float)z*65536.0f;
+     out = (float)z*32768.0f;
 
      buf16[count&32767]=out+32768; 
      //        buf16[count&32767]=rand()%32768;

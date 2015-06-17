@@ -100,7 +100,7 @@ typedef struct {
 
     typedef struct {
       u16 start;
-      u8 CPU;
+      u8 CPU, index;
       u16 wrap;
       int32_t position;
       u8 del,howmany;

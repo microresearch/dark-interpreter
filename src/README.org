@@ -71,6 +71,11 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* MON 15 JUN
+
+- small siggen fix
+- single pulse to test!
+
 * WED 10 JUN 
 
 - effects fixes
