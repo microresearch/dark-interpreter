@@ -703,7 +703,7 @@ void main(void)
       //    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
       //      mainmode=13;
-      //      mainmode=4;
+      mainmode=1;
 	  switch(mainmode){
 
 	  case 0:// WRITE
@@ -747,22 +747,26 @@ void main(void)
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].start=village_read[whichvillager].kstart;
 	      // else just wait till mirrors
 	      	    }
+
 	      	    if (adc_buffer[THIRD]>10){
 	      village_read[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].wrap=village_read[whichvillager].kwrap;
 	      // else just wait till 
 	      	    }
+
 	      	    if (adc_buffer[FOURTH]>10){
 	      village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]];// offset is not mirrored
 	      	    }
 
-	    //	    village_read[whichvillager].dir=xx;
-	      village_read[whichvillager].speed=(spd&4)+1;
-	    village_read[whichvillager].step=(spd&240)>>4;
-
+		    //	    	    village_read[whichvillager].dir=xx;
+		    village_read[whichvillager].speed=(spd&3)+1;
+		    village_read[whichvillager].step=(spd&240)>>6;
+	    
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
 	    else village_read[whichvillager].dirry=direction[xx]*village_read[whichvillager].speed;
+	    
+
 	    break;
 
 	  case 2: // READ 2nd
@@ -1214,8 +1218,8 @@ void main(void)
 	      	    }
 
 	    //	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=(spd&15)+1;
-	    village_read[whichvillager].step=(spd&240)>>4;
+	    village_read[whichvillager].speed=(spd&3)+1;
+	    village_read[whichvillager].step=(spd&240)>>6;
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;

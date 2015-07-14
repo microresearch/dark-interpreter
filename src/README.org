@@ -689,6 +689,11 @@ lee 270 2290 3010
 * ////////////////////////
 
 
+* TUE JUL 14
+
+- should we keep >10 for knob changes?
+- small speed and step changes in read both LACH and TENE
+
 * WED JUN 10
 
 port from voices changes to effect.c and pvV
