@@ -873,7 +873,7 @@ a**
 	      //	    }
 
 	    //	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=(spd&15)+1;
+	    village_read[whichvillager].speed=(spd&3)+1;
 	    village_read[whichvillager].step=(spd&240)>>4;
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
@@ -1339,8 +1339,8 @@ a**
 	      //	    }
 
 	    //	    village_read[whichvillager].dir=xx;
-	    village_read[whichvillager].speed=(spd&15)+1;
-	    village_read[whichvillager].step=(spd&240)>>4;
+	    village_read[whichvillager].speed=(spd&3)+1;
+	    village_read[whichvillager].step=(spd&240)>>6;
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
