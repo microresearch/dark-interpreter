@@ -691,8 +691,16 @@ lee 270 2290 3010
 
 * TUE JUL 14
 
-- should we keep >10 for knob changes?
-- small speed and step changes in read both LACH and TENE
+- should we keep >10 for knob changes??????TODO?????
+
+- small speed and step changes in read TENE -> still to
+  tweak SPD ---> SPD as max 64 let's say so
+
+	    village_write[whichvillager].speed=((spd&12)>>2)+1; // AS SPEED
+	    village_write[whichvillager].step=(spd&48)>>4;
+
+PORT TO LACH and VOICE once tested!!!! &15 also to &3
+
 
 * WED JUN 10
 
