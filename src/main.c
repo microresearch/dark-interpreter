@@ -115,7 +115,7 @@ static const float freq[5][5] __attribute__ ((section (".flash"))) = {
   };
 
 /*static const char phonemmm[42][3] __attribute__ ((section (".flash"))) =
-{"P\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0"," \0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0","g\0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"," \0"};
+{"IY\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0"," \0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0","g\0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"," \0"};
 */
 
 static const char phonemmm[69][4] __attribute__ ((section (".flash"))) =

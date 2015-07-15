@@ -74,9 +74,14 @@ More details at: http://1010.co.uk/org/darkint.html
 * WED 15 JUL
 
 - playing with finger code and tweaking
-- changed phoneme code - TODO: go through all of rsynth code
+- changed phoneme code 
 
 TODO:
+
+- go through all of rsynth code, test on PC with debugging, and look
+  at other voice possibles
+- if we just use elements then we should be able to shortcut phtoelm
+- for fingers collapse all switches into one!
 - new control scheme, strip down and figure out
 - klatt and other voice pared down.
 - all tests: datagens, datagenwalker, effects, mirroring and all modes
