@@ -114,13 +114,13 @@ void runVOSIM_SC(void){
   u16 out;
   float freq = (float)(10);
   float nCycles = (float)(10);
-  float nDecay = (float)(0.3);
+  float nDecay = (float)(0.1);
   float phaseinc = freq * 2.f * PII / 32000.0f;
   float numberCycles = nCycles;
   int number = numberCurCycle;
   static int count=0; int start=0, wrap=1000;
 
-  for (int xx=0;xx<12800;xx++){
+  for (int xx=0;xx<1280000;xx++){
 
      count+=1;
      if (count>start+wrap) count=start;
@@ -163,7 +163,7 @@ void runVOSIM_SC(void){
        phase = phase + phaseinc;
      }else if(number >= numberCycles){
        phase = 0;
-      vosim = 0.f;
+       //      vosim = 0.f;
      }
      prevtrig = trigin;
 
@@ -274,17 +274,20 @@ void main(void)
     int instart=0, inpos=0,inwrap=16000, outpos=16000, outstart=16000,outwrap=16000;
     int tmpinlong=32;
 
-    unsigned char index=0;
+    unsigned char index=0; float indexy=0.0f;
 
     
 
     
-    for (xx=0;xx<32;xx++){
-      index--;
-      index%=2;
-      index+=2;
+    for (xx=0;xx<64;xx++){
+      //      indexy+=0.1f;
+      //      index=indexy;
+      //      index--;
+      //      index%=2;
+      //      index+=2;
       //            index&=7;
-      //      printf("index %d\n",index);
+      index--; index&=31;
+      printf("index %d %f\n",index,indexy);
     }
 
     for (xx=0;xx<32;xx++){
@@ -295,7 +298,7 @@ void main(void)
     //    hanningprocess(inbuffer,outbuffer,32);
     //            while(1){
 
-    runVOSIM_SC_single();
+    //        runVOSIM_SC();
 
 	  //	  }
 	/*

@@ -61,7 +61,7 @@ typedef struct {
   u16 kstart,kcompress,kwrap;
   u16 mstart,mcompress,mwrap;
   u8 mirrormod,mirrordel,mirrorspeed; // how mirror effects mainline start/wrap and samplepos
-  u8 koverlay,index;
+  u8 koverlay; float index;
   //  u8 infected;
   u8 fingered; // what is input here as modifier
   u16 start,offset,wrap;
@@ -84,7 +84,7 @@ typedef struct {
   u8 fingered; // what is input here as modifier
   u16 start,wrap;
   int32_t samplepos;
-  u8 del,index;
+  u8 del; float index;
   int16_t dirry;
   u8 speed, step;
   u8 dir; // TODO: do as union or whatever for dir//flag for mirror
@@ -100,7 +100,7 @@ typedef struct {
 
     typedef struct {
       u16 start,last;
-      u8 CPU, index;
+      u8 CPU; float index;
       u16 wrap;
       int32_t position;
       u8 del,howmany;

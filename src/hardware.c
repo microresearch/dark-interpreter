@@ -86,7 +86,7 @@ RES: feedback on/off - jackin-> - lm358in->
 3-feedon xx     lmin ??? makes no sense - NOW replaced with clock unhang
   */
 
-      //      inp=3;//TESTY!
+      inp=2;//TESTY!
   switch(inp){
  case 0:
    GPIOB->BSRRH = (1<<7); //JACK
