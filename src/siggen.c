@@ -169,12 +169,19 @@ void runVOSIM_SC(villager_generic* vill){
   u16 wrap=vill->wrap;
   u16 out;
 
-  float freq = (float)(buf16[0]>>8);
+    float freq = (float)(buf16[0]>>8);
   float nCycles = (float)(buf16[1]>>10);
   float nDecay = (float)(buf16[2])/65536.0f;
   float phaseinc = freq * 2.f * PII / 32000.0f;
   float numberCycles = nCycles;
   int number = numberCurCycle;
+  /*  float freq = (float)(10);
+  float nCycles = (float)(10);
+  float nDecay = (float)(0.1);
+  float phaseinc = freq * 2.f * PII / 32000.0f;
+  float numberCycles = nCycles;
+  int number = numberCurCycle;
+  */
 
 
   for (u8 xx=0;xx<vill->howmany;xx++){
@@ -183,8 +190,8 @@ void runVOSIM_SC(villager_generic* vill){
      if (count>start+wrap) count=start;
   
      float z = vosim;
-          float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
-     //     float trigin = (float)((rand()%65536)-32768)/32768.0f;
+     float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
+     //      float trigin = (float)((rand()%65536)-32768)/32768.0f;
 
      if(phase > 0 && number <= numberCycles ){
        float sine = sinf(phase);
@@ -201,7 +208,6 @@ void runVOSIM_SC(villager_generic* vill){
        }
 
        prevsine = sine;
-
        phase = phase + phaseinc;
 
      }else if(trigin > 0.f && prevtrig <= 0.f){
@@ -209,17 +215,13 @@ void runVOSIM_SC(villager_generic* vill){
        decay = nDecay;
        amp = 1.f;
        number = 0;
-
        float sine = sinf(phase);
-
        vosim = (sine * sine) * amp;
-
        prevsine = sine;
-
        phase = phase + phaseinc;
      }else if(number >= numberCycles){
        phase = 0;
-       //vosim = 0.f;
+       //       vosim = 0.f;
      }
      prevtrig = trigin;
 
