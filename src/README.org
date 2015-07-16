@@ -689,9 +689,17 @@ lee 270 2290 3010
 * ////////////////////////
 
 
-* TUE JUL 14
+* THU JUL 16
 
-- should we keep >10 for knob changes??????TODO?????
+- ^="exclusive or" for running in audio.c
+- swop in mode 1 offset and compress!
+
+
+TODO
+- check all changes to LACH!
+- what FOURTH code be in mode 2 in both?
+
+* TUE JUL 14
 
 - small speed and step changes in read TENE -> still to
   tweak SPD ---> SPD as max 64 let's say so

@@ -714,7 +714,7 @@ void main(void)
       //    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
       //      mainmode=13;
-      //      mainmode=1;
+      //      mainmode=1; // TESTY!
 	  switch(mainmode){
 
 	  case 0:// WRITE
@@ -758,11 +758,11 @@ void main(void)
 	    whichvillager=adc_buffer[FIRST]>>6; // 6 bits=64!!!
 	    howmanyreadvill=whichvillager+1;
 
-	   	    if (adc_buffer[SECOND]>10){
+	    	   	    if (adc_buffer[SECOND]>10){
 	      village_read[whichvillager].kstart=loggy[adc_buffer[SECOND]];
 	      if (!village_read[whichvillager].mirrormod) village_read[whichvillager].start=village_read[whichvillager].kstart;
 	      // else just wait till mirrors
-	      	    }
+	      }
 
 	      	    if (adc_buffer[THIRD]>10){
 	      village_read[whichvillager].kwrap=loggy[adc_buffer[THIRD]];;
@@ -770,17 +770,11 @@ void main(void)
 	      // else just wait till 
 	      	    }
 
-	      	    if (adc_buffer[FOURTH]>10){
-	      village_read[whichvillager].offset=loggy[adc_buffer[FOURTH]];// offset is not mirrored
-	      	    }
-
-		    //	    	    village_read[whichvillager].dir=xx;
-		    //		    village_read[whichvillager].speed=((spd&48)>>4)+1;
-		    //		    village_read[whichvillager].step=(spd&192)>>6;
+		    tmpp=(32768-(adc_buffer[FOURTH]<<3)); // TESTY!
+		    village_read[whichvillager].kcompress=tmpp;
+		    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
 	    	    village_read[whichvillager].speed=((spd&12)>>2)+1; // AS SPEED
 		    village_read[whichvillager].step=(spd&48)>>4;
-
-
 
 	    if (xx==2) village_read[whichvillager].dirry=newdirection[wormdir];
 	    else if (xx==3) village_read[whichvillager].dirry=direction[adc_buffer[DOWN]&1]*village_read[whichvillager].speed;
@@ -802,9 +796,15 @@ void main(void)
 	    xx=adc_buffer[SECOND]>>6;// 6 bits
 	    village_read[whichvillager].koverlay=xx;
 	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].overlay=xx;
-	    tmpp=(32768-(adc_buffer[THIRD]<<3));
-	    village_read[whichvillager].kcompress=tmpp;
-	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
+	    //	    tmpp=(32768-(adc_buffer[THIRD]<<3));
+	    //	    village_read[whichvillager].kcompress=tmpp;
+	    //	    if (!village_read[whichvillager].mirrormod) village_read[whichvillager].compress=tmpp;
+	    if (adc_buffer[THIRD]>10){
+	      village_read[whichvillager].offset=loggy[adc_buffer[THIRD]];// offset is not mirrored
+	    }
+
+	    // what FOURTH could be?
+
 	    break;
 
 	  case 3: // DATAGEN villagers

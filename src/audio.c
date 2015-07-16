@@ -194,7 +194,7 @@ static u8 whichfiltoutvillager=0;
 
 	    if (village_read[x].counterr>=village_read[x].compress) {// whether still makes sense as ??? guess so!!!
 	      village_read[x].counterr=0;
-	      village_read[x].running=1;
+	      village_read[x].running^=1;
 	    }
 	    if (village_read[x].compress==0) village_read[x].compress=1;
 	    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
