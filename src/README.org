@@ -71,6 +71,10 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* THU 16 JUL
+
+- koverlay in finger code was wrong
+
 * WED 15 JUL
 
 - playing with finger code and tweaking

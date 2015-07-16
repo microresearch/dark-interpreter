@@ -376,7 +376,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
     case 9:
       village_read[whichvillager].koverlay++;
-      village_read[whichvillager].koverlay%=5;
+      village_read[whichvillager].koverlay&=31;
       if (!village_read[whichvillager].mirrormod)  village_read[whichvillager].overlay=village_read[whichvillager].koverlay;
 	break;
       case 10:
@@ -437,7 +437,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
       break;
     case 9:
       village_read[whichvillager].koverlay--;
-      village_read[whichvillager].koverlay%=5;
+      village_read[whichvillager].koverlay&=31;
       if (!village_read[whichvillager].mirrormod)  village_read[whichvillager].overlay=village_read[whichvillager].koverlay;
 	break;
       case 10:
@@ -583,7 +583,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 		    // 
 
 		    if (village_read[x].compress==0) village_read[x].compress=1;
-		    		    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
+		    if ((village_read[x].offset%village_read[x].compress)<=village_read[x].counterr && village_read[x].running==1){
 	    //	      if (village_read[x].offset<=village_read[x].counterr){
 	      samplepos=village_read[x].samplepos;
 	      laster+=village_read[x].start;
