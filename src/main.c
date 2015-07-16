@@ -384,7 +384,7 @@ void main(void)
     village_read[xx].speed=1;
     village_read[xx].step=1;
     village_read[xx].start=1;
-    village_read[xx].wrap=32767;; // test
+    village_read[xx].wrap=32000; // test
     village_read[xx].dir=1;
     village_read[xx].dirryr=1;
     village_read[xx].dirry=1;
@@ -409,7 +409,7 @@ void main(void)
     village_write[xx].speed=1;
     village_write[xx].step=1;
     village_write[xx].start=0; // TESTY!
-    village_write[xx].wrap=32767; //  test
+    village_write[xx].wrap=32000; //  test
     village_write[xx].kstart=0;
     village_write[xx].kwrap=32767; //  test
     //    village_write[xx].mstart=0;
@@ -430,7 +430,7 @@ void main(void)
     
     // datagen
     village_datagen[xx].start = 0;
-    village_datagen[xx].CPU = 0;// testy
+    village_datagen[xx].CPU = 1;// testy
     village_datagen[xx].wrap=32767;
     village_datagen[xx].position=0;
     village_datagen[xx].del=0;
@@ -453,11 +453,11 @@ void main(void)
     village_effect[xx].modpos=0;
     village_effect[xx].outpos=0;
     village_effect[xx].instart=0;
-    village_effect[xx].inwrap=3200;
-    village_effect[xx].outstart=3200;
+    village_effect[xx].inwrap=32000;
+    village_effect[xx].outstart=0;
     village_effect[xx].outwrap=32000;//TESTY!
     village_effect[xx].modstart=0;
-    village_effect[xx].modwrap=3200;
+    village_effect[xx].modwrap=32000;
     village_effect[xx].modifier=127;
     village_effect[xx].kmodifier=127;
     village_effect[xx].whicheffect=0;// TESTY all!!!
@@ -714,7 +714,7 @@ void main(void)
       //    mainmode=adc_buffer[FIFTH]>>8; // 4 bits=16
       mainmode=mode_adapt[adc_buffer[FIFTH]]; // 4 bits=16 >>8
       //      mainmode=13;
-      //      mainmode=1; // TESTY!
+      //      mainmode=4; // TESTY!
 	  switch(mainmode){
 
 	  case 0:// WRITE
@@ -843,7 +843,7 @@ void main(void)
 	  case 4: // effects across also case 5:
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64
 	    howmanyeffectvill=whichvillager+1;
-	    //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
+	    //village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;// do we need % howmany or not. NOT so far???
 	    //	    tmper=whichvillager-1;
 	      lastoff=0;
 	      for (x=0;x<whichvillager;x++){
@@ -856,26 +856,36 @@ void main(void)
 	      //	    village_effect[whichvillager].instart=village_read[adc_buffer[SECOND]>>6].start;
 	      village_effect[whichvillager].inwrap=village_read[adc_buffer[SECOND]>>6].wrap;
 
+	       village_effect[whichvillager].outstart=loggy[adc_buffer[THIRD]]; //as logarithmic
+
+
+
 	    //	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
-	    	    village_effect[whichvillager].modstart=village_write[adc_buffer[THIRD]>>6].start;
-	    	    village_effect[whichvillager].modwrap=village_write[adc_buffer[THIRD]>>6].wrap;
-	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
+	      	    village_effect[whichvillager].whicheffect=adc_buffer[FOURTH]>>9; // 3 bits=8 options
+	      //	      village_effect[whichvillager].whicheffect=2;
 	    //	    village_effect[whichvillager].speed=(spd&15)+1; 
 	    village_effect[whichvillager].speed=((spd&12)>>2)+1; // AS SPEED
+
+	    xx=adc_buffer[THIRD]>>4;// 8 bits - testy!
+	    village_effect[whichvillager].kmodifier=xx;
+	    if (!village_effect[whichvillager].mirrormod) village_effect[whichvillager].modifier=xx; // 8 bits
+
 
 	    break;
 
 	  case 5: // effects outstart,outwrap
 	    whichvillager=adc_buffer[FIRST]>>6; // now 64///4bits=16total
 	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
-	      lastoff=0;
-	      for (x=0;x<whichvillager;x++){
-		lastoff+=village_effect[x].last;
-	      }
-	    village_effect[whichvillager].outstart=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
-	    village_effect[whichvillager].last=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    //	      lastoff=0;
+	    //	      for (x=0;x<whichvillager;x++){
+	    //	lastoff+=village_effect[x].last;
+	    //	      }
+	    //	    village_effect[whichvillager].outstart=lastoff+loggy[adc_buffer[SECOND]]; //as logarithmic
 
-	    //	    village_effect[whichvillager].outstart=loggy[adc_buffer[SECOND]]; //as logarithmic
+	    village_effect[whichvillager].modstart=village_write[adc_buffer[SECOND]>>6].start;
+	    village_effect[whichvillager].modwrap=village_write[adc_buffer[SECOND]>>6].wrap;
+
+
 	    village_effect[whichvillager].outwrap=loggy[adc_buffer[THIRD]]; //as logarithmic
 	    xx=adc_buffer[FOURTH]>>4;// 8 bits
 	    village_effect[whichvillager].kmodifier=xx;

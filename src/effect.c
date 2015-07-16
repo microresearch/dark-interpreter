@@ -534,18 +534,18 @@ void do_effect(villager_effect* vill_eff){
     }
     // to floats
     for (xx=0;xx<longest;xx++){
-      finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)&32767]/32768.0f;//REDO! why/how?
-      fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]/32768.0f)-1.0f;//REDO! why/how?
+        finbuffer[xx]=(float32_t)audio_buffer[(vill_eff->instart+vill_eff->inpos++)&32767]/32768.0f;//REDO! why/how?
+            fmodbuffer[xx]=(float32_t)(buf16[(vill_eff->modstart+vill_eff->modpos++)&32767]/32768.0f);-1.0f;//REDO! why/how?
     }
 
     mdaVocoderprocess(mdavocod,finbuffer, fmodbuffer, foutbuffer,longest);
-
     // copy outbuffer to audio and do float back
 
     for (xx=0;xx<longest;xx++){
     tmp = (int32_t)(foutbuffer[xx] * 32768.0f);
     tmp = (tmp <= -32768) ? -32768 : (tmp >= 32767) ? 32767 : tmp;
-    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+        audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=(int16_t)tmp;
+    //    audio_buffer[(vill_eff->outstart+vill_eff->outpos)&32767]=buf16[(vill_eff->instart+vill_eff->inpos++)&32767];
     vill_eff->outpos+=vill_eff->step;
     if (vill_eff->outpos>vill_eff->outwrap) vill_eff->outpos=0;
     }

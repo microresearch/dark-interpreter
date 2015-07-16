@@ -693,10 +693,10 @@ lee 270 2290 3010
 
 - ^="exclusive or" for running in audio.c
 - swop in mode 1 offset and compress!
-
+- swopped bits in 4 and 5 for effects
 
 TODO
-- check all changes to LACH!
+- check all above and below changes to LACH!
 - what FOURTH code be in mode 2 in both?
 
 * TUE JUL 14
