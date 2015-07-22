@@ -282,11 +282,11 @@ break;
         break;
 	case INP:
 	  machine_pokeee(machine_peekkk(addr++,start,end),adc_buffer[thread_poppp(offset)%10],start,end);
-	  addr++;
 	  break;
 
     default : break;
     }
+  addr++;
       PCADDRHI=addr>>8;// hi/lo
       PCADDRLO=addr&255;
       break;
