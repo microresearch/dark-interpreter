@@ -145,7 +145,7 @@ void xxrun1(villager_generic *villager){ // proto->filled
 	break;
       case 4:
 	machine_poke(pos,randi()&255);
-	//	pos+=villager->speed;
+	pos+=villager->speed;
 	break;
       }
       if (pos>((villager->start<<1)+(villager->wrap<<1))) pos=villager->start<<1;
@@ -1264,10 +1264,9 @@ instr=datagenbuffer[pos];
         break;
 	case INP:
 	  machine_poke(machine_peek(pos++),adc_buffer[thread_pop(villager)%10]);      
-	  pos+=villager->speed;
 	  break;
-
 	}
+	  pos+=villager->speed;
       if (pos>((villager->start<<1)+(villager->wrap<<1))) pos=villager->start<<1;
   }
 villager->position=pos;
