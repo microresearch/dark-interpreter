@@ -688,9 +688,9 @@ void main(void)
 #ifdef TEST_EEG
       //write ADC9 into buf16
   for (x=0;x<32768;x++){
-    //        buf16[x]=adc_buffer[9]<<4; // 16 bits
+    buf16[x]=adc_buffer[9]<<4; // 16 bits
     xx=fingerdir(&spd); // FOR DEBUG! TESTING!
-    datagenbuffer[x]=spd;    
+    //    datagenbuffer[x]=spd;    
     //    buf16[x]=x*16; // 16 bits
   }
 #else
