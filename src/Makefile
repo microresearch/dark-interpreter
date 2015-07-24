@@ -39,7 +39,7 @@ LDSCRIPT = stm32_flash.ld
 # was -02 before below... 
 
 CFLAGS  =  -I. -IInclude -I/~/CMSIS/FFTEX/cmsis -Iinc -I./rsynth-2.0-port -std=gnu99 \
-	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DTENE \
+	-DARM_MATH_CM4 -D'__FPU_PRESENT=1' -DLACH \
 	-mthumb -ggdb\
 	-mfpu=fpv4-sp-d16 \
 	-c -lm -lc -fno-common -O3 \
