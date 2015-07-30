@@ -200,7 +200,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 	//		count++;
 		//	if (count==128){
 		//	  count=0;
-
+	/*
   xx=fingerdir(&spd);
   
   // start with WRITE just to test
@@ -542,7 +542,7 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
     } // finger !=5
     //	} // count
 	//	}
-
+	*/
 	//////////////////////////////////////////////////////////	
 	//////////////////////////////////////////////////////////	
     //      village_datagen[whichvillager].howmany--; 
