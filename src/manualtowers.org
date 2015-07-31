@@ -97,7 +97,7 @@ for skin/life coding, intended to be played fully by skin and head.
 
 *The Dark Interpeter will not always be found sitting inside my dreams, but at times outside, and in open daylight.*
 
-\includegraphics[width=24em]{../images/lachlayouttowers.png}
+\includegraphics[width=24em]{/root/Wiki/images/lachlayouttowers.png}
 
 \includegraphics[width=24em]{../images/tenelayout.png}
 
@@ -286,6 +286,9 @@ be probed and discovered.
 - In certain cases it may be necessary to touch one finger against the
   marked V pad if the fingers are too dry and thus do not seem to
   trigger operations.
+
+- Lachrymaryum/Suspiria layout was wrong in diagram (now corrected)
+  and should have been clockwise from top left knob: 1, 2, 3, 4, 5
 
 * FAQ
 

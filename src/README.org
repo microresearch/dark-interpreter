@@ -689,6 +689,10 @@ lee 270 2290 3010
 * ////////////////////////
 
 
+* FRI JUL 31
+
+- modded howlook so datagens are longer as per voice branch
+
 * MON JUL 20
 
 - collapsed ifdef for mainmodes so NO duplication and no need to keep

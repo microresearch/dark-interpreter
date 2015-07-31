@@ -92,11 +92,19 @@ __IO uint16_t adc_buffer[10];
 #define LEFT 5
 #define RIGHT 7
 #else
+/* wrong for manual diagrm
 #define FIRST 3
 #define SECOND 2
 #define THIRD 4
 #define FOURTH 1
-#define FIFTH 0
+#define FIFTH 0*/
+
+#define FIRST 3
+#define SECOND 0
+#define THIRD 2
+#define FOURTH 4
+#define FIFTH 1*/
+
 #define UP 5
 #define DOWN 6
 #define LEFT 8
@@ -310,7 +318,8 @@ void main(void)
   u8 whichvillager,grupx;
   u16 tmpp,tmps,tmpw,mstart,mwrap,mcompress,posx=0,posy=0;
   u8 mmodifier,moverlay;
-  u8 howlook[4]={1,8,16,64}; // modded
+  //  u8 howlook[4]={1,8,16,64}; // modded
+  int howlook[4]={16,128,256,1024};
   u16 lastoff;
 
   // taken form audio.c
