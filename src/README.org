@@ -71,6 +71,9 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* FRI 31 JUL
+- howlook modded so datagens do more...
+
 * THU 16 JUL
 
 - koverlay in finger code was wrong

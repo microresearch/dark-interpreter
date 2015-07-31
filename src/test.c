@@ -258,6 +258,8 @@ void hanningprocess(int16_t* inbuffer, int16_t* outbuffer,u8 length){ // 32 samp
 void main(void)
 {
 
+
+
   //  int i; float xx,xa,xb,xc; int xxx;
     int i,x,xx;
   int16_t inbuffer[255],modbuffer[255],outbuffer[255];
@@ -276,8 +278,12 @@ void main(void)
 
     unsigned char index=0; float indexy=0.0f;
 
-    
 
+    u8 howlook[4]={1,8,16,64}; // modded
+    for (xx=0;xx<4;xx++){
+      printf("%d,",howlook[xx]<<4);
+    }
+    printf("\n");
     
     for (xx=0;xx<64;xx++){
       //      indexy+=0.1f;
