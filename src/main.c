@@ -92,19 +92,11 @@ __IO uint16_t adc_buffer[10];
 #define LEFT 5
 #define RIGHT 7
 #else
-/* wrong for manual diagrm
 #define FIRST 3
 #define SECOND 2
 #define THIRD 4
 #define FOURTH 1
-#define FIFTH 0*/
-
-#define FIRST 3
-#define SECOND 0
-#define THIRD 2
-#define FOURTH 4
-#define FIFTH 1*/
-
+#define FIFTH 0
 #define UP 5
 #define DOWN 6
 #define LEFT 8
