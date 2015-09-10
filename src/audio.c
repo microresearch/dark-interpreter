@@ -65,7 +65,7 @@ mono_buffer=malloc(MONO_BUFSZ*sizeof(int16_t));
 extern __IO uint16_t adc_buffer[10];
 extern int16_t* buf16;
 extern u8* datagenbuffer;
-//int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data")));
+int16_t audio_buffer[AUDIO_BUFSZ] __attribute__ ((section (".data"))); // TESTY!
 int16_t	left_buffer[MONO_BUFSZ], mono_buffer[MONO_BUFSZ];
 #define float float32_t
 #endif
@@ -156,11 +156,13 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
 #endif
 
 #ifdef TEST_SPEECH
-  static u16 samplepos=0;
-
+  u16 samplepos;
+  static float samplep=0.0f;
 	for (x=0;x<sz/2;x++){
+	  samplepos=samplep;
 	  mono_buffer[x]=audio_buffer[samplepos&32767];//-32768;
-	  samplepos++;
+	  samplep+=8.0f/(float)((adc_buffer[SECOND]>>6)+1);
+	  if (samplepos>=(adc_buffer[THIRD]<<3)) samplep=0.0f;
 	}
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else

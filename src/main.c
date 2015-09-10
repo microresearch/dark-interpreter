@@ -166,7 +166,7 @@ u16 *buf16;
   } while (0)
 
 #ifndef PCSIM
-//extern int16_t audio_buffer[AUDIO_BUFSZ];
+extern int16_t audio_buffer[AUDIO_BUFSZ];
 u8* datagenbuffer = (u8*)0x10000000;
 //#define randi() ((rand()*adc_buffer[9])%4096) // 12 bits
 #define randi() (adc_buffer[9]) // 12 bits
@@ -313,7 +313,7 @@ static const signed char dir[2]={-1,1};
     u16 wrap=vill->wrap;
     
     //   for (u8 xx=0;xx<vill->howmany;xx++){
-        strcpy(phonOUT,phonemmm[(buf16[dirrry&32767]>>9)%69]);
+            strcpy(phonOUT,phonemmm[(buf16[dirrry&32767]>>9)%69]);
     //    strcpy(phonOUT,phonemmm[(dirrry)%69]);
     dirrry++;
 
@@ -719,6 +719,8 @@ void main(void)
 
 #ifdef TEST_SPEECH
 
+      u8 trigger;
+
       // test phoneme: free? copy from pwav here or in audio.c? busy flag?
 
       // how phonemes are represented?
@@ -753,12 +755,12 @@ a**
 
       // for (x=0;x<4;x++){
    // grow the string! how?
-   //            strcat(phonOUT,phonemmm[buf16[dirry]%42]);
-      strcpy(phonOUT,phonemmm[buf16[dirry]%42]);
+      //            strcat(phonOUT,phonemmm[buf16[dirry]%42]);
+            strcpy(phonOUT,phonemmm[adc_buffer[FIRST]>>6]);
       //   strcat(phonOUT,phonemmm[0]);
       //   strcpy(phonOUT,phonemmm[0]);
-   dirry++;
-   dirry=dirry&32767;
+         dirry++;
+         dirry=dirry&32767;
    // }
 
  PhonemeToWaveData(phonOUT,1, 0);
@@ -769,6 +771,8 @@ a**
 	//	audio_buffer[samplepos]=rand()%32768;
 	samplepos++;
 	samplepos=samplepos&32767;
+	if ((adc_buffer[FOURTH]>>4)>128 && trigger==0) {samplepos=0; trigger=1;}
+	if ((adc_buffer[FOURTH]>>4)<=128) trigger=0;
       }
 
       FreePhonemeToWaveData();

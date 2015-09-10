@@ -112,23 +112,22 @@ const float PII = 3.1415926535f;
 
 void runVOSIM_SC(void){
   u16 out;
-  float freq = (float)(10);
-  float nCycles = (float)(10);
-  float nDecay = (float)(0.1);
-  float phaseinc = freq * 2.f * PII / 32000.0f;
+  float freq = (float)(rand()%440);
+  float nCycles = (float)(32);
+  float nDecay = (float)(0.99);
+  float phaseinc = freq * 2.f * PII / 8000.0f;
   float numberCycles = nCycles;
   int number = numberCurCycle;
   static int count=0; int start=0, wrap=1000;
 
-  for (int xx=0;xx<1280000;xx++){
-
-     count+=1;
-     if (count>start+wrap) count=start;
+  //  for (int xx=0;xx<1280000;xx++){
+  while(1){
   
      float z = vosim;
      //          float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
           float trigin = (float)((rand()%65536)-32768)/32768.0f;
-	  
+     //     float trigin=0;
+     //     printf("trigin:%f\n",trigin);
      if(phase > 0 && number <= numberCycles ){
        float sine = sinf(phase);
        vosim = (sine * sine) * amp;
@@ -147,9 +146,14 @@ void runVOSIM_SC(void){
 
        phase = phase + phaseinc;
 
-     }else if(trigin > 0.f && prevtrig <= 0.f){
+     }
+     else
+       // { 
+       if(trigin > 0.f && prevtrig <= 0.f){
        //       printf("TRUG");
-       numberCycles = nCycles;
+	 freq = (float)(rand()%440);
+	 freq+=100;
+	 phaseinc = freq * 2.f * PII / 8000.0f;       numberCycles = nCycles;
        decay = nDecay;
        amp = 1.0f;
        number = 0;
@@ -161,15 +165,18 @@ void runVOSIM_SC(void){
        prevsine = sine;
 
        phase = phase + phaseinc;
-     }else if(number >= numberCycles){
-       phase = 0;
-       //      vosim = 0.f;
      }
+       else if(number >= numberCycles){
+       phase = 0;
+       //       vosim = 0.f;
+       }
      prevtrig = trigin;
 
      // write the output
      out = (float)z*65536.0f;
-     printf("%d\n",out);
+     out=out>>8;
+     //     printf("%d\n",out);
+     printf("%c",out);
      //     buf16[count&32767]=out+32768; 
      //        buf16[count&32767]=rand()%32768;
 
@@ -304,7 +311,7 @@ void main(void)
     //    hanningprocess(inbuffer,outbuffer,32);
     //            while(1){
 
-    //        runVOSIM_SC();
+            runVOSIM_SC();
 
 	  //	  }
 	/*
