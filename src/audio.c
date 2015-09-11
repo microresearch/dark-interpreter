@@ -160,9 +160,12 @@ void I2S_RX_CallBack(int16_t *src, int16_t *dst, int16_t sz)
   static float samplep=0.0f;
 	for (x=0;x<sz/2;x++){
 	  samplepos=samplep;
-	  mono_buffer[x]=audio_buffer[samplepos&32767];//-32768;
-	  samplep+=8.0f/(float)((adc_buffer[SECOND]>>6)+1);
-	  if (samplepos>=(adc_buffer[THIRD]<<3)) samplep=0.0f;
+	  //	  mono_buffer[x]=audio_buffer[samplepos&32767];//-32768;
+	  mono_buffer[x]=buf16[samplepos&32767]-32768;//-32768;
+	  //	  samplep+=8.0f/(float)((adc_buffer[SECOND]>>6)+1);
+	  samplep+=1.0f;
+	  //	  if (samplepos>=(adc_buffer[THIRD]<<3)) samplep=0.0f;
+	  if (samplepos>=32768.0f) samplep=0.0f;
 	}
 	audio_comb_stereo(sz, dst, left_buffer, mono_buffer);
 #else

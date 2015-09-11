@@ -112,9 +112,10 @@ const float PII = 3.1415926535f;
 
 void runVOSIM_SC(void){
   u16 out;
-  float freq = (float)(rand()%440);
-  float nCycles = (float)(32);
-  float nDecay = (float)(0.99);
+  //  float freq = (float)(rand()%440);
+  float freq = (float)(200);
+  float nCycles = (float)(16);
+  float nDecay = (float)(0.9);
   float phaseinc = freq * 2.f * PII / 8000.0f;
   float numberCycles = nCycles;
   int number = numberCurCycle;
@@ -151,13 +152,13 @@ void runVOSIM_SC(void){
        // { 
        if(trigin > 0.f && prevtrig <= 0.f){
        //       printf("TRUG");
-	 freq = (float)(rand()%440);
-	 freq+=100;
+	 //	 freq = (float)(100);
+	 //	 freq+=100;
 	 phaseinc = freq * 2.f * PII / 8000.0f;       numberCycles = nCycles;
        decay = nDecay;
        amp = 1.0f;
        number = 0;
-
+       phase=0;
        float sine = sinf(phase);
 
        vosim = (sine * sine) * amp;

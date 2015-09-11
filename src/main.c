@@ -322,7 +322,7 @@ static const signed char dir[2]={-1,1};
       buf16[count&32767]=pWavBuffer[x]+32768;//>>16; // but pwav is 32 bits or how many???? do we need to add 32768 or?
       count+=vill->step; // TODO: slow down or speed up! - but will need to be only _howmany_
       if (count>start+wrap) count=start;
-      }
+    }
         FreePhonemeToWaveData();
 	//   }
   vill->position=count;
@@ -753,30 +753,20 @@ a**
 
       //      strcpy(phonOUT,"SHHH ");
 
-      // for (x=0;x<4;x++){
-   // grow the string! how?
-      //            strcat(phonOUT,phonemmm[buf16[dirry]%42]);
-            strcpy(phonOUT,phonemmm[adc_buffer[FIRST]>>6]);
-      //   strcat(phonOUT,phonemmm[0]);
-      //   strcpy(phonOUT,phonemmm[0]);
-         dirry++;
-         dirry=dirry&32767;
-   // }
-
- PhonemeToWaveData(phonOUT,1, 0);
-  // copy  pWavBuffer to audio_buffer - length=wav_len and advance wav_len
-      //      wav_len=128;
+      /*      strcpy(phonOUT,phonemmm[adc_buffer[FIRST]>>6]);
+      PhonemeToWaveData(phonOUT,1, 0);
       for (x=0;x<wav_len;x++){
 	audio_buffer[samplepos]=pWavBuffer[x];//>>16; // but pwav is 32 bits or how many????
-	//	audio_buffer[samplepos]=rand()%32768;
 	samplepos++;
 	samplepos=samplepos&32767;
 	if ((adc_buffer[FOURTH]>>4)>128 && trigger==0) {samplepos=0; trigger=1;}
 	if ((adc_buffer[FOURTH]>>4)<=128) trigger=0;
       }
 
-      FreePhonemeToWaveData();
-      //      strcpy(phonOUT,"\0");
+      FreePhonemeToWaveData();*/
+
+      // TODO: test VOSIM
+            (*ddd[1])(&village_datagen[0]);
 
 #else
 

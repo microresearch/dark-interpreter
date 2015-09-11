@@ -95,7 +95,7 @@ void runVOSIMaud(villager_generic* vill){
 static float vosim;
 static 	float phase=0.f;
 static 	float prevtrig=0.f;
-static 	float nCycles=1.f;
+static 	u16 nCycles=1;
 static 	u16 numberCurCycle=0;
 static 	float prevsine;
 static 	float decay=0.5f;
@@ -169,31 +169,30 @@ void runVOSIM_SC(villager_generic* vill){
   u16 wrap=vill->wrap;
   u16 out;
 
-    float freq = (float)(buf16[0]>>8);
-  float nCycles = (float)(buf16[1]>>10);
-  float nDecay = (float)(buf16[2])/65536.0f;
+  /*  float freq = (float)(buf16[0]>>7)+1.0f;
+  float nCycles = (float)(buf16[1]>>8)+1.0f;
+  float nDecay = ((float)(buf16[2])/65536.0f)+0.1f;
   float phaseinc = freq * 2.f * PII / 32000.0f;
   float numberCycles = nCycles;
-  int number = numberCurCycle;
-  /*  float freq = (float)(10);
-  float nCycles = (float)(10);
-  float nDecay = (float)(0.1);
+  int number = numberCurCycle;(*/
+  float freq = (float)(adc_buffer[2]);
+  u16 nCycles = (adc_buffer[0]>>8);
+  //  float nDecay = (float)(adc_buffer[3]/4096.0f);
+  float nDecay = 0.9f;
   float phaseinc = freq * 2.f * PII / 32000.0f;
-  float numberCycles = nCycles;
-  int number = numberCurCycle;
-  */
-
-
+  u16 numberCycles = nCycles;
+  u16 number = numberCurCycle;
+ 
   for (u8 xx=0;xx<vill->howmany;xx++){
 
      count+=step;
      if (count>start+wrap) count=start;
   
      float z = vosim;
-     float trigin = (float)(buf16[xx+3]-32768)/32768.0f;
-     //      float trigin = (float)((rand()%65536)-32768)/32768.0f;
+     //          float trigin = (float)(buf16[(count+16000)&32767]-32768)/32768.0f;
+            float trigin = (float)((rand()%65536)-32768)/32768.0f;
 
-     if(phase > 0 && number <= numberCycles ){
+     if(phase > 0.f && number <= numberCycles ){
        float sine = sinf(phase);
        vosim = (sine * sine) * amp;
 
@@ -211,10 +210,13 @@ void runVOSIM_SC(villager_generic* vill){
        phase = phase + phaseinc;
 
      }else if(trigin > 0.f && prevtrig <= 0.f){
+     //        else if(1){
+
        numberCycles = nCycles;
        decay = nDecay;
        amp = 1.f;
        number = 0;
+       phase=0;
        float sine = sinf(phase);
        vosim = (sine * sine) * amp;
        prevsine = sine;
@@ -229,11 +231,9 @@ void runVOSIM_SC(villager_generic* vill){
      out = (float)z*32768.0f;
 
      buf16[count&32767]=out+32768; 
-     //        buf16[count&32767]=rand()%32768;
 
   }
   vill->position=count;
   nCycles = numberCycles;
   numberCurCycle = number;
-
 }

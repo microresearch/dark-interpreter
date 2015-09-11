@@ -71,6 +71,12 @@ More details at: http://1010.co.uk/org/darkint.html
 
 
 
+* FRI 11 SEPT
+
+- fixes and tests for runVOSIM_SC in siggen.c - still in progress...
+- here in VOSIM triggering is the question
+- test_speech also for testing VOSIM 
+
 * FRI 31 JUL
 - howlook modded so datagens do more...
 
