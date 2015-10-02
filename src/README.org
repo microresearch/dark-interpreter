@@ -68,9 +68,6 @@ in evidence here.
 
 More details at: http://1010.co.uk/org/darkint.html
 
-
-
-
 * FRI 11 SEPT
 
 - fixes and tests for runVOSIM_SC in siggen.c - still in progress...
