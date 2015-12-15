@@ -118,8 +118,15 @@ static const float freq[5][5] __attribute__ ((section (".flash"))) = {
 {"IY\0","IH\0","EY\0","EH\0","AE\0","AA\0","AO\0","OW\0","UH\0","UW\0","ER\0","AX\0","AH\0"," \0","AW\0","OY\0","p\0","b\0","t\0","d\0","k\0","g\0","f\0","v\0","TH\0","DH\0","s\0","z\0","SH\0","ZH\0","HH\0","m\0","n\0","NG\0","l\0","w\0","y\0","r\0","CH\0","j\0","WH\0"," \0"};
 */
 
+/*
 static const char phonemmm[69][4] __attribute__ ((section (".flash"))) =
 {"END\0","Q\0","P\0","PY\0","PZ\0","T\0","TY\0","TZ\0","K\0","KY\0","KZ\0","B\0","BY\0","BZ\0","D\0","DY\0","DZ\0","G\0","GY\0","GZ\0","M\0","N\0","NG\0","F\0","TH\0","S\0","SH\0","X\0","H\0","V\0","QQ\0","DH\0","DI\0","Z\0","ZZ\0","ZH\0","CH\0","CI\0","J\0","JY\0","L\0","LL\0","RX\0","R\0","W\0","Y\0","I\0","E\0","AA\0","U\0","O\0","OO\0","A\0","EE\0","ER\0","AR\0","AW\0","UU\0","AI\0","IE\0","OI\0","OU\0","OV\0","OA\0","IA\0","IB\0","AIR\0","OOR\0","OR\0"};
+*/
+
+const u8 phoneme_prob_remap[64] __attribute__ ((section (".flash")))={1, 46, 30, 5, 7, 6, 21, 15, 14, 16, 25, 40, 43, 53, 47, 29, 52, 48, 20, 34, 33, 59, 32, 31, 28, 62, 44, 9, 8, 10, 54, 11, 13, 12, 3, 2, 4, 50, 23, 49, 56, 58, 57, 63, 24, 22, 17, 19, 18, 61, 39, 26, 45, 37, 36, 51, 38, 60, 65, 64, 35, 68, 61, 62};
+
+u8 test_elm[30]={54, 16, 0, 24, 15, 0, 1, 6, 0, 1, 6, 0, 44, 8, 0, 54, 16, 0, 20, 8, 0, 1, 6, 0, 1, 6, 0, 1, 6, 0};
+
 
 
 static const float qqq[5][5] __attribute__ ((section (".flash"))) = {
@@ -305,7 +312,7 @@ static const int16_t newdir[8]={-256,-255,1,255,256,254,-1,-257};
 static const signed char dir[2]={-1,1};
 
   void runvoice(villager_generic* vill){      
-    char phonOUT[3]; 
+    //    char phonOUT[3]; 
     static u16 dirrry=0;
     u16 x;
     u16 count=vill->position;
@@ -313,21 +320,20 @@ static const signed char dir[2]={-1,1};
     u16 wrap=vill->wrap;
     
     //   for (u8 xx=0;xx<vill->howmany;xx++){
-            strcpy(phonOUT,phonemmm[(buf16[dirrry&32767]>>9)%69]);
+    //            strcpy(phonOUT,phonemmm[(buf16[dirrry&32767]>>9)%69]);
     //    strcpy(phonOUT,phonemmm[(dirrry)%69]);
     dirrry++;
+    u8 phonemm=phoneme_prob_remap[(buf16[dirrry&32767]>>10)]; // 16 bits to 6 // 7bits=128 %69//6=64
+    PhonemeToWaveData(phonemm,1, 0);
 
-    PhonemeToWaveData(phonOUT,1, 0);
     for (x=0;x<wav_len;x++){
       buf16[count&32767]=pWavBuffer[x]+32768;//>>16; // but pwav is 32 bits or how many???? do we need to add 32768 or?
       count+=vill->step; // TODO: slow down or speed up! - but will need to be only _howmany_
       if (count>start+wrap) count=start;
     }
-        FreePhonemeToWaveData();
-	//   }
   vill->position=count;
 
-}
+  }
 
 extern int errno;
 

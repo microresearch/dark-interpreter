@@ -68,6 +68,23 @@ in evidence here.
 
 More details at: http://1010.co.uk/org/darkint.html
 
+* TUE 15 DEC
+
+- re-visiting Q:
+
+- what has changed in WORM code to port here: effect.c and vocoders,
+  new generators, klatt and phonemes, etc....
+
+- seems like  we just use buf16?
+
+- how have modes changed?
+
+runvoice in main.c:
+
+strcpy(phonOUT,phonemmm[(buf16[dirrry&32767]>>9)%69]);
+PhonemeToWaveData(phonOUT,1, 0);
+
+
 * FRI 11 SEPT
 
 - fixes and tests for runVOSIM_SC in siggen.c - still in progress...
@@ -75,6 +92,7 @@ More details at: http://1010.co.uk/org/darkint.html
 - test_speech also for testing VOSIM 
 
 * FRI 31 JUL
+
 - howlook modded so datagens do more...
 
 * THU 16 JUL
